@@ -10,9 +10,13 @@
 //   node scripts/release-sheet.mjs --break=no-cron     # forget 97.3's scheduler key: names 97.3
 //   node scripts/release-sheet.mjs --break=no-order    # forget 0.6b's first/alone/last: names 0.6b
 //   node scripts/release-sheet.mjs --break=no-escape   # website step without the way past the push check
-//   node scripts/release-sheet.mjs --break=fn-before-page # accept-quote and create-booking before the website: names 97.16 and 97.64
+//   node scripts/release-sheet.mjs --break=fn-before-page # create-booking and create-business before the website: names 99.2, 99.2a and 97.37
 //   node scripts/release-sheet.mjs --break=lock-one    # 4.3b's lock declared as update-booking only: names 4.3b and verify-domain
-//   node scripts/release-sheet.mjs --break=lock-order  # verify-domain back ahead of every database change: names 4.3b and 97.15
+//   node scripts/release-sheet.mjs --break=lock-order  # verify-domain back ahead of every database change: names 4.3b
+//
+// The last three (and drop-line, unhold) only bite while the server check names the programs they
+// move. On a receipt naming none (the stale one 98.18 met) fn-before-page and lock-order printed
+// nothing new, so re-run all ten after every fresh deployed-inventory receipt (98.18, 2026-10-24).
 //
 // It READS. Credential-free: it never asks the database or the server anything
 // itself. Its inputs are the receipts `migration-drift.mjs` and
@@ -43,8 +47,10 @@
 // precede, so the changes it needs itself (4.3b's lock) are already in.
 // Part 3: programs, `update-booking` first and alone, then one pass,
 // then `platform-billing` alone. Held programs are listed once, never as a step. Part 4: the website.
-// Part 5: the programs a rule sends AFTER the website (97.16 accept-quote,
-// 97.64 create-booking), then the payment webhook last and alone (0.6b). The
+// Part 5: the programs a rule sends AFTER the website (`create-booking`, 99.2 and
+// 99.2a, the rule 97.64 set; `create-business`, 97.37), then the payment webhook
+// last and alone (0.6b). 97.16's `accept-quote` rule went with the 2026-10-23
+// release, so `accept-quote` now goes in the ordinary pass. The
 // push check (.githooks/pre-push) refuses the website while any program is not
 // this checkout, so the website step names exactly what it will report and says
 // `SHIP_WITH_DRIFT=1` is the way past, as 0.6b says.
@@ -54,7 +60,9 @@
 // long before the website (97.16, 97.64 say page first), and `verify-domain` went
 // out before the support-session change its lock reads (4.3b named only
 // `update-booking`). Both rules lived in ROADMAP entries, which the first two
-// versions never read. So every open ROADMAP release line is now read too, and the
+// versions never read. (Both items were ticked after the 2026-10-23 release and their
+// declarations removed by 98.18; the website-first `create-booking` rule lives on in
+// 99.2/99.2a, and the lock in 4.3b's unlock file.) So every open ROADMAP release line is now read too, and the
 // lock is expanded from the server check's own list rather than typed.
 //
 // BLIND SPOT: migration-drift cannot see triggers, constraints or a data-only
