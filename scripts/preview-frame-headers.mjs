@@ -139,8 +139,13 @@ const observed = { effective: {}, sizes: {}, refusals: {} };
 let canaryCaught = false;
 try {
   for (const p of ["/app", "/admin", `/book/${SLUG}`]) {
-    const { headers, dupes } = headersFor(rules, p);
+    const { headers, dupes: all } = headersFor(rules, p);
     observed.effective[p] = headers;
+    // Two Content-Security-Policy values joined are two policies, BOTH
+    // enforced (ROADMAP 97.90: /* and /book/* both send one; csp-report-only.mjs
+    // holds the /book/* value to the whole policy + frame-ancestors). Any other
+    // repeated header is still read as a conflict.
+    const dupes = all.filter((d) => d !== "Content-Security-Policy");
     ok(dupes.length === 0, `headers${p}`, `two matching rules both set ${dupes.join(", ")} — Netlify may join them and a browser reads a conflict as DENY`);
   }
   ok(rules.length >= 3, "rules-parsed", `parsed ${rules.length} [[headers]] rules from app/netlify.toml; expected at least 3`);

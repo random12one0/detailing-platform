@@ -1,9 +1,9 @@
 {
-  "git_sha": "f65932aef971d8db5b392e3c2db20a447807f3d6",
-  "git_sha_started": "f65932aef971d8db5b392e3c2db20a447807f3d6",
+  "git_sha": "2e6b6ca4481c5381fc8edda9f003f188bc27c96d",
+  "git_sha_started": "2e6b6ca4481c5381fc8edda9f003f188bc27c96d",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-18T14:03:39.152Z",
+  "finished_at": "2026-11-03T03:53:09.352Z",
   "failures": [],
   "warnings": [
     "Chromium only, app/dist served by this script, not Netlify. `style` attributes are not compared (animation frames). ex1's cursor glow only moves on pointer movement, which this does not make; its effect is a style property, outside the fingerprint either way."
@@ -60,7 +60,7 @@
     "served_as": "Content-Security-Policy (enforcing) in AFTER, none in BEFORE"
   },
   "check_id": "example-scripts-same-effect",
-  "started_at": "2026-10-18T14:01:57.782Z",
+  "started_at": "2026-11-03T03:51:35.036Z",
   "status": "pass",
   "expected_targets": 27,
   "discovered_targets": 27,

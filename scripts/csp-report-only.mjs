@@ -51,9 +51,32 @@
 // a rehearsal of the rename, not the rename. The header name is read from
 // app/netlify.toml, so once the rule is renamed a plain run reads the new one.
 //
-// Needs: `npm run build --prefix app` first, and DEMO_OWNER_PW and DEMO_STAFF_PW
-// in the environment (`.env`). Reads only; signs in, writes nothing.
+// ROADMAP 97.90, THE RENAME: the /* rule is now the ENFORCING header, and the
+// /book/* rule carries the whole site policy + frame-ancestors, declared AFTER
+// /*, because Netlify does not say what two rules setting one header do (see
+// the note in app/netlify.toml). Served joined with a comma here; the
+// "book-rule-complete" assertion holds the other outcomes (later or more
+// specific rule wins) to the same frame-ancestors + full policy.
+//
+// A REAL STORED IMAGE (97.90). The demo tenant stores no logo, so the 2026-10-23
+// live run loaded 0 images. Each run uploads ONE small PNG through the real
+// photo door into demo-detail's branding folder (a real object on
+// media.detailingplatform.com), and the booking page and Business info
+// (`/app?settings=info`) are shown it as their logo and cover — patched into
+// the reads in the browser, NOTHING written to the database. Those views must
+// show the image LOADED (naturalWidth > 0) with no violation; the browser also
+// sends the upload's PUT to R2's signed address under the policy (CORS may
+// refuse it from this local origin; only a CSP refusal is judged). The object is
+// removed through the door in `finally`.
+//   --break=no-media-host  drop media.detailingplatform.com from img-src. Must go
+//                      red on exactly the media views (image blocked, not loaded).
+//
+// Needs: `npm run build --prefix app` first, and DEMO_OWNER_PW, DEMO_STAFF_PW,
+// SUPABASE_URL and SUPABASE_ANON_KEY in `.env`. Signs in; writes only the
+// fixture object in demo-detail's R2 branding folder, and removes it.
 import { createServer } from "node:http";
+import { randomUUID } from "node:crypto";
+import { crc32, deflateSync } from "node:zlib";
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { extname, join } from "node:path";
 import { createRequire } from "node:module";
@@ -64,16 +87,16 @@ import { settle, stepNow } from "./lib/bookingWalk.mjs";
 const { chromium } = createRequire(join(REPO, "app", "package.json"))("playwright");
 const DIST = join(REPO, "app", "dist");
 const BREAK = (process.argv.find((a) => a.startsWith("--break=")) || "").slice(8);
-if (BREAK && !["no-policy", "no-fonts", "no-tenant-frames", "inline-script", "unsafe-inline"].includes(BREAK)) throw new Error(`unknown --break=${BREAK}`);
+if (BREAK && !["no-policy", "no-fonts", "no-tenant-frames", "inline-script", "unsafe-inline", "no-media-host"].includes(BREAK)) throw new Error(`unknown --break=${BREAK}`);
 const AS_ENFORCED = process.argv.includes("--as-enforced");
 if (!existsSync(join(DIST, "index.html")) || !existsSync(join(DIST, "ex1", "index.html"))) {
   throw new Error("app/dist is missing or has no /ex1 — run `npm run build --prefix app` first");
 }
 const SHOTS = `.manager-shots/97.26/${BREAK || "clean"}${AS_ENFORCED ? "-enforced" : ""}`;
 const SIZES = [{ w: 390, h: 844 }, { w: 768, h: 1024 }, { w: 1440, h: 900 }];
-const PAGES = [{ path: "/" }, { path: "/pricing" }, { path: "/book/demo-detail" }, { path: "/app", as: "owner" },
+const PAGES = [{ path: "/" }, { path: "/pricing" }, { path: "/book/demo-detail", media: true }, { path: "/app", as: "owner" },
   { path: "/app", as: "staff" }, { path: "/app/business", as: "owner", domain: true },
-  { path: "/app?settings=billing", as: "owner", stripe: true },
+  { path: "/app?settings=billing", as: "owner", stripe: true }, { path: "/app?settings=info", as: "owner", media: true },
   { path: "/ex1", ex: true }, { path: "/ex1/work.html", ex: true }, { path: "/ex1/prices.html", ex: true },
   { path: "/ex2", ex: true }, { path: "/ex3", ex: true }, { path: "/ex3/prices.html", ex: true },
   { path: "/ex4", ex: true }, { path: "/ex5", ex: true }, { path: "/examples" }, { path: "/map.html" }];
@@ -126,6 +149,10 @@ if (BREAK === "no-fonts") {
 if (BREAK === "no-tenant-frames") {
   if (!/frame-src [^;]* https:(;| )/.test(POLICY)) throw new Error("--break=no-tenant-frames found nothing to remove");
   all.values[NAME] = POLICY.replace(/(frame-src [^;]*) https:(?=;| )/, "$1");
+}
+if (BREAK === "no-media-host") {
+  if (!/img-src [^;]* https:\/\/media\.detailingplatform\.com/.test(POLICY)) throw new Error("--break=no-media-host found nothing to remove");
+  all.values[NAME] = POLICY.replace(/(img-src [^;]*) https:\/\/media\.detailingplatform\.com/, "$1");
 }
 if (BREAK === "unsafe-inline") all.values[NAME] = POLICY.replace("script-src 'self'", "script-src 'self' 'unsafe-inline'");
 const SERVED = all?.values[NAME] || "";
@@ -284,6 +311,49 @@ async function walkToLast(page) {
   return { reached: at?.n ?? null, total };
 }
 
+// ── THE STORED IMAGE: one real object on R2, through the real photo door ──────
+function png(size, [r, g, b]) {
+  const chunk = (type, data) => { const len = Buffer.alloc(4); len.writeUInt32BE(data.length);
+    const td = Buffer.concat([Buffer.from(type), data]); const c = Buffer.alloc(4); c.writeUInt32BE(crc32(td)); return Buffer.concat([len, td, c]); };
+  const ihdr = Buffer.alloc(13); ihdr.writeUInt32BE(size, 0); ihdr.writeUInt32BE(size, 4); ihdr[8] = 8; ihdr[9] = 2;
+  const row = Buffer.concat([Buffer.from([0]), Buffer.from(Array.from({ length: size }, () => [r, g, b]).flat())]);
+  return Buffer.concat([Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]), chunk("IHDR", ihdr),
+    chunk("IDAT", deflateSync(Buffer.concat(Array(size).fill(row)))), chunk("IEND", Buffer.alloc(0))]);
+}
+const media = { url: null, key: null, put: null, stored: false, browserPut: null };
+let door = null;
+{
+  try { process.loadEnvFile(join(REPO, ".env")); } catch {}
+  const SUPA = process.env.SUPABASE_URL, ANON = process.env.SUPABASE_ANON_KEY;
+  if (!SUPA || new URL(SUPA).origin !== "https://kguqylyzgyzfktkfnhjb.supabase.co" || !ANON) throw new Error("SUPABASE_URL/SUPABASE_ANON_KEY must be this platform's project (.env)");
+  const auth = await fetch(`${SUPA}/auth/v1/token?grant_type=password`, { method: "POST",
+    headers: { apikey: ANON, "Content-Type": "application/json" }, body: JSON.stringify(demoOwner()) }).then((r) => r.json());
+  if (!auth?.access_token) throw new Error("demo-owner sign-in failed");
+  const H = { apikey: ANON, Authorization: `Bearer ${auth.access_token}`, "Content-Type": "application/json" };
+  const biz = await fetch(`${SUPA}/rest/v1/businesses?select=id&slug=eq.demo-detail`, { headers: H }).then((r) => r.json());
+  if (!Array.isArray(biz) || biz.length !== 1) throw new Error("expected exactly one demo-detail business");
+  door = (body) => fetch(`${SUPA}/functions/v1/photo-door`, { method: "POST", headers: H,
+    body: JSON.stringify({ business_id: biz[0].id, store: "media", ...body }) }).then(async (r) => ({ status: r.status, body: await r.json().catch(() => null) }));
+  media.bytes = png(96, [14, 165, 233]);
+  const start = await door({ action: "start", folder: "branding", file_id: randomUUID(), content_type: "image/png", claimed_bytes: media.bytes.length });
+  ({ key: media.key, public_url: media.url, upload_url: media.put } = start.body || {});
+  if (start.status !== 200 || !media.key || !media.put) throw new Error(`photo door refused the fixture upload: HTTP ${start.status} ${JSON.stringify(start.body).slice(0, 200)}`);
+}
+// The reads the pages make, answered with the real reply plus this logo/cover.
+async function withMedia(ctx) {
+  const patch = (b) => (b && typeof b === "object" ? { ...b, logo_url: media.url, hero_image_url: media.url } : b);
+  await ctx.route(/\/rest\/v1\/rpc\/get_public_business_profile/, async (r) => {
+    const res = await r.fetch(); const j = await res.json().catch(() => null);
+    if (j && typeof j === "object" && "branding" in j) j.branding = patch(j.branding) ?? { logo_url: media.url, hero_image_url: media.url };
+    await r.fulfill({ response: res, json: j });
+  });
+  await ctx.route(/\/rest\/v1\/business_branding\?/, async (r) => {
+    if (r.request().method() !== "GET") return r.continue();
+    const res = await r.fetch(); const j = await res.json().catch(() => null);
+    await r.fulfill({ response: res, json: Array.isArray(j) ? j.map(patch) : patch(j) });
+  });
+}
+
 const browser = await chromium.launch();
 try {
   // R4, as headers: /book/* keeps its own enforcing frame-ancestors, unmerged.
@@ -292,11 +362,18 @@ try {
     observed.book = headers;
     ok(/frame-ancestors 'self' https:\/\/detailingplatform\.com/.test(headers["Content-Security-Policy"] || ""),
       "book-frame-ancestors", "/book/* no longer carries its Content-Security-Policy frame-ancestors rule");
-    // Under the ENFORCING name the site policy and /book/*'s frame-ancestors
-    // share a header, and joined with a comma they are two policies, both
-    // enforced. Any other shared header is still a fault.
+    // Under the ENFORCING name the site policy and /book/*'s rule share a
+    // header. Joined with a comma they are two policies, both enforced. Any
+    // other shared header is still a fault.
     const shared = dupes.filter((d) => !(NAME === ENFORCING && d === ENFORCING));
     ok(shared.length === 0, "book-no-merge", `two matching rules both set ${shared.join(", ")} on /book/* — Netlify would join them`);
+    // If Netlify instead keeps ONE value (the later rule, or the more specific
+    // one), that is the /book/* rule: it must come after /* and be the whole
+    // site policy (as declared, before any --break) plus frame-ancestors.
+    const iAll = rules.indexOf(all), iBook = rules.findIndex((r) => r.for === "/book/*" && r.values[NAME]);
+    const bookValue = iBook >= 0 ? rules[iBook].values[NAME] : "";
+    ok(NAME !== ENFORCING || (iBook > iAll && bookValue.startsWith(POLICY + "; frame-ancestors 'self' https://detailingplatform.com")),
+      "book-rule-complete", iBook < 0 ? "no /book/* rule sets " + NAME : iBook < iAll ? "the /book/* rule comes before /*" : "the /book/* value is not the /* policy + frame-ancestors");
   }
   // The site policy itself: no frame-ancestors (it would join /book/*'s and
   // refuse the preview), and R2 — no 'unsafe-inline' in script-src.
@@ -352,14 +429,39 @@ try {
     await ctx.close();
   }
 
+  // The upload's PUT, sent by the dashboard page itself under the policy, then
+  // (whatever CORS said) stored from here so the pages have a real object.
+  {
+    const ctx = await browser.newContext({ storageState: state.owner });
+    const sink = await watch(ctx);
+    const page = await ctx.newPage();
+    await page.goto(A + "/app?settings=info", { waitUntil: "load" });
+    media.browserPut = await page.evaluate(async ({ put, b64 }) => {
+      try { const r = await fetch(put, { method: "PUT", headers: { "Content-Type": "image/png" }, body: Uint8Array.from(atob(b64), (c) => c.charCodeAt(0)) }); return "HTTP " + r.status; }
+      catch (e) { return "threw: " + String(e.message || e).slice(0, 80); }
+    }, { put: media.put, b64: media.bytes.toString("base64") });
+    await page.waitForTimeout(800);
+    const putHost = new URL(media.put).host;
+    const blocked = sink.events.filter((e) => String(e.blocked).includes(putHost));
+    media.putHost = putHost;
+    ok(blocked.length === 0, "upload-put-allowed", `the policy refused the upload PUT to ${putHost}: ${blocked.map((e) => e.directive).join(", ")}`);
+    await ctx.close();
+    const st = await fetch(media.put, { method: "PUT", headers: { "Content-Type": "image/png" }, body: media.bytes }).then((r) => r.status, () => 0);
+    let got = 0;
+    for (let i = 0; i < 12 && got !== 200; i++) { got = await fetch(media.url).then((r) => r.status, () => 0); if (got !== 200) await new Promise((r) => setTimeout(r, 500)); }
+    media.stored = st === 200 && got === 200;
+    ok(media.stored, "media-fixture-stored", `R2 PUT HTTP ${st}, public GET ${media.url} HTTP ${got}`);
+  }
+
   mkdirSync(join(REPO, SHOTS), { recursive: true });
   for (const s of SIZES) {
-    for (const { path: p, as, domain, stripe, ex } of PAGES) {
+    for (const { path: p, as, domain, stripe, ex, media: withImage } of PAGES) {
       const tag = `${p}${as ? "~" + as : ""}@${s.w}`;
       const ctx = await browser.newContext({ viewport: { width: s.w, height: s.h }, storageState: as ? state[as] : undefined });
       const sink = await watch(ctx);
       if (domain) await fakeDomain(ctx);
       if (stripe) await fakeSubscribe(ctx);
+      if (withImage) await withMedia(ctx);
       const page = await ctx.newPage();
       const errors = [], scripts = new Map();
       page.on("pageerror", (e) => errors.push(String(e.message).slice(0, 160)));
@@ -390,11 +492,20 @@ try {
         ok(view.stripe.frames > 0 && view.stripe.loaded, `stripe-js-and-frame${tag}`,
           `Stripe.js ${view.stripe.loaded ? "loaded" : "did NOT load"}, ${view.stripe.frames} js.stripe.com frame(s) on the page${view.stripe.stuck ? ` (${view.stripe.stuck})` : ""}`);
       }
+      if (withImage) {
+        // THE STORED IMAGE DREW: an <img> with the R2 address, loaded, not blocked.
+        // The booking logo is in the page header, which the walk scrolls away; read the DOM, not the screen.
+        view.media = await page.waitForFunction((u) => [...document.images].some((i) => i.src === u && i.complete && i.naturalWidth > 0),
+          media.url, { timeout: 15000 }).then(() => "loaded", () => "not loaded");
+        ok(view.media === "loaded", `media-loaded${tag}`, `the stored image ${media.url} was ${view.media}`);
+      }
       await page.waitForTimeout(1500);
       if (ex) {
         // THE SCRIPTS RAN: every <script> on the page is a file, each one
-        // answered 200, and none of them threw.
-        const tags = await page.evaluate(() => [...document.scripts].map((x) => x.src ? new URL(x.src).pathname : null));
+        // answered 200, and none of them threw. A JSON-LD block (97.43) is
+        // data, never run, and no policy applies to it, as in the dist scan.
+        const tags = await page.evaluate(() => [...document.scripts].filter((x) => !/json/i.test(x.type))
+          .map((x) => x.src ? new URL(x.src).pathname : null));
         const bad = tags.filter((t) => t === null || scripts.get(t) !== 200);
         view.scripts = { files: tags.length, bad, errors };
         ok(tags.length > 0 && bad.length === 0 && errors.length === 0, `ex-scripts-ran${tag}`,
@@ -421,12 +532,18 @@ try {
 } finally {
   await browser.close();
   server.close();
+  if (door && media.key) {
+    const r = await door({ action: "remove", key: media.key }).catch((e) => ({ status: 0, body: String(e) }));
+    media.removed = r.status;
+    if (r.status !== 200) warnings.push(`fixture ${media.key} was NOT removed through the door (HTTP ${r.status})`);
+  }
+  observed.media = { url: media.url, putHost: media.putHost, browserPut: media.browserPut, stored: media.stored, removed: media.removed };
 }
 
 const VIEWS = SIZES.length * PAGES.length;
 const SIGNED_IN = PAGES.filter((p) => p.as).length, DOMAIN = PAGES.filter((p) => p.domain).length;
-const STRIPE = PAGES.filter((p) => p.stripe).length, EX = PAGES.filter((p) => p.ex).length;
-const EXPECTED_ASSERTIONS = 2 + 2 + 2 + 1 + VIEWS * 3 + SIZES.length * (1 + SIGNED_IN + DOMAIN + STRIPE + EX * 2);
+const STRIPE = PAGES.filter((p) => p.stripe).length, EX = PAGES.filter((p) => p.ex).length, MEDIA = PAGES.filter((p) => p.media).length;
+const EXPECTED_ASSERTIONS = 3 + 2 + 2 + 1 + 2 + VIEWS * 3 + SIZES.length * (1 + SIGNED_IN + DOMAIN + STRIPE + EX * 2 + MEDIA);
 ok(assertions === EXPECTED_ASSERTIONS, "assertion-count", `ran ${assertions} assertions, declared ${EXPECTED_ASSERTIONS}`);
 assertions--; // the count check itself is not one of the declared assertions
 const status = failures.length ? "fail" : "pass";
@@ -443,11 +560,11 @@ const { path } = writeReceipt({
   skipped_targets: 0,
   assertions_executed: assertions,
   min_assertions: EXPECTED_ASSERTIONS,
-  assertion_floor: `2 /book/* header + 2 policy text + 2 built-page scan + 1 canary + ${VIEWS} views x 3 (header, events, console) + 3 sizes x ${1 + SIGNED_IN + DOMAIN + STRIPE + EX * 2} (booking last step, ${SIGNED_IN} signed in, ${DOMAIN} preview from the detailer's domain, ${STRIPE} Stripe card form, ${EX} example pages x 2: scripts ran, forms stay) = ${EXPECTED_ASSERTIONS}, asserted as an EQUALITY (docs/gotchas.md 98).`,
+  assertion_floor: `3 /book/* header + 2 policy text + 2 built-page scan + 1 canary + 2 stored image (upload PUT allowed, object stored) + ${VIEWS} views x 3 (header, events, console) + 3 sizes x ${1 + SIGNED_IN + DOMAIN + STRIPE + EX * 2 + MEDIA} (booking last step, ${SIGNED_IN} signed in, ${DOMAIN} preview from the detailer's domain, ${STRIPE} Stripe card form, ${EX} example pages x 2: scripts ran, forms stay, ${MEDIA} stored image loaded) = ${EXPECTED_ASSERTIONS}, asserted as an EQUALITY (docs/gotchas.md 98).`,
   failures,
   warnings: [
     "Chromium only, against app/dist served with app/netlify.toml's headers by this script — not Netlify itself.",
-    `Served as ${NAME}${AS_ENFORCED ? " (--as-enforced: a rehearsal; app/netlify.toml declares " + DECLARED + ")" : ""}. Data-driven image hosts (a detailer's stored logo or photo address) are only seen on the rows the demo tenant has.`,
+    `Served as ${NAME}${AS_ENFORCED ? " (--as-enforced: a rehearsal; app/netlify.toml declares " + DECLARED + ")" : ""}. A stored logo/cover is a REAL object uploaded through the photo door to media.detailingplatform.com, shown to the booking page and Business info via the browser's reads (no database write), and removed after.`,
     "UNJUDGEABLE: Stripe's CARD FIELDS. Billing is given a made-up client secret (a real one means creating a payment in Stripe), Stripe refuses it, and the card fields never draw. What IS judged: Stripe.js loads from js.stripe.com and Stripe's own frame attaches, under this policy, with no violation. Same origins as the card fields, not the card fields.",
     ...warnings,
   ],
