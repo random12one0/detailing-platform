@@ -50,7 +50,7 @@ Updated 2026-09-21.
 
 ## YOUR NEXT RELEASE, IN ONE LIST · start here (ROADMAP 97.91)
 
-When you release, open `docs/release-sheet.md` and go top to bottom. It merges the thirteen "AT YOUR NEXT RELEASE"
+When you release, open `docs/release-sheet.md` and go top to bottom. It merges the five still-open "AT YOUR NEXT RELEASE"
 rows below, the other rows in this list that carry a release step (the scheduler key, 97.3; the launch order, 0.6b;
 the photo and Cloudflare steps, 14.39 and 0.11bd; and seven more), and the release lines of the open roadmap items
 (some of which, like 97.16 and 97.64, set an order and have no row here) into 70 numbered steps. The first step is a
@@ -164,7 +164,7 @@ on hand do not, so the restore check run against any of them now fails and says
 exactly that, until a new night has run. Nothing else changes; the copy is a
 little bigger.
 
-## DO · Set up the scheduler's key at your next release (ROADMAP 97.3)
+## DONE 2026-10-23 · Set up the scheduler's key (ROADMAP 97.3)
 
 Until now anybody on the internet could start the reminder sweep, the weather
 refresh, the job watcher and the nightly photo check. That is fixed in the code:
@@ -286,7 +286,7 @@ After those releases, have a session run `node scripts/deployed-inventory.mjs` a
 `node scripts/receipt.mjs receipts/deployed-inventory.json`, retain the receipt, and tick 98.2 only when both pass.
 The session has not pushed, published, deployed or changed a check to hide the backlog.
 
-## DO, AT YOUR NEXT RELEASE · Two cars on two days show the price they are charged (ROADMAP 97.7)
+## DONE 2026-10-23 · Two cars on two days show the price they are charged (ROADMAP 97.7)
 
 Booking two cars on different days used to show one price and charge another. With a $30 weekend
 rate, a Monday car plus a Saturday car showed $400 and charged $430. Now each car's price is worked
@@ -297,7 +297,7 @@ the real booking page at phone, tablet and laptop sizes. Nothing to decide.
 if you like, a ten-second look on your phone: book two cars, put the second on a Saturday, and on the
 last step check the weekend rate sits under that car. If you don't like how the line looks, say so.
 
-## DO, AT YOUR NEXT RELEASE · Stop another business adding lines to a customer's receipt (ROADMAP 97.12)
+## DONE 2026-10-23 · Stop another business adding lines to a customer's receipt (ROADMAP 97.12)
 
 Today a detailer who learned another business's booking number could add a service, add-on or charge to that booking,
 and it would print on the other business's receipt and invoice. The fix is built and tested on a throwaway copy of the
@@ -309,7 +309,7 @@ Either order is safe. Nothing a customer sees changes. Until you apply it, the d
 the three tables as "awaits apply" and stays green; the unapplied-change check (`migration-drift`) names the file. The
 session has not pushed, published, deployed or changed the database.
 
-## DO, AT YOUR NEXT RELEASE · Stop two bookings at the same moment beating your daily limit (ROADMAP 97.18)
+## DONE 2026-10-23 · Stop two bookings at the same moment beating your daily limit (ROADMAP 97.18)
 
 Today, if two customers book at the very same moment, both can get in even when that breaks your daily booking limit or
 the gap you need between jobs. Two customers moving their bookings onto the same day have the same problem. The fix is
@@ -324,7 +324,7 @@ Measured: it adds about a quarter of one thousandth (0.25 at the middle of 300 b
 then publish `create-booking`, `reschedule-booking` and `update-booking`. In the other order, every booking fails
 until the database change is in. The session has not pushed, published, deployed or changed the database.
 
-## DO, AT YOUR NEXT RELEASE · Stop team logins deleting bookings or changing customers behind the app's back (ROADMAP 97.14)
+## DONE 2026-10-23 · Stop team logins deleting bookings or changing customers behind the app's back (ROADMAP 97.14)
 
 Today any team login, whatever you have ticked for it, can skip the app and delete a booking outright, or add,
 change or delete a customer. The fix takes those abilities away from every browser. The one thing the app still
@@ -340,7 +340,7 @@ lists database functions will name the new notes route until it is added to its 
 pushed, published, deployed or changed the database. Separately, letting you pick what each team member may do is
 ROADMAP 99.13, not urgent, as you said.
 
-## DO, AT YOUR NEXT RELEASE · Customers who unsubscribe from promo emails still get appointment reminders (ROADMAP 97.21)
+## DONE 2026-10-23 · Customers who unsubscribe from promo emails still get appointment reminders (ROADMAP 97.21)
 
 Today a customer who presses "unsubscribe" on a come-back email also stops getting the reminder about their own
 appointment, which is exactly the no-show the reminder is there to prevent. The unsubscribe page promises the opposite.
@@ -351,7 +351,7 @@ emails still skip anyone who unsubscribed. Tested on a throwaway copy of the dat
 publishing with it, and it can go in any order with the others. The session has not pushed, published, deployed or
 changed the database.
 
-## DO, AT YOUR NEXT RELEASE · "Delete for good" also wipes the customer from your sent emails (ROADMAP 97.20)
+## DONE 2026-10-23 · "Delete for good" also wipes the customer from your sent emails (ROADMAP 97.20)
 
 Today, deleting a customer for good removes them from your clients and bookings, but the list of emails you sent still
 shows their email address and opens to full copies of what they were sent: their name, address and phone. Your own
@@ -366,7 +366,7 @@ publish with it. Two smaller follow-ups are filed: the address lookup cache (ROA
 approach) and the wording shown when a deleted customer's email is opened (97.20b). The session has not pushed,
 published, deployed or changed the database.
 
-## DO, AT YOUR NEXT RELEASE · Stop one detailer's promo emails using up everyone's booking emails (ROADMAP 97.19)
+## DONE 2026-10-23 · Stop one detailer's promo emails using up everyone's booking emails (ROADMAP 97.19)
 
 Today all detailers share one daily email allowance, and a detailer emailing their old customers could press Send
 twice and use all of it, so other detailers' booking confirmations and reminders stopped going out for the rest of the
@@ -380,7 +380,7 @@ sizes, with nothing sent.
 (2) publish the website; (3) publish `send-email` and `send-campaign`. Doing (3) before (1) stops promo emails
 sending until (1) is done. Booking emails are unaffected in every order. The 20 and the 40 are settings you can change
 later. The session has not pushed, published, deployed or changed the database.
-## DO, AT YOUR NEXT RELEASE · A web address only goes live when its owner proves it (ROADMAP 97.13)
+## DONE 2026-10-23 · A web address only goes live when its owner proves it (ROADMAP 97.13)
 
 Today anybody on a detailer's team can mark a web address as live without proving anything, including the
 platform's own address or another business's. The fix is built and tested on a throwaway copy of the database and
@@ -392,7 +392,7 @@ holding a code the screen shows.
 address until the program lands. The live-database test `owner-writes` stays red until the change is applied. The
 session has not pushed, published, deployed or changed the database.
 
-## DO, AT YOUR NEXT RELEASE · Stop another business putting YOUR customer on ITS jobs, plans or warranty dates (ROADMAP 97.72)
+## DONE 2026-10-23 · Stop another business putting YOUR customer on ITS jobs, plans or warranty dates (ROADMAP 97.72)
 
 Today a detailer who learned another business's customer number could put that customer on their own job, plan or
 warranty reminder. If they had switched on the warranty email, which is off by default and has no button, that
@@ -406,7 +406,7 @@ another business's customer.
 changes. Until it is applied, the unapplied-change check (`migration-drift`) names the file. The session has not
 pushed, published, deployed or changed the database.
 
-## DO, AT YOUR NEXT RELEASE · Stop another business attaching photos or warranty dates to a customer's job (ROADMAP 97.71)
+## DONE 2026-10-23 · Stop another business attaching photos or warranty dates to a customer's job (ROADMAP 97.71)
 
 Today a detailer who learned another business's booking number could attach a job photo or a warranty reminder to it.
 Nothing showed up on the other business's screens or in its emails. But if that business deleted the booking, the

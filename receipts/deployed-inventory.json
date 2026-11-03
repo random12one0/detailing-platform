@@ -1,13 +1,45 @@
 {
-  "git_sha": "7f7789b3474267811afd9c843dbc6f4143b9a23f",
-  "git_sha_started": "7f7789b3474267811afd9c843dbc6f4143b9a23f",
+  "git_sha": "0da053ddb7aab3b9a6b05954db82578f24be1cf7",
+  "git_sha_started": "0da053ddb7aab3b9a6b05954db82578f24be1cf7",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-23T20:01:49.871Z",
+  "finished_at": "2026-11-03T03:21:53.442Z",
   "failures": [
-    "1 function(s) are running something other than this checkout: platform-admin",
-    "platform-admin: 11 file(s) differ - index.ts, _shared/supportSession.ts, _shared/tz.ts, _shared/buildStartStamp.ts, _shared/tenant.ts, _shared/email.ts, _shared/emailTemplates.ts, _shared/emailKit.ts, _shared/strings/es.ts, _shared/reachedProvider.ts, _shared/permissions.ts (newest commit is 13.0d after the deploy)",
-    "1 function(s) exist in this repo and are NOT DEPLOYED AT ALL: google-business"
+    "33 function(s) are running something other than this checkout: platform-admin, verify-domain, update-booking, accept-invite, available-slots, booking-ics, calculate-booking, cancel-booking, connect-account, create-business, delete-customer, forecast, get-booking-receipt, invite-user, owner-push-subscribe, owner-push-unsubscribe, pay-booking, plan-link, preview-emails, report-problem, reschedule-booking, respond-to-booking, send-campaign, send-invoice, track-visit, translate-content, validate-promo-code, platform-billing, accept-quote, create-booking, send-owner-reminders, photo-door, stripe-webhook",
+    "platform-admin: 13 file(s) differ - index.ts, _shared/supportSession.ts, _shared/newBusiness.ts, _shared/tz.ts, _shared/buildStartStamp.ts, _shared/previewSwitch.ts, _shared/tenant.ts, _shared/email.ts, _shared/emailTemplates.ts, _shared/emailKit.ts, _shared/strings/es.ts, _shared/reachedProvider.ts, _shared/permissions.ts (newest commit is 14.6d after the deploy)",
+    "verify-domain: 2 file(s) differ - _shared/tenant.ts, _shared/supportSession.ts (newest commit is 1.2d after the deploy)",
+    "update-booking: 2 file(s) differ - _shared/tenant.ts, _shared/supportSession.ts (newest commit is 1.2d after the deploy)",
+    "accept-invite: 2 file(s) differ - _shared/tenant.ts, _shared/supportSession.ts (newest commit is 1.2d after the deploy)",
+    "available-slots: 2 file(s) differ - _shared/tenant.ts, _shared/supportSession.ts (newest commit is 1.2d after the deploy)",
+    "booking-ics: 3 file(s) differ - _shared/tenant.ts, _shared/ics.ts, _shared/supportSession.ts (newest commit is 1.2d after the deploy)",
+    "calculate-booking: 2 file(s) differ - _shared/tenant.ts, _shared/supportSession.ts (newest commit is 1.2d after the deploy)",
+    "cancel-booking: 2 file(s) differ - _shared/tenant.ts, _shared/supportSession.ts (newest commit is 1.2d after the deploy)",
+    "connect-account: 2 file(s) differ - _shared/tenant.ts, _shared/supportSession.ts (newest commit is 1.2d after the deploy)",
+    "create-business: 4 file(s) differ - index.ts, _shared/newBusiness.ts, _shared/tenant.ts, _shared/supportSession.ts (newest commit is 1.2d after the deploy)",
+    "delete-customer: 2 file(s) differ - _shared/tenant.ts, _shared/supportSession.ts (newest commit is 1.2d after the deploy)",
+    "forecast: 2 file(s) differ - _shared/tenant.ts, _shared/supportSession.ts (newest commit is 1.2d after the deploy)",
+    "get-booking-receipt: 3 file(s) differ - index.ts, _shared/tenant.ts, _shared/supportSession.ts (newest commit is 1.2d after the deploy)",
+    "invite-user: 2 file(s) differ - _shared/tenant.ts, _shared/supportSession.ts (newest commit is 1.2d after the deploy)",
+    "owner-push-subscribe: 2 file(s) differ - _shared/tenant.ts, _shared/supportSession.ts (newest commit is 1.2d after the deploy)",
+    "owner-push-unsubscribe: 2 file(s) differ - _shared/tenant.ts, _shared/supportSession.ts (newest commit is 1.2d after the deploy)",
+    "pay-booking: 2 file(s) differ - _shared/tenant.ts, _shared/supportSession.ts (newest commit is 1.2d after the deploy)",
+    "plan-link: 2 file(s) differ - _shared/tenant.ts, _shared/supportSession.ts (newest commit is 1.2d after the deploy)",
+    "preview-emails: 3 file(s) differ - index.ts, _shared/tenant.ts, _shared/supportSession.ts (newest commit is 1.2d after the deploy)",
+    "report-problem: 2 file(s) differ - _shared/tenant.ts, _shared/supportSession.ts (newest commit is 1.2d after the deploy)",
+    "reschedule-booking: 2 file(s) differ - _shared/tenant.ts, _shared/supportSession.ts (newest commit is 1.2d after the deploy)",
+    "respond-to-booking: 2 file(s) differ - _shared/tenant.ts, _shared/supportSession.ts (newest commit is 1.2d after the deploy)",
+    "send-campaign: 2 file(s) differ - _shared/tenant.ts, _shared/supportSession.ts (newest commit is 1.2d after the deploy)",
+    "send-invoice: 2 file(s) differ - _shared/tenant.ts, _shared/supportSession.ts (newest commit is 1.2d after the deploy)",
+    "track-visit: 2 file(s) differ - _shared/tenant.ts, _shared/supportSession.ts (newest commit is 1.2d after the deploy)",
+    "translate-content: 2 file(s) differ - _shared/tenant.ts, _shared/supportSession.ts (newest commit is 1.2d after the deploy)",
+    "validate-promo-code: 2 file(s) differ - _shared/tenant.ts, _shared/supportSession.ts (newest commit is 1.2d after the deploy)",
+    "platform-billing: 2 file(s) differ - _shared/tenant.ts, _shared/supportSession.ts (newest commit is 1.2d after the deploy)",
+    "accept-quote: 2 file(s) differ - _shared/tenant.ts, _shared/supportSession.ts (newest commit is 1.2d after the deploy)",
+    "create-booking: 3 file(s) differ - index.ts, _shared/tenant.ts, _shared/supportSession.ts (newest commit is 1.2d after the deploy)",
+    "send-owner-reminders: 2 file(s) differ - _shared/tenant.ts, _shared/supportSession.ts (newest commit is 1.2d after the deploy)",
+    "photo-door: 2 file(s) differ - _shared/tenant.ts, _shared/supportSession.ts (newest commit is 1.2d after the deploy)",
+    "stripe-webhook: 1 file(s) differ - index.ts (newest commit is 1.1d after the deploy)",
+    "3 function(s) exist in this repo and are NOT DEPLOYED AT ALL: acknowledge-checkin, calendar-feed, google-business"
   ],
   "warnings": [],
   "artifacts": [
@@ -17,15 +49,25 @@
     "project": "kguqylyzgyzfktkfnhjb",
     "method": "comment-text comparison against the deployed eszip bundle",
     "matching": [
-      "accept-invite",
-      "accept-quote",
       "address-suggest",
+      "photo-reconcile",
+      "refresh-weather",
+      "resend-webhook",
+      "send-email",
+      "session-ping",
+      "unsubscribe",
+      "watch-jobs"
+    ],
+    "differing": [
+      "platform-admin",
+      "verify-domain",
+      "update-booking",
+      "accept-invite",
       "available-slots",
       "booking-ics",
       "calculate-booking",
       "cancel-booking",
       "connect-account",
-      "create-booking",
       "create-business",
       "delete-customer",
       "forecast",
@@ -34,34 +76,26 @@
       "owner-push-subscribe",
       "owner-push-unsubscribe",
       "pay-booking",
-      "photo-door",
-      "photo-reconcile",
       "plan-link",
-      "platform-billing",
       "preview-emails",
-      "refresh-weather",
       "report-problem",
       "reschedule-booking",
-      "resend-webhook",
       "respond-to-booking",
       "send-campaign",
-      "send-email",
       "send-invoice",
-      "send-owner-reminders",
-      "session-ping",
-      "stripe-webhook",
       "track-visit",
       "translate-content",
-      "unsubscribe",
-      "update-booking",
       "validate-promo-code",
-      "verify-domain",
-      "watch-jobs"
-    ],
-    "differing": [
-      "platform-admin"
+      "platform-billing",
+      "accept-quote",
+      "create-booking",
+      "send-owner-reminders",
+      "photo-door",
+      "stripe-webhook"
     ],
     "not_deployed": [
+      "acknowledge-checkin",
+      "calendar-feed",
       "google-business"
     ],
     "causes": {
@@ -71,8 +105,10 @@
         ],
         "shared_modules": [
           "_shared/supportSession.ts",
+          "_shared/newBusiness.ts",
           "_shared/tz.ts",
           "_shared/buildStartStamp.ts",
+          "_shared/previewSwitch.ts",
           "_shared/tenant.ts",
           "_shared/email.ts",
           "_shared/emailTemplates.ts",
@@ -81,11 +117,279 @@
           "_shared/reachedProvider.ts",
           "_shared/permissions.ts"
         ]
+      },
+      "verify-domain": {
+        "function_local": [],
+        "shared_modules": [
+          "_shared/tenant.ts",
+          "_shared/supportSession.ts"
+        ]
+      },
+      "update-booking": {
+        "function_local": [],
+        "shared_modules": [
+          "_shared/tenant.ts",
+          "_shared/supportSession.ts"
+        ]
+      },
+      "accept-invite": {
+        "function_local": [],
+        "shared_modules": [
+          "_shared/tenant.ts",
+          "_shared/supportSession.ts"
+        ]
+      },
+      "available-slots": {
+        "function_local": [],
+        "shared_modules": [
+          "_shared/tenant.ts",
+          "_shared/supportSession.ts"
+        ]
+      },
+      "booking-ics": {
+        "function_local": [],
+        "shared_modules": [
+          "_shared/tenant.ts",
+          "_shared/ics.ts",
+          "_shared/supportSession.ts"
+        ]
+      },
+      "calculate-booking": {
+        "function_local": [],
+        "shared_modules": [
+          "_shared/tenant.ts",
+          "_shared/supportSession.ts"
+        ]
+      },
+      "cancel-booking": {
+        "function_local": [],
+        "shared_modules": [
+          "_shared/tenant.ts",
+          "_shared/supportSession.ts"
+        ]
+      },
+      "connect-account": {
+        "function_local": [],
+        "shared_modules": [
+          "_shared/tenant.ts",
+          "_shared/supportSession.ts"
+        ]
+      },
+      "create-business": {
+        "function_local": [
+          "index.ts"
+        ],
+        "shared_modules": [
+          "_shared/newBusiness.ts",
+          "_shared/tenant.ts",
+          "_shared/supportSession.ts"
+        ]
+      },
+      "delete-customer": {
+        "function_local": [],
+        "shared_modules": [
+          "_shared/tenant.ts",
+          "_shared/supportSession.ts"
+        ]
+      },
+      "forecast": {
+        "function_local": [],
+        "shared_modules": [
+          "_shared/tenant.ts",
+          "_shared/supportSession.ts"
+        ]
+      },
+      "get-booking-receipt": {
+        "function_local": [
+          "index.ts"
+        ],
+        "shared_modules": [
+          "_shared/tenant.ts",
+          "_shared/supportSession.ts"
+        ]
+      },
+      "invite-user": {
+        "function_local": [],
+        "shared_modules": [
+          "_shared/tenant.ts",
+          "_shared/supportSession.ts"
+        ]
+      },
+      "owner-push-subscribe": {
+        "function_local": [],
+        "shared_modules": [
+          "_shared/tenant.ts",
+          "_shared/supportSession.ts"
+        ]
+      },
+      "owner-push-unsubscribe": {
+        "function_local": [],
+        "shared_modules": [
+          "_shared/tenant.ts",
+          "_shared/supportSession.ts"
+        ]
+      },
+      "pay-booking": {
+        "function_local": [],
+        "shared_modules": [
+          "_shared/tenant.ts",
+          "_shared/supportSession.ts"
+        ]
+      },
+      "plan-link": {
+        "function_local": [],
+        "shared_modules": [
+          "_shared/tenant.ts",
+          "_shared/supportSession.ts"
+        ]
+      },
+      "preview-emails": {
+        "function_local": [
+          "index.ts"
+        ],
+        "shared_modules": [
+          "_shared/tenant.ts",
+          "_shared/supportSession.ts"
+        ]
+      },
+      "report-problem": {
+        "function_local": [],
+        "shared_modules": [
+          "_shared/tenant.ts",
+          "_shared/supportSession.ts"
+        ]
+      },
+      "reschedule-booking": {
+        "function_local": [],
+        "shared_modules": [
+          "_shared/tenant.ts",
+          "_shared/supportSession.ts"
+        ]
+      },
+      "respond-to-booking": {
+        "function_local": [],
+        "shared_modules": [
+          "_shared/tenant.ts",
+          "_shared/supportSession.ts"
+        ]
+      },
+      "send-campaign": {
+        "function_local": [],
+        "shared_modules": [
+          "_shared/tenant.ts",
+          "_shared/supportSession.ts"
+        ]
+      },
+      "send-invoice": {
+        "function_local": [],
+        "shared_modules": [
+          "_shared/tenant.ts",
+          "_shared/supportSession.ts"
+        ]
+      },
+      "track-visit": {
+        "function_local": [],
+        "shared_modules": [
+          "_shared/tenant.ts",
+          "_shared/supportSession.ts"
+        ]
+      },
+      "translate-content": {
+        "function_local": [],
+        "shared_modules": [
+          "_shared/tenant.ts",
+          "_shared/supportSession.ts"
+        ]
+      },
+      "validate-promo-code": {
+        "function_local": [],
+        "shared_modules": [
+          "_shared/tenant.ts",
+          "_shared/supportSession.ts"
+        ]
+      },
+      "platform-billing": {
+        "function_local": [],
+        "shared_modules": [
+          "_shared/tenant.ts",
+          "_shared/supportSession.ts"
+        ]
+      },
+      "accept-quote": {
+        "function_local": [],
+        "shared_modules": [
+          "_shared/tenant.ts",
+          "_shared/supportSession.ts"
+        ]
+      },
+      "create-booking": {
+        "function_local": [
+          "index.ts"
+        ],
+        "shared_modules": [
+          "_shared/tenant.ts",
+          "_shared/supportSession.ts"
+        ]
+      },
+      "send-owner-reminders": {
+        "function_local": [],
+        "shared_modules": [
+          "_shared/tenant.ts",
+          "_shared/supportSession.ts"
+        ]
+      },
+      "photo-door": {
+        "function_local": [],
+        "shared_modules": [
+          "_shared/tenant.ts",
+          "_shared/supportSession.ts"
+        ]
+      },
+      "stripe-webhook": {
+        "function_local": [
+          "index.ts"
+        ],
+        "shared_modules": []
       }
     },
     "by_shared_module": {
       "_shared/supportSession.ts": [
-        "platform-admin"
+        "platform-admin",
+        "verify-domain",
+        "update-booking",
+        "accept-invite",
+        "available-slots",
+        "booking-ics",
+        "calculate-booking",
+        "cancel-booking",
+        "connect-account",
+        "create-business",
+        "delete-customer",
+        "forecast",
+        "get-booking-receipt",
+        "invite-user",
+        "owner-push-subscribe",
+        "owner-push-unsubscribe",
+        "pay-booking",
+        "plan-link",
+        "preview-emails",
+        "report-problem",
+        "reschedule-booking",
+        "respond-to-booking",
+        "send-campaign",
+        "send-invoice",
+        "track-visit",
+        "translate-content",
+        "validate-promo-code",
+        "platform-billing",
+        "accept-quote",
+        "create-booking",
+        "send-owner-reminders",
+        "photo-door"
+      ],
+      "_shared/newBusiness.ts": [
+        "platform-admin",
+        "create-business"
       ],
       "_shared/tz.ts": [
         "platform-admin"
@@ -93,8 +397,42 @@
       "_shared/buildStartStamp.ts": [
         "platform-admin"
       ],
-      "_shared/tenant.ts": [
+      "_shared/previewSwitch.ts": [
         "platform-admin"
+      ],
+      "_shared/tenant.ts": [
+        "platform-admin",
+        "verify-domain",
+        "update-booking",
+        "accept-invite",
+        "available-slots",
+        "booking-ics",
+        "calculate-booking",
+        "cancel-booking",
+        "connect-account",
+        "create-business",
+        "delete-customer",
+        "forecast",
+        "get-booking-receipt",
+        "invite-user",
+        "owner-push-subscribe",
+        "owner-push-unsubscribe",
+        "pay-booking",
+        "plan-link",
+        "preview-emails",
+        "report-problem",
+        "reschedule-booking",
+        "respond-to-booking",
+        "send-campaign",
+        "send-invoice",
+        "track-visit",
+        "translate-content",
+        "validate-promo-code",
+        "platform-billing",
+        "accept-quote",
+        "create-booking",
+        "send-owner-reminders",
+        "photo-door"
       ],
       "_shared/email.ts": [
         "platform-admin"
@@ -113,16 +451,19 @@
       ],
       "_shared/permissions.ts": [
         "platform-admin"
+      ],
+      "_shared/ics.ts": [
+        "booking-ics"
       ]
     },
-    "widest_gap_days": 13
+    "widest_gap_days": 14.6
   },
   "check_id": "deployed-inventory",
-  "started_at": "2026-10-23T20:00:43.173Z",
+  "started_at": "2026-11-03T03:20:35.091Z",
   "status": "fail",
-  "expected_targets": 42,
-  "discovered_targets": 42,
-  "attempted_targets": 42,
+  "expected_targets": 44,
+  "discovered_targets": 44,
+  "attempted_targets": 44,
   "completed_targets": 41,
   "skipped_targets": 0,
   "assertions_executed": 41,

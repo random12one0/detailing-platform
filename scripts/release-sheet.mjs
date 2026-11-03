@@ -3,21 +3,21 @@
 //
 //   node scripts/release-sheet.mjs                     # writes docs/release-sheet.md
 //   node scripts/receipt.mjs receipts/release-sheet.json
-//   node scripts/release-sheet.mjs --break=drop-step   # forget 97.18's steps: must go red naming 97.18
-//   node scripts/release-sheet.mjs --break=drop-line   # cut verify-domain's line from the written sheet: names 97.13
+//   node scripts/release-sheet.mjs --break=drop-step   # forget 97.55's steps: must go red naming 97.55
+//   node scripts/release-sheet.mjs --break=drop-line   # cut calendar-feed's line from the written sheet: names 97.53
 //   node scripts/release-sheet.mjs --break=unhold      # publish platform-admin like the rest: names 0.6b and 4.3b
 //   node scripts/release-sheet.mjs --break=open-wait   # 97.10 unfinished, hold ignored: names 97.68
-//   node scripts/release-sheet.mjs --break=no-cron     # forget 97.3's scheduler key: names 97.3
+//   node scripts/release-sheet.mjs --break=no-cron     # put the retired 97.3 row back: names 97.3 (a release row that is neither declared nor excluded)
 //   node scripts/release-sheet.mjs --break=no-order    # forget 0.6b's first/alone/last: names 0.6b
 //   node scripts/release-sheet.mjs --break=no-escape   # website step without the way past the push check
 //   node scripts/release-sheet.mjs --break=fn-before-page # create-booking and create-business before the website: names 99.2, 99.2a and 97.37
 //   node scripts/release-sheet.mjs --break=lock-one    # 4.3b's lock declared as update-booking only: names 4.3b and verify-domain
-//   node scripts/release-sheet.mjs --break=lock-order  # verify-domain back ahead of every database change: names 4.3b
+//   node scripts/release-sheet.mjs --break=lock-order  # re-adds the retired 97.13 rule (verify-domain before a database change): names 4.3b
 //   node scripts/release-sheet.mjs --break=webhook-last # the payment webhook back after create-business: names 0.6b and 97.37
 //
 // lock-one, lock-order, fn-before-page and webhook-last (and drop-line, unhold) only bite while the server check names the programs they
 // move. On a receipt naming none (the stale one 98.18 met) fn-before-page and lock-order printed
-// nothing new, so re-run all eleven after every fresh deployed-inventory receipt (98.18, 2026-10-24).
+// nothing new, so re-run all eleven after every fresh deployed-inventory receipt (98.18, 2026-10-24). 2026-11-02: on the fresh receipts all eleven add a FAIL.
 //
 // It READS. Credential-free: it never asks the database or the server anything
 // itself. Its inputs are the receipts `migration-drift.mjs` and
@@ -129,7 +129,6 @@ const M = {
 // Expanded from the server check's own list (`bundleBefore`), never typed by hand:
 // the first version named only `update-booking` and put `verify-domain` ahead of it.
 const LOCK = ["_shared/tenant.ts", "_shared/supportSession.ts"];
-const SCHEDULED = ["send-owner-reminders", "refresh-weather", "watch-jobs", "photo-reconcile"];
 const HOLD_ADMIN = "Held on purpose until 4.3c is finished: 4.3e combined its two button fixes on 2026-10-24 and waits for your \"approve the 4.3e amendments\". When it goes, the unlock database change must already be in, or the button answers \"did not go through\".";
 const HOLD_GOOGLE = "Never published; waits for Google's approval (0.15). Until it goes up, the Google Business screen wrongly tells an owner \"Only the owner can connect Google.\"";
 
@@ -137,16 +136,16 @@ const DECLARED = {
   "0.11cc": {
     website: true,
     manual: [{ id: "spanish-check", part: 0, must: true, text: "**Must be done first:** a session with the keys runs 0.11cc's one skipped Spanish check, clean. The website step below carries the receipts switch, and you ruled on 2026-10-13 that nothing may go out with a check skipped. If this has not happened, do not start: 97.14's two database changes in Part 2 need the website in the same sitting." }],
-    before: [["spanish-check", M.staff]],
+    before: [["spanish-check", M.feed]],
     rule: "The website is not ready to publish until its one skipped Spanish check is run clean, so that check is the first step, ahead of every database change.",
     after: ["A session checks the live site and ticks 0.11cc and 0.11c."],
   },
   "0.6b": {
     first: ["update-booking"], alone: ["platform-billing"], last: ["stripe-webhook"],
+    unaffected: [M.body, M.payProblem, "send-email"], // applied / current since 2026-10-23: the row still names them
     hold: { "platform-admin": HOLD_ADMIN, "google-business": HOLD_GOOGLE },
-    before: [[M.body, "send-email"], [M.payProblem, "stripe-webhook"]],
     manual: [{ id: "two-reads", part: 0, text: "Two reads, nothing changes: in the platform's folder, `git status --porcelain supabase/functions` must print nothing (if it prints a file, a session is changing the programs right now; stop). And no browser check may be running on the practice business while you publish." }],
-    rule: "`update-booking` first and alone; the one-column change before `send-email`; `platform-billing` alone; the payment webhook last and alone, with its database change before it. `platform-admin` and `google-business` are held back. When 97.37's `create-business` goes in the same release, it follows the payment webhook: settled at the top of this sheet.",
+    rule: "`update-booking` first and alone; `platform-billing` alone; the payment webhook last and alone. (Its two database changes, before `send-email` and before the webhook, went in with the 2026-10-23 release.) `platform-admin` and `google-business` are held back. When 97.37's `create-business` goes in the same release, it follows the payment webhook: settled at the top of this sheet.",
     after: ["The server check should now name ONLY the held programs. Anything else it names did not publish: tell a session its name."],
   },
   "4.3b": {
@@ -154,84 +153,22 @@ const DECLARED = {
     before: [[M.unlock, "create-business"]], bundleBefore: [[M.unlock, LOCK]],
     rule: "The unlock database change goes before `create-business` and EVERY program that carries the lock (the shared tenant and support-session files); the three support-session changes before it are already applied. Applied on its own it changes nothing. `platform-admin` stays held until 4.3c is finished.",
   },
-  "97.3": {
-    migrations: [M.cron], functions: SCHEDULED,
-    manual: [
-      { id: "cron-make", part: 1, text: "Scheduler key (97.3) 1 of 4: in your password manager, generate a random 40-character password (letters and numbers only) and save it as \"Detailing platform — cron secret\". Never paste it anywhere else." },
-      { id: "cron-vault", part: 1, text: "Scheduler key 2 of 4: Supabase, project kguqylyzgyzfktkfnhjb, Vault, Add new secret, name `cron_secret`, value: that password." },
-      { id: "cron-fnsecret", part: 1, text: "Scheduler key 3 of 4: same project, Edge Functions, Secrets, Add, name `CRON_SECRET`, the same value." },
-      { id: "cron-check", part: 1, text: "Scheduler key 4 of 4: SQL editor, `select name from vault.secrets where name = 'cron_secret';` must show one row." },
-    ],
-    before: [["cron-make", "cron-vault"], ["cron-vault", "cron-fnsecret"], ["cron-fnsecret", "cron-check"], ["cron-check", M.cron],
-      ...SCHEDULED.flatMap((f) => [[M.cron, f], ["cron-fnsecret", f]])],
-    rule: "The four scheduled programs only after the key is in Vault and on the server and the scheduled-jobs change is applied. Published first, every scheduled run is refused and reminders stop going out.",
-    after: [
-      "About 20 minutes after the scheduled programs go up: SQL editor, `select status_code, count(*) from net._http_response where created > now() - interval '30 minutes' group by 1;` should show only 200. A 401 means the two key values differ; a 503 means the server secret is missing.",
-      "Add `CRON_SECRET=` with the same value to the repo's `.env` yourself, then ask a session to add the header line to the two live test suites that call the watcher and the sweep (97.3 names the change).",
-    ],
-  },
   "0.11bd": {
-    onlyIf: { "photo-door": "cf-purge" },
-    manual: [{ id: "cf-purge", part: 1, text: "Cloudflare cache purge (0.11bd): create a Cache Purge token restricted to detailingplatform.com and save it in this platform's Supabase function secrets as `CF_CACHE_PURGE_TOKEN`, and the domain's Zone ID as `CF_MEDIA_ZONE_ID` (docs/media-cache-deletion.md). If you skip this, skip the photo-door program in Part 3 too." }],
-    before: [["cf-purge", "photo-door"]],
-    rule: "Published without those two secrets, the new `photo-door` refuses every media deletion.",
+    functions: ["photo-door"],
+    rule: "The cache-purge token and zone ID were saved as function secrets on 2026-10-23, so `photo-door` can go out as it is.",
     after: ["A session repeats 0.11bd's real warmed-URL check after `photo-door` is up."],
   },
   "14.39": {
-    migrations: [M.attempts, M.latePut], functions: ["photo-door", "photo-reconcile"],
+    functions: ["photo-door", "photo-reconcile"], unaffected: [M.attempts], // applied 2026-10-23
     manual: [{ id: "r2-proof", part: 0, text: "Recommended, not required: before you start, have a session with the existing R2 setup run 14.39's committed real-R2 proof, rather than relying on the local result." }],
-    before: [[M.attempts, M.latePut], [M.latePut, "photo-door"], [M.latePut, "photo-reconcile"]],
-    rule: "Its two database changes in order, then `photo-door` and `photo-reconcile`.",
+    rule: "`photo-door` and `photo-reconcile`. Its two database changes went in with the 2026-10-23 release.",
     after: ["A session repeats 14.39's real-R2 sabotage, successful receipt and scheduled-cleanup proof before ticking it."],
-  },
-  "3.1d": {
-    migrations: [M.body], functions: ["send-email"],
-    before: [[M.body, "send-email"]],
-    rule: "The one-column change before `send-email`, or every email stops being logged until it is in.",
   },
   "98.2": {
     functions: "all",
     rule: "Full green waits for `platform-admin` (4.3c) and `google-business` (99.1); both are held back on this sheet, so the server check will still name them afterwards, and that is expected.",
     after: ["Have a session run the server check (`node scripts/deployed-inventory.mjs`, then `node scripts/receipt.mjs receipts/deployed-inventory.json`) and keep the receipt; 98.2 is ticked only when both pass, which is after the held programs go up."],
   },
-  "97.7": {
-    website: true, bundles: "_shared/pricing.ts",
-    after: ["Optional, ten seconds on your phone: book two cars, put the second on a Saturday, and check \"Weekend rate\" sits under that car on the last step."],
-  },
-  "97.12": {
-    migrations: [M.lines],
-    functions: ["get-booking-receipt", "send-invoice", "accept-quote", "respond-to-booking", "booking-ics"],
-    rule: "Either order is safe.",
-  },
-  "97.18": {
-    migrations: [M.lock],
-    functions: ["create-booking", "reschedule-booking", "update-booking"],
-    before: [[M.lock, "create-booking"], [M.lock, "reschedule-booking"], [M.lock, "update-booking"]],
-    rule: "The other way round, every booking fails until the database change is in.",
-  },
-  "97.14": {
-    migrations: [M.staff, M.notes], website: true,
-    before: [[M.staff, M.notes], [M.notes, "website"]],
-    rule: "Both database changes and the website in ONE sitting. Only one half live: the Notes box stops saving (old website, new database) or says \"Your notes were not saved\" (new website, old database).",
-  },
-  "97.21": { migrations: [M.reminders], rule: "Any order." },
-  "97.20": { migrations: [M.forget], unaffected: ["delete-customer"], rule: "Nothing to publish with it." },
-  "97.19": {
-    migrations: [M.campaigns], website: true, functions: ["send-email", "send-campaign"],
-    before: [[M.campaigns, "send-email"], [M.campaigns, "send-campaign"]],
-    rule: "Programs before the database stops promo emails until it is in. The row lists the website before the two programs; this sheet publishes them before the website, so the push check at the website step names fewer programs. The danger the row names (programs before the database) is still kept.",
-  },
-  "97.13": {
-    migrations: [M.domains], functions: ["verify-domain"], website: true,
-    before: [["verify-domain", M.domains], ["verify-domain", "website"]],
-    rule: "The other way round, nobody can add a web address until the program lands.",
-    after: ["The live-database test `owner-writes` turns green only once this database change is in."],
-  },
-  "97.72": {
-    migrations: [M.customer], functions: ["send-owner-reminders", "plan-link"],
-    rule: "Either order is safe.",
-  },
-  "97.71": { migrations: [M.photos], rule: "No program needs publishing." },
   "97.68": {
     functions: ["stripe-webhook"],
     manual: [{ id: "stripe-refund-event", part: 1, text: "In Stripe: Developers, Webhooks, open the endpoint for connected accounts and add the event `charge.refunded`. While there, check `checkout.session.async_payment_succeeded` and `checkout.session.async_payment_failed` are on it too (97.68, 97.11)." }],
@@ -248,14 +185,15 @@ const DECLARED = {
     after: ["Optional: make a throwaway account at /app, check it lands on \"Finish payment to go live\" and its booking page is not found, then remove it from the back office."],
   },
   "99.2a": {
-    functions: ["send-invoice", "invite-user", "send-owner-reminders"], bundles: "_shared/emailKit.ts", migrations: [M.sign],
+    functions: ["send-invoice", "invite-user", "send-owner-reminders"], bundles: "_shared/emailKit.ts", unaffected: [M.sign], // applied: business_settings.email_sign_as_business answers on the live database (read 2026-11-02)
     before: [["website", "create-booking"]], conflict: true,
-    rule: "Publishing the website alone does not update emails; the programs do. Its database change only matters for the \"Sign emails with the business name\" switch; until it is in, turning that one switch on fails and everything else saves.",
+    rule: "Publishing the website alone does not update emails; the programs do. Its database change is already in.",
     after: ["Have a session check a real booking confirmation's subject, body and plain-text copy."],
   },
   "99.1": {
-    migrations: [M.google], hold: { "google-business": HOLD_GOOGLE },
-    rule: "Its database change is harmless on its own and goes in with the rest. The program waits for Google, so the website goes out without it, and the Google Business screen shows the wrong \"Only the owner\" sentence until it does.",
+    unaffected: [M.google], // applied: the table answers on the live database (read 2026-11-02)
+    hold: { "google-business": HOLD_GOOGLE },
+    rule: "Its database change is already in. The program waits for Google, so the website goes out without it, and the Google Business screen shows the wrong \"Only the owner\" sentence until it does.",
   },
   "9.1b": {
     website: true,
@@ -319,12 +257,26 @@ if (BREAK === "lock-one") for (const d of Object.values(DECLARED)) { delete d.bu
 // A new release row that is in neither table turns the check red by name.
 const EXCLUDED = {
   "97.91": "this sheet's own pointer row",
+  "97.3": "released 2026-10-23: key set, 22 of 22 scheduled calls 200; ticked",
+  "97.7": "released 2026-10-23; ticked",
+  "97.12": "released 2026-10-23; ticked",
+  "97.13": "released 2026-10-23; ticked",
+  "97.14": "released 2026-10-23; ticked",
+  "97.18": "released 2026-10-23; ticked",
+  "97.19": "released 2026-10-23; ticked",
+  "97.20": "released 2026-10-23; ticked",
+  "97.21": "released 2026-10-23; ticked",
+  "97.71": "released 2026-10-23; ticked",
+  "97.72": "released 2026-10-23; ticked",
+  "3.1d": "released 2026-10-23; ticked",
   "97.28": "a two-minute edit in the private backups repository, not part of this release (like 97.25)",
   "Publish and apply — the one ordered list": "says DONE 2026-10-10, steps 1 to 9, nothing left",
   "Waiting on you — nothing breaks while these wait": "a 1,400-line group of older rows; NOT READ by this sheet, said on the sheet",
 };
-if (BREAK === "drop-step") delete DECLARED["97.18"];
-if (BREAK === "no-cron") delete DECLARED["97.3"];
+if (BREAK === "drop-step") delete DECLARED["97.55"];
+if (BREAK === "no-cron") delete EXCLUDED["97.3"];
+// lock-order needs a program that must go BEFORE a database change; the only live one (97.13's verify-domain) was retired, so the switch puts its rule back.
+if (BREAK === "lock-order") DECLARED["97.53"].before.push(["verify-domain", M.feed]);
 if (BREAK === "no-order") for (const d of Object.values(DECLARED)) { delete d.first; delete d.alone; delete d.last; }
 if (BREAK === "unhold") for (const d of Object.values(DECLARED)) if (d.hold) delete d.hold["platform-admin"];
 
@@ -467,7 +419,7 @@ for (const row of readRows) {
   for (const k of ["first", "alone", "last"]) for (const f of d[k] || []) order[k].add(f);
   for (const [f, s] of Object.entries(d.onlyIf || {})) onlyIf.set(f, s);
   // What the row's own words name must be declared.
-  for (const m of row.body.matchAll(SQL_RE)) if (!(d.migrations || []).includes(m[0]) && !(d.before || []).flat().includes(m[0])) rowProblems.push(`${rowName(row)} names ${m[0]} but its declaration does not`);
+  for (const m of row.body.matchAll(SQL_RE)) if (!(d.migrations || []).includes(m[0]) && !(d.unaffected || []).includes(m[0]) && !(d.before || []).flat().includes(m[0])) rowProblems.push(`${rowName(row)} names ${m[0]} but its declaration does not`);
   if (d.functions !== "all") for (const m of row.body.matchAll(/`([a-z][a-z0-9-]+)`/g)) {
     const f = m[1];
     if (fnDirs.has(f) && !fns.includes(f) && !(d.hold || {})[f] && !(d.before || []).flat().includes(f) && !(d.onlyIf || {})[f]
@@ -558,7 +510,7 @@ out.push("# Release sheet — everything still to go live, in order", "");
 out.push(`Written by \`node scripts/release-sheet.mjs\` from the database check taken at \`${String(drift.git_sha).slice(0, 8)}\` and the server check taken at \`${String(inv.git_sha).slice(0, 8)}\`. Do not edit by hand; re-run it.`, "");
 out.push("## In plain words", "");
 out.push(`This is one list for your next release, built from the release notes in your list and the release lines in the roadmap. **${allMigs.length} database changes** go into the live database, **${publish.length - afterSite.length - lasts.length} programs** go onto the server, then **the website** goes out, then **${afterSite.length + lasts.length} more programs** straight after it. **${heldHere.length} programs are held back on purpose** and are listed at the bottom, never as a step. Where an order matters, the step says so and names the step it must come after.`, "");
-out.push(`**When to start.** ${part0().filter((x) => x.must).map((x) => `Step ${stepNo.get(x.id)}`).join(", ")} must already be done before you begin; if it is not, do not start. Steps 1 to ${firstMigStep - 1} change nothing anybody sees, so you can stop anywhere in them. **Once you start step ${firstMigStep}, go through to the end of the sheet in the same sitting:** 97.14's two database changes and the website must go out together, or the Notes box stops saving${afterSite.length ? `, and ${afterSite.join(" and ")} must follow the website within minutes` : ""}.`, "");
+out.push(`**When to start.** ${part0().filter((x) => x.must).map((x) => `Step ${stepNo.get(x.id)}`).join(", ")} must already be done before you begin; if it is not, do not start. Steps 1 to ${firstMigStep - 1} change nothing anybody sees, so you can stop anywhere in them. **Once you start step ${firstMigStep}, go through to the end of the sheet in the same sitting:** the database changes, the programs and the website go out together, so no half-done state is left standing${afterSite.length ? `; ${afterSite.join(" and ")} must follow the website within minutes` : ""}.`, "");
 out.push(`**The website step will be refused at first, and that is expected.** Your push first checks the server, and it stops while any program is out of date. At that moment ${pushNames.length} always are: the ${heldHere.length} held back, and the ${afterSite.length + lasts.length} that go straight after the website. When it names only those, push with \`SHIP_WITH_DRIFT=1 git push\`, as your launch notes (0.6b) say.`, "");
 if (conflicts.length) out.push(plain(CONFLICT), "");
 // Said whenever the clash exists, so the sabotage that drops the settled order is held to the paragraph.
@@ -592,7 +544,6 @@ const fnLine = (f, lead) => {
   const notes = [];
   const a = afterNote(f); if (a) notes.push(a);
   if (onlyIf.has(f)) notes.push(`only if you did ${ref(onlyIf.get(f))}; if you skipped it, skip this one too and expect the push check to name it`);
-  if (SCHEDULED.includes(f)) notes.push("a scheduled program: needs the scheduler key from Part 1");
   if (notDeployed.has(f)) notes.push("never published before");
   for (const d of Object.values(DECLARED)) for (const i of (d.waitsOn || {})[f] || []) notes.push(`carries ${i} (${waitState(i, f)})`);
   return `${lead}\`${f}\`${notes.length ? ` — ${notes.join("; ")}` : ""}${tags(need.fn.get(f))}`;
@@ -630,7 +581,7 @@ out.push(`It reads every row in your list that carries a release instruction: ${
 
 let sheet = out.join("\n");
 if (BREAK === "no-escape") sheet = sheet.split("\n").map((l) => (l.includes("**Publish the website**") ? l.replace(/ The push check will stop and name.*?git push`\./, "") : l)).join("\n");
-if (BREAK === "drop-line") sheet = sheet.split("\n").filter((l) => !l.includes("`verify-domain`")).join("\n");
+if (BREAK === "drop-line") sheet = sheet.split("\n").filter((l) => !l.includes("`calendar-feed`")).join("\n");
 
 // ---------------------------------------------------------------------------
 // VERIFY THE WRITTEN TEXT
@@ -720,7 +671,7 @@ function verify(text, { migs, fns, rowList, decl, extraRows = [] }) {
   const heldNames = heldLines.map((l) => (/^- `([a-z-]+)`/.exec(l) || [])[1]).filter(Boolean);
   if (heldNames.length && !(stepLines[websiteAt] || "").includes("SHIP_WITH_DRIFT=1")) bad.push("programs are held back, and the website step does not say how to push past the check that refuses it");
   for (const f of heldNames) if (!(stepLines[websiteAt] || "").includes(f)) bad.push(`the website step does not warn that the push check will name held program ${f}`);
-  if (/stop at the end of a part/i.test(text)) bad.push("the plain words still advise stopping at the end of a part, which leaves 97.14 half done");
+  if (/stop at the end of a part/i.test(text)) bad.push("the plain words still advise stopping at the end of a part, which leaves a release half done");
   const part2At = all.findIndex((l) => l.startsWith("## Part 2"));
   const firstOfPart2 = stepLines.indexOf(all.slice(part2At).find((l) => /^\d+\. /.test(l)));
   if (firstMig >= 0 && !text.includes(`Once you start step ${firstOfPart2 + 1}, go through to the end of the sheet in the same sitting`)) bad.push("the plain words do not say where the same-sitting stretch starts");
