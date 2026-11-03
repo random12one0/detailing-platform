@@ -1,0 +1,50 @@
+{
+  "git_sha": "0da053ddb7aab3b9a6b05954db82578f24be1cf7",
+  "git_sha_started": "0da053ddb7aab3b9a6b05954db82578f24be1cf7",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-11-03T03:25:09.312Z",
+  "failures": [
+    "390 the press sent door remove 62456821-65d7-40ae-8251-e162bf3f04b6/gallery/9538112c-2910-4a86-a695-82787319290c.png → row delete: got row delete",
+    "390 R2 itself says the object is gone (signed HEAD): exists=true",
+    "390 the SAME warmed URL stops answering 200 (no query, no bypass): HTTP 200, HIT",
+    "1440 the press sent door remove 62456821-65d7-40ae-8251-e162bf3f04b6/gallery/183bd6a5-90bb-4a89-af3b-46ca9e6af295.png → row delete: got row delete",
+    "1440 R2 itself says the object is gone (signed HEAD): exists=true",
+    "1440 the SAME warmed URL stops answering 200 (no query, no bypass): HTTP 200, HIT"
+  ],
+  "warnings": [
+    "One Cloudflare location (this machine's) is observed; a copy already downloaded by a visitor's browser is out of reach."
+  ],
+  "artifacts": [
+    "C:/Users/rando/Downloads/claude/detailing-platform/.manager-shots/0.11be/gallery-remove-live-row-only-390-before.png",
+    "C:/Users/rando/Downloads/claude/detailing-platform/.manager-shots/0.11be/gallery-remove-live-row-only-390-after.png",
+    "C:/Users/rando/Downloads/claude/detailing-platform/.manager-shots/0.11be/gallery-remove-live-row-only-1440-before.png",
+    "C:/Users/rando/Downloads/claude/detailing-platform/.manager-shots/0.11be/gallery-remove-live-row-only-1440-after.png"
+  ],
+  "dimensions": {
+    "roadmap": "0.11be",
+    "break": "row-only",
+    "base": "http://localhost:5186",
+    "widths": [
+      390,
+      1440
+    ],
+    "public_base": "https://media.detailingplatform.com",
+    "real": "photo-door (deployed), R2 bucket business-media, Cloudflare cache on media.detailingplatform.com, gallery_images on kguqylyzgyzfktkfnhjb (demo-detail)"
+  },
+  "check_id": "gallery-remove-live",
+  "started_at": "2026-11-03T03:24:43.541Z",
+  "status": "fail",
+  "expected_targets": 2,
+  "discovered_targets": 2,
+  "attempted_targets": 2,
+  "completed_targets": 2,
+  "skipped_targets": 0,
+  "assertions_executed": 23,
+  "min_assertions": 20,
+  "canary": {
+    "id": "anonymous-missing-image",
+    "observed_failure": true,
+    "what": "a random nonexistent public gallery key answers 404"
+  }
+}

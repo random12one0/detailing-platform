@@ -1,0 +1,42 @@
+{
+  "git_sha": "0da053ddb7aab3b9a6b05954db82578f24be1cf7",
+  "git_sha_started": "0da053ddb7aab3b9a6b05954db82578f24be1cf7",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-11-03T03:25:34.598Z",
+  "failures": [],
+  "warnings": [
+    "One Cloudflare location (this machine's) is observed; a copy already downloaded by a visitor's browser is out of reach."
+  ],
+  "artifacts": [
+    "C:/Users/rando/Downloads/claude/detailing-platform/.manager-shots/0.11be/gallery-remove-live-clean-390-before.png",
+    "C:/Users/rando/Downloads/claude/detailing-platform/.manager-shots/0.11be/gallery-remove-live-clean-390-after.png",
+    "C:/Users/rando/Downloads/claude/detailing-platform/.manager-shots/0.11be/gallery-remove-live-clean-1440-before.png",
+    "C:/Users/rando/Downloads/claude/detailing-platform/.manager-shots/0.11be/gallery-remove-live-clean-1440-after.png"
+  ],
+  "dimensions": {
+    "roadmap": "0.11be",
+    "base": "http://localhost:5186",
+    "widths": [
+      390,
+      1440
+    ],
+    "public_base": "https://media.detailingplatform.com",
+    "real": "photo-door (deployed), R2 bucket business-media, Cloudflare cache on media.detailingplatform.com, gallery_images on kguqylyzgyzfktkfnhjb (demo-detail)"
+  },
+  "check_id": "gallery-remove-live",
+  "started_at": "2026-11-03T03:25:09.862Z",
+  "status": "pass",
+  "expected_targets": 2,
+  "discovered_targets": 2,
+  "attempted_targets": 2,
+  "completed_targets": 2,
+  "skipped_targets": 0,
+  "assertions_executed": 21,
+  "min_assertions": 20,
+  "canary": {
+    "id": "anonymous-missing-image",
+    "observed_failure": true,
+    "what": "a random nonexistent public gallery key answers 404"
+  }
+}

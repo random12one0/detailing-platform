@@ -2527,7 +2527,8 @@ and how the wait ends.
   delete. The check must force the old cached-read path first and make that
   regression fail; an origin-only 404 is not proof about the public URL.
 
-- [ ] **0.11be — Gallery Remove must erase its stored photo before removing the row.**
+- [x] **0.11be — Gallery Remove must erase its stored photo before removing the row.**
+  DONE 2026-11-02 (Claude lane): live proof through the real button. `BASE=<dev server> node --env-file=.env scripts/gallery-remove-live.mjs` at main 0da053dd + script 8b49027e: per width (390, 1440) a disposable PNG uploaded through the deployed photo-door, warmed to a real Cloudflare HIT, given a real demo-detail gallery row; pressing Remove sent door remove <that key> then the row delete; afterwards R2's own signed HEAD said gone, the SAME warmed URL answered 404 (no query, no bypass), the row was gone. 2/2 presses, 21/21, PASS, canary caught, console clean. `--break=row-only` red: 6 failed of 23 (door never called, R2 still holds it, warmed URL still 200 HIT) at both widths; swap proved landed. Found: the app's service worker serves upload.js from its own cache past page.route, so the first sabotage run stayed green; the script now blocks service workers. Live site bundle already carries the fix; nothing to publish. Screenshots .manager-shots/0.11be/.
   **ATTEMPT 2026-10-18 (second) — THE PRIVACY HOLD IS CLEARED.** `tests/privacy-processors.test.mjs` § 2 asked for
   `media.detailingplatform.com` (`MEDIA_PUBLIC_BASE`, photo-rules.js) to be classified; one TABLE row added, kind
   `own` (our subdomain, never fetched by that code; Cloudflare already named), the step 100.6 took for
