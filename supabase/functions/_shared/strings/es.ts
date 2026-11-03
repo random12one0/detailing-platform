@@ -250,8 +250,8 @@ export const es: Record<string, string> = {
 
   // ── 7 · Cancelled ──────────────────────────────────────────────────────
   "Cancelled": "Cancelada",
-  "Your booking is cancelled": "Tu reserva quedó cancelada",
-  "Hi {first}, your booking with {brand} for {date} at {time} has been cancelled.":
+  "Your booking is canceled": "Tu reserva quedó cancelada",
+  "Hi {first}, your booking with {brand} for {date} at {time} has been canceled.":
     "Hola {first}, tu reserva con {brand} para el {date} a las {time} quedó cancelada.",
   // ROADMAP 3.4 FOLLOW-UP — the customer's half of a cancellation now says
   // whether their money is an open question, the same fact the detailer's
@@ -263,11 +263,11 @@ export const es: Record<string, string> = {
     "Llama al {phone} si no has sabido de ellos.",
   "This one's off the calendar. Whenever you're ready, booking again takes a minute.":
     "Esta cita ya no está en la agenda. Cuando quieras, reservar otra vez toma un minuto.",
-  "Your {day} appointment is cancelled":
+  "Your {day} appointment is canceled":
     "Tu cita para {day} está cancelada",
-  "Your appointment {day} is cancelled":
+  "Your appointment {day} is canceled":
     "Tu cita de {day} está cancelada",
-  "Cancelled: {date}": "Cancelada: {date}",
+  "Canceled: {date}": "Cancelada: {date}",
 
   // ── 8 · Moved ──────────────────────────────────────────────────────────
   "Rescheduled": "Reprogramada",
@@ -281,7 +281,7 @@ export const es: Record<string, string> = {
   // ── 8b · Back on (ROADMAP 97.24) ───────────────────────────────────────
   "Back on": "De nuevo en pie",
   "Your booking is back on": "Tu reserva vuelve a estar en pie",
-  "Your booking was cancelled. It's back on now, for the time below.":
+  "Your booking was canceled. It's back on now, for the time below.":
     "Tu reserva se había cancelado. Ya está de nuevo en pie, para el horario de abajo.",
   "Back on: {when}": "De nuevo en pie: {when}",
 
@@ -350,9 +350,9 @@ export const es: Record<string, string> = {
   "{when}: {name}, {street}": "{when}: {name}, {street}",
   "{when}: {name}": "{when}: {name}",
   // ── 7 · A booking cancelled ────────────────────────────────────────────
-  "{date} at {time} is cancelled. That time is open again.": "La cita del {date} a las {time} se canceló. Ese horario quedó libre otra vez.",
+  "{date} at {time} is canceled. That time is open again.": "La cita del {date} a las {time} se canceló. Ese horario quedó libre otra vez.",
   "Was worth": "Valía",
-  "{name} cancelled {when}": "{name} canceló {when}",
+  "{name} canceled {when}": "{name} canceló {when}",
   // `refundInstruction` in `_shared/connect.ts`. Same Spanish as the job
   // screen's (appEs.js), so the email and the dashboard say it one way.
   "what they paid": "lo que pagaron",

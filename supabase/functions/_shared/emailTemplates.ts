@@ -1110,7 +1110,7 @@ export function cancellationEmail(brand: TenantBrand, b: BookingEmailData, forOw
     ? [
       labBlock(tt("Cancelled"), "bad"),
       headlineBlock(b.customerName),
-      proseBlock(tt("{date} at {time} is cancelled. That time is open again.", {
+      proseBlock(tt("{date} at {time} is canceled. That time is open again.", {
         date: `<strong class="c-ink" style="color:${G.ink};">${esc(dateLong)}</strong>`,
         time: `<strong class="c-ink" style="color:${G.ink};">${formatTime12hr(b.startTime)}</strong>`,
       })),
@@ -1133,8 +1133,8 @@ export function cancellationEmail(brand: TenantBrand, b: BookingEmailData, forOw
     ].filter(Boolean)
     : [
       labBlock(tt("Cancelled"), "bad"),
-      headlineBlock(tt("Your booking is cancelled")),
-      proseBlock(tt("Hi {first}, your booking with {brand} for {date} at {time} has been cancelled.", {
+      headlineBlock(tt("Your booking is canceled")),
+      proseBlock(tt("Hi {first}, your booking with {brand} for {date} at {time} has been canceled.", {
         first: esc(firstName(b.customerName)),
         brand: esc(brand.brandName),
         date: `<strong class="c-ink" style="color:${G.ink};">${esc(dateLong)}</strong>`,
@@ -1171,11 +1171,11 @@ export function cancellationEmail(brand: TenantBrand, b: BookingEmailData, forOw
   const up = upcoming(brand, b.dateStr, null, lang);
   return mail(
     forOwner
-      ? tt("{name} cancelled {when}", { name: b.customerName, when: upcoming(brand, b.dateStr, b.startTime, lang).when })
+      ? tt("{name} canceled {when}", { name: b.customerName, when: upcoming(brand, b.dateStr, b.startTime, lang).when })
       : up.near
-      ? tt("Your appointment {day} is cancelled", { day: up.day })
-      : tt("Your {day} appointment is cancelled", { day: up.day }),
-    shell(brand, blocks, tt("Cancelled: {date}", { date: dateLong }), { lang }),
+      ? tt("Your appointment {day} is canceled", { day: up.day })
+      : tt("Your {day} appointment is canceled", { day: up.day }),
+    shell(brand, blocks, tt("Canceled: {date}", { date: dateLong }), { lang }),
   );
 }
 
@@ -1254,7 +1254,7 @@ export function restoredEmail(brand: TenantBrand, b: BookingEmailData): Mail {
   const blocks = [
     labBlock(tt("Back on")),
     headlineBlock(tt("Your booking is back on")),
-    proseBlock(tt("Your booking was cancelled. It's back on now, for the time below.")),
+    proseBlock(tt("Your booking was canceled. It's back on now, for the time below.")),
     markBlock(brand, [dateLong, `${formatTime12hr(b.startTime)} &ndash; ${formatTime12hr(b.endTime)}`]),
     factsBlock(jobFacts(brand, b, b.lang)),
     buttonBlock(brand, tt("View your booking"), b.receiptUrl),

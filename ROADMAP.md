@@ -13172,6 +13172,7 @@ requested.
   - Relevant automated tests cover the changed communication paths
 
 - [ ] **3.4g — Review rendered templates and record delivery coverage**
+  OPEN (code follow-up 2026-11-02): fixed canceled prose/subjects with matching Spanish keys, future invite and Spanish-authored preview samples. EN/ES renders 35/35 each; American English 16 findings -> 0, deliberate regression caught twice; 210 screenshots at three widths, no console/overflow defects. Evidence .manager-shots/3.4g/fix/ and docs/email-review-2026-11-02.md. Later publish required (cancel-booking/update-booking; all shared-module carriers listed in report). No mail/deploy/push; sandbox-delivery acceptance still unmet.
   OPEN (Claude lane 2026-11-02): reviewed 18 exported builders as 35 EN + 35 ES variants at three widths; read-only email_sends coverage recorded in docs/email-review-2026-11-02.md and docs/email-delivery-coverage-2026-11-02.json. Four American English defects and stale invite fixture recorded. Sabotage caught three broken confirmations; restored renders clean. No email sent; sandbox-delivery acceptance remains unmet.
   Render every currently exported email template in English and Spanish for manager review, then deliberately perform one allowed sandbox send per sendable template. Record unsendable templates as NOT SENT with their reason rather than treating them as covered.
   Part 4 of 4 of item 3.4, split out so it can be

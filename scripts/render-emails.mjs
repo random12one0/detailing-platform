@@ -74,6 +74,8 @@ const ACCENT = arg("accent", "#38E08B");
 // render too — the money still has to reach its total, the colours still have
 // to clear their floors, and `undefined` is still a defect in either language.
 const LANG = arg("lang", "en");
+// These are authored sample inputs, not product translations of business/customer text.
+const sample = (en, es) => LANG === "es" ? es : en;
 // ROADMAP 97.24 review: a Spanish run keeps its own folder and its own receipt,
 // so it no longer overwrites the English record, and the English one cannot hide it.
 const OUT = outDir(arg("out", LANG === "en" ? "email-preview" : `email-preview-${LANG}`));
@@ -102,10 +104,10 @@ const atCap = (words) => {
   return out.slice(0, 60).trim();
 };
 const LONG_BIZ = atCap("Ridgeline Auto Detailing and Mobile Valeting Co");
-const LONG_SERVICE = atCap("Full interior and exterior ceramic protection detail");
-const LONG_ADDON_A = atCap("Pet hair removal and upholstery shampoo treatment");
-const LONG_ADDON_B = atCap("Engine bay clean and underbonnet degrease service");
-const LONG_PLAN = atCap("Platinum bi-weekly maintenance and interior care");
+const LONG_SERVICE = atCap(sample("Full interior and exterior ceramic protection detail", "Limpieza interior y exterior con protección cerámica"));
+const LONG_ADDON_A = atCap(sample("Pet hair removal and upholstery shampoo treatment", "Eliminación de pelo de mascotas y lavado de tapicería"));
+const LONG_ADDON_B = atCap(sample("Engine bay clean and underbonnet degrease service", "Limpieza y desengrasado del compartimiento del motor"));
+const LONG_PLAN = atCap(sample("Platinum bi-weekly maintenance and interior care", "Mantenimiento Platino cada dos semanas y cuidado interior"));
 if (LONG) {
   console.log("--long: every tenant-typed name rendered at the 60-character cap (ROADMAP 2.15a)");
   console.log("        RENDERING ONLY - this script's PASS is not evidence; gotcha 81.");
@@ -161,7 +163,7 @@ const brand = {
     pay_cashapp: "ridgelinedetail",
     pay_paypal: "https://paypal.me/ridgelinedetail",
     pay_zelle: "(303) 555-0142",
-    pay_other: "Apple Pay, or a check made out to Ridgeline",
+    pay_other: sample("Apple Pay, or a check made out to Ridgeline", "Apple Pay o un cheque a nombre de Ridgeline"),
     pay_cash: true,
   }),
 };
@@ -194,7 +196,7 @@ const brand = {
 // same service" is the drift this whole item is about, one level up.
 const fixtureServices = [{
   id: "svc-detail",
-  name: LONG ? LONG_SERVICE : "Full Interior + Exterior Detail",
+  name: LONG ? LONG_SERVICE : sample("Full Interior + Exterior Detail", "Limpieza completa de interior y exterior"),
   price: 240,
   duration_minutes: 180,
   // A real size table, so extra cars are priced rather than assumed — the
@@ -208,8 +210,8 @@ const fixtureServices = [{
   },
 }];
 const fixtureAddOns = [
-  { id: "ao-pet", name: LONG ? LONG_ADDON_A : "Pet hair removal", price: 60, duration_minutes: 45 },
-  { id: "ao-bay", name: LONG ? LONG_ADDON_B : "Engine bay clean", price: 60, duration_minutes: 30 },
+  { id: "ao-pet", name: LONG ? LONG_ADDON_A : sample("Pet hair removal", "Eliminación de pelo de mascotas"), price: 60, duration_minutes: 45 },
+  { id: "ao-bay", name: LONG ? LONG_ADDON_B : sample("Engine bay clean", "Limpieza del compartimiento del motor"), price: 60, duration_minutes: 30 },
 ];
 
 // The job every fixture on this page is a variation of: one detail, two
@@ -220,10 +222,10 @@ const fixtureQuote = (extra = {}) => computeQuote({
   services: fixtureServices,
   addOns: fixtureAddOns,
   vehicleSize: "suv",
-  vehicleSizeLabel: "Mid-size SUV",
+  vehicleSizeLabel: sample("Mid-size SUV", "SUV mediana"),
   extraVehicles: [],
   travelFee: 25,
-  adjustments: [{ label: "Heavy soiling surcharge", amount: 20 }],
+  adjustments: [{ label: sample("Heavy soiling surcharge", "Recargo por suciedad intensa"), amount: 20 }],
   siteDiscountPercent: 5,
   promo: { type: "amount", value: 40 },
   roundingNearest: 0,
@@ -262,10 +264,10 @@ const booking = {
   // this repo's most repeated failure.
   hasWater: false,
   hasPower: false,
-  vehicleSize: "Mid-size SUV",
+  vehicleSize: sample("Mid-size SUV", "SUV mediana"),
   vehicleModel: "2021 Subaru Outback",
-  customerNotes: "Dog hair in the back seats. There's a tap on the side of the house.",
-  travelZone: "Outer ring",
+  customerNotes: sample("Dog hair in the back seats. There's a tap on the side of the house.", "Hay pelo de perro en los asientos traseros. Hay una llave de agua al costado de la casa."),
+  travelZone: sample("Outer ring", "Zona exterior"),
   // The two figures that are a STATEMENT rather than an amount, so they stay
   // written here: the sale's headline percentage and the code the customer
   // typed. Both are inputs to `fixtureQuote` above, not outputs of it.
@@ -299,7 +301,7 @@ const booking = {
 // of $180 a visit — and letting the engine name it. The label is now true and
 // the sale is recomputed on the job it is actually a percentage of.
 const planQuote = fixtureQuote({
-  plan: { name: LONG ? LONG_PLAN : "Bi-weekly maintenance", priceKind: "per_visit", priceAmount: 180 },
+  plan: { name: LONG ? LONG_PLAN : sample("Bi-weekly maintenance", "Mantenimiento cada dos semanas"), priceKind: "per_visit", priceAmount: 180 },
 });
 const planBooking = { ...booking, ...moneyFrom(planQuote) };
 
@@ -347,7 +349,7 @@ const planBooking = { ...booking, ...moneyFrom(planQuote) };
 // two used to carry, "Large / SUV" and "Small car", were the old email map's
 // own output typed back in as data — no booking ever stored them, so the path
 // a real business takes was never drawn. The first car keeps "Mid-size SUV",
-// which plays a size the detailer RENAMED and must stay as typed.
+// which plays a size the detailer RENAMED and must stay as authored in the sample language.
 const carloadCars = [
   { key: "large", label: "Large", model: "2021 Ford F-150" },
   { key: "small", label: "Small", model: null },
@@ -395,7 +397,7 @@ const GOODWILL = -15;
 const invoiceRows = [
   { label: tt("Booking total"), qty: 1, lineTotal: booking.total, kind: "charge" },
   { label: tt("Tip"), qty: 1, lineTotal: TIP, kind: "tip" },
-  { label: `${tt("Discount")}: Loyal customer`, qty: 1, lineTotal: GOODWILL, kind: "discount" },
+  { label: `${tt("Discount")}: ${sample("Loyal customer", "Cliente frecuente")}`, qty: 1, lineTotal: GOODWILL, kind: "discount" },
 ];
 const invoiceTotals = {
   chargesSubtotal: booking.total,
@@ -425,10 +427,10 @@ const EMAILS = [
   //   * `platform-payment-failed`'s $60 — the platform's own subscription
   //     price, a different subsystem entirely from booking pricing.
   // Everything else on this page now comes out of `computeQuote`.
-  ["customer-quote", "Customer · quote offered", () => T.requestDecisionEmail(brand, booking, "quote", { manageUrl: booking.receiptUrl, quotedAmount: 395, quotedNote: "The pet hair on this one is a bigger job than the photos suggested." })],
+  ["customer-quote", "Customer · quote offered", () => T.requestDecisionEmail(brand, booking, "quote", { manageUrl: booking.receiptUrl, quotedAmount: 395, quotedNote: sample("The pet hair on this one is a bigger job than the photos suggested.", "Eliminar el pelo de mascota requiere más trabajo de lo que parecía en las fotos.") })],
   ["customer-accepted", "Customer · request accepted", () => T.requestDecisionEmail(brand, booking, "accepted", { manageUrl: booking.receiptUrl })],
   ["customer-declined", "Customer · request declined", () => T.requestDecisionEmail(brand, booking, "declined", { manageUrl: booking.receiptUrl })],
-  ["customer-receipt", "Customer · receipt (paid)", () => T.invoiceEmail(brand, booking, invoiceRows, invoiceTotals, "paid", "Paid by card on the day.")],
+  ["customer-receipt", "Customer · receipt (paid)", () => T.invoiceEmail(brand, booking, invoiceRows, invoiceTotals, "paid", sample("Paid by card on the day.", "Pago con tarjeta el día del servicio."))],
   ["customer-invoice", "Customer · invoice (unpaid)", () => T.invoiceEmail(brand, booking, invoiceRows, invoiceTotals, "unpaid", null)],
   // ROADMAP 2.20 STAGE 3 — ITS OWN FIXTURE, because the pay button is a
   // BRANCH and the unpaid invoice above it takes the other side. A fixture
@@ -504,7 +506,7 @@ const EMAILS = [
   // choose and this sentence is where their customer-facing word first reaches
   // the person they invited. Rendered with one so the preview shows the real
   // string ("as a Detailer") rather than the fallback nobody will see.
-  ["staff-invite", "Staff · team invite", () => T.inviteEmail(brand, { role: "staff", label: "Detailer", link: "https://detailingplatform.com/invite/abc123", expiresAt: "2026-09-10T00:00:00Z" }, LANG)],
+  ["staff-invite", "Staff · team invite", () => T.inviteEmail(brand, { role: "staff", label: sample("Detailer", "Especialista en limpieza de autos"), link: "https://detailingplatform.com/invite/abc123", expiresAt: `${daysOut(7)}T23:59:59Z` }, LANG)],
   // Roadmap 2.14 step 3. The plan link is the SAFE half of "type your email
   // and it shows you" — it is the only thing that answers that form, so it is
   // the one email in the set whose absence would be a security decision going
@@ -517,14 +519,14 @@ const EMAILS = [
   // exactly like a check that passes. `accept-quote` could already produce one
   // whenever a detailer quoted UNDER the estimate.
   ["customer-confirmation-plan", "Customer · booking confirmed, on a plan", () => T.customerConfirmationEmail(brand, planBooking, false)],
-  ["customer-plan-link", "Customer · your plan link", () => T.planLinkEmail(brand, { customerName: "Dana Ortiz", planName: "Bi-weekly maintenance", planUrl: "https://detailingplatform.com/plan/9c1f2b64-0000-4000-8000-000000000001", bookUrl: brand.siteUrl }, LANG)],
+  ["customer-plan-link", "Customer · your plan link", () => T.planLinkEmail(brand, { customerName: "Dana Ortiz", planName: sample("Bi-weekly maintenance", "Mantenimiento cada dos semanas"), planUrl: "https://detailingplatform.com/plan/9c1f2b64-0000-4000-8000-000000000001", bookUrl: brand.siteUrl }, LANG)],
   // ROADMAP 2.23 — BOTH ENDS OF THE ESCALATION, because they are different
   // emails: the first is a note two months out and the last is the day
   // before. Rendering only one would leave the half that actually matters
   // unlooked-at, which is this script's whole reason for existing.
-  ["customer-maintenance-far", "Customer · maintenance due (60 days)", () => T.maintenanceDueEmail(brand, { customerName: "Dana Ortiz", label: "Ceramic Pro annual inspection", vehicle: "2021 Tacoma", dueOn: T.formatDateLong(daysOut(60), LANG), daysLeft: 60, bookUrl: brand.siteUrl, unsubscribeUrl: "https://detailingplatform.com/unsubscribe/9c1f2b64-0000-4000-8000-000000000002", mailingAddress: "PO Box 214, Lakewood CA 90713" }, LANG)],
-  ["customer-maintenance-last", "Customer · maintenance due (tomorrow)", () => T.maintenanceDueEmail(brand, { customerName: "Dana Ortiz", label: "Ceramic Pro annual inspection", vehicle: "2021 Tacoma", dueOn: T.formatDateLong(daysOut(1), LANG), daysLeft: 1, bookUrl: brand.siteUrl, unsubscribeUrl: "https://detailingplatform.com/unsubscribe/9c1f2b64-0000-4000-8000-000000000002", mailingAddress: "PO Box 214, Lakewood CA 90713" }, LANG)],
-  ["owner-plan-cancelled", "Owner · a plan ended", () => T.planCancelledEmail(brand, { customerName: "Dana Ortiz", planName: "Bi-weekly maintenance", startedOn: "2026-03-02", endedOn: "2026-09-04" }, LANG)],
+  ["customer-maintenance-far", "Customer · maintenance due (60 days)", () => T.maintenanceDueEmail(brand, { customerName: "Dana Ortiz", label: sample("Ceramic Pro annual inspection", "Inspección anual de Ceramic Pro"), vehicle: "2021 Tacoma", dueOn: T.formatDateLong(daysOut(60), LANG), daysLeft: 60, bookUrl: brand.siteUrl, unsubscribeUrl: "https://detailingplatform.com/unsubscribe/9c1f2b64-0000-4000-8000-000000000002", mailingAddress: "PO Box 214, Lakewood CA 90713" }, LANG)],
+  ["customer-maintenance-last", "Customer · maintenance due (tomorrow)", () => T.maintenanceDueEmail(brand, { customerName: "Dana Ortiz", label: sample("Ceramic Pro annual inspection", "Inspección anual de Ceramic Pro"), vehicle: "2021 Tacoma", dueOn: T.formatDateLong(daysOut(1), LANG), daysLeft: 1, bookUrl: brand.siteUrl, unsubscribeUrl: "https://detailingplatform.com/unsubscribe/9c1f2b64-0000-4000-8000-000000000002", mailingAddress: "PO Box 214, Lakewood CA 90713" }, LANG)],
+  ["owner-plan-cancelled", "Owner · a plan ended", () => T.planCancelledEmail(brand, { customerName: "Dana Ortiz", planName: sample("Bi-weekly maintenance", "Mantenimiento cada dos semanas"), startedOn: "2026-03-02", endedOn: "2026-09-04" }, LANG)],
   // ROADMAP 2.19. THE ONLY COMMERCIAL EMAIL IN THE SET, and the only one a
   // human composes — so it is the only one whose footer carries a postal
   // address and an opt-out. It is rendered here for the reason every other row
@@ -532,8 +534,8 @@ const EMAILS = [
   // looks present in the code and turns out to be missing on the page.
   ["customer-campaign", "Customer · the detailer reaching out", () => T.campaignEmail(brand, {
     customerName: "Dana Ortiz",
-    subject: "Time to get it looking right again?",
-    message: "It's been a few months since we last took care of your car.\n\nIf you'd like it back to how it looked when you drove it away, booking takes about a minute. Just use the button below and pick a time that suits you.",
+    subject: sample("Time to get it looking right again?", "¿Quieres que tu auto vuelva a lucir como nuevo?"),
+    message: sample("It's been a few months since we last took care of your car.\n\nIf you'd like it back to how it looked when you drove it away, booking takes about a minute. Just use the button below and pick a time that suits you.", "Han pasado unos meses desde la última vez que cuidamos tu auto.\n\nSi quieres que vuelva a lucir como cuando te lo llevaste, reservar toma alrededor de un minuto. Usa el botón de abajo y elige el horario que te convenga."),
     bookUrl: brand.siteUrl,
     unsubscribeUrl: "https://detailingplatform.com/unsubscribe/9c1f2b64-0000-4000-8000-000000000002",
     mailingAddress: "PO Box 214, Lakewood CA 90713",

@@ -1,5 +1,9 @@
 # Rendered email review and delivery coverage — 3.4g
 
+The code follow-up at the end of this report resolves findings A and F and
+localizes the sample inputs behind E. The original review below is retained
+as the before-state; sandbox delivery is still unproven.
+
 Reviewed November 2, 2026 (Pacific), against `0da053ddb7aab3b9a6b05954db82578f24be1cf7`.
 This pass renders, reads and records evidence only. No email was sent, no
 database row was changed, and nothing was pushed or deployed. It supersedes
@@ -227,3 +231,86 @@ functions were never deployed (`acknowledge-checkin`, `calendar-feed`,
 `.manager-shots/3.4g/deployed-inventory.txt` and `migration-drift.txt`. Nothing
 was deployed or applied to clear them. Local Chromium previews are evidence of
 the pinned source, not a claim that the live deployment sends those same bytes.
+
+## Code follow-up — November 2, 2026
+
+Implemented in `C:/belt-jobs/claude-3.4g-fix`, based on `2db828fc`.
+Finding A is fixed in the cancellation and restored builders: sentences,
+subjects and cancellation preheaders use **canceled**. The matching English
+keys in `_shared/strings/es.ts` changed in the same patch; their Spanish
+values are unchanged. None of those keys occurs in `appEs.js`, and
+`emailKit.ts` uses the shared dictionary rather than a separate Spanish table.
+Internal `cancelled` keys and the exempt bare status label remain intact.
+
+Finding F now derives the sample invite expiration from `daysOut(7)` on each
+render. This pass shows November 9 in both languages. The URL remains a dummy
+preview URL; no invitation was created. For E, the renderer supplies Spanish
+authored sample content in Spanish runs: campaign subject/message, services,
+add-ons, custom size, travel/surcharge labels, plans, maintenance, notes,
+loyalty reason, custom role and payment instructions. Proper names, models,
+addresses and payment handles are preserved. Seeded `Large`/`Small` still
+exercise the product's built-in size translation. Product behavior continues
+to preserve customer/business authored text, including English campaign text
+inside a Spanish frame; this is not a translation-policy change.
+
+Reproduction commands, run with `TRACKED_RECEIPTS=0`:
+
+```powershell
+node scripts/render-emails.mjs
+node scripts/render-emails.mjs --lang=es
+# Serve artifacts/email-preview at EXAMPLES_BASE, then:
+$env:EXAMPLES_BASE='http://127.0.0.1:54835/en'
+node scripts/american-english.mjs --emails=artifacts/email-preview
+# Evidence tools live under the main checkout, not this worktree:
+$proof='C:/Users/rando/Downloads/claude/detailing-platform/.manager-shots/3.4g/fix'
+node "$proof/check-fixtures.mjs"
+node "$proof/review.mjs"
+```
+
+Both before renders and both final renders passed: every exported builder,
+35/35 variants and 176 assertions per language. The American English check's
+new email mode uses its existing word list and positional exceptions, reading
+finished HTML plus subjects and plain-text lines. Before: 16 occurrences in
+the four reported variants; after and after restoration: 35/35 pages, 3,090
+assertions, zero occurrences. Its canary caught all seven planted words and
+did not flag the exempt status/key. Deliberately restoring the bad headline
+`Your booking is cancelled` produced exit 1 and two findings naming
+`customer-cancellation` (HTML and text). `sabotage-diff.txt` proves the single
+line edit; `sabotage-numstat.txt` records the working-tree diff. The saved fixed
+bytes were restored, both languages re-rendered, and the style check rerun.
+`check-fixtures.mjs` also verified both future invite dates, every Spanish
+preview's former English samples, and preservation of authored English by the
+Spanish campaign frame.
+
+Evidence is under the main checkout's `.manager-shots/3.4g/fix/`: before,
+after, sabotage and final command logs/receipts; `browser-review.json`; and
+`en/<preview-id>-<width>.png` / `es/<preview-id>-<width>.png`. The browser pass
+visited all 210 pages at 1440×900, 768×1024 and 390×844, with zero console
+warnings/errors, invalid links, wrong document languages or horizontal
+overflows. All 21 `contact-<width>-<1..7>.png` sheets were visually inspected.
+Against `DESIGN.md` and the inbox adaptation in `emailKit.ts`: continuous warm
+paper, one green action/amount accent, red cancellation labels, ruled records,
+separate words/monospace figures, hierarchy, centered footer and phone wrapping
+remain intact. No additional visual correction was needed.
+
+The credential-free battery recorded above was rerun: 20/20 Node tests pass
+(`suites.txt`); `node scripts/label-guard.mjs` passes (`label-guard.txt`).
+Read-only `deployed-inventory.mjs` and `migration-drift.mjs` were rerun with
+main's `.env`: the same 33/44 differing programs, three never deployed, one
+differing database function, five missing columns and one absent index remain.
+Their named logs are in this follow-up evidence directory. Generated example
+rewrites remain NOT MEASURED in the route suite; no app build was needed for
+these shared email templates. The previously reported stale review-sheet
+roster is outside this patch and remains unresolved.
+
+**Later publish required.** The changed cancellation/restored functions are
+called by `cancel-booking` and `update-booking`. The shared-dependency walk in
+`check-fixtures.mjs` records all 18 programs carrying either changed shared
+module in `publish-carriers.json`: `accept-quote`, `cancel-booking`,
+`create-booking`, `create-business`, `invite-user`, `plan-link`,
+`platform-admin`, `platform-billing`, `preview-emails`, `report-problem`,
+`reschedule-booking`, `respond-to-booking`, `send-campaign`, `send-invoice`,
+`send-owner-reminders`, `stripe-webhook`, `update-booking`, `watch-jobs`.
+The renderer's fixture changes are local only. Nothing was sent, deployed,
+pushed or written to the database. The belt was left stopped. Land with
+`--keep-open`: the sandbox-delivery acceptance criteria remain unmet.

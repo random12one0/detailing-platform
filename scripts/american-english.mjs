@@ -79,17 +79,22 @@
 
 import { createRequire } from "node:module";
 import path from "node:path";
-import { writeFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
-import { writeReceipt } from "./receipt.mjs";
+import { readFileSync, writeFileSync } from "node:fs";
+import { receiptFile, writeReceipt } from "./receipt.mjs";
 
 const require_ = createRequire(import.meta.url);
 const { chromium } = require_("./../app/node_modules/playwright/index.js");
 
-const ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const BASE = process.env.EXAMPLES_BASE || "http://localhost:5173";
 const BREAK = (process.argv.find((a) => a.startsWith("--break=")) || "").split("=")[1] || "";
 const started_at = new Date().toISOString();
+// Serve the renderer's English output at EXAMPLES_BASE, then --emails=artifacts/email-preview.
+// Subjects and text alternatives are checked alongside the finished HTML.
+const EMAIL_DIR = process.argv.find((a) => a.startsWith("--emails="))?.slice(9);
+const EMAILS = EMAIL_DIR ? JSON.parse(readFileSync(path.join(EMAIL_DIR, "emails.json"), "utf8")) : null;
+if (EMAILS && (EMAILS.length < 18 || new Set(EMAILS.map((r) => r.file)).size !== EMAILS.length)) {
+  throw new Error("Email manifest is too small or has duplicate preview IDs; render emails first.");
+}
 
 // EVERY PAGE A STRANGER CAN REACH WITHOUT SIGNING IN. Declared, so a page
 // that stops existing is a discovered-vs-expected mismatch the receipt
@@ -104,7 +109,7 @@ const started_at = new Date().toISOString();
 // **the gate that catches a word spelled wrong for the audience was not
 // reading the two pages whose entire job is to be read.** 11 → 13;
 // `expected_targets` is `PAGES.length`, so the receipt followed on its own.
-const PAGES = [
+const PAGES = EMAILS ? EMAILS.map((r) => [r.file, `/${r.file}.html`]) : [
   ["home", "/"],
   ["pricing", "/pricing"],
   ["terms", "/terms"],
@@ -279,7 +284,8 @@ console.log(PAGES.length + " pages, " + WORDS.length + " words, exceptions by po
 const scan = async (url, plant) => {
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
   try {
-    await page.goto(BASE + url, { waitUntil: "networkidle", timeout: 25000 });
+    const response = await page.goto(BASE + url, { waitUntil: "networkidle", timeout: 25000 });
+    if (!response.ok()) return { error: `HTTP ${response.status()}` };
     await page.waitForTimeout(900);
     // `/ex1/prices` without the .html is a 404 PAGE THAT RENDERS FINE. Two
     // scans reported three sub-pages clean while reading the error page.
@@ -305,6 +311,12 @@ for (const [name, url] of PAGES) {
   }
   discovered++;
   const hits = [];
+  const email = EMAILS?.find((r) => r.file === name);
+  if (email) r.strings.push(
+    { where: "subject", bucket: "prose", text: email.subject, bare: false },
+    ...readFileSync(path.join(EMAIL_DIR, `${name}.txt`), "utf8").split(/\r?\n/).map((text) =>
+      ({ where: "text alternative", bucket: "prose", text, bare: /^cancelled$/i.test(text.trim()) })),
+  );
   for (const s of r.strings) {
     assertions++;
     for (const f of findings(s.text, s.bucket, s.bare)) hits.push({ ...f, where: s.where });
@@ -321,7 +333,7 @@ for (const [name, url] of PAGES) {
 }
 
 // ── the canary, on a real page
-const c = await scan("/ex1/", PLANT);
+const c = await scan(EMAILS ? PAGES[0][1] : "/ex1/", PLANT);
 const cf = [];
 if (c.error) {
   failures.push("the canary page would not load: " + c.error);
@@ -369,7 +381,7 @@ const sabotageWorked = BREAK !== "" && !canaryOk;
 
 // SOMETHING FOR A PERSON TO LOOK AT. A receipt with no artifact is a number
 // with nothing behind it, and `receipt.mjs` refuses one — correctly.
-const REPORT = path.join(ROOT, "receipts", "american-english-report.txt");
+const REPORT = receiptFile(EMAILS ? "american-english-emails-report.txt" : "american-english-report.txt");
 writeFileSync(REPORT, [
   "American English, read off the finished page — " + started_at,
   BREAK ? "RUN WITH --break=" + BREAK + ": this is a sabotage, not a result." : "",
@@ -386,7 +398,7 @@ writeFileSync(REPORT, [
 ].join("\n") + "\n", "utf8");
 
 const { path: receiptPath } = writeReceipt({
-  check_id: "american-english",
+  check_id: EMAILS ? "american-english-emails" : "american-english",
   started_at,
   status,
   expected_targets: PAGES.length,
@@ -395,9 +407,9 @@ const { path: receiptPath } = writeReceipt({
   completed_targets: completed,
   skipped_targets: skipped,
   assertions_executed: assertions,
-  min_assertions: 2500,
+  min_assertions: EMAILS ? 100 : 2500,
   failures: BREAK ? [] : failures,
-  artifacts: ["receipts/american-english-report.txt"],
+  artifacts: [REPORT],
   warnings: [
     ...(BREAK ? ["run with --break=" + BREAK + "; this receipt is a sabotage, not a result"] : []),
     'bare "wing" is NOT in the word list — a wing is a real part of an American car — and one of '
