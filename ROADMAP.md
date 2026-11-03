@@ -3061,7 +3061,8 @@ and how the wait ends.
   the deployed `delete-customer` carries 0 of 3 R2 markers**, so step 9d is not optional and the gate will say
   so. The steps are `FOR-ANDREW.md` 9c, 9d and 9e, in that order, with step 9a2 before 9c.
 
-- [ ] **0.11cc — Install cron and apply coordinated allowance release**
+- [x] **0.11cc — Install cron and apply coordinated allowance release**
+  2026-11-02, ticked after live proof: 98.5's 17-file photo+Spanish run 142/142, 0 skipped with Spanish section 7 executing (receipts/0.11cc-photo-tests-2026-10-23-keys.txt, run with keys on 10-23); live-bundle-switches.mjs on published index-BjgdzFnP.js judges RECEIPTS_VIA_DOOR and MEDIA_VIA_DOOR both ON (2 rules, 15 assertions, canary caught, --break=media-off reddens it); photo-release-order.mjs against the live project: 10 rules, 0 failed, 1 UNJUDGEABLE (bucket-cors, needs a Cloudflare credential), photo-door and photo-reconcile deployed, cron installed, photo_total_gb 10, delete-customer 3 of 3 R2 markers, bundle 4 of 4 door markers, graded PASS (--break=door-public reddened 1 rule); no code changed. 0.11c itself and R5 wording remain Andrew's.
   **2026-10-25, credential-free: the website publish has happened.** `node scripts/live-bundle-switches.mjs` at `9d6dc5b2`
   judges `RECEIPTS_VIA_DOOR` and `MEDIA_VIA_DOOR` both ON in the published bundle `assets/index-BjgdzFnP.js`: it matches
   the both-on build on all five markers and no other build (2 of 2, 15 assertions, canary caught, graded PASS; three
