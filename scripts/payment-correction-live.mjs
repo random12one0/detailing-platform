@@ -129,7 +129,13 @@ const LIVE = URL_.replace(/\/$/, "");
 const appPort = new URL(BASE).port;
 const isLocalBackend = (u) => ["127.0.0.1", "localhost", "[::1]"].includes(u.hostname) && u.port !== appPort
   && /^\/(rest|auth|functions|storage)\/v1\//.test(u.pathname);
+let injected = 0; // --break=refinalize presses that actually carried finalized_at
+const refinalize = (req) => { injected++; return JSON.stringify({ ...JSON.parse(req.postData() || "{}"), finalized_at: new Date().toISOString() }); };
 async function viaLive(ctx) {
+  // A dev server pointed straight at the live project never touches the local route below, so
+  // the break needs its own route there too; 2026-11-02 it went green without ever firing.
+  if (BREAK === "refinalize") await ctx.route((u) => u.origin === LIVE && u.pathname === "/functions/v1/update-booking",
+    (route) => route.request().method() === "POST" ? route.continue({ postData: refinalize(route.request()) }) : route.continue());
   let localAnon = null;
   await ctx.route(isLocalBackend, async (route) => {
     const req = route.request();
@@ -147,7 +153,7 @@ async function viaLive(ctx) {
       // --break=refinalize: the obvious build, a correction that also stamps finalized_at.
       let postData;
       if (BREAK === "refinalize" && req.method() === "POST" && url.includes("/functions/v1/update-booking")) {
-        postData = JSON.stringify({ ...JSON.parse(req.postData() || "{}"), finalized_at: new Date().toISOString() });
+        postData = refinalize(req);
       }
       const resp = await route.fetch({ url, headers: h, ...(postData ? { postData } : {}) });
       return await route.fulfill({ response: resp, headers: { ...resp.headers(), ...cors } });
@@ -351,6 +357,7 @@ if (target && untouched && foreign) {
   }
 }
 await browser.close();
+if (BREAK === "refinalize" && injected !== PRESSES.length) failures.push(`sabotage fired on ${injected} of ${PRESSES.length} presses, so this run cannot say the check catches it`);
 
 // ---- canary: the audit assertion aimed at a booking nobody touched ---------------
 const canary = {

@@ -1,9 +1,9 @@
 {
-  "git_sha": "acd3e714077fa779898e716f57d351fe05822547",
-  "git_sha_started": "acd3e714077fa779898e716f57d351fe05822547",
+  "git_sha": "0da053ddb7aab3b9a6b05954db82578f24be1cf7",
+  "git_sha_started": "0da053ddb7aab3b9a6b05954db82578f24be1cf7",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-25T03:28:24.185Z",
+  "finished_at": "2026-11-03T03:29:53.876Z",
   "failures": [],
   "warnings": [
     "WRITES: one demo-detail booking Paid -> Waived -> Unpaid -> Part paid -> Paid through the screen, ending as it started; action_log gains four append-only rows per run."
@@ -25,7 +25,7 @@
     "artifacts/payment-correction-live/320x640-es.png"
   ],
   "dimensions": {
-    "base": "http://127.0.0.1:5180",
+    "base": "http://localhost:5247",
     "sizes": [
       "1920x1080",
       "1440x900",
@@ -65,7 +65,7 @@
     ]
   },
   "check_id": "payment-correction-live",
-  "started_at": "2026-10-25T03:26:25.508Z",
+  "started_at": "2026-11-03T03:27:54.309Z",
   "status": "pass",
   "expected_targets": 21,
   "discovered_targets": 21,

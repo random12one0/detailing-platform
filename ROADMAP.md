@@ -15990,8 +15990,9 @@ requested.
   were 37 wide, and the `::after` is vertical only). `node scripts/sweep-tap-targets.mjs --only admin` with the row gap alone
   left 2 findings; with both, clean. `receipts/sweep-tap-targets.json` grades PASS, 60 of 60 screens at `b5ccac8`, canary 5 of 5,
   in the full default run too. The `.btn.sm` 38px-icon exception was not touched.
-- [ ] **4.7 — Once a job is finalized, a recorded payment can never be changed
+- [x] **4.7 — Once a job is finalized, a recorded payment can never be changed
   back.** A detailer finishes a job, says how it was paid — paid, part paid, not
+  **LIVE RUN TAKEN 2026-11-02 (Claude lane), and ticked on it.** `node scripts/payment-correction-live.mjs` against kguqylyzgyzfktkfnhjb through this checkout's screen (dev server pointed straight at the live project): **21 of 21 targets, 252 assertions, 0 failed, canary caught** — four presses Paid → Waived → Unpaid → Part paid → Paid on demo-detail's Victor Salas $640, each writing exactly one `action_log` row (`payment.waive` once, `payment.set` three times, actor `owner`), `finalized_at` 2026-03-04T04:25:00Z unmoved, line items unchanged, the three refusals held (never-finalized EN/ES, no answer while the pick has not moved in 14 frames, other tenant **404** with its row unchanged), console clean in all 14 frames. **The first `--break=refinalize` run went GREEN (21/21, 0 failed): the break only rode the local stand-in route, so a dev server talking to the live project directly never got it.** Fixed in the script (its own route on the live `update-booking`, and a named failure if it fires on fewer than four presses); re-run **red with exactly 4 failures, all `finalized_at MOVED … (a second Finalize)`**, original put back. Read back by a separate query afterwards: the row is Paid with its original `finalized_at`. Screens in `.manager-shots/4.7/` (20 files).
   yet, or waived — and presses Finalize. **From that moment the choice is
   permanent as far as this product is concerned.** Picking the wrong one is one
   tap. There is no tap that undoes it.
