@@ -1404,11 +1404,13 @@ html:has(.intake > .impbar) {
 }
 .impbar b { font-variation-settings: "wght" 680; }
 .impbar button {
-  flex: none; min-height: 32px; padding: 0 12px;
+  flex: none; min-height: 32px; padding: 0 12px; position: relative;
   border-radius: var(--r-inset); corner-shape: var(--corner);
   border: 1px solid color-mix(in srgb, var(--bad) 55%, transparent);
   background: transparent; color: var(--text); font: inherit; cursor: pointer;
 }
+/* 32px box, 44px press (9.27): 7px above and below (the strip is 48px tall), 4px sideways so the 12px gap between two buttons keeps dead space. */
+.impbar button::after { content: ""; position: absolute; inset: -7px -4px; }
 .impbar button:hover { background: color-mix(in srgb, var(--bad) 22%, transparent); }
 .app-shell:has(.impbar) .topbar { position: static; }
 

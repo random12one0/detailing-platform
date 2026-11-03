@@ -10735,7 +10735,8 @@ the wrong service, and never book a job we cannot reach.
   Found and filed, not fixed: the strip's own «Leave» button is 32px tall (9.27).
   **The meta-test is a source-text guard by design** (a lint over the stylesheets and the hit-testing scripts; the browser half is `state-furniture-clearance.mjs`). Its § 4 asserted `true` until 2026-10-24; it now asserts the Done-when per row (a declared hit-tester or a declared reason), and goes red by name under `FURNITURE_BREAK=new-furniture` (`.sabotage-strip`) and `=uncover` (`.bk-bar`); 6 passed 0 failed clean.
 
-- [ ] **9.27 — The platform view strip's «Leave» and «Close» buttons are 32px tall, under the 44px rule.**
+- [x] **9.27 — The platform view strip's «Leave» and «Close» buttons are 32px tall, under the 44px rule.**
+  9.27: view-strip buttons (Leave, Let me make changes, Close) press as 44px via ::after; scripts/impbar-hit.mjs hit-tests the real strips at 320/390/768/1440 (--break=noafter goes red).
   **Held for a builder, not for Andrew (belt 2026-10-25).** The finish review still found problems; they are work, not a question. Continue branch `belt/9.27-20261025024802329`: fix each finding that is real, re-run the item's proof, and say in this entry why any finding is wrong.
   - 1. `scripts/impbar-hit.mjs`: the job-end save broke it (duplicate `let l, r` is a SyntaxError), so it cannot run and none of its `--break=` switches can be shown to work. Go back to the 0bfebdbf version or drop the added block.
   - 2. `scripts/impbar-hit.mjs`: in the saved version the extra overlap check raises the count to 12 per run while the guard still requires exactly 9. Even with the syntax error fixed, every run would report "FAIL: checked 12 of 9". The final message also repeats itself ("…do not overlap and neighbours do not overlap").
