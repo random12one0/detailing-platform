@@ -1,0 +1,308 @@
+{
+  "queried_at": "2026-11-03T03:23:22.746Z",
+  "project": "kguqylyzgyzfktkfnhjb",
+  "query": "select subject, status, provider_id is not null as has_provider_id, body_html, sent_at from public.email_sends order by sent_at",
+  "read_only": true,
+  "rows": 200,
+  "patterns": [
+    {
+      "family": "confirmation",
+      "pattern": "(?:You're booked for|Tu cita quedó reservada para|^Booking confirmed ·|^You're booked in ·)"
+    },
+    {
+      "family": "request-received",
+      "pattern": "(?:Got your request for|Recibimos tu solicitud para|^Request received ·)"
+    },
+    {
+      "family": "reminder",
+      "pattern": "(?:Reminder: your appointment|Recordatorio: tu cita)"
+    },
+    {
+      "family": "quote",
+      "pattern": "(?:Your price is ready|Tu precio está listo)"
+    },
+    {
+      "family": "accepted",
+      "pattern": "(?:Confirmed:|Confirmada:)"
+    },
+    {
+      "family": "declined",
+      "pattern": "(?:About your request for|Sobre tu solicitud para)"
+    },
+    {
+      "family": "receipt",
+      "pattern": "(?:Your receipt from|Tu recibo de|^Receipt ·)"
+    },
+    {
+      "family": "invoice",
+      "pattern": "(?:Invoice from|Factura de)"
+    },
+    {
+      "family": "reschedule-customer",
+      "pattern": "(?:New time:|Nuevo horario:)"
+    },
+    {
+      "family": "cancellation-customer",
+      "pattern": "(?:Your .+ appointment is cancel[le]*d|Tu cita para .+ está cancelada|^Your booking has been cancelled$)"
+    },
+    {
+      "family": "restored",
+      "pattern": "(?:Back on:|De nuevo en pie:)"
+    },
+    {
+      "family": "followup",
+      "pattern": "(?:Thanks from|Gracias de parte de|^Thank you for choosing )"
+    },
+    {
+      "family": "booking-owner",
+      "pattern": "(?:New booking:|Nueva cita:|^New booking ·)"
+    },
+    {
+      "family": "request-owner",
+      "pattern": "(?: wants .+ at | quiere el .+ a las |^Request ·)"
+    },
+    {
+      "family": "reschedule-owner",
+      "pattern": "(?: moved to | cambió su cita al )"
+    },
+    {
+      "family": "cancellation-owner",
+      "pattern": "(?: cancel[le]*d .+ at | canceló el .+ a las |^Cancelled ·)"
+    },
+    {
+      "family": "stale-request",
+      "pattern": "(?:Still waiting:|Todavía esperando:)"
+    },
+    {
+      "family": "invite",
+      "pattern": "(?:You've been added to|Te agregaron a|^Join .+ on the booking dashboard$)"
+    },
+    {
+      "family": "plan-link",
+      "pattern": "(?:Your plan with|Tu plan con)"
+    },
+    {
+      "family": "maintenance",
+      "pattern": "(?:Your car's about due|ya casi le toca servicio a tu auto)"
+    },
+    {
+      "family": "plan-cancelled",
+      "pattern": "(?: left your .+ plan| dejó tu plan )"
+    },
+    {
+      "family": "billing-failed",
+      "pattern": "(?:Your card didn't go through|Tu tarjeta no pasó)"
+    },
+    {
+      "family": "billing-suspended",
+      "pattern": "(?:booking page is offline|página de reservas de .+ está fuera de línea)"
+    },
+    {
+      "family": "build-started",
+      "pattern": "(?:We've started building your site|Empezamos a construir tu sitio)"
+    },
+    {
+      "family": "new-detailer",
+      "pattern": "(?: just signed up| se acaba de registrar)"
+    },
+    {
+      "family": "scheduled-job-alert",
+      "pattern": "(?: has stopped running$| is running again$)"
+    },
+    {
+      "family": "owner-reminder",
+      "pattern": "(?:^Upcoming job -|^(?:Today|Tomorrow) at )"
+    },
+    {
+      "family": "problem-report-outside-templates",
+      "pattern": "^Problem report ·"
+    }
+  ],
+  "groups": {
+    "scheduled-job-alert": {
+      "rows": 38,
+      "statuses": {
+        "failed": 20,
+        "refused": 8,
+        "skipped": 10
+      },
+      "provider_rows": 0,
+      "body_rows": 8,
+      "first_seen": "2026-09-18 04:17:38.496291+00",
+      "last_seen": "2026-10-24 16:32:26.029168+00"
+    },
+    "problem-report-outside-templates": {
+      "rows": 10,
+      "statuses": {
+        "sent": 10
+      },
+      "provider_rows": 10,
+      "body_rows": 0,
+      "first_seen": "2026-09-20 11:18:08.912466+00",
+      "last_seen": "2026-09-20 13:01:57.898819+00"
+    },
+    "confirmation": {
+      "rows": 28,
+      "statuses": {
+        "skipped": 28
+      },
+      "provider_rows": 0,
+      "body_rows": 18,
+      "first_seen": "2026-09-20 17:44:21.255289+00",
+      "last_seen": "2026-10-24 16:26:44.777975+00"
+    },
+    "booking-owner": {
+      "rows": 45,
+      "statuses": {
+        "skipped": 45
+      },
+      "provider_rows": 0,
+      "body_rows": 19,
+      "first_seen": "2026-09-20 17:44:21.74469+00",
+      "last_seen": "2026-10-24 16:26:45.257314+00"
+    },
+    "invite": {
+      "rows": 1,
+      "statuses": {
+        "skipped": 1
+      },
+      "provider_rows": 0,
+      "body_rows": 0,
+      "first_seen": "2026-09-20 17:44:40.580369+00",
+      "last_seen": "2026-09-20 17:44:40.580369+00"
+    },
+    "new-detailer": {
+      "rows": 1,
+      "statuses": {
+        "refused": 1
+      },
+      "provider_rows": 0,
+      "body_rows": 0,
+      "first_seen": "2026-09-20 17:44:42.687198+00",
+      "last_seen": "2026-09-20 17:44:42.687198+00"
+    },
+    "owner-reminder": {
+      "rows": 19,
+      "statuses": {
+        "skipped": 18,
+        "failed": 1
+      },
+      "provider_rows": 0,
+      "body_rows": 6,
+      "first_seen": "2026-10-05 02:00:04.068598+00",
+      "last_seen": "2026-10-27 02:00:03.318015+00"
+    },
+    "reminder": {
+      "rows": 15,
+      "statuses": {
+        "skipped": 15
+      },
+      "provider_rows": 0,
+      "body_rows": 5,
+      "first_seen": "2026-10-12 18:30:03.180215+00",
+      "last_seen": "2026-10-27 02:00:05.114078+00"
+    },
+    "stale-request": {
+      "rows": 12,
+      "statuses": {
+        "skipped": 12
+      },
+      "provider_rows": 0,
+      "body_rows": 0,
+      "first_seen": "2026-10-13 06:30:02.527471+00",
+      "last_seen": "2026-10-18 03:30:04.537148+00"
+    },
+    "request-received": {
+      "rows": 11,
+      "statuses": {
+        "delivered": 10,
+        "skipped": 1
+      },
+      "provider_rows": 10,
+      "body_rows": 1,
+      "first_seen": "2026-10-17 04:34:23.09753+00",
+      "last_seen": "2026-10-24 16:26:52.002496+00"
+    },
+    "request-owner": {
+      "rows": 11,
+      "statuses": {
+        "skipped": 11
+      },
+      "provider_rows": 0,
+      "body_rows": 1,
+      "first_seen": "2026-10-17 04:34:23.941762+00",
+      "last_seen": "2026-10-24 16:26:52.64666+00"
+    },
+    "cancellation-customer": {
+      "rows": 2,
+      "statuses": {
+        "skipped": 2
+      },
+      "provider_rows": 0,
+      "body_rows": 1,
+      "first_seen": "2026-10-23 08:34:43.695242+00",
+      "last_seen": "2026-10-24 16:25:17.804245+00"
+    },
+    "cancellation-owner": {
+      "rows": 2,
+      "statuses": {
+        "skipped": 2
+      },
+      "provider_rows": 0,
+      "body_rows": 1,
+      "first_seen": "2026-10-23 08:34:45.659378+00",
+      "last_seen": "2026-10-24 16:25:18.425848+00"
+    },
+    "receipt": {
+      "rows": 1,
+      "statuses": {
+        "skipped": 1
+      },
+      "provider_rows": 0,
+      "body_rows": 0,
+      "first_seen": "2026-10-23 08:36:57.223832+00",
+      "last_seen": "2026-10-23 08:36:57.223832+00"
+    },
+    "followup": {
+      "rows": 1,
+      "statuses": {
+        "skipped": 1
+      },
+      "provider_rows": 0,
+      "body_rows": 0,
+      "first_seen": "2026-10-23 08:36:57.666987+00",
+      "last_seen": "2026-10-23 08:36:57.666987+00"
+    },
+    "restored": {
+      "rows": 1,
+      "statuses": {
+        "skipped": 1
+      },
+      "provider_rows": 0,
+      "body_rows": 1,
+      "first_seen": "2026-10-23 18:38:35.615898+00",
+      "last_seen": "2026-10-23 18:38:35.615898+00"
+    },
+    "reschedule-customer": {
+      "rows": 1,
+      "statuses": {
+        "skipped": 1
+      },
+      "provider_rows": 0,
+      "body_rows": 1,
+      "first_seen": "2026-10-24 16:25:13.103928+00",
+      "last_seen": "2026-10-24 16:25:13.103928+00"
+    },
+    "reschedule-owner": {
+      "rows": 1,
+      "statuses": {
+        "skipped": 1
+      },
+      "provider_rows": 0,
+      "body_rows": 1,
+      "first_seen": "2026-10-24 16:25:13.851081+00",
+      "last_seen": "2026-10-24 16:25:13.851081+00"
+    }
+  },
+  "unattributed_signatures": {}
+}
