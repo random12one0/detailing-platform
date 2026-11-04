@@ -32210,6 +32210,8 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   No publishing or live structural change belongs to this item.
 
 - [ ] **98.4 — Retarget the remaining platform-admin check to the current office.**
+  NEEDS ANDREW: the belt held this job's work instead of merging it — the full test suite found tests/skip-census.test.mjs: 1 failing, the baseline had 0; 1 new failing test(s): tests/skip-census.test.mjs :: the scripts whose skip count is an expression are exactly the declared ones.
+  The work is safe on branch `belt/98.4-20261104020953698`. Answer "merge it" to keep it, or say what to change.
   NEEDS ANDREW: the belt held this job's work instead of merging it — the full test suite found tests/sweep-methods-are-pinned.test.mjs: 1 failing, the baseline had 0; 1 new failing test(s): tests/sweep-methods-are-pinned.test.mjs :: the two sweep methods are pinned, not described > 3b · every numbered open item is named by a commit, except the declared ones.
   The work is safe on branch `belt/98.4-20261022084408433`. Answer "merge it" to keep it, or say what to change.
   SUPERVISION 2026-10-22: stays open. Read the held `9b62ce23..e5f66a3a` test diff, including the executable browser launch and replacement sign-out assertion. Retargeting the approved design is authorized; launching Chromium in a belt-run test and leaving subscription cleanup unguarded are real defects, not grounds to weaken the gate. The six concrete findings immediately below remain the builder's queue. The belt task brief now explains where executable browser/shell proofs belong. No held code was merged or executed as a trusted test in this pass.
