@@ -32212,6 +32212,8 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   No publishing or live structural change belongs to this item.
 
 - [ ] **98.4 — Retarget the remaining platform-admin check to the current office.**
+  NEEDS ANDREW: the belt held this job's work instead of merging it — the belt's own files or the main repo's git refs changed while the builder ran (belt.config.json was changed, and not by a Settings save).
+  The work is safe on branch `belt/98.4-20261104184737386`. Answer "merge it" to keep it, or say what to change.
   NEEDS ANDREW: the belt held this job's work instead of merging it — the full test suite found tests/skip-census.test.mjs: 1 failing, the baseline had 0; 1 new failing test(s): tests/skip-census.test.mjs :: the scripts whose skip count is an expression are exactly the declared ones.
   The work is safe on branch `belt/98.4-20261104020953698`. Answer "merge it" to keep it, or say what to change.
   NEEDS ANDREW: the belt held this job's work instead of merging it — the full test suite found tests/sweep-methods-are-pinned.test.mjs: 1 failing, the baseline had 0; 1 new failing test(s): tests/sweep-methods-are-pinned.test.mjs :: the two sweep methods are pinned, not described > 3b · every numbered open item is named by a commit, except the declared ones.
