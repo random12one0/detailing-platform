@@ -32404,10 +32404,6 @@ decisions, not build jobs.
   - If invite-only: `/pricing` buttons lead to the application form, the form's submissions reach Andrew, and `/app` signup without an invite is closed, checked at 390 and 1440
 
 - [ ] **97.95 — An account waiting for its first payment can still use owner programs on the server (P-3).**
-  **BELT PARKED (too big) after 0 attempts, 2026-11-04 10:18:24.** it is too big to land as one job: 45 files and 1562 changed lines (the limit is 15 files and 600 lines, lockfiles not counted); split it into numbered smaller items in this entry and land the first. Its work is kept on branch belt/97.95-20261104095524112. The belt could not
-  finish this and moved on rather than looping. The last attempt's full output
-  is at `belt/runs/2026-11-04T10-07-43-656Z-97.95.md`. Needs a person or a different
-  approach — unpark by deleting these four lines.
   NEEDS ANDREW: the belt held this job's work instead of merging it — main could not be moved to the checked result (Please commit your changes or stash them before you merge. Aborting); main is unchanged.
   The work is safe on branch `belt/97.95-20261024204024278`. Answer "merge it" to keep it, or say what to change.
   Found by 97.37. A self-serve signup is `paused` until it pays and the dashboard hides everything but setup, settings and Billing, but the server programs an owner calls (`send-campaign`, `invite-user`, `send-invoice` and the like) check membership, not the switch, so a signed-in owner calling them directly is not refused. Separately, the Billing screen throws when `platform-billing` answers without a summary (seen in the belt sandbox, which answers `{}`), instead of saying it could not load. Decide per program which a waiting account may use (setup and settings yes, anything that messages a customer or takes a booking no) and refuse the rest with one shared check; make Billing say it could not load rather than throw.
