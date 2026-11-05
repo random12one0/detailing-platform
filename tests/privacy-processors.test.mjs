@@ -108,7 +108,7 @@ const CANARY_ON = process.env.PRIVACY_CANARY !== "off";
 
 const PAGE = "app/src/landing/legal.js";
 const SCAN_DIRS = ["supabase/functions", "app/src"];
-const SCAN_FILES = ["app/index.html"];
+const SCAN_FILES = ["app/index.html", "app/site.html"];
 const SCAN_EXT = /\.(ts|tsx|js|jsx|html)$/;
 
 function walk(dir, out = []) {
@@ -203,6 +203,9 @@ const TABLE = {
 
   // --- never fetched ------------------------------------------------------
   "www.w3.org": { kind: "not-a-request", processor: null, why: "the SVG XML namespace. It is an identifier, not a URL anything resolves" },
+  // Studio S1 — app/src/site/Site.jsx's JSON-LD `@context`. A vocabulary IRI that search engines read as a
+  // name; the page never requests it and no visitor or customer data goes there.
+  "schema.org": { kind: "not-a-request", processor: null, why: "the schema.org vocabulary IRI in a Studio site's LocalBusiness JSON-LD; an identifier, never fetched" },
   "dp.lang.app": { kind: "not-a-request", processor: null, why: "a localStorage key that happens to end in a TLD" },
   "example.com": { kind: "not-a-request", processor: null, why: "a dev fixture's placeholder" },
   "unconfigured.invalid": { kind: "not-a-request", processor: null, why: "the deliberate placeholder for a missing Supabase URL; `.invalid` can never resolve" },
