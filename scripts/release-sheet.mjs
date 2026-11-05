@@ -14,6 +14,8 @@
 //   node scripts/release-sheet.mjs --break=lock-one    # 4.3b's lock declared as update-booking only: names 4.3b and verify-domain
 //   node scripts/release-sheet.mjs --break=lock-order  # re-adds the retired 97.13 rule (verify-domain before a database change): names 4.3b
 //   node scripts/release-sheet.mjs --break=webhook-last # the payment webhook back after create-business: names 0.6b and 97.37
+//   node scripts/release-sheet.mjs --break=undeclared-line # a throwaway AWAITS PUBLISH line under the first open item with no step,
+//                                                       # in this run's copy of ROADMAP.md only: names that item (98.12; reads no receipt, bites on any)
 //
 // lock-one, lock-order, fn-before-page and webhook-last (and drop-line, unhold) only bite while the server check names the programs they
 // move. On a receipt naming none (the stale one 98.18 met) fn-before-page and lock-order printed
@@ -76,7 +78,7 @@ import { join } from "node:path";
 import { writeReceipt, REPO } from "./receipt.mjs";
 
 const started_at = new Date().toISOString();
-const BREAKS = ["drop-step", "drop-line", "unhold", "open-wait", "no-cron", "no-order", "no-escape", "fn-before-page", "lock-one", "lock-order", "webhook-last"];
+const BREAKS = ["drop-step", "drop-line", "unhold", "open-wait", "no-cron", "no-order", "no-escape", "fn-before-page", "lock-one", "lock-order", "webhook-last", "undeclared-line"];
 const BREAK = (process.argv.find((a) => a.startsWith("--break=")) || "").slice("--break=".length);
 if (BREAK && !BREAKS.includes(BREAK)) {
   console.error(`Unknown --break=${BREAK}. Known: ${BREAKS.join(", ")}.`);
@@ -343,7 +345,15 @@ const rows = everyRow.filter((r) => r.release && !EXCLUDED[r.key] && !EXCLUDED[r
 const rowName = (row) => `${row.file || "FOR-ANDREW.md"}:${row.line} "${row.key} — ${row.title}"`;
 
 // ROADMAP titles and box states.
-const roadmap = rd("ROADMAP.md");
+let roadmap = rd("ROADMAP.md");
+// 98.12: 98.3 wrote AWAITS PUBLISH after this sheet was built and main went red unnoticed. The sabotage puts such a
+// line under the first open item with no step, in memory; the file on disk is never written.
+if (BREAK === "undeclared-line") {
+  const m = [...roadmap.matchAll(/^- \[ \] \*\*([0-9][0-9.]*[a-z]*) — .*$/gm)].find((x) => !DECLARED[x[1]] && !ROADMAP_NO_ORDER[x[1]]);
+  if (!m) { console.error("--break=undeclared-line found no open item without a step to put the line under."); process.exit(2); }
+  roadmap = roadmap.slice(0, m.index + m[0].length) + "\n  AWAITS PUBLISH (98.12 sabotage, never written to disk): a throwaway release line." + roadmap.slice(m.index + m[0].length);
+  console.log(`--break=undeclared-line: throwaway AWAITS PUBLISH line put under ROADMAP ${m[1]}, in memory only`);
+}
 const entryOf = (id) => {
   const re = new RegExp(`^- \\[(.)\\] \\*\\*${id.replace(/\./g, "\\.")} — (.*?)\\*\\*`, "m");
   const m = re.exec(roadmap);
