@@ -1,94 +1,150 @@
 # Studio S1 — "Prove the wire": report
 
-Branch `studio/s1` (worktree `C:\studio-work\s1`). Built 2026-11-04. Not pushed. The real database was never
-called and no email was sent: everything ran against belt-staging's offline engine (`demo-backend.mjs`) and the
-fictional Brightline Auto Care seed.
+Branch `studio/s1` (worktree `C:\studio-work\s1`). First built 2026-11-04 (`d2a88b51`), then revised the same
+night after an independent review (`docs/studio/S1-REVIEW.md`). Not pushed. The real database was never called,
+no email was sent, nothing was downloaded. Everything runs against belt-staging's offline engine
+(`demo-backend.mjs`) and the fictional Brightline Auto Care seed.
 
 ## What was built
 
 | File | What it is |
 |---|---|
 | `app/site.html` | The renderer's own HTML entry. None of the dashboard's CSS, fonts or routes load. |
-| `app/src/site/main.jsx` | Reads `/site/<slug>`, picks the committed spec, mounts the site. Same `.lite` motion switch as the dashboard. |
-| `app/src/site/spec.js` | **The spec format and validator** (pure JS, no React/DOM). Binding allow-list, `parseBinding`, `validateSpec(spec, profile)`, `resolve(binding, profile)`, `bindingsOf(spec)`. Refuses unknown binding shapes, ids missing from the profile, digits / `$ € £ ¢ %` in prose, and any key the schema does not name (so a spec has no field a price could go in). Fonts are a curated list. |
-| `app/src/site/Site.jsx` | One `BookingBusinessProvider` (the existing one: one `get_public_business_profile` read, `normalizeProfile`) feeds every section and the booking flow. Validates the spec against the live profile on every load; a refused spec draws a "waiting on a fix" page, never a wrong site. Clear not-found for an unknown slug or business. Sets description, canonical and LocalBusiness JSON-LD (areaServed, hours, priced offers) from the profile. A `MemoryRouter` keeps the booking flow's `?step=` inside the section. |
-| `app/src/site/sections.jsx` | The 5 section types: **hero** (poster: photo, headline, Book/Call/Text, area, sale, price strip), **catalog** (ticket: services with "from" prices, durations, inclusions, size ladder via the booking flow's own `vehicleSizeExtra`, add-ons, plans via `lib/plans.js`), **proof** (wipe: keyboard-operable before/after slider on a native range input, stills, reviews with their source), **visit** (board: hours with today marked, area + travel zones + drop-off, `tel:`/`sms:`, payment, FAQ), **booking** (inline: the existing `BookingFlow`, embedded). Every bound element carries `data-from`, plus `data-section` / `data-part`. |
-| `app/src/site/site.css` | The look: petrol ground, chalk type, vermilion accent; Newsreader display + Chivo body; the "job ticket" motif (perforated size ladder, notched price strip); one staggered hero entrance (transform/opacity), off under reduced motion. Restyles the booking flow only through its own `--bk-*` tokens. Phone first, then 768 and 1180+. |
-| `app/src/site/specs/brightline.json` | The Brightline spec (§6c shape): tokens + one page + 5 sections, 15 bindings, no facts. |
-| `app/src/book/BookingPage.jsx` | `BookingFlow` exported with `embedded`: no masthead, no second h1/main, no inline brand colours, `data-booking-step`. `/book/:slug` is unchanged (checked). |
-| `app/src/book/BookingConfirmed.jsx` | Same `embedded` switch for the confirmation (h2, no masthead/main). |
-| `app/src/book/core.js` | `normalizeSettings` now passes the site-wide sale through (`site_discount_active/percent/label`, contract §2e). The quote still applies it server-side. |
-| `app/vite.config.js`, `app/public/_redirects`, `app/netlify.toml` | Second build input; dev **and** `vite preview` middleware; `/site/*  /site.html  200` above the catch-all in both production configs. |
-| `app/public/examples/brightline/gallery-1..6.webp`, `credits.json` | Example art made by `scripts/studio/make-example-art.mjs`: **drawn illustrations, not photos, not AI**, two matched before/after pairs. The folder is gitignored (`app/public/example*`), so these were added with `git add -f`. |
-| `tests/site-spec.test.mjs` | 7 node tests for the validator (credential-free, 0.2 s). |
-| `scripts/studio/s1-check.mjs` | The browser proof: 49 checks, writes `artifacts/studio-s1/`. |
+| `app/src/site/main.jsx` | Serves committed examples at **`/site/example/<name>`**. Each example binds to the slug `example_<name>`, which no real business can hold: the database allows only `[a-z0-9-]` (`20260827000100_tenant_core.sql`). A bare `/site/<slug>` is not served in S1. Same `.lite` motion switch as the dashboard. |
+| `app/src/site/spec.js` | **The spec format and validator** (pure JS). Binding allow-list, `parseBinding`, `validateSpec(spec, profile)`, `resolve`, `bindingsOf`, `typedFact`. Details under "The validator" below. |
+| `app/src/site/Site.jsx` | One `BookingBusinessProvider` (one `get_public_business_profile` read, `normalizeProfile`) feeds every section and the booking flow. It validates the spec against the live profile on every load. A refused spec, or anything that throws while drawing, shows a plain "This page is unavailable right now" page with the phone number; the reasons go to the console, not the page. It sets description, canonical and LocalBusiness JSON-LD from the profile. |
+| `app/src/site/sections.jsx` | The 5 section types: hero, catalog (ticket), proof (wipe slider), visit (board), booking (the existing `BookingFlow`, embedded). Every bound element carries `data-from`, plus `data-section` / `data-part`. When the detailer is away or not set up, the booking section drops the spec's "Request a time" heading so it does not contradict the flow's message. |
+| `app/src/site/site.css` | Petrol / chalk / vermilion, Newsreader + Chivo, the "job ticket" motif, one staggered hero entrance (off under reduced motion). Restyles the booking flow only through its `--bk-*` tokens. Nothing on the site paints under 12 px; booking labels and the price bar's helper text are 13 px. |
+| `app/src/site/specs/brightline.json` | The Brightline spec: tokens + one page + 5 sections, no facts. Slug `example_brightline`. |
+| `app/src/book/BookingPage.jsx`, `BookingConfirmed.jsx` | `embedded` mode. In embedded mode, every state (loading, not found, error, closed-until, not set up, the flow, the confirmation) uses the site's colours and an h2. The EN/ES language switch is kept. `data-booking-step` is stamped only in embedded mode, so `/book/:slug` is unchanged. |
+| `app/src/book/core.js` | `normalizeSettings` passes the site-wide sale through (contract §2e). |
+| `app/vite.config.js`, `app/package.json` | **The site is a second build pass** (`vite build && vite build --mode site`). The dashboard stays one `assets/index-*.js`, as four after-publish checks expect. Dev and `vite preview` middleware route `/site/*`. |
+| `app/public/_redirects`, `app/netlify.toml` | `/site/*  /site.html  200` above the catch-all. |
+| `app/public/examples/brightline/gallery-1.webp`, `gallery-2.webp`, `credits.json` | **One real before/after pair**: Andrew's own photograph of a black Scion FR-S (see "Pictures"). Added with `git add -f` because `app/public/examples` is gitignored. |
+| `scripts/studio/example-engine.mjs` | Starts the offline engine with the Brightline seed changed in memory: slug renamed to `example_brightline`, and only the real photo pair kept active. The belt fixture file is not edited. |
+| `scripts/studio/s1-check.mjs` | The browser proof: 63 checks. Writes `artifacts/studio-s1/`. |
+| `tests/site-spec.test.mjs` | 14 node tests for the validator (credential-free). |
+| `tests/privacy-processors.test.mjs` | `schema.org` classified as a non-processor (a vocabulary IRI, never fetched); `app/site.html` added to the scan. |
 
 ## How to run it locally
 
 ```bash
-# 1. the offline engine with the Brightline seed (prints {"ok":true,"port":54390})
-cd C:/Users/rando/Downloads/claude/control-room/belt-staging
-SITE_ACCEPTANCE_PLATFORM=C:/studio-work/s1 node demo-backend.mjs --port 54390 --seed fixtures/sites/brightline.seed.json
+# 1. the offline engine with the example seed (prints {"ok":true,"url":"http://127.0.0.1:54390"})
+cd C:/studio-work/s1
+node scripts/studio/example-engine.mjs --port 54390
 
 # 2. the app pointed at it (second terminal)
 cd C:/studio-work/s1/app
 VITE_SUPABASE_URL=http://127.0.0.1:54390 VITE_SUPABASE_ANON_KEY=demo-anon npx vite --port 5173
 
-# 3. open http://localhost:5173/site/brightline   (and /site/nope for the not-found)
+# 3. open http://localhost:5173/site/example/brightline   (and /site/example/nope for the not-found)
 ```
 
-PowerShell: `$env:SITE_ACCEPTANCE_PLATFORM="C:\studio-work\s1"` and `$env:VITE_SUPABASE_URL="http://127.0.0.1:54390"; $env:VITE_SUPABASE_ANON_KEY="demo-anon"` before the same commands.
-Without the two `VITE_` variables the app has no API to call (there is no `.env` in the worktree, on purpose).
+In PowerShell, set the two variables first: `$env:VITE_SUPABASE_URL="http://127.0.0.1:54390"; $env:VITE_SUPABASE_ANON_KEY="demo-anon"`.
+There is no `.env` in the worktree, on purpose.
 
-The proofs, all in one command (starts its own engine and Vite on free ports, ~2 minutes):
+The proofs (s1-check starts its own engine and Vite on free ports; about 3 minutes with the build leg):
 
 ```bash
 cd C:/studio-work/s1
 node --test tests/site-spec.test.mjs
-node scripts/studio/s1-check.mjs            # add --no-built to skip the production-bundle leg
+node scripts/studio/s1-check.mjs            # --no-built skips the production-bundle leg
 ```
 
-## The proofs and their results
+## Results of the last full run (after every fix)
 
-Last run 2026-11-04: **`s1-check.mjs` 49 passed, 0 failed**; **`site-spec.test.mjs` 7 passed, 0 failed**.
+- **`s1-check.mjs`: 63 passed, 0 failed.** By proof: P1 7, P2 3, P3 9, P4 27, P5 5, P6 5, P7 7.
+- **`site-spec.test.mjs`: 14 passed, 0 failed.**
+- **Repo suites:** 70 tests, 0 failed. They are: composition, design-contrast, landing-pricing, route-contract, no-credentials-in-tracked-text, every-open-item-is-citable, seo-files, spanish, push-urls-are-routes, privacy-processors (8/8; it was 7/8 on `d2a88b51`), and the booking suites booking-core, -errors-announced, -refs, -draft, -meta, business-day-97-32, closed-until, connect, fixed-furniture-is-hit-tested, receipt-fields. `var-scope-guard.mjs` is clean.
+- **`npm run build`** passes, in two passes.
+- **After-publish checks:**
+  - `live-bundle-switches.mjs`: 0 failed, 0 unjudgeable. Run with `--break=media-off`, it goes red (1 failed), so it still catches a bad bundle.
+  - `live-card-claim.mjs`: passes.
+  - `live-setup-counts.mjs` and `photo-release-order.mjs` need credentials and were not run. s1-check P6 now asserts the invariant all four rely on: the built `index.html` loads exactly one JS file, `assets/index-*.js`.
+- `tests/ics-audience.test.mjs` fails with and without these changes; it needs live credentials.
 
 | # | Proof | Result |
 |---|---|---|
-| P1 | Change dashboard data in the offline engine → reload → site shows it, no rebuild | PASS. Interior reset **$185 → $205** in the menu ticket, the hero price strip and booking step 1 (and `$185` gone). Also: hiding "Complete care" removes it everywhere; Wednesday closing at 15:00 shows "9 AM – 3 PM"; ending the sale removes both sale bands; an edited FAQ question shows. 0 console errors. |
-| P2 | A spec with `$185` in a headline is refused; an unknown binding is refused | PASS (unit test): `$185` → `typed_fact` on `copy.headline`; "Open 7 days", "10% off", "£90", "Since 2019" refused; `price:302`, `gallery.best(0)`, `reviews.top(n)`, `hours.week + 1`, a wrong-kind binding → `unknown_binding`; a deleted group or photo → `missing_id`; a `price: 185` key or unknown font → refused. In the browser: the live profile validates the spec, all **34** distinct `data-from` stamps parse as allow-listed bindings, **0** digits on the page sit outside a binding. Sabotage run (headline set to "Interior reset, only $185"): the check went red (6 failures) and the site drew the refusal page instead of the site. |
-| P3 | Booking through the site reaches a recorded create-booking post; quote = calculate-booking | PASS. Hero "Book a time" lands on step 1; walked all 7 steps inside the site (Services → Add-ons → Vehicle → Place (drop-off) → Time → Details → Review); "Request this time" → confirmation in the site's design. Engine recorded one `POST /functions/v1/create-booking` → 200. **calculate-booking 85 = on screen $85 = `shown_total` sent 85 = stored row 85** (Hand wash $95 less the 10% sample sale). Exactly 1 booking row, status `pending` (request mode). Confirmation links: calendar → engine `booking-ics`, receipt → `/booking/<id>` (200). |
-| P4 | Real browser at 390, 768, 1440 | PASS at all three: screenshots saved; 0 console errors/warnings; no horizontal overflow (scrollWidth = width); exactly one h1 and one main; all 5 sections; axe WCAG 2.1 AA **0 violations of any impact**; at 390 every control's hit area ≥ 44 px (measured including the booking flow's `::after` hit extensions). Clicked every link and button outside the booking flow (15 at 390, 18 at 768/1440): anchors land on their section below the sticky bar, skip link (Tab + Enter), both sliders move 5 steps and the clip follows, every FAQ opens, every `tel:`/`sms:` is `562-555-0100`. Reduced motion: `.lite` on, 0 running animations, 0 hidden elements. |
-| P5 | Unknown slug; main app routes unchanged | PASS. `/site/nope` → "There is no site at this address". `/book/brightline` still draws the ordinary booking page with its own masthead. |
-| P6 | Production bundle | PASS. `vite build` + `vite preview`: `/site/brightline` serves with live prices; `/site/nope` not-found; the dashboard's stylesheet and Archivo/JetBrains fonts are not loaded; 0 console errors. `npm run build` in `app/` passes and `dist/_redirects` has `/site/*` on the line above the catch-all. |
+| P1 | Dashboard edits in the offline engine show after a reload, with no rebuild | PASS. Interior reset **$185 → $205** in the menu, the hero strip and booking step 1. A hidden service disappears everywhere. "Wednesday 9 AM – 3 PM" shows. An ended sale disappears. An FAQ edit shows. |
+| P2 | Typed facts and unknown bindings are refused | PASS. The live profile validates the spec. All data-from stamps are allow-listed bindings. 0 digits on the page sit outside a binding. The booking section's own title and intro are now inside that check, because the stamp moved onto the flow. Unit tests cover the rest (see "The validator"). |
+| P3 | A booking through the site reaches a recorded create-booking post, and the quote equals calculate-booking | PASS. All 7 steps were walked inside the site. 1 recorded `create-booking` post. **calculate-booking 85 = on screen $85 = sent 85 = stored 85.** 1 row written, status pending. The confirmation's two links resolve. A broken booking now fails by name: "reached its confirmation" or "post recorded", with the page's own error text. Before, it showed up as a crash. |
+| P4 | Real browser at 390, 768 and 1440 | PASS at all three widths: screenshots saved; 0 console errors or warnings; no horizontal overflow; one h1 and one main; axe WCAG 2.1 AA found 0 violations; nothing painted under 12 px and the booking bar at least 13 px. At 390, every hit area is at least 44 px. Every link and button outside the flow was clicked (anchors, skip link, slider, FAQ, `tel:`/`sms:`). Reduced motion: 0 running animations, 0 hidden elements. |
+| P5 | Not-found, and the main app unchanged | PASS. `/site/example/nope` shows not-found. `/site/brightline` (a slug a real business could own) does **not** draw the example. `/book/<slug>` still draws its own masthead with no step stamp. The embedded flow keeps the EN/ES switch, and it works ("Elige tus servicios" → "Pick your services"). |
+| P6 | Production bundle | PASS. The dashboard is one `assets/index-*.js`. The built preview serves the example with live prices, and none of the dashboard's CSS, JS or fonts load on it. Not-found works. 0 console errors. |
+| P7 | States a customer meets when something is off | PASS. **Detailer away:** the booking section shows "closed until Saturday, November 14", with one h1 on the page and the site's colours, and the "Request a time" heading is hidden. **Not set up:** the same, with "isn't taking bookings online yet". **Refused spec** (the bound service group was removed from the profile): the page says "This page is unavailable right now" with a Call button, shows no internal detail, and sends the reasons to the console. |
 
-Repo tests run after the change, all green: composition, design-contrast, landing-pricing, route-contract,
-no-credentials-in-tracked-text, every-open-item-is-citable, seo-files, spanish, push-urls-are-routes, and every
-suite that imports the booking code (booking-core, booking-errors-announced, booking-refs, business-day-97-32,
-closed-until, connect, fixed-furniture-is-hit-tested, receipt-fields); `var-scope-guard.mjs` clean.
-`tests/ics-audience.test.mjs` fails **with and without these changes** (its live sections need credentials).
+## The validator (review §2-3), and its false-alarm choices
 
-## Screenshots (`C:\studio-work\s1\artifacts\studio-s1\`, regenerated by every run, gitignored)
+Refused in prose:
+- any Unicode digit (`\p{Nd}`: １, ١), any other numeral (`\p{No}` / `\p{Nl}`: ⑱, ½, Ⅶ), any currency sign (`\p{Sc}`: ₹ ¥ ₩ ₽ ₱ …), and `%`;
+- Roman numerals of two or more I/V/X letters ("VII days");
+- number words: zero to twenty, the tens, hundred, thousand, million, billion, dozen, half, percent, free, dollar, buck.
 
-`site-390.png`, `site-768.png`, `site-1440.png` (full page) and `site-390-fold.png`, `site-768-fold.png`,
-`site-1440-fold.png` (first screen); `edited-390.png` (after the five dashboard edits); `booking-step-1-390.png`
-… `booking-step-6-390.png`, `booking-review-390.png`, `booking-done-390.png`; `not-found-390.png`; `results.json`
-(every check with its measured detail).
+Kept low on false alarms, on purpose:
+- **"one" is not on the list.** It is mostly a pronoun: "no one", "one-stop", "the one place".
+- **A word that ends a hyphenated compound passes.** So "hassle-free" and "streak-free" are allowed, while "five-star", "twenty-four" and "free wax" are refused.
+- **L, C, D and M are not treated as Roman numerals**, so "LLC" passes.
+- "feel free" is refused; the detailer would need to reword it.
+- Spelled numbers can't be caught completely ("a few" passes). The critic stays the backstop.
+
+Also refused:
+- a digit in a section id, any page other than `/`, and a slug other than `example_<name>`;
+- no booking section, or more than one hero or booking;
+- missing core tokens (paper, ink, accent, both fonts).
+
+Lookups are own-key only. `toString`, `constructor` and `__proto__` can no longer pass as a token, font or section type, and can't crash the validator. A crash would show the refusal page, never a blank one. Group ids are checked through the same `groupServices` call the renderer uses.
+
+All 6 new hole tests fail against the `d2a88b51` validator; the low-false-alarm guard test passes on both versions.
+
+## Pictures
+
+The clip-art cars are gone. The only real photos on this machine that belong to the platform or its owner are:
+- `app/public/img/Black-FRS-Before-and-After-Polish-3.jpg`, recorded in `docs/tenant-sites/y-kinzie.html` as **Andrew's own photograph, sent 2026-09-09**. An earlier session split it at row 1024 and matched the halves (scale 0.9391, offset 186.2, 33.0 px). The two halves were taken byte for byte from that file's data URIs.
+
+Everything else on hand was ruled out: screenshots, an apparently generated cut-out of a detailer, or Unsplash photos (licensed, but not the owner's).
+
+So the example has **one real pair**:
+- It is the hero (after half) and the full-width wipe slider (16:9).
+- It is captioned "Example: the platform owner's own work, not this sample shop's."
+- The seed's other three photos are switched off rather than filled with stand-ins.
+
+`credits.json` records all of this. **Andrew should confirm the FR-S photo is his before any public use; the filename reads like a web upload.**
+
+## Screenshots
+
+In `C:\studio-work\s1\artifacts\studio-s1\` (gitignored; regenerated on every run):
+- `site-390.png`, `site-768.png`, `site-1440.png`, plus the `-fold` versions (first screen only);
+- `edited-390.png`, taken after the P1 dashboard edits;
+- `booking-step-1…6-390.png`, `booking-review-390.png` and `booking-done-390.png`;
+- `state-away-390.png`, `state-not-set-up-390.png`, `state-refused-390.png` and `not-found-390.png`;
+- `results.json`.
+
+My design pass on this set:
+- The real photo carries the first screen at all three widths.
+- At 1440 the hero photo now spans exactly the copy column, from the sale band to the bottom of the price strip.
+- The sale shows once.
+- The closed states read cleanly.
 
 ## Not done, or worth knowing
 
-- **Images are drawn illustrations**, honestly labelled; J5's licensed photos are still owed. The seed's own
-  captions say "licensed asset pending", and the site prints captions as data.
-- **Bundle:** the site's shared JS chunk is **157 KB gzip** (React, router, the booking flow and supabase-js,
-  which `lib/api.js` pulls in), plus 8 KB for the site itself — under the 170 KB Polished ceiling but close.
-  Splitting supabase-js out of the public booking path is the lever if it grows.
-- **The full grade (`site-grade.mjs`) was not run.** Its G0 needs a `#site-contract` block with 10–14 sections
-  (Polished tier, J11) and S1 has 5 sections by design. Its G5 would also flag the existing booking flow's own
-  `box-shadow`/`background` transitions in `booking.css` — a product-wide question, not changed here.
-- **Renderer microcopy** ("Book a time", "Hours", "Talk to us", "Base" on the size ladder, …) is English in the
-  section components, not in the spec. Fine for S1; the Studio will want it as spec copy or `t()`.
-- The business **name** is drawn from the profile in the site chrome; it is not one of the allow-listed
-  bindings (the list was kept exactly as STUDIO-SPEC §6c gives it).
-- The sticky booking price bar appears in mid-section in the *full-page* screenshots only — that is how a
-  full-page capture paints `position: sticky`; in a real scroll it sits on the bottom of the screen.
-- `/site/<slug>` only knows the committed Brightline spec; specs from a revisions table are S3.
-- Nothing was pushed; the live repo and its `main` were not touched.
+- **Andrew must confirm the FR-S photo is his** before public use.
+- **There is one photo pair**, so the gallery is one slider. More real photos (J5) remain the biggest lift for the premium feel.
+- **Bundle:** `site-*.js` is 157 KB gzip (React, router, the booking flow and supabase-js). That is under the 170 KB ceiling, but close.
+- **When the detailer is away or not set up**, the hero and nav still offer "Book". The booking section explains why it is closed, but the hero doesn't change yet.
+- **The full grader (`site-grade.mjs`) was not run.** Its G0 expects 10 to 14 sections, and S1 has 5 by design. Its G5 would flag `booking.css`'s own `box-shadow`/`background` transitions, which predate this work.
+- **The offline engine publishes the whole settings row**, while the real RPC whitelists fields (review §7). Every field the site reads is in the real list today, but this was not changed (it is belt-staging code).
+- **The renderer's own microcopy** ("Book a time", "Hours" and so on) is English in the components, not in the spec.
+- **Commit `120bb7db` deleted the four clip-art files by a staging mistake**, one commit before `3a8fee13` added the real pair. Between the two, the example pointed at photos with no files. Both commit messages say so.
+- Nothing was pushed. The live repo and its `main` were not touched.
+
+## Commits
+
+| Commit | What it did |
+|---|---|
+| `d2a88b51` | S1 as first built |
+| `83c9faab` | B1: second build pass; the dashboard is one `index-*.js` again; s1-check guard fixed |
+| `d48c60ad` | B2: `schema.org` classified in the privacy check |
+| `8bd59eb2` | Validator holes (review §2-3) |
+| `120bb7db` | Fix-soon items (review §4-7) |
+| `3a8fee13` | Pictures: the real before/after pair |
+| `ceb4ad70` | The booking heading steps aside when booking is closed |
