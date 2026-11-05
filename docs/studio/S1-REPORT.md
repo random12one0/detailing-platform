@@ -148,3 +148,61 @@ My design pass on this set:
 | `120bb7db` | Fix-soon items (review §4-7) |
 | `3a8fee13` | Pictures: the real before/after pair |
 | `ceb4ad70` | The booking heading steps aside when booking is closed |
+
+---
+
+# Studio S2 — the connection check: report
+
+Branch `studio/s1` again (commits `d4e7e26a`, `5414eab7` and this report), 2026-11-05 overnight. Not pushed. The
+real database was never called and nothing was sent. STUDIO-SPEC.md §2c layers 2 and 3, §7 row S2.
+
+## What was built
+
+| File | What it is |
+|---|---|
+| `scripts/studio/studio-check.mjs` | **The connection check**, one command. Starts the offline engine in-process with a snapshot of the site's business (`--seed`; default the Brightline example, the only business there is), draws the revision (`--spec`; default `specs/brightline.json`) headless through the real renderer, and writes a tick list (`--out`, JSON) plus one line per tick (`--jsonl` for the Studio). `--shot` saves the first screen at 390 (the Studio's thumbnail). About 18 seconds. |
+| `scripts/studio/booking-walk.mjs` | The booking walk that s1-check already had, moved into one place so s1-check and studio-check walk the same way. It now also reads the time chips the page offered. |
+| `tests/studio-check.test.mjs` | Runs the real check four times: whole (all green, exit 0), and with the wire cut three ways, each of which must go red **first on the right line**. |
+| `app/src/site/main.jsx` | `/site/preview`, **dev server only**: draws a revision handed in from outside. Two doors: the Studio page posts `{type:"studio-spec"}` (accepted only from a parent on 127.0.0.1 / localhost / [::1], or an origin in `VITE_STUDIO_ORIGINS`), or the check sets `window.__STUDIO_SPEC__`. The production build has no such route (s1-check P6 proves it). |
+| `app/src/site/spec.js`, `Site.jsx` | `validateSpec(spec, profile, { live: true })` on a customer's visit: **a photo the detailer deleted drops out of its slot instead of taking the whole site down**. Saving a revision still refuses a missing photo, and a missing service or group still refuses live. Found by the check itself: the Brightline hero is pinned to its one photo, so "remove one photo" made the whole page "unavailable". |
+
+## The ticks (ids are stable; the Studio and the test use them)
+
+| id | What it proves |
+|---|---|
+| `copy` | The business was copied into a private test copy (services, photos, reviews, days of hours counted). |
+| `valid` | The revision passes `validateSpec` against that copy (strict: every bound id must exist). |
+| `drawn` | The renderer drew every section of the revision, one h1, not the refused page. |
+| `stamps` | **Layer 2.** Every `data-from` stamp on the page shows what the profile says: a price stamp shows that price, a name stamp that name, a group lists its services, a photo stamp draws that photo, `gallery.best(n)` draws exactly those, `reviews.top(n)` those reviews, `hours.week` every day's line, `contact.phone` leads to that number, the sale its percent, the area, add-ons, plans, FAQ and payment methods by name. |
+| `price` | One shown price raised by $5 in the copy; after one reload every stamp for it and its booking card show the new price and none the old. |
+| `hide` | One unpinned service hidden; no stamp for it and no booking card offers it. (Its name may still appear inside another service's wording, e.g. Complete care includes an "Interior reset".) |
+| `hours` | One day's hours changed (Saturday, else the first open day): the hours board shows the new line, not the old. |
+| `photo` | One photo the page shows removed: no stamp or picture of it remains, and the page still draws. |
+| `review` | A review added (first in the detailer's order): it shows. |
+| `stamps-after` | Layer 2 again after all five changes, against the changed profile. |
+| `quote` | On a fresh copy, a practice booking through the site: on-screen total = `calculate-booking` = `shown_total` sent = stored total. |
+| `slots` | The time chips offered on the picked day = `slotsForType(available-slots answer, service type)`, the same rule the flow uses. |
+| `post` | Exactly one `create-booking` post, and one booking row, in the copy. |
+| `console` | No console error or warning across every load. |
+| `thrown` | The copy is closed, and no request from the page went anywhere but this laptop (fonts excepted). |
+
+When the page does not draw, the lines after `drawn` say "not tried: the site did not draw" at once instead of timing out.
+
+## Results of the last runs
+
+- `node scripts/studio/studio-check.mjs`: **15 of 15 green**, 18 s. Lines it could not reach (when the page does not draw) carry `skipped: true`. Hand wash $95 → $100 shown in 2 places and on booking step 1; Interior reset hidden; Saturday 9 AM – 5 PM → 10 AM – 3 PM; the one photo removed (the hero draws without it); a review added; 46 stamps / 31 connections checked before, 35 / 23 after; practice booking $85 = calculate-booking = stored; 15 times offered = available-slots' 15.
+- `node --test tests/studio-check.test.mjs`: **4 of 4 pass** (63 s):
+  - whole wire: all 15 green, exit 0;
+  - `--break=missing-id` (the menu points at a group the dashboard lacks): first red is `valid`;
+  - `--break=wrong-stamp` (the page claims Hand wash's price is Interior reset's): first red is `stamps` ("shows $95, the dashboard says $185");
+  - `--break=frozen-price` (the page keeps the prices it first drew, a site holding its own copy): first red is `price`.
+- `s1-check.mjs` (full, with the built leg): **64 passed, 0 failed** (63 before, plus "built bundle has no /site/preview").
+- `tests/site-spec.test.mjs`: 15 of 15 (one new: the `live` rule for deleted photos).
+- The repo suites listed under S1 plus site-spec: 86 of 86.
+
+## Not done, or worth knowing
+
+- **The snapshot is the example's.** For a real detailer, "a snapshot of the site's business" means reading their dashboard rows into a seed file; `--seed <file>` takes one, but nothing writes it yet (that needs the database, S3+ says no database tonight).
+- The check runs at 390 only. The full grader (`site-grade.mjs`, all widths, Lighthouse, critics) is still separate.
+- `/site/preview` trusts any page on this laptop to hand it a spec. That is deliberate (the Studio's origin and port can change), and the spec is still validated like any other; a production build has no such route.
+- The `hide` test reads booking cards by their first words; a future card layout that puts something before the service name would need the selector updated.
