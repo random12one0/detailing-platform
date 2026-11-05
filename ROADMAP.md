@@ -32909,3 +32909,44 @@ Added by the Control Room's Audit tab from run 2, after a second check by a diff
 
 - [x] **103.1 — Job health in the new back office: every scheduled job shows, including one that never wrote a record.** Andrew, 2026-10-24: "add a job-health line to the new back office like the old one had."
   **Done 2026-10-24 (Claude session).** Found that the new office's System place already drew one row per job heartbeat, each against its own `stale_after_seconds` window, with the outside watcher as an idle "Not set up" line (`app/src/lib/officeSystem.js` `checksOf`). Two gaps closed: (1) a NAMED job with no heartbeat row at all is now drawn as "Has no record at all" (the stop `watch-jobs` cannot see, which the old screen's named list covered and `tests/dead-mans-switch.test.mjs` printed as NOT GUARDED); (2) `photo-reconcile` gets the label "Photo clean-up" instead of its raw name. Proof: `node --test tests/office-system.test.mjs` 7/0 with new case 7 and `BREAK=missing|seeded|empty|badge` each red; `node scripts/office-system.mjs` PASS 100/0 at 1440/768/390/320 and `--lite` 100/0, canaries caught (the script now reads the `list` answer that carries heartbeats, and waits for it); `tests/dead-mans-switch.test.mjs` screen checks re-pointed at officeSystem.js, 52/0 live incl. new 3d. Goes live with the next website publish.
+
+## Website maker, step 1: one graded "Polished" example site (111.x)
+
+Andrew, 2026-11-03: the belt should make "awesome websites", polished and fully working with the admin dashboard, adaptable from basic to animated. The full brief, with exact files, limits and checks, is `C:\Users\rando\Downloads\claude\control-room\belt-staging\docs\improve\master\WEBSITE-STEP1-BRIEF.md`; read it before starting any 111 item. The example business is fictional, "Brightline Auto Care". Every fictional review is labelled "Sample review". Nothing here touches the live database, deploys, or sends anything. Default choices, taken by the coordinator under Andrew's "decide what you can" rule: shared sections, plus the existing booking form reskinned (no copied engine). Andrew approves the finished example site himself.
+
+The grading tools (brief jobs 1–4: rubric, browser gates, Lighthouse, offline demo engine) are built in the Control Room repo by the coordinator, not on this roadmap.
+
+- [ ] **111.5 — Licensed photos and fonts for the Brightline example.** Create `app/public/examples/brightline/` with hero.webp, gallery-1.webp to gallery-6.webp, heading.woff2, body.woff2 and credits.json (brief job 5). Prefer photos of real detailing work that are licensed for reuse (CC0, Unsplash or Pexels licence). Label example and stock imagery honestly in credits.json.
+  Acceptance criteria:
+  - every asset has its source and licence recorded in credits.json
+  - image sizes and dimensions stay within the brief's budgets
+  - two before/after pairs genuinely match (same car, same angle)
+- [ ] **111.6 — Brief, design directions and DESIGN.md for Brightline, before any build.** Create `docs/tenant-sites/brightline/{brief.json,directions.json,DESIGN.md,spec.json}` (brief job 6). Three distinct directions, A, B and C, each with references. DESIGN.md defines the colour, type, spacing, radius, texture and motion tokens, plus what is banned.
+  Acceptance criteria:
+  - the three directions differ on layout, type and colour, and the distinctness is recorded
+  - DESIGN.md has every token group
+  - spec.json validates
+- [ ] **111.7 — Serve example sites at /site/<slug> from their spec.** Create `app/site.html` and `app/src/site/{main.jsx,Site.jsx,tokens.js,site.css,spec.js,tiers.js}`. Change `app/vite.config.js` and `app/public/_redirects` (brief job 7). Depends on 111.6.
+  Acceptance criteria:
+  - /site/brightline renders in dev and in a built preview
+  - an unknown slug shows a clear not-found
+  - the main app's routes are unchanged
+- [ ] **111.8 — Dashboard-bound sections: identity, services and prices, proof, visit.** Create `app/src/site/sections/{Identity,Catalog,Proof,Visit}.jsx` (brief job 8). Every price, service, hour and gallery item comes from the dashboard's public profile through `normalizeProfile` and the existing price helpers; the site never keeps its own copy. Depends on 111.7.
+  Acceptance criteria:
+  - changing a service price in the seed changes the site
+  - no hard-coded prices
+  - clean at 390, 768 and 1440 px
+- [ ] **111.9 — Booking inside the site, using the existing booking flow.** Export an embeddable version of the flow from `app/src/book/BookingPage.jsx`. Create `app/src/site/sections/Book.jsx` (brief job 9). No iframe and no copied booking engine. Depends on 111.8.
+  Acceptance criteria:
+  - quote, then slots, then submission, then receipt all complete against the offline demo engine
+  - booking takes 2 taps or fewer from the hero on a phone
+- [ ] **111.10 — Polished motion, done with restraint.** Create `app/src/site/effects.js`. Lazy-load GSAP and ScrollTrigger after the first paint. Add a keyboard-operable before/after slider (brief job 10). Depends on 111.9.
+  Acceptance criteria:
+  - with reduced motion on, everything is visible and no animation runs
+  - the bundle stays within the brief's limit
+  - one signature animation only
+- [ ] **111.11 — Grade the example and revise until it passes.** Render directions A, B and C, pick one, and run the grading tool. Fresh critics look at screenshots only: one Claude, one ChatGPT (brief job 11). Revise until it reaches the brief's pass mark. Write the result to `docs/improve/programme-polished.md`. Depends on 111.10.
+  Acceptance criteria:
+  - the grade report is saved, with scores and screenshots
+  - the example passes the hard checks
+  - Andrew gets ONE "does this look good?" card with the link; no pixel-level questions
