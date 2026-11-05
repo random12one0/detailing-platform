@@ -271,6 +271,7 @@ const EXCLUDED = {
   "97.71": "released 2026-10-23; ticked",
   "97.72": "released 2026-10-23; ticked",
   "3.1d": "released 2026-10-23; ticked",
+  "98.3": "its publish line named only database changes, already steps in Part 2 through migration-drift.json; released 2026-10-23; ticked (98.12)",
   "97.28": "a two-minute edit in the private backups repository, not part of this release (like 97.25)",
   "Publish and apply — the one ordered list": "says DONE 2026-10-10, steps 1 to 9, nothing left",
   "Waiting on you — nothing breaks while these wait": "a 1,400-line group of older rows; NOT READ by this sheet, said on the sheet",
