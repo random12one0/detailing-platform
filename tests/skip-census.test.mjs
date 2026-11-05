@@ -43,7 +43,7 @@ const evidenced = allowlisters.filter((f) => /from "\.\/lib\/skipEvidence\.mjs"/
 const COMPUTED = [
   "american-english.mjs", "billing-walk.mjs", "booking-announces.mjs", "campaign-double-press.mjs", "contrast-insitu.mjs",
   "edge-tenant-replay.mjs", "keyboard-walk.mjs", "label-guard.mjs", "link-counts-agree.mjs",
-  "rate-limit-coverage.mjs", "screenreader-structure.mjs", "sweep-tap-targets.mjs", "sweep-widths.mjs",
+  "rate-limit-coverage.mjs", "release-sheet-undeclared.mjs", "screenreader-structure.mjs", "sweep-tap-targets.mjs", "sweep-widths.mjs",
   "tenant-matrix.mjs", "text-spacing-walk.mjs", "user-tours-race.mjs", "visual-regression.mjs",
   "zoom-walk.mjs",
 ];
@@ -52,6 +52,8 @@ const COMPUTED = [
 // allowlist, so a positive count fails its receipt (the no-allowlist test below proves that).
 // ROADMAP 8.5 added booking-announces.mjs the same way: `EXPECTED - completed` (3 moments x 3
 // widths, minus those reached), no allowlist, so a positive count fails its receipt.
+// ROADMAP 98.12 added release-sheet-undeclared.mjs the same way: `4 - runs.length` (four sheet
+// runs in a scratch clone, minus those attempted), no allowlist, and `completed === 4` gates its pass.
 const ALLOWLISTERS = ["billing-walk.mjs", "sweep-widths.mjs"];
 // The known gaps. Was ["billing-walk.mjs"] until it itemised its skips (manager's grant, 2026-10-06);
 // now empty, and a new allowlist user that does not supply evidence turns this red.
