@@ -1,18 +1,11 @@
 {
-  "what": "Drawn illustrations for the fictional Brightline Auto Care example. Not photographs, not AI-generated, not anyone's real work.",
-  "made_by": "scripts/studio/make-example-art.mjs (SVG drawn in code, encoded to WebP by Chromium)",
-  "car_outline": "docs/improve/studio/mockup/index.html, symbol #car (Control Room mockup, own work)",
-  "licence": "Own work for this repository; no third-party material.",
-  "size": {
-    "width": 1600,
-    "height": 1200
-  },
+  "what": "Example imagery for the fictional Brightline Auto Care sample site. One real before/after pair; nothing drawn, nothing AI-generated.",
   "files": {
-    "gallery-1.webp": "Pair 1, before: dusty matte paint",
-    "gallery-2.webp": "Pair 1, after: clean glossy paint",
-    "gallery-3.webp": "Pair 2, before",
-    "gallery-4.webp": "Pair 2, after",
-    "gallery-5.webp": "Single: white car under the workshop light",
-    "gallery-6.webp": "Single: dark car, vermilion light"
-  }
+    "gallery-1.webp": "Before: a black Scion FR-S as it arrived (1400x726)",
+    "gallery-2.webp": "After: the same car after one machine-polishing pass and a sealant (1400x726)"
+  },
+  "source": "Andrew's own photograph (the platform owner), sent 2026-09-09 as one stacked frame: app/public/img/Black-FRS-Before-and-After-Polish-3.jpg. Split at row 1024 and matched (scale 0.9391, offset 186.2, 33.0 px) by an earlier session; the two halves were taken byte-for-byte from the data URIs in docs/tenant-sites/y-kinzie.html, where that record is written.",
+  "honesty": "It is the owner's work shown on a FICTIONAL shop, so the site's caption says it is an example and not Brightline's work. Brightline's other three seed photos (802-804) are switched off by scripts/studio/example-engine.mjs rather than replaced with stand-ins.",
+  "to_confirm": "The source file's name reads like a web upload. y-kinzie.html records it as Andrew's own photograph; he should confirm that before this pair is used anywhere public.",
+  "licence": "The owner's own photograph; no third-party material."
 }

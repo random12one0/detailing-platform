@@ -25,7 +25,7 @@
             "headline": "Care you can see. Prices you can check.",
             "sub": "Every price below comes straight from our booking system, so what you read is what you get quoted."
           },
-          "photo": { "bind": "gallery:00000000-0000-4000-8000-000000000804" },
+          "photo": { "bind": "gallery:00000000-0000-4000-8000-000000000801" },
           "prices": { "bind": "service_group:00000000-0000-4000-8000-000000000201" },
           "cta": { "bind": "book" },
           "call": { "bind": "contact.phone" },
@@ -50,9 +50,9 @@
           "variant": "wipe",
           "copy": {
             "title": "Drag across to see the difference",
-            "intro": "These are labelled example images for this sample site, not photos of real customer cars."
+            "intro": "A real job, shown here as an example: the same car as it arrived, and after a polish and a sealant."
           },
-          "gallery": { "bind": "gallery.best(3)" },
+          "gallery": { "bind": "gallery.best(1)" },
           "reviews": { "bind": "reviews.top(3)" }
         },
         {

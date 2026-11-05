@@ -101,7 +101,7 @@ html, body { margin: 0; background: #0f2a2b; }
 /* ---------------------------------------------------------------- hero */
 .hero { padding: 0 0 56px; display: grid; }
 .hero-photo { position: relative; aspect-ratio: 4 / 3; overflow: hidden; background: var(--paper-2); }
-.hero-photo img { width: 100%; height: 100%; object-fit: cover; }
+.hero-photo img { width: 100%; height: 100%; object-fit: cover; object-position: 62% 50%; }
 .hero-photo::after { content: ""; position: absolute; inset: 0; background: linear-gradient(transparent 55%, color-mix(in srgb, var(--paper) 85%, transparent)); }
 .hero-photo figcaption, .cmp-tag {
   position: absolute; left: 12px; top: 12px; z-index: 2; max-width: calc(100% - 24px);
@@ -187,6 +187,9 @@ html, body { margin: 0; background: #0f2a2b; }
 
 /* ---------------------------------------------------------------- work */
 .work-grid { display: grid; gap: 22px; }
+/* One pair is the signature, so it gets the width rather than a third of a row. */
+.work-grid:has(> :only-child) { grid-template-columns: 1fr !important; max-width: 980px; }
+.work-grid:has(> :only-child) .cmp-frame { aspect-ratio: 16 / 9; }
 .compare figcaption, .still figcaption { margin-top: 8px; font-size: 13px; color: var(--soft); }
 .cmp-frame, .still img { position: relative; overflow: hidden; border-radius: var(--radius); aspect-ratio: 4 / 3; background: var(--paper-2); }
 .cmp-frame img { width: 100%; height: 100%; object-fit: cover; }

@@ -2,7 +2,8 @@
 // Brightline seed, its business renamed to the reserved example slug
 // `example_brightline` — a slug no real business can hold (the database allows
 // only [a-z0-9-]), so the example site at /site/example/brightline can never
-// draw a real detailer's data. The seed file itself is not edited.
+// draw a real detailer's data. The seed file itself is not edited; the copy in
+// memory also keeps only the one real photo pair (exampleSeed below).
 //
 //   node scripts/studio/example-engine.mjs [--port 54390]
 //
@@ -20,6 +21,13 @@ export function exampleSeed() {
   const b = seed.tables.businesses.find((x) => x.slug === "brightline");
   if (!b) throw new Error("the Brightline seed no longer has a business with slug brightline");
   b.slug = EXAMPLE_SLUG;
+  // Pictures: only one REAL before/after pair exists for this example (see
+  // app/public/examples/brightline/credits.json). Its caption says whose work it
+  // is; the seed's other three photos are switched off, not faked.
+  for (const g of seed.tables.gallery_images) {
+    if (g.id.endsWith("801")) g.caption = "Example: the platform owner's own work, not this sample shop's.";
+    else g.is_active = false;
+  }
   return seed;
 }
 
