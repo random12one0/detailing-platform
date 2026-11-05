@@ -32138,6 +32138,8 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   Done when: `node scripts/release-sheet.mjs` prints no FAIL about 99.2, and its receipt is committed at the fixing commit.
 
 - [ ] **98.12 — The release sheet is red on main: 98.3's publish line is not registered.**
+  NEEDS ANDREW: the belt held this job's work instead of merging it — the full test suite found tests/skip-census.test.mjs: 1 failing, the baseline had 0; 1 new failing test(s): tests/skip-census.test.mjs :: the scripts whose skip count is an expression are exactly the declared ones.
+  The work is safe on branch `belt/98.12-20261105071716555`. Answer "merge it" to keep it, or say what to change.
   Found by the supervisor 2026-10-18 at `70168125`. `node scripts/release-sheet.mjs` (credential-free) prints
   `FAIL — ROADMAP.md:31263 "98.3 …" has a release line and is neither declared nor excluded`. 98.3 wrote
   `AWAITS PUBLISH` two hours after 97.91 built the sheet, and no gate runs the sheet, so nothing went red where
