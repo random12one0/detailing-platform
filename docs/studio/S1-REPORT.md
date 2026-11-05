@@ -206,3 +206,32 @@ When the page does not draw, the lines after `drawn` say "not tried: the site di
 - The check runs at 390 only. The full grader (`site-grade.mjs`, all widths, Lighthouse, critics) is still separate.
 - `/site/preview` trusts any page on this laptop to hand it a spec. That is deliberate (the Studio's origin and port can change), and the spec is still validated like any other; a production build has no such route.
 - The `hide` test reads booking cards by their first words; a future card layout that puts something before the service name would need the selector updated.
+
+## S2 after the review (`REVIEW-S2-S3.md`, 2026-11-05 afternoon)
+
+Commits `1d000f07` (check) and `f8bcf12c` (renderer side of the S3 fixes). This supersedes the tick table above
+where they differ.
+
+- **S2-1, done.** The check no longer moves one fact of each kind. It changes **every** bound fact in the test copy
+  to a new value no other fact has, then reloads:
+  - every price (all above every old price, all different), name, description, length, inclusion and size price;
+  - add-ons, plans and the sale;
+  - the area and its zones, the phone, every question and the payment notes;
+  - every day's hours (closed days are opened);
+  - every photo and every review.
+
+  Each `data-from` stamp is then judged twice, against its own new value and against its old one, which must be
+  gone. Values only count whole (`$95` is not found inside `$950`), and case is ignored. Hiding a service, removing a
+  photo and adding a review come after a second reload. Ticks are now 20, in plain words (`--plan` prints them):
+  copy, valid, drawn, stamps, prices, words, extras, contact, hours, photos, reviews, hide, photo, review,
+  stamps-after, quote, slots, post, console, thrown.
+- **New break tests.** `freeze-others` (every price frozen except the first) and `same-price` (two services cost the
+  same, and the page shows one's price in the other's place) both go **red on `prices`**. These were the reviewer's
+  two "15 of 15 green" pages. `frozen-price` is red on `prices`, `wrong-stamp` on `stamps`, `missing-id` on `valid`.
+- **S2-2, done.** With no test copy, or a revision that does not fit it, the check stops at once. It writes one red
+  line, and every later line is "not tried". It takes 0.5 s, with no 30 s wait, and "drawn" needs at least one
+  section. A test covers it.
+- **Results:** `studio-check.mjs` 20 of 20 green in about 17 s. `tests/studio-check.test.mjs` 7 of 7 (whole wire,
+  5 cuts, no copy). `s1-check.mjs` 64 of 64.
+- **Not done:** S2-4 (an empty frame left after a photo is removed is not yet asserted) and S2-5 (one stamp checker
+  shared with G0) are later work, as the review says.
