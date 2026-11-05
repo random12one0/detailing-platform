@@ -1,9 +1,9 @@
 {
-  "git_sha": "71b627e9968d24c176fc792a85ccf46d3d552f35",
-  "git_sha_started": "71b627e9968d24c176fc792a85ccf46d3d552f35",
+  "git_sha": "0ee9d7f8588d9e223cea68c6fefd8e272f074127",
+  "git_sha_started": "0ee9d7f8588d9e223cea68c6fefd8e272f074127",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-11-05T07:45:47.278Z",
+  "finished_at": "2026-11-05T08:05:24.886Z",
   "failures": [],
   "warnings": [
     "Runs the release sheet four times in a scratch clone of HEAD (clean, with the line, guard off, line removed); judges the FAIL lines, never the verdict word, because the sheet can be red for other reasons (a STALE receipt)."
@@ -13,7 +13,7 @@
     "scripts/release-sheet.mjs"
   ],
   "dimensions": {
-    "head": "71b627e9968d24c176fc792a85ccf46d3d552f35",
+    "head": "0ee9d7f8588d9e223cea68c6fefd8e272f074127",
     "item_under_line": "97.15",
     "named": [
       "FAIL — ROADMAP.md:772 \"97.15 — Support (\"view as\") sessions never expire and hand out a refresh token\" has a release line and is neither declared nor excluded in scripts/release-sheet.mjs"
@@ -48,7 +48,7 @@
     ]
   },
   "check_id": "release-sheet-undeclared",
-  "started_at": "2026-11-05T07:44:58.443Z",
+  "started_at": "2026-11-05T08:05:04.107Z",
   "status": "pass",
   "expected_targets": 4,
   "discovered_targets": 4,
