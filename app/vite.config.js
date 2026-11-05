@@ -1,5 +1,6 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import { fileURLToPath } from "node:url";
 
 // SMOKE_PROXY_TARGET is test scaffolding only: the headless-browser smoke
 // test runs in a sandbox whose egress proxy Chromium can't use, so the built
@@ -28,8 +29,27 @@ const exampleIndex = {
   },
 };
 
+// STUDIO S1 — `/site/<slug>` is its own entry (site.html, app/src/site/). Dev and
+// `vite preview` both answer it here, before Vite's SPA fallback would hand it the
+// dashboard's index.html; production does the same with the `/site/*` rule at the
+// top of public/_redirects and netlify.toml.
+const siteEntry = () => (req, _res, next) => {
+  if (/^\/site\/[^/?]*\/?(\?.*)?$/.test(req.url || "")) req.url = "/site.html";
+  next();
+};
+const siteRoute = {
+  name: "studio-site-route",
+  configureServer(server) { server.middlewares.use(siteEntry()); },
+  configurePreviewServer(server) { server.middlewares.use(siteEntry()); },
+};
+
 export default defineConfig({
-  plugins: [react(), exampleIndex],
+  plugins: [react(), exampleIndex, siteRoute],
+  build: {
+    rollupOptions: {
+      input: { main: fileURLToPath(new URL("./index.html", import.meta.url)), site: fileURLToPath(new URL("./site.html", import.meta.url)) },
+    },
+  },
   preview: smokeTarget
     ? {
       proxy: {

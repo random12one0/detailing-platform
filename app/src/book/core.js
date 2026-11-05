@@ -289,6 +289,11 @@ export function normalizeSettings(raw) {
     // invisible: no count control, no extra vehicles, payloads identical to
     // what they were. The SERVER caps it too — this is the courteous half.
     max_vehicles_per_booking: Number(settings.max_vehicles_per_booking) || 1,
+    // STUDIO S1 — contract §2e: a site shows the site-wide sale while it runs.
+    // The QUOTE still applies it server-side; these only let a site say so.
+    site_discount_active: settings.site_discount_active === true,
+    site_discount_percent: Number(settings.site_discount_percent) || 0,
+    site_discount_label: settings.site_discount_label ?? null,
   };
 }
 

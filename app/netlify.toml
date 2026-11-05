@@ -24,6 +24,13 @@
 # and /booking/<id> — which are the ones arriving cold from a text message or
 # a confirmation email, where a 404 is not a refresh annoyance but a lost
 # booking.
+# Studio S1 — /site/<slug> is the site renderer (site.html), not the SPA.
+# Above the catch-all: redirects are first-match-wins.
+[[redirects]]
+  from = "/site/*"
+  to = "/site.html"
+  status = 200
+
 [[redirects]]
   from = "/*"
   to = "/index.html"

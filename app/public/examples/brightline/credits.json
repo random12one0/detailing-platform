@@ -1,0 +1,18 @@
+{
+  "what": "Drawn illustrations for the fictional Brightline Auto Care example. Not photographs, not AI-generated, not anyone's real work.",
+  "made_by": "scripts/studio/make-example-art.mjs (SVG drawn in code, encoded to WebP by Chromium)",
+  "car_outline": "docs/improve/studio/mockup/index.html, symbol #car (Control Room mockup, own work)",
+  "licence": "Own work for this repository; no third-party material.",
+  "size": {
+    "width": 1600,
+    "height": 1200
+  },
+  "files": {
+    "gallery-1.webp": "Pair 1, before: dusty matte paint",
+    "gallery-2.webp": "Pair 1, after: clean glossy paint",
+    "gallery-3.webp": "Pair 2, before",
+    "gallery-4.webp": "Pair 2, after",
+    "gallery-5.webp": "Single: white car under the workshop light",
+    "gallery-6.webp": "Single: dark car, vermilion light"
+  }
+}
