@@ -142,7 +142,7 @@ function NotFound() {
   useEffect(() => { document.title = "No site here"; }, []);
   return (
     <div className="site site-plain">
-      <main id="main" className="site-msg">
+      <main id="main" className="site-msg" data-notfound="1">
         <h1>There is no site at this address</h1>
         <p>Check the link you were sent. If you were booking with a detailer, their own link or phone number will get you there.</p>
         <p><a className="site-btn" href="/">Go to Detailing Platform</a></p>
@@ -157,7 +157,8 @@ function NotFound() {
 // detailer; the reasons are for the Studio (which runs the same validator before
 // any save) and go to the console here, never onto the page.
 function Refused({ errors, tokens, phone }) {
-  useEffect(() => { console.error("Studio site refused:", errors); document.title = "Page unavailable"; }, [errors]);
+  // Inside the Studio's phone frame the Studio itself says why (it shows the check's reasons), so there this is a note.
+  useEffect(() => { (window.parent !== window ? console.info : console.error)("Studio site refused:", errors); document.title = "Page unavailable"; }, [errors]);
   return (
     <Shell tokens={tokens}>
       <main id="main" className="site-msg" data-refused={errors.length}>

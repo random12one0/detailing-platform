@@ -37,9 +37,19 @@ const siteEntry = () => (req, _res, next) => {
   if (/^\/site\/(example\/)?[^/?]*\/?(\?.*)?$/.test(req.url || "")) req.url = "/site.html";
   next();
 };
+// STUDIO S3 — the Studio starts its phone-preview dev server with STUDIO_PREVIEW_ID set to a random id, and asks for
+// it back here, so it never mistakes another dev server on the same port for its own. Dev server only.
+const previewId = (req, res, next) => {
+  if (req.url !== "/__studio/preview-id") return next();
+  const id = process.env.STUDIO_PREVIEW_ID;
+  res.statusCode = id ? 200 : 404;
+  res.setHeader("content-type", "text/plain; charset=utf-8");
+  res.setHeader("cache-control", "no-store");
+  res.end(id || "");
+};
 const siteRoute = {
   name: "studio-site-route",
-  configureServer(server) { server.middlewares.use(siteEntry()); },
+  configureServer(server) { server.middlewares.use(previewId); server.middlewares.use(siteEntry()); },
   configurePreviewServer(server) { server.middlewares.use(siteEntry()); },
 };
 

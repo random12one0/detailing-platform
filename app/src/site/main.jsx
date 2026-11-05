@@ -40,13 +40,28 @@ const SPECS = Object.fromEntries(
 // production build has no such route: import.meta.env.DEV is false there.
 const LOOPBACK = /^http:\/\/(127\.0\.0\.1|localhost|\[::1\])(:\d+)?$/;
 const EXTRA = String(import.meta.env.VITE_STUDIO_ORIGINS || "").split(",").map((s) => s.trim()).filter(Boolean);
+// It also tells the Studio what it drew ("drawn", "refused" or "not_found"), so the Studio can say in its own words
+// that a revision cannot be drawn instead of showing a customer's error page.
+function tellParent(origin) {
+  let last = null;
+  const look = () => {
+    const state = document.querySelector("[data-refused]") ? "refused" : document.querySelector("[data-notfound]") ? "not_found" : document.querySelector("[data-section]") ? "drawn" : null;
+    if (state && state !== last) { last = state; window.parent.postMessage({ type: "studio-state", state }, origin); }
+  };
+  new MutationObserver(look).observe(document.body, { childList: true, subtree: true });
+  look();
+}
 function Preview() {
   const [got, setGot] = useState(() => (window.__STUDIO_SPEC__ ? { spec: window.__STUDIO_SPEC__, n: 0 } : null));
   useEffect(() => {
+    let told = false;
     const on = (e) => {
       if (e.source !== window.parent || window.parent === window) return;
       if (!LOOPBACK.test(e.origin) && !EXTRA.includes(e.origin)) return;
-      if (e.data?.type === "studio-spec" && e.data.spec && typeof e.data.spec === "object") setGot((g) => ({ spec: e.data.spec, n: (g?.n ?? 0) + 1 }));
+      if (e.data?.type === "studio-spec" && e.data.spec && typeof e.data.spec === "object") {
+        setGot((g) => ({ spec: e.data.spec, n: (g?.n ?? 0) + 1 }));
+        if (!told) { told = true; tellParent(e.origin); }
+      }
     };
     window.addEventListener("message", on);
     // "ready" carries nothing, so it may go to any parent; the spec only comes back from an allowed one.
