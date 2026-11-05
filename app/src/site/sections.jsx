@@ -6,7 +6,7 @@
 import { useState } from "react";
 import { resolve } from "./spec.js";
 import { BookingFlow } from "../book/BookingPage.jsx";
-import { vehicleSizeExtra } from "../book/core.js";
+import { bookable, closedUntil, vehicleSizeExtra } from "../book/core.js";
 import { duration, money, phone as phoneText, time12 } from "../lib/format.js";
 import { cadenceWords, priceWords } from "../lib/plans.js";
 
@@ -304,10 +304,13 @@ export function Visit({ sec, p }) {
 // The EXISTING booking flow (app/src/book), embedded — no iframe, no copy of the
 // engine. It reads the same provider the rest of the page reads, so one profile
 // request feeds both.
-export function Booking({ sec }) {
+export function Booking({ sec, p }) {
+  // Away or not set up: the flow says so itself, and "Request a time" above it
+  // would contradict it, so the spec's own heading steps aside.
+  const open = !closedUntil(p.business, p.business?.timezone) && bookable(p.settings);
   return (
-    <section className="sec booksec" id={sec.id} data-section={sec.id} aria-labelledby={`${sec.id}-title`}>
-      <Head sec={sec} />
+    <section className="sec booksec" id={sec.id} data-section={sec.id} aria-labelledby={open ? `${sec.id}-title` : undefined} aria-label={open ? undefined : "Booking"}>
+      {open && <Head sec={sec} />}
       {/* The stamp is on the flow, not the section, so the spec's own title and
           intro above it are still checked for stray digits. */}
       <div data-from="book" data-part="flow"><BookingFlow embedded /></div>

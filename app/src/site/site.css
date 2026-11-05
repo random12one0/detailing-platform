@@ -352,3 +352,4 @@ html, body { margin: 0; background: #0f2a2b; }
 /* The flow's centred states (away, not set up) are full-screen pages on
    /book/:slug; inside a section they only need their own height. */
 .site .bk.bk-embedded .bk-center { min-height: 0; padding-top: 32px; padding-bottom: 48px; }
+.site .bk.bk-embedded .bk-center a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 8px; font-size: 16px; }

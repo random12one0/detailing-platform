@@ -397,10 +397,11 @@ try {
       const r = await page.evaluate(() => {
         const bk = document.querySelector('[data-section="book"] .bk');
         return { h1: document.querySelectorAll("h1").length, embedded: !!bk?.classList.contains("bk-embedded"), inline: bk?.getAttribute("style") || "",
-          says: document.querySelector('[data-section="book"] .bk-center h2')?.textContent || "" };
+          says: document.querySelector('[data-section="book"] .bk-center h2')?.textContent || "",
+          head: !!document.querySelector('[data-section="book"] .sec-head') };
       });
       record("P7", `booking section when the detailer is ${name}: one h1, an h2 inside, the site's colours`,
-        r.h1 === 1 && r.embedded && !r.inline && words.test(r.says), `${r.says} · h1=${r.h1} · inline style "${r.inline}"`);
+        r.h1 === 1 && r.embedded && !r.inline && words.test(r.says) && !r.head, `${r.says} · h1=${r.h1} · inline style "${r.inline}" · "Request a time" heading ${r.head ? "still shown" : "hidden"}`);
       await page.locator('[data-section="book"]').screenshot({ path: path.join(OUT, `state-${name.replace(/ /g, "-")}-390.png`) }).catch(() => {});
       record("P7", `no console errors when ${name}`, !problems.length, problems.join(" | "));
       await context.close();
