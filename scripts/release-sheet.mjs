@@ -16,6 +16,7 @@
 //   node scripts/release-sheet.mjs --break=webhook-last # the payment webhook back after create-business: names 0.6b and 97.37
 //   node scripts/release-sheet.mjs --break=undeclared-line # a throwaway AWAITS PUBLISH line under the first open item with no step,
 //                                                       # in this run's copy of ROADMAP.md only: names that item (98.12; reads no receipt, bites on any)
+//   node scripts/release-sheet.mjs --break=dup-carries   # puts back the 98.18 bug (a "carries <item>" note printed twice on one step): names the step (98.18r)
 //
 // lock-one, lock-order, fn-before-page and webhook-last (and drop-line, unhold) only bite while the server check names the programs they
 // move. On a receipt naming none (the stale one 98.18 met) fn-before-page and lock-order printed
@@ -78,7 +79,7 @@ import { join } from "node:path";
 import { writeReceipt, REPO } from "./receipt.mjs";
 
 const started_at = new Date().toISOString();
-const BREAKS = ["drop-step", "drop-line", "unhold", "open-wait", "no-cron", "no-order", "no-escape", "fn-before-page", "lock-one", "lock-order", "webhook-last", "undeclared-line"];
+const BREAKS = ["drop-step", "drop-line", "unhold", "open-wait", "no-cron", "no-order", "no-escape", "fn-before-page", "lock-one", "lock-order", "webhook-last", "undeclared-line", "dup-carries"];
 const BREAK = (process.argv.find((a) => a.startsWith("--break=")) || "").slice("--break=".length);
 if (BREAK && !BREAKS.includes(BREAK)) {
   console.error(`Unknown --break=${BREAK}. Known: ${BREAKS.join(", ")}.`);
@@ -557,7 +558,7 @@ const fnLine = (f, lead) => {
   if (onlyIf.has(f)) notes.push(`only if you did ${ref(onlyIf.get(f))}; if you skipped it, skip this one too and expect the push check to name it`);
   if (notDeployed.has(f)) notes.push("never published before");
   for (const d of Object.values(DECLARED)) for (const i of (d.waitsOn || {})[f] || []) notes.push(`carries ${i} (${waitState(i, f)})`);
-  return `${lead}\`${f}\`${notes.length ? ` — ${[...new Set(notes)].join("; ")}` : ""}${tags(need.fn.get(f))}`;
+  return `${lead}\`${f}\`${notes.length ? ` — ${(BREAK === "dup-carries" ? notes : [...new Set(notes)]).join("; ")}` : ""}${tags(need.fn.get(f))}`;
 };
 if (firsts.length) { out.push("**First, alone:**", ""); for (const f of firsts) push(f, fnLine(f, "Publish, alone, ")); out.push(""); }
 out.push("**Then these, in one pass, in any order among themselves:**", "");
@@ -597,12 +598,15 @@ if (BREAK === "drop-line") sheet = sheet.split("\n").filter((l) => !l.includes("
 // ---------------------------------------------------------------------------
 // VERIFY THE WRITTEN TEXT
 // ---------------------------------------------------------------------------
+// 98.18 printed `carries 97.10 (ticked)` twice on one step (two declarations wait on the same item). Returns the repeated note, or "".
+const repeatedCarries = (line) => { const seen = new Set(); for (const m of line.match(/carries [^;(]+\([^)]*\)/g) || []) { if (seen.has(m)) return m; seen.add(m); } return ""; };
 function verify(text, { migs, fns, rowList, decl, extraRows = [] }) {
   const bad = [];
   const all = text.split("\n");
   const stepLines = all.filter((l) => /^\d+\. /.test(l));
   const heldStart = all.findIndex((l) => l.startsWith("## Held back"));
   const heldLines = heldStart < 0 ? [] : all.slice(heldStart + 1, all.findIndex((l, i) => i > heldStart && l.startsWith("## ")));
+  for (const l of stepLines) { const d = repeatedCarries(l); if (d) bad.push(`a step prints "${d}" more than once: ${l.slice(0, 80)}`); }
   const lineOf = (needle) => stepLines.findIndex((l) => l.includes(needle));
   const count = (needle) => text.split(needle).length - 1;
   const isHeld = (f) => heldLines.some((l) => l.startsWith(`- \`${f}\``));
@@ -697,7 +701,8 @@ failures.push(...sheetFindings);
 const canaryRow = { key: "0.0", id: "0.0", title: "canary row", line: 0, body: "" };
 const canaryMig = "20991231000000_canary.sql";
 const canaryFindings = verify(sheet, { ...ctx, migs: [...ctx.migs, canaryMig], extraRows: [canaryRow] });
-const canaryCaught = canaryFindings.some((f) => f.includes('"0.0 — canary row" is not covered')) && canaryFindings.some((f) => f.includes(canaryMig));
+const canaryCaught = canaryFindings.some((f) => f.includes('"0.0 — canary row" is not covered')) && canaryFindings.some((f) => f.includes(canaryMig))
+  && verify("1. `x` — carries 1.1 (ticked); carries 1.1 (ticked)", { migs: [], fns: [], rowList: [], decl: {} }).some((f) => f.includes("carries 1.1 (ticked)"));
 
 // ---------------------------------------------------------------------------
 // WRITE
