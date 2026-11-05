@@ -1,0 +1,110 @@
+{
+  "git_sha": "80bc340ce4f33038110170a0568a338f413b742f",
+  "git_sha_started": "80bc340ce4f33038110170a0568a338f413b742f",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-11-05T07:22:19.622Z",
+  "failures": [
+    "STALE: receipts/deployed-inventory.json was taken at 0da053dd and supabase/functions has changed since (2 file(s)). Re-run deployed-inventory.mjs (read-only, needs credentials) and then this.",
+    "ROADMAP.md:772 \"97.15 — Support (\"view as\") sessions never expire and hand out a refresh token\" has a release line and is neither declared nor excluded in scripts/release-sheet.mjs"
+  ],
+  "warnings": [
+    "run with --break=undeclared-line; this receipt is a sabotage, not a result",
+    "Reads only the migration-drift and deployed-inventory RECEIPTS; it is as current as they are, and refuses (STALE) when supabase/ changed since either was taken.",
+    "migration-drift cannot see triggers, constraints or data-only migrations; such a file reaches this sheet only when a row it reads names it.",
+    "NOT READ: 97.91; 97.3; 97.7; 97.12; 97.13; 97.14; 97.18; 97.19; 97.20; 97.21; 97.71; 97.72; 3.1d; 97.28; Publish and apply — the one ordered list; Waiting on you — nothing breaks while these wait."
+  ],
+  "artifacts": [
+    "scripts/release-sheet.mjs",
+    "receipts/release-sheet.undeclared-line.sabotage.md"
+  ],
+  "dimensions": {
+    "break": "undeclared-line",
+    "head": "80bc340ce4f33038110170a0568a338f413b742f",
+    "drift_receipt_sha": "0da053ddb7aab3b9a6b05954db82578f24be1cf7",
+    "inventory_receipt_sha": "0da053ddb7aab3b9a6b05954db82578f24be1cf7",
+    "migrations_from_drift": [
+      "20261024150000_calendar_feed_token.sql",
+      "20261024160000_damage_ack.sql",
+      "20261024210000_awaiting_first_payment.sql",
+      "20261024230000_support_sessions_unlock.sql"
+    ],
+    "migrations_from_rows_only": [],
+    "programs_named": 36,
+    "programs_published": 34,
+    "programs_held": [
+      "google-business",
+      "platform-admin"
+    ],
+    "release_rows_read": [
+      "97.55",
+      "14.39",
+      "0.11cc",
+      "0.11bd",
+      "98.2",
+      "97.68",
+      "99.2a",
+      "97.53",
+      "2.15",
+      "4.3b",
+      "9.1b",
+      "99.1",
+      "0.6b"
+    ],
+    "roadmap_release_lines_read": 17,
+    "roadmap_rules_declared": [
+      "4.3b",
+      "14.39",
+      "99.2",
+      "98.2",
+      "97.37",
+      "97.53",
+      "97.55"
+    ],
+    "roadmap_excluded": [
+      "97.8",
+      "97.15",
+      "97.25",
+      "97.90",
+      "0.11c",
+      "0.4",
+      "0.4g",
+      "0.6c",
+      "1.3",
+      "9.18"
+    ],
+    "after_the_website": [
+      "create-booking",
+      "create-business"
+    ],
+    "after_the_last_program": [
+      "create-business"
+    ],
+    "at_your_next_release_rows": [
+      "97.55",
+      "98.2",
+      "97.68",
+      "99.2a",
+      "97.53"
+    ],
+    "steps": 44
+  },
+  "check_id": "release-sheet.undeclared-line",
+  "started_at": "2026-11-05T07:22:16.985Z",
+  "status": "fail",
+  "expected_targets": 70,
+  "discovered_targets": 69,
+  "attempted_targets": 70,
+  "completed_targets": 70,
+  "skipped_targets": 0,
+  "assertions_executed": 147,
+  "min_assertions": 60,
+  "canary": {
+    "id": "a release row and a migration file the sheet never heard of must both be reported",
+    "observed_failure": true,
+    "findings": [
+      "database change 20991231000000_canary.sql appears 0 time(s) on the sheet, not once",
+      "FOR-ANDREW.md:0 \"0.0 — canary row\" is not covered by any step"
+    ]
+  }
+}
