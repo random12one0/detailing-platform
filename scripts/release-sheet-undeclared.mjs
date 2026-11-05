@@ -24,6 +24,8 @@ const git = (...a) => execFileSync("git", a, { cwd: SCRATCH, encoding: "utf8" })
 const GUARD = "if (!why) { rowProblems.push(";
 const MSG = "has a release line and is neither declared nor excluded";
 const failures = [];
+let asserts = 0; // counted as they run: 9 on a full run, 8 under --break=no-line (no numstat check)
+const check = (ok, msg) => { asserts++; if (!ok) failures.push(msg); return ok; };
 const runs = [];
 // One sheet run in the scratch copy: its FAIL lines, minus the closing summary.
 function sheet(label) {
@@ -54,38 +56,38 @@ try {
   if (BREAK !== "no-line") {
     writeFileSync(join(SCRATCH, "ROADMAP.md"), roadmap.slice(0, at) + (roadmap.includes("\r\n") ? "\r\n" : "\n") + "  AWAITS PUBLISH (98.12 proof, scratch copy only): a throwaway release line." + roadmap.slice(at));
     const ns = git("diff", "--numstat", "--", "ROADMAP.md");
-    if (!/^1\s+0\s+ROADMAP\.md$/.test(ns)) failures.push(`the throwaway line did not land as one added line (numstat "${ns}")`);
+    check(/^1\s+0\s+ROADMAP\.md$/.test(ns), `the throwaway line did not land as one added line (numstat "${ns}")`);
   }
   const withLine = sheet("with the throwaway line");
   named = withLine.filter((l) => l.includes(`"${key} — `) && l.includes(MSG));
   added = withLine.filter((l) => !clean.includes(l));
-  if (named.length !== 1) failures.push(`with a throwaway AWAITS PUBLISH line under ${key}, the sheet named it ${named.length} time(s), not once`);
-  if (added.length !== named.length || added.some((l) => !named.includes(l))) failures.push(`the line changed more than the one FAIL: ${added.join(" | ")}`);
+  check(named.length === 1, `with a throwaway AWAITS PUBLISH line under ${key}, the sheet named it ${named.length} time(s), not once`);
+  check(added.length === named.length && added.every((l) => named.includes(l)), `the line changed more than the one FAIL: ${added.join(" | ")}`);
 
   // Canary: the sheet's guard switched off in the scratch copy. The item must then go unnamed.
   const script = join(SCRATCH, "scripts/release-sheet.mjs");
   writeFileSync(script, readFileSync(script, "utf8").replace(GUARD, "if (!why) { if (false) rowProblems.push("));
   const gs = git("diff", "--numstat", "--", "scripts/release-sheet.mjs");
-  const guardLanded = /^1\s+1\s+scripts\/release-sheet\.mjs$/.test(gs);
-  if (!guardLanded) failures.push(`the canary's guard edit did not land (numstat "${gs}")`);
+  const guardLanded = check(/^1\s+1\s+scripts\/release-sheet\.mjs$/.test(gs), `the canary's guard edit did not land (numstat "${gs}")`);
   guardOffNamed = sheet("guard switched off").filter((l) => l.includes(`"${key} — `));
   git("checkout", "--quiet", "--", "scripts/release-sheet.mjs");
+  asserts++;
   canaryCaught = guardLanded && guardOffNamed.length === 0;
 
   // Remove it: the name must go, and the FAIL list must be the clean one again.
   git("checkout", "--quiet", "--", "ROADMAP.md");
-  if (git("status", "--porcelain", "--", "ROADMAP.md", "scripts")) failures.push("the scratch copy did not go back to HEAD");
+  check(!git("status", "--porcelain", "--", "ROADMAP.md", "scripts"), "the scratch copy did not go back to HEAD");
   const removed = sheet("line removed");
   removedNamed = removed.filter((l) => l.includes(`"${key} — `));
   extraAfter = removed.filter((l) => !clean.includes(l));
-  if (removedNamed.length) failures.push(`after the line was removed, the sheet still names ${key}`);
-  if (extraAfter.length) failures.push(`after the line was removed, the FAIL list is not the clean one: ${extraAfter.join(" | ")}`);
+  check(!removedNamed.length, `after the line was removed, the sheet still names ${key}`);
+  check(!extraAfter.length, `after the line was removed, the FAIL list is not the clean one: ${extraAfter.join(" | ")}`);
 } catch (e) {
   failures.push(`could not run: ${e.message}`);
 } finally {
   rmSync(SCRATCH, { recursive: true, force: true, maxRetries: 3 });
 }
-if (!readFileSync(join(REPO, "ROADMAP.md")).equals(roadmapBefore)) failures.push("the main copy's ROADMAP.md changed during the run");
+check(readFileSync(join(REPO, "ROADMAP.md")).equals(roadmapBefore), "the main copy's ROADMAP.md changed during the run");
 
 const completed = runs.filter((r) => r.completed).length;
 const ok = failures.length === 0 && canaryCaught === true && completed === 4;
@@ -98,8 +100,8 @@ const { path: receiptPath } = writeReceipt({
   attempted_targets: runs.length,
   completed_targets: completed,
   skipped_targets: 4 - runs.length,
-  assertions_executed: 8,
-  min_assertions: 8,
+  assertions_executed: asserts,
+  min_assertions: 7, // below both 9 and 8, so a run that stops early is refused
   failures,
   artifacts: ["scripts/release-sheet-undeclared.mjs", "scripts/release-sheet.mjs"],
   warnings: [
