@@ -1,9 +1,9 @@
 {
-  "git_sha": "bc91cd496413232c0fe5e8457c347a1390b9a597",
-  "git_sha_started": "bc91cd496413232c0fe5e8457c347a1390b9a597",
+  "git_sha": "9e4ed1522c711dc22ea3795b13bf723183ca63e6",
+  "git_sha_started": "9e4ed1522c711dc22ea3795b13bf723183ca63e6",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-11-05T08:15:58.107Z",
+  "finished_at": "2026-11-05T08:30:20.958Z",
   "failures": [
     "STALE: receipts/deployed-inventory.json was taken at 0da053dd and supabase/functions has changed since (2 file(s)). Re-run deployed-inventory.mjs (read-only, needs credentials) and then this."
   ],
@@ -17,7 +17,7 @@
     "docs/release-sheet.md"
   ],
   "dimensions": {
-    "head": "bc91cd496413232c0fe5e8457c347a1390b9a597",
+    "head": "9e4ed1522c711dc22ea3795b13bf723183ca63e6",
     "drift_receipt_sha": "0da053ddb7aab3b9a6b05954db82578f24be1cf7",
     "inventory_receipt_sha": "0da053ddb7aab3b9a6b05954db82578f24be1cf7",
     "migrations_from_drift": [
@@ -83,10 +83,17 @@
       "99.2a",
       "97.53"
     ],
-    "steps": 44
+    "steps": 44,
+    "undeclared_canary": {
+      "item": "97.15",
+      "added": [
+        "\"97.15 — Support (\"view as\") sessions never expire and hand out a refresh token\" has a release line and is neither declared nor excluded in scripts/release-sheet.mjs"
+      ],
+      "caught": true
+    }
   },
   "check_id": "release-sheet",
-  "started_at": "2026-11-05T08:15:56.295Z",
+  "started_at": "2026-11-05T08:30:19.879Z",
   "status": "fail",
   "expected_targets": 69,
   "discovered_targets": 69,
