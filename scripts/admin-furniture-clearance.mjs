@@ -93,7 +93,7 @@
 //              loop's own ±1px (a 44.0 target on a fractional edge reads 43).
 //              Without this the check would blame the furniture for a control
 //              that was too small to begin with.
-//   reachable  where the browser puts it when it is focused, 44 of those rows
+//   reachable  where the browser puts it when it is focused, 43 (the same floor) of those rows
 //              survive. Losses are attributed by `elementFromPoint`, so "the
 //              dock did it" is read off the page rather than assumed. The
 //              scroll uses `block: "end"` because the furniture here is at the
@@ -153,6 +153,9 @@ const TABS = [
 
 const SEL = ".bo-btn, .bo-nav, .bo-px, .bo-fchip, .bo-find-top, .bo-row, button, a[href]";
 const ABSOLUTE = 44;
+// ONE floor for BOTH questions (99.10 item 6). The row loop counts INTEGER rows and carries
+// ±1px at a fractional edge, so 44 − 1. `legal` used to accept 43 while `reachable` demanded 44.
+const FLOOR = ABSOLUTE - 1;
 const ART = fileURLToPath(new URL("../artifacts/admin-furniture-clearance/", import.meta.url));
 
 let assertions = 0;
@@ -422,7 +425,7 @@ function grade(id, m, kind, sink) {
   // 43 when its box lands on a fraction, the marketing script's `.htab`
   // precedent. The exact figure is still printed, and a shortfall of 2 or
   // more still fails, so `--break=rect` (5+ px out) keeps biting by a mile.
-  const illegal = controls.filter((c) => c.legal < ABSOLUTE - 1);
+  const illegal = controls.filter((c) => c.legal < FLOOR);
   sink(id, "legal", controls.length > 0 && illegal.length === 0,
     illegal.slice(0, 3).map((c) => `«${c.text}» (${c.cls}) is ${c.legal}px of hit area with nothing `
       + `over it (box ${c.rectH}px + ${c.overhang}px overhang)`).join("; ")
@@ -433,11 +436,13 @@ function grade(id, m, kind, sink) {
   // this item is about. Failing on it here would make the check go red for
   // reasons outside its own scope, which is how a check starts measuring
   // itself. Reported instead.
-  const mine = (c) => Object.keys(c.lost || {}).some((k) => k === ".bo-rail");
-  const short = controls.filter((c) => c.legal >= ABSOLUTE && c.reachable < ABSOLUTE && mine(c));
-  const elsewhere = controls.filter((c) => c.legal >= ABSOLUTE && c.reachable < ABSOLUTE && !mine(c));
+  // `.bo-panel` is furniture too (99.10 item 6): `who()` names a loss to the open sheet's own
+  // fixed edge ".bo-panel", and `mine()` used to know only the dock.
+  const mine = (c) => Object.keys(c.lost || {}).some((k) => k === ".bo-rail" || k === ".bo-panel");
+  const short = controls.filter((c) => c.legal >= FLOOR && c.reachable < FLOOR && mine(c));
+  const elsewhere = controls.filter((c) => c.legal >= FLOOR && c.reachable < FLOOR && !mine(c));
   if (elsewhere.length) {
-    observed.push(`${id}: ${elsewhere.length} control(s) short of ${ABSOLUTE}px for reasons OTHER `
+    observed.push(`${id}: ${elsewhere.length} control(s) short of ${FLOOR}px for reasons OTHER `
       + `than the fixed furniture — worst «${elsewhere[0].text}» at ${elsewhere[0].reachable}px, `
       + `lost to ${JSON.stringify(elsewhere[0].lost)} (recorded, not this item's fault)`);
   }
