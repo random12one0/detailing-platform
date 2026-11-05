@@ -1,0 +1,64 @@
+{
+  "git_sha": "71b627e9968d24c176fc792a85ccf46d3d552f35",
+  "git_sha_started": "71b627e9968d24c176fc792a85ccf46d3d552f35",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-11-05T07:45:47.278Z",
+  "failures": [],
+  "warnings": [
+    "Runs the release sheet four times in a scratch clone of HEAD (clean, with the line, guard off, line removed); judges the FAIL lines, never the verdict word, because the sheet can be red for other reasons (a STALE receipt)."
+  ],
+  "artifacts": [
+    "scripts/release-sheet-undeclared.mjs",
+    "scripts/release-sheet.mjs"
+  ],
+  "dimensions": {
+    "head": "71b627e9968d24c176fc792a85ccf46d3d552f35",
+    "item_under_line": "97.15",
+    "named": [
+      "FAIL — ROADMAP.md:772 \"97.15 — Support (\"view as\") sessions never expire and hand out a refresh token\" has a release line and is neither declared nor excluded in scripts/release-sheet.mjs"
+    ],
+    "added_by_line": [
+      "FAIL — ROADMAP.md:772 \"97.15 — Support (\"view as\") sessions never expire and hand out a refresh token\" has a release line and is neither declared nor excluded in scripts/release-sheet.mjs"
+    ],
+    "guard_off_named": [],
+    "after_removal_named": [],
+    "after_removal_extra": [],
+    "runs": [
+      {
+        "label": "clean",
+        "exit": 1,
+        "completed": true
+      },
+      {
+        "label": "with the throwaway line",
+        "exit": 1,
+        "completed": true
+      },
+      {
+        "label": "guard switched off",
+        "exit": 1,
+        "completed": true
+      },
+      {
+        "label": "line removed",
+        "exit": 1,
+        "completed": true
+      }
+    ]
+  },
+  "check_id": "release-sheet-undeclared",
+  "started_at": "2026-11-05T07:44:58.443Z",
+  "status": "pass",
+  "expected_targets": 4,
+  "discovered_targets": 4,
+  "attempted_targets": 4,
+  "completed_targets": 4,
+  "skipped_targets": 0,
+  "assertions_executed": 9,
+  "min_assertions": 7,
+  "canary": {
+    "id": "with the sheet's guard switched off in the scratch copy, the same line must go unnamed",
+    "observed_failure": true
+  }
+}
