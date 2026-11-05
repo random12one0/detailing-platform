@@ -55,8 +55,8 @@ const { normalizeProfile, createBookingTransport, slotsForType } = await import(
 const F = await import(pathToFileURL(path.join(APP, "src/lib/format.js")).href);
 
 const lines = [];
-function line(id, says, pass, detail = "") {
-  const l = { id, says, pass: !!pass, detail: typeof detail === "string" ? detail : JSON.stringify(detail) };
+function line(id, says, pass, detail = "", skipped = false) {
+  const l = { id, says, pass: !!pass, detail: typeof detail === "string" ? detail : JSON.stringify(detail), ...(skipped ? { skipped: true } : {}) };
   lines.push(l);
   console.log(JSONL ? JSON.stringify({ line: l }) : `${l.pass ? "PASS" : "FAIL"}  ${says}${l.detail ? ` — ${l.detail}` : ""}`);
   return l.pass;
@@ -201,7 +201,7 @@ try {
     for (const [id, says] of [["stamps", "Every connected item shows what the dashboard says"], ["price", "Raise one price by $5"], ["hide", "Hide one service"],
       ["hours", "Change one day's hours"], ["photo", "Remove one photo"], ["review", "Add one review"], ["stamps-after", "After the changes, every connected item still matches the dashboard"],
       ["quote", "Practice booking: the price shown equals calculate-booking"], ["slots", "The times offered equal available-slots"],
-      ["post", "One booking post recorded (create-booking)"]]) line(id, says, false, "not tried: the site did not draw");
+      ["post", "One booking post recorded (create-booking)"]]) line(id, says, false, "not tried: the site did not draw", true);
     line("console", "The page showed no errors", !problems.length, problems.slice(0, 3).join(" | "));
     throw Object.assign(new Error("site not drawn"), { quiet: true });
   }
@@ -300,7 +300,7 @@ try {
 
 const failed = lines.filter((l) => !l.pass);
 const result = { ok: !failed.length, revision: LABEL, spec: SPEC_FILE, business: spec.slug, ran: new Date().toISOString(), ms: Date.now() - t0,
-  passed: lines.length - failed.length, failed: failed.length, break: BREAK || undefined, lines };
+  passed: lines.length - failed.length, failed: failed.length, skipped: lines.filter((l) => l.skipped).length, break: BREAK || undefined, lines };
 mkdirSync(path.dirname(OUT_FILE), { recursive: true });
 writeFileSync(OUT_FILE, JSON.stringify(result, null, 2) + "\n");
 if (JSONL) console.log(JSON.stringify({ done: { ok: result.ok, passed: result.passed, failed: result.failed, ms: result.ms } }));
