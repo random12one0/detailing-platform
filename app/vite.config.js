@@ -43,13 +43,18 @@ const siteRoute = {
   configurePreviewServer(server) { server.middlewares.use(siteEntry()); },
 };
 
-export default defineConfig({
+// THE SITE IS A SECOND BUILD, NOT A SECOND INPUT OF THIS ONE (S1 review B1).
+// Two inputs in one build make Rollup split the booking code both pages import
+// into a shared chunk, so the dashboard stops being the ONE `assets/index-*.js`
+// that live-bundle-switches, live-card-claim, live-setup-counts and
+// photo-release-order read off the published site. `vite build` is therefore
+// the dashboard exactly as before; `vite build --mode site` adds site.html and
+// its own assets to the same dist/ without emptying it (see package.json).
+export default defineConfig(({ mode }) => ({
   plugins: [react(), exampleIndex, siteRoute],
-  build: {
-    rollupOptions: {
-      input: { main: fileURLToPath(new URL("./index.html", import.meta.url)), site: fileURLToPath(new URL("./site.html", import.meta.url)) },
-    },
-  },
+  build: mode === "site"
+    ? { emptyOutDir: false, copyPublicDir: false, rollupOptions: { input: { site: fileURLToPath(new URL("./site.html", import.meta.url)) } } }
+    : undefined,
   preview: smokeTarget
     ? {
       proxy: {
@@ -61,4 +66,4 @@ export default defineConfig({
       },
     }
     : undefined,
-});
+}));

@@ -22,7 +22,7 @@
 //   P6 (built) the production bundle routes /site/<slug> and the same not-found
 import { spawn, execFileSync } from "node:child_process";
 import { createRequire } from "node:module";
-import { mkdirSync, writeFileSync, rmSync } from "node:fs";
+import { mkdirSync, writeFileSync, rmSync, readFileSync } from "node:fs";
 import { pathToFileURL, fileURLToPath } from "node:url";
 import os from "node:os";
 import path from "node:path";
@@ -343,8 +343,16 @@ try {
   if (BUILT) {
     const dist = path.join(os.tmpdir(), `studio-s1-dist-${process.pid}`);
     try {
-      execFileSync(process.execPath, [path.join(APP, "node_modules/vite/bin/vite.js"), "build", "--outDir", dist, "--emptyOutDir"],
-        { cwd: APP, env: { ...process.env, ...env }, windowsHide: true, stdio: "pipe" });
+      // The same two passes as `npm run build`: the dashboard, then the site beside it.
+      for (const extra of [["--emptyOutDir"], ["--mode", "site"]]) {
+        execFileSync(process.execPath, [path.join(APP, "node_modules/vite/bin/vite.js"), "build", "--outDir", dist, ...extra],
+          { cwd: APP, env: { ...process.env, ...env }, windowsHide: true, stdio: "pipe" });
+      }
+      // B1: four after-publish checks read the dashboard as ONE assets/index-*.js
+      // named by index.html. The site must not split it.
+      const indexHtml = readFileSync(path.join(dist, "index.html"), "utf8");
+      const indexJs = [...new Set(indexHtml.match(/assets\/[\w.-]+\.js/g) || [])];
+      record("P6", "the dashboard still loads exactly one JS file, assets/index-*.js", indexJs.length === 1 && /^assets\/index-[\w-]+\.js$/.test(indexJs[0]), indexJs.join(", "));
       const port = await freePort();
       const preview = startVite(["preview", "--outDir", dist, "--port", String(port), "--strictPort", "--host", "127.0.0.1"], env);
       try {
@@ -352,8 +360,8 @@ try {
         const { context, page, problems } = await open(390, 844);
         await load(page, `http://127.0.0.1:${port}/site/brightline`);
         record("P6", "built preview serves /site/brightline with live prices", (await text(page, '[data-section="menu"]')).includes("$185"));
-        const css = await page.evaluate(() => [...document.styleSheets].map((s) => s.href || "").join(" ") + [...document.fonts].map((f) => f.family).join(","));
-        record("P6", "the dashboard's stylesheet and fonts are not loaded", !/Archivo|JetBrains|index-[\w-]+\.css/.test(css), css.slice(0, 200));
+        const css = await page.evaluate(() => [...document.styleSheets].map((s) => s.href || "").join(" ") + " " + [...document.scripts].map((s) => s.src).join(" ") + " " + [...document.fonts].map((f) => f.family).join(","));
+        record("P6", "the dashboard's stylesheet and fonts are not loaded", !/Archivo|JetBrains|assets\/index-[\w-]+\.(css|js)/.test(css) && /assets\/site-[\w-]+\.css/.test(css), css.slice(0, 200));
         await page.goto(`http://127.0.0.1:${port}/site/nope`, { waitUntil: "networkidle" });
         record("P6", "built preview: unknown slug shows not-found", (await page.locator("h1").innerText()).includes("There is no site"));
         record("P6", "built preview: no console errors", !problems.length, problems.join(" | "));
