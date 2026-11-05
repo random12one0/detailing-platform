@@ -6,7 +6,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { normalizeProfile } from "../app/src/book/core.js";
-import { parseBinding, resolve, validateSpec, bindingsOf } from "../app/src/site/spec.js";
+import { parseBinding, resolve, validateSpec, bindingsOf, typedFact } from "../app/src/site/spec.js";
 
 const spec = JSON.parse(readFileSync(new URL("../app/src/site/specs/brightline.json", import.meta.url)));
 const id = (n) => `00000000-0000-4000-8000-000000000${n}`;
@@ -73,4 +73,67 @@ test("bindings resolve from the profile, never from the spec", () => {
   assert.equal(resolve("faq", profile).length, 1);
   assert.equal(parseBinding("reviews.top(3)").n, 3);
   assert.equal(parseBinding("nope"), null);
+});
+
+// ---------------------------------------------------------------- S1 review holes
+// Each of these PASSED the validator in d2a88b51 (docs/studio/S1-REVIEW.md §2-3).
+const refusedAs = (mutate, code, label) => {
+  const s = clone(); mutate(s);
+  let r;
+  assert.doesNotThrow(() => { r = validateSpec(s, profile); }, label);
+  assert.equal(r.ok, false, `${label}: should be refused`);
+  assert.ok(codes(r).includes(code), `${label}: expected ${code}, got ${codes(r).join(",")}`);
+};
+
+test("digits in any script, other numerals and every currency sign are refused", () => {
+  for (const text of ["Interior reset, only １８５", "Only ١٨٥ today", "⑱⑤ off", "Half a ½ price", "Ⅶ days a week", "Pay in ₹", "From ¥ and ₩", "₽ ₱ accepted"]) {
+    refusedAs((s) => { hero(s).copy.sub = text; }, "typed_fact", text);
+  }
+});
+
+test("numbers written as words or Roman numerals are refused", () => {
+  for (const text of ["one hundred eighty-five dollars", "Call five six two, five five five", "Open nine to five",
+    "Half price wash, free wax", "Open VII days", "Twenty-four hour drop-off", "A five-star finish", "Hundreds of happy cars"]) {
+    refusedAs((s) => { hero(s).copy.sub = text; }, "typed_fact", text);
+  }
+});
+
+test("ordinary words that merely contain a number word still pass (low false alarms)", () => {
+  for (const text of ["One-stop care, often done in an afternoon", "Hassle-free and streak-free", "No one rushes your car",
+    "Brightline LLC, by weight of good habits", "Care you can see. Prices you can check."]) {
+    assert.equal(typedFact(text), null, text);
+    const s = clone(); hero(s).copy.sub = text;
+    assert.deepEqual(validateSpec(s, profile).errors, [], text);
+  }
+});
+
+test("inherited object keys cannot pass as tokens, fonts or section types, and never crash", () => {
+  refusedAs((s) => { s.tokens.toString = "Call 562-555-0100"; }, "unknown_key", "tokens.toString");
+  refusedAs((s) => { s.tokens.constructor = "$185"; }, "unknown_key", "tokens.constructor");
+  refusedAs((s) => { s.tokens.font_display = "toString"; }, "bad_shape", "font toString");
+  refusedAs((s) => { s.tokens.font_body = "__proto__"; }, "bad_shape", "font __proto__");
+  for (const type of ["constructor", "toString", "__proto__", "hasOwnProperty"]) {
+    refusedAs((s) => { s.pages[0].sections.push({ id: "odd", type }); }, "unknown_type", `type ${type}`);
+  }
+  refusedAs((s) => { s.pages[0].sections.push(null); }, "bad_shape", "null section");
+});
+
+test("digits in a section id or a page path are refused, and only the one page is accepted", () => {
+  refusedAs((s) => { s.pages[0].sections[1].id = "only-dollars-185"; }, "bad_shape", "id with digits");
+  refusedAs((s) => { s.pages[0].path = "/call-562-555-0100"; }, "bad_shape", "path with digits");
+  refusedAs((s) => { s.pages.push({ path: "/about", sections: [] }); }, "bad_shape", "a second page");
+});
+
+test("the must-haves: exactly one hero, exactly one booking, and the core tokens", () => {
+  refusedAs((s) => { s.pages[0].sections = s.pages[0].sections.filter((x) => x.type !== "booking"); }, "bad_shape", "no booking");
+  refusedAs((s) => { s.pages[0].sections.push({ ...s.pages[0].sections.find((x) => x.type === "booking"), id: "book-again" }); }, "bad_shape", "two bookings");
+  refusedAs((s) => { s.pages[0].sections.push({ ...hero(s), id: "hero-again" }); }, "bad_shape", "two heroes");
+  refusedAs((s) => { s.tokens = {}; }, "bad_shape", "empty tokens");
+  refusedAs((s) => { delete s.tokens.accent; }, "bad_shape", "no accent");
+});
+
+test("a service group with no active services is missing, the same way the renderer sees it", () => {
+  // The group row still exists; every service in it was switched off. resolve() draws nothing, so the save must fail.
+  assert.ok(profile.serviceGroups.length === 1);
+  assert.ok(codes(validateSpec(spec, { ...profile, services: [] })).includes("missing_id"));
 });

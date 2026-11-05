@@ -26,6 +26,6 @@ const slug = /^\/site\/([a-z0-9-]+)\/?$/.exec(window.location.pathname)?.[1] ?? 
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <Site slug={slug} spec={slug ? SPECS[slug] ?? null : null} />
+    <Site slug={slug} spec={slug && Object.hasOwn(SPECS, slug) ? SPECS[slug] : null} />
   </React.StrictMode>,
 );

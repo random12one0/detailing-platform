@@ -83,15 +83,46 @@ export const FONTS = {
   Chivo: "wght@400..800",
 };
 const HEX = /^#[0-9a-f]{6}$/i;
+// Own-key lookups only: `"toString" in FONTS` is true, `Object.hasOwn(FONTS, "toString")` is not.
+const own = (table, key) => typeof key === "string" && Object.hasOwn(table, key);
 const TOKENS = {
-  font_display: (v) => v in FONTS, font_body: (v) => v in FONTS,
+  font_display: (v) => own(FONTS, v), font_body: (v) => own(FONTS, v),
   ink: (v) => HEX.test(v), paper: (v) => HEX.test(v), paper_2: (v) => HEX.test(v),
   accent: (v) => HEX.test(v), on_accent: (v) => HEX.test(v), soft: (v) => HEX.test(v),
   radius: (v) => Number.isInteger(v) && v >= 0 && v <= 24,
 };
 
-// A digit, a currency sign or a percent in prose is a fact typed by hand.
-const TYPED_FACT = /[0-9$€£¢%]/;
+// Tokens a site cannot be drawn without. The rest fall back to these.
+const REQUIRED_TOKENS = ["paper", "ink", "accent", "font_display", "font_body"];
+
+// A NUMBER IN PROSE IS A FACT TYPED BY HAND, in any of the ways one can be typed:
+// - any digit in any script (Nd: 1, １, ١), any other numeric character
+//   (No: ⑱, ½, ²; Nl: Ⅶ), any currency sign (Sc: $ ₹ ¥ ₩ ₽ ₱ …), and %;
+// - Roman numerals of two or more letters from I, V, X ("VII days", "XX years").
+//   L, C, D and M are left out on purpose: "LLC", "CD", "DC" are ordinary words;
+// - number words. "one" is NOT on the list, on purpose: it is mostly a pronoun
+//   ("the one place", "no one", "one-stop"), so listing it would refuse good copy.
+//   "free" and "half" ARE on it, because "free wax" and "half price" are price
+//   claims ("feel free" is refused too; reword it). Words match whole, plural
+//   allowed, and a word that ENDS a hyphenated compound is allowed, so "often",
+//   "weight", "hassle-free" and "streak-free" pass while "five-star",
+//   "twenty-four", "free wax" and "hundreds" are refused.
+// This cannot catch every way of writing a number ("a couple", "a few bucks" is
+// caught, "a few" is not); the critic is the backstop for prose, this is the floor.
+const TYPED_FACT = /[\p{Nd}\p{No}\p{Nl}\p{Sc}%]/u;
+const ROMAN = /(?<![\p{L}])[IVX]{2,}(?![\p{L}])/u;
+const NUMBER_WORDS = new RegExp(`(?<![\\p{L}-])(${[
+  "zero", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve",
+  "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen", "twenty", "thirty",
+  "forty", "fifty", "sixty", "seventy", "eighty", "ninety", "hundred", "thousand", "million", "billion",
+  "dozen", "half", "percent", "free", "dollar", "buck",
+].join("|")})s?(?![\\p{L}])`, "iu");
+/** The typed fact in a piece of prose, or null. Exported for the Studio's text box. */
+export function typedFact(text) {
+  return TYPED_FACT.exec(text)?.[0] ?? ROMAN.exec(text)?.[0] ?? NUMBER_WORDS.exec(text)?.[0] ?? null;
+}
+// Ids and paths end up in addresses and the picker; they carry no numbers either.
+const ID = /^[a-z]+(-[a-z]+)*$/;
 
 // ---------------------------------------------------------------- validation
 /**
@@ -112,25 +143,32 @@ export function validateSpec(spec, profile = null) {
   if (typeof spec.slug !== "string" || !/^[a-z0-9-]+$/.test(spec.slug)) err("spec.slug", "bad_shape", "slug must be lower-case letters, digits and dashes");
 
   const tokens = spec.tokens;
-  if (!tokens || typeof tokens !== "object") err("spec.tokens", "bad_shape", "tokens are required");
-  else for (const [k, v] of Object.entries(tokens)) {
-    if (!(k in TOKENS)) err(`spec.tokens.${k}`, "unknown_key", `"${k}" is not a design token`);
-    else if (!TOKENS[k](v)) err(`spec.tokens.${k}`, "bad_shape", `${JSON.stringify(v)} is not allowed for ${k}`);
+  if (!tokens || typeof tokens !== "object" || Array.isArray(tokens)) err("spec.tokens", "bad_shape", "tokens are required");
+  else {
+    for (const [k, v] of Object.entries(tokens)) {
+      if (!own(TOKENS, k)) err(`spec.tokens.${k}`, "unknown_key", `"${k}" is not a design token`);
+      else if (!TOKENS[k](v)) err(`spec.tokens.${k}`, "bad_shape", `${JSON.stringify(v)} is not allowed for ${k}`);
+    }
+    for (const k of REQUIRED_TOKENS) if (!Object.hasOwn(tokens, k)) err(`spec.tokens.${k}`, "bad_shape", `${k} is required`);
   }
 
-  if (!Array.isArray(spec.pages) || !spec.pages.length) err("spec.pages", "bad_shape", "at least one page is required");
+  // One page until multi-page exists: the renderer draws "/" and nothing else.
+  if (!Array.isArray(spec.pages) || spec.pages.length !== 1) err("spec.pages", "bad_shape", 'exactly one page, "/", is supported');
   const ids = new Set();
+  const count = { hero: 0, booking: 0 };
   (Array.isArray(spec.pages) ? spec.pages : []).forEach((page, pi) => {
     const pp = `spec.pages[${pi}]`;
     if (!page || typeof page !== "object") return err(pp, "bad_shape", "a page is an object");
     keysOnly(page, ["path", "sections"], pp);
-    if (typeof page.path !== "string" || !page.path.startsWith("/")) err(`${pp}.path`, "bad_shape", "path must start with /");
+    if (page.path !== "/") err(`${pp}.path`, "bad_shape", 'the only page is "/"');
     if (!Array.isArray(page.sections)) return err(`${pp}.sections`, "bad_shape", "sections must be a list");
     page.sections.forEach((sec, si) => {
       const sp = `${pp}.sections[${si}]`;
-      const type = SECTION_TYPES[sec?.type];
-      if (!type) return err(`${sp}.type`, "unknown_type", `unknown section type ${JSON.stringify(sec?.type)}`);
-      if (typeof sec.id !== "string" || !/^[a-z][a-z0-9-]*$/.test(sec.id)) err(`${sp}.id`, "bad_shape", "id must be lower-case, start with a letter");
+      if (!sec || typeof sec !== "object" || Array.isArray(sec)) return err(sp, "bad_shape", "a section is an object");
+      if (!own(SECTION_TYPES, sec.type)) return err(`${sp}.type`, "unknown_type", `unknown section type ${JSON.stringify(sec.type)}`);
+      const type = SECTION_TYPES[sec.type];
+      if (Object.hasOwn(count, sec.type)) count[sec.type]++;
+      if (typeof sec.id !== "string" || !ID.test(sec.id)) err(`${sp}.id`, "bad_shape", "id must be lower-case words joined by dashes, no digits");
       else if (ids.has(sec.id)) err(`${sp}.id`, "bad_shape", `duplicate section id ${sec.id}`);
       else ids.add(sec.id);
       if (sec.variant !== undefined && !type.variants.includes(sec.variant)) err(`${sp}.variant`, "bad_shape", `${sec.type} has no variant ${JSON.stringify(sec.variant)}`);
@@ -144,8 +182,8 @@ export function validateSpec(spec, profile = null) {
           const v = copy[k];
           if (v === undefined) { if (required) err(`${sp}.copy.${k}`, "bad_shape", `${k} is required`); continue; }
           if (typeof v !== "string" || !v.trim()) { err(`${sp}.copy.${k}`, "bad_shape", `${k} must be text`); continue; }
-          const hit = TYPED_FACT.exec(v);
-          if (hit) err(`${sp}.copy.${k}`, "typed_fact", `"${hit[0]}" typed into prose: facts like prices must come from a binding, not be written in`);
+          const hit = typedFact(v);
+          if (hit) err(`${sp}.copy.${k}`, "typed_fact", `"${hit}" typed into prose: facts like prices must come from a binding, not be written in`);
         }
       }
 
@@ -165,12 +203,18 @@ export function validateSpec(spec, profile = null) {
       }
     });
   });
+  // The must-haves: one first screen (one h1), and booking built into the site (M1).
+  if (Array.isArray(spec.pages) && spec.pages.length) {
+    if (count.hero !== 1) err("spec.pages[0].sections", "bad_shape", `exactly one hero section is required, found ${count.hero}`);
+    if (count.booking !== 1) err("spec.pages[0].sections", "bad_shape", `exactly one booking section is required, found ${count.booking}`);
+  }
   return { ok: errors.length === 0, errors };
 }
 
 function missingId(b, p) {
   if (b.kind === "service" && !p.services.some((s) => String(s.id) === b.id)) return `no active service ${b.id} in the dashboard`;
-  if (b.kind === "service_group" && !p.serviceGroups.some((g) => String(g.id) === b.id)) return `no service group ${b.id} in the dashboard`;
+  // Through the same call `resolve` uses, so "valid" and "draws something" cannot disagree.
+  if (b.kind === "service_group" && !groupServices(p.services, p.serviceGroups).some((g) => String(g.key) === b.id && g.items.length)) return `no service group ${b.id} with active services in the dashboard`;
   if (b.kind === "gallery" && !p.gallery.some((g) => String(g.id) === b.id)) return `no photo ${b.id} in the gallery`;
   return null;
 }
@@ -221,7 +265,7 @@ export function resolve(bind, p) {
 export function bindingsOf(spec) {
   const out = [];
   for (const page of spec?.pages ?? []) for (const sec of page.sections ?? []) {
-    for (const slot of Object.keys(SECTION_TYPES[sec.type]?.slots ?? {})) if (sec[slot]?.bind) out.push({ section: sec.id, slot, bind: sec[slot].bind });
+    for (const slot of Object.keys(own(SECTION_TYPES, sec?.type) ? SECTION_TYPES[sec.type].slots : {})) if (sec[slot]?.bind) out.push({ section: sec.id, slot, bind: sec[slot].bind });
   }
   return out;
 }

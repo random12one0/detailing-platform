@@ -31,7 +31,11 @@ export default function Site({ slug, spec }) {
 function SiteBody({ spec }) {
   const p = useBookingBusiness();
   useFonts(spec.tokens);
-  const check = useMemo(() => (p.status === "ready" ? validateSpec(spec, p) : null), [spec, p]);
+  // A validator that throws must still refuse, never leave a blank page.
+  const check = useMemo(() => {
+    if (p.status !== "ready") return null;
+    try { return validateSpec(spec, p); } catch (e) { return { ok: false, errors: [{ path: "spec", code: "crash", message: String(e?.message || e) }] }; }
+  }, [spec, p]);
   useMeta(spec, p, check?.ok);
 
   if (p.status === "loading") return <div className="site site-wait" style={tokenVars(spec.tokens)} aria-busy="true" />;
