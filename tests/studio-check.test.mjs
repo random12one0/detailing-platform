@@ -1,6 +1,8 @@
 // STUDIO S2: the connection check must go red on the RIGHT line when the wire is
 // cut, and green when it is whole. Each case runs scripts/studio/studio-check.mjs
 // for real (offline engine + renderer + browser, ~20 s each); nothing leaves the laptop.
+// The stamp checker is shared with the belt's site grader (belt-staging/site-stamps.mjs): until night/studio-tab is in
+// belt-staging main, run with STUDIO_BELT=C:/studio-work/studio-tab.
 //   node --test tests/studio-check.test.mjs
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -37,6 +39,7 @@ for (const [brk, line, why] of [
   ["frozen-price", "prices", "the page keeps its first prices instead of reading the dashboard"],
   ["freeze-others", "prices", "every price but the first is a copy the page keeps"],
   ["same-price", "prices", "two services cost the same and the page shows one's price in the other's place"],
+  ["empty-frame", "photo", "the page leaves an empty picture frame where the removed photo was"],
 ]) {
   test(`cut on purpose (${brk}): red first on "${line}", exit 1 — ${why}`, { timeout: 200000 }, async () => {
     const { code, r } = await run(brk);

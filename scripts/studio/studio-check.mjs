@@ -34,6 +34,7 @@
 //   frozen-price   the page keeps every price it first drew
 //   freeze-others  the page keeps every price it first drew except the first one
 //   same-price     two services cost the same, and the page shows one's price in the other's place
+//   empty-frame    the page leaves an empty picture frame where a removed photo was
 import { spawn } from "node:child_process";
 import { createRequire } from "node:module";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -74,7 +75,7 @@ const PLAN = [
   ["photos", "Every photo changed: the site shows the new pictures"],
   ["reviews", "Every review changed: the site shows the new words"],
   ["hide", "A service was hidden: gone from the site and from booking"],
-  ["photo", "A photo was removed: gone from the site"],
+  ["photo", "A photo was removed: gone from the site, with no empty frame left"],
   ["review", "A review was added: it shows"],
   ["stamps-after", "After all the changes, everything still matches the dashboard"],
   ["quote", "Practice booking: the price shown is the price the booking system charges"],
@@ -102,81 +103,11 @@ const freePort = () => new Promise((r) => { const s = net.createServer().listen(
 const until = async (fn, ms = 60000) => { const t = Date.now(); while (Date.now() - t < ms) { try { if (await fn()) return true; } catch {} await new Promise((r) => setTimeout(r, 300)); } return false; };
 const n = (k, w) => `${k} ${w}${k === 1 ? "" : "s"}`;
 const flat = (s) => String(s ?? "").replace(/\s+/g, " ").trim();
-const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-const photoUrls = (g) => [g.after_url, g.before_url, g.image_url].filter(Boolean);
-const dayLine = (h) => `${DAYS[h.weekday]} ${h.open_time && h.close_time ? `${F.time12(h.open_time)} – ${F.time12(h.close_time)}` : "Closed"}`;
-const payWord = (x) => (x.key === "other" ? x.handle : x.handle ? `${x.label} ${x.handle}` : x.label);
-// "$95" inside "$950" or "$95.50" is not "$95": a value counts only where it ends.
-// Case is ignored: the site may set a label in capitals with CSS.
-const shows = (text, s) => { const v = flat(s); if (!v) return false; const re = new RegExp("(?<![\\d.,])" + v.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "(?![\\d.,])", "i"); return re.test(text); };
-const same = (a, b) => flat(a).toLowerCase() === flat(b).toLowerCase();
-
-// ---------------------------------------------------------------- layer 2: what one stamp must show
-// For a stamp and a profile: { why } when the binding has nothing behind it, else what the element must show:
-// texts (each must appear), exact (the whole text), urls (pictures, each a list of acceptable srcs), items (a count).
-function wantOf(st, p) {
-  const b = parseBinding(st.from);
-  if (!b) return { why: `"${st.from}" is not an allowed binding` };
-  let v;
-  try { v = resolve(st.from, p); } catch (e) { return { why: e.message }; }
-  switch (b.kind) {
-    case "service": {
-      if (!v) return { why: `no active service ${b.id} in the dashboard` };
-      const s = v.service;
-      if (b.field === "price") return { texts: [F.money(s.price)] };
-      if (b.field === "name") return { exact: flat(s.name) };
-      if (b.field === "duration") return { texts: [F.duration(s.duration_minutes)] };
-      if (b.field === "description") return { texts: [s.description] };
-      if (b.field === "features") return { texts: (s.features || []).filter(Boolean) };
-      if (b.field === "sizes") return { texts: (p.settings.vehicle_sizes || []).map((z) => { const x = vehicleSizeExtra([s], z.key); return `${z.label} ${x ? `+${F.money(x)}` : "Base"}`; }) };
-      return { texts: [] };
-    }
-    case "service_group": return v ? { texts: v.items.map((s) => s.name) } : { why: `no service group ${b.id} with active services` };
-    case "gallery": return v ? { urls: [photoUrls(v)], only: true } : { why: `no photo ${b.id} in the gallery` };
-    case "gallery.best": return { urls: v.map(photoUrls), only: true };
-    case "reviews.top": { const w = v.filter((r) => r.quote); return { texts: w.map((r) => r.quote), items: w.length }; }
-    case "hours.week": return { texts: v.map(dayLine) };
-    case "contact.phone": return v ? { phone: String(v).replace(/\D/g, "") } : { why: "the dashboard has no phone" };
-    case "sale": return v ? { texts: [`${v.percent}% off`, ...(v.label ? [v.label] : [])] } : { why: "shows a sale the dashboard does not have" };
-    // the zone list is drawn only where the section has room for it (the visit board, not the hero line)
-    case "area": return v ? { texts: [v.text, ...(st.zones ? v.zones.map((z) => z.name) : [])].filter(Boolean) } : { why: "shows an area the dashboard does not have" };
-    case "add_ons": return { texts: (v || []).flatMap((a) => [a.name, `+${F.money(a.price)}`]) };
-    case "plans": return { texts: (v || []).map((x) => x.name) };
-    case "faq": return { texts: (v || []).map((x) => x.q) };
-    case "pay": return { texts: (v || []).map(payWord) };
-    default: return { texts: [] };
-  }
-}
-const phoneOk = (st, d) => (st.href || "").replace(/\D/g, "").endsWith(d) || st.text.replace(/\D/g, "").includes(d);
-// Null when the stamp shows what p says, else why not.
-function stampProblem(st, p) {
-  const w = wantOf(st, p);
-  if (w.why) return w.why;
-  if (w.exact != null && !same(st.text, w.exact)) return `shows "${st.text}", the dashboard says "${w.exact}"`;
-  const miss = (w.texts || []).find((t) => !shows(st.text, t));
-  if (miss) return `does not show "${flat(miss)}" (it shows "${st.text.slice(0, 60)}")`;
-  if (w.phone && !phoneOk(st, w.phone)) return `does not lead to the dashboard's phone`;
-  if (w.urls) {
-    const unseen = w.urls.find((alts) => !alts.some((u) => st.imgs.includes(u)));
-    if (unseen) return "a photo from the dashboard is not drawn";
-    const allowed = w.urls.flat(), extra = st.imgs.filter((u) => !allowed.includes(u));
-    if (w.only && extra.length) return `draws a picture the dashboard does not have (${extra[0].slice(0, 40)})`;
-  }
-  if (w.items != null && st.items !== w.items) return `draws ${st.items}, the dashboard has ${w.items}`;
-  return null;
-}
-// Null when none of the OLD values this stamp had is still on it (values both profiles share are skipped).
-function staleProblem(st, oldP, newP) {
-  const o = wantOf(st, oldP), w = wantOf(st, newP);
-  if (o.why || w.why) return null;
-  const now = new Set([...(w.texts || []), w.exact].filter((x) => x != null).map(flat));
-  const old = [...(o.texts || []), o.exact].filter((x) => x != null).map(flat).filter((x) => x && !now.has(x));
-  const left = old.find((t) => (o.exact === t ? same(st.text, t) : shows(st.text, t)));
-  if (left) return `still shows the old "${left}" (it shows "${st.text.slice(0, 80)}")`;
-  if (o.phone && o.phone !== w.phone && phoneOk(st, o.phone)) return "still leads to the old phone";
-  const nowUrls = new Set((w.urls || []).flat()), oldUrl = (o.urls || []).flat().find((u) => !nowUrls.has(u) && st.imgs.includes(u));
-  return oldUrl ? "still draws an old photo" : null;
-}
+// THE STAMP CHECKER is shared with the site grader's G0: belt-staging/site-stamps.mjs (review S2-5).
+const SS = await import(pathToFileURL(path.join(BELT, "site-stamps.mjs")).href).catch(() => null);
+if (!SS) { console.error(`The shared stamp checker is missing: ${path.join(BELT, "site-stamps.mjs")}. Set STUDIO_BELT to a belt-staging that has it.`); process.exit(2); }
+const { shows, photoUrls, readStamps } = SS;
+const { stampProblem, staleProblem } = SS.stampChecker({ parseBinding, resolve, vehicleSizeExtra, money: F.money, duration: F.duration, time12: F.time12 });
 
 // ---------------------------------------------------------------- step 4: every bound fact moves
 const shift = (t, m) => { const [h, mm] = t.slice(0, 5).split(":").map(Number); const x = Math.max(0, Math.min(23 * 60 + 59, h * 60 + mm + m)); return `${String(Math.floor(x / 60)).padStart(2, "0")}:${String(x % 60).padStart(2, "0")}`; };
@@ -281,6 +212,12 @@ try {
       if (src) document.querySelectorAll(`[data-from="service:${a}.price"]`).forEach((e) => { if (e.textContent !== src.textContent) e.textContent = src.textContent; });
     }).observe(document, { subtree: true, childList: true, characterData: true });
   }, [sameA.id, sameB.id]);
+  if (BREAK === "empty-frame") await context.addInitScript(() => {
+    new MutationObserver(() => {
+      const main = document.querySelector('[data-section="work"]');
+      if (main && !main.querySelector("img") && !main.querySelector("figure.left-behind")) main.insertAdjacentHTML("afterbegin", '<figure class="left-behind"></figure>');
+    }).observe(document, { subtree: true, childList: true });
+  });
   const page = await context.newPage();
   page.on("console", (m) => { if (["error", "warning"].includes(m.type())) problems.push(`${m.type()}: ${m.text()}`); });
   page.on("pageerror", (e) => problems.push(`pageerror: ${e.message}`));
@@ -293,10 +230,7 @@ try {
     await page.waitForSelector('[data-booking-step="1"], .site-msg, [data-refused]', { timeout: 20000 }).catch(() => {});
     await page.waitForTimeout(250);
   };
-  const stamps = () => page.evaluate(() => [...document.querySelectorAll("[data-from]")].map((e) => ({
-    from: e.dataset.from, text: e.innerText.replace(/\s+/g, " ").trim(), href: e.getAttribute("href"),
-    imgs: [...e.querySelectorAll("img")].map((i) => i.getAttribute("src")), items: e.querySelectorAll(":scope > li").length, zones: e.querySelectorAll(".zones li").length,
-  })));
+  const stamps = () => page.evaluate(readStamps);
   const pageText = () => page.evaluate(() => document.body.innerText.replace(/\s+/g, " "));
   const summary = (list) => `${n(list.length, "item")}, ${n(new Set(list.map((s) => s.from)).size, "different connection")}`;
   const verifyAll = async (id) => {
@@ -365,8 +299,13 @@ try {
       hidden ? (named ? `booking still offers "${hidden.name}"` : last.some((s) => s.from.startsWith(`service:${hidden.id}`)) ? "the site still shows it" : `${hidden.name} is gone`) : "no service on the page can be hidden without breaking a pinned connection");
   }
   const refused = await page.locator("[data-refused]").count();
-  line("photo", !!photo && !last.some((s) => s.from === `gallery:${photo.id}`) && !last.some((s) => photoUrls(photo).some((u) => s.imgs.includes(u))) && !refused,
-    photo ? (refused ? "the page refused to draw without it" : "") : "the page shows no photo from the gallery");
+  // §2a "no empty box": nothing that frames a picture (a figure, a photo or gallery slot, a wipe slider) may be left
+  // without one, and no picture may be left with no source or one that did not load.
+  const empty = await page.evaluate(() => [...document.querySelectorAll('figure, [data-part="photo"], [data-part="gallery"], .compare, .work-grid')]
+    .filter((e) => !e.querySelector('img[src]:not([src=""])') || [...e.querySelectorAll("img")].some((i) => i.complete && !i.naturalWidth))
+    .map((e) => e.className || e.tagName.toLowerCase()));
+  line("photo", !!photo && !last.some((s) => s.from === `gallery:${photo.id}`) && !last.some((s) => photoUrls(photo).some((u) => s.imgs.includes(u))) && !refused && !empty.length,
+    !photo ? "the page shows no photo from the gallery" : refused ? "the page refused to draw without it" : empty.length ? `an empty picture frame is left: ${empty.slice(0, 3).join(", ")}` : "gone, and no empty frame is left");
   line("review", text.includes(review.quote), text.includes(review.quote) ? "" : "the new review is not on the page");
   await verifyAll("stamps-after");
 
