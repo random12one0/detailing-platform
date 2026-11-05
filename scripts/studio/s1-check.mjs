@@ -38,6 +38,7 @@ const OUT = path.join(ROOT, "artifacts/studio-s1");
 const BUILT = !process.argv.includes("--no-built");
 const { chromium } = createRequire(path.join(APP, "package.json"))("playwright");
 const { startExampleEngine, EXAMPLE_SLUG } = await import(pathToFileURL(path.join(ROOT, "scripts/studio/example-engine.mjs")).href);
+const { walkBooking } = await import(pathToFileURL(path.join(ROOT, "scripts/studio/booking-walk.mjs")).href);
 const { validateSpec, parseBinding } = await import(pathToFileURL(path.join(APP, "src/site/spec.js")).href);
 const { normalizeProfile, createBookingTransport } = await import(pathToFileURL(path.join(APP, "src/book/core.js")).href);
 const spec = (await import(pathToFileURL(path.join(APP, "src/site/specs/brightline.json")).href, { with: { type: "json" } })).default;
@@ -256,66 +257,12 @@ try {
     await page.waitForTimeout(400);
     record("P3", "Book in the hero lands on booking step one", await page.locator('[data-booking-step="1"]').isVisible());
     const book = page.locator('[data-section="book"]');
-    const cont = book.locator(".bk-bar button.bk-btn.primary");
-    const enabled = (ms) => page.waitForFunction(() => {
-      const b = document.querySelector('[data-section="book"] .bk-bar button.bk-btn.primary');
-      return !!b && !b.disabled && b.getAttribute("aria-disabled") !== "true";
-    }, null, { timeout: ms }).then(() => true).catch(() => false);
-    const steps = [];
-    let shownTotal = null, confirmed = false;
-    try {
-    for (let n = 1; n <= 9; n++) {
-      const stepNo = Number(await book.locator("[data-booking-step]").getAttribute("data-booking-step"));
-      const heading = (await book.locator(".bk-step-head h2").innerText()).trim();
-      steps.push(`${stepNo}:${heading}`);
-      if (/check everything/i.test(heading)) break;
-      if (/pick your services/i.test(heading)) await book.locator(".bk-card.selectable", { hasText: "Hand wash" }).first().click();
-      if (/place|drop-off/i.test(heading)) {
-        const drop = book.locator(".bk-card.selectable", { hasText: /drop/i }).first();
-        if (await drop.count()) await drop.click();
-      }
-      if (/time/i.test(heading) && await book.locator(".bk-cal").count()) {
-        let picked = false;
-        for (let month = 0; month < 3 && !picked; month++) {
-          if (month) { await book.getByRole("button", { name: "Next month" }).click(); await page.waitForTimeout(600); }
-          await book.locator(".bk-cal .cell:not(.closed):not(.empty)").first().waitFor({ timeout: 8000 }).catch(() => {});
-          const days = await book.locator(".bk-cal .cell:not(.closed):not(.empty)").allTextContents();
-          for (const d of days.map((x) => x.trim())) {
-            const cell = book.locator(".bk-cal .cell:not(.closed):not(.empty)", { hasText: new RegExp(`^${d}$`) }).first();
-            if (!(await cell.count())) continue;
-            await cell.click();
-            await book.locator(".bk-slots .bk-chip").first().waitFor({ timeout: 5000 }).catch(() => {});
-            if (await book.locator(".bk-slots .bk-chip").count()) { await book.locator(".bk-slots .bk-chip").first().click(); picked = true; break; }
-          }
-        }
-        if (!picked) throw new Error("no open time found in three months");
-      }
-      const year = book.locator('.bk-field input[inputmode="numeric"][maxlength="4"]').first();
-      if (await year.count() && !(await year.inputValue())) await year.fill("2019");
-      if (/your details/i.test(heading)) {
-        await book.locator('.bk-field input:not([type=tel]):not([type=email]):not([type=checkbox])').first().fill("Sample Customer");
-        await book.locator(".bk-field input[type=tel]").first().fill("5625550123");
-        await book.locator(".bk-field input[type=email]").first().fill("sample@example.test");
-      }
-      if (!(await enabled(10000))) {
-        const why = (await book.locator(".bk-refusal, .bk-error").allInnerTexts().catch(() => [])).join(" | ");
-        throw new Error(`stuck on step ${stepNo} (${heading}): ${why}`);
-      }
-      await page.screenshot({ path: path.join(OUT, `booking-step-${stepNo}-390.png`) });
-      await cont.click();
-      await page.waitForTimeout(700);
-    }
-    shownTotal = (await book.locator(".bk-bar .total strong").innerText()).trim();
-    await page.screenshot({ path: path.join(OUT, "booking-review-390.png") });
-    record("P3", "walked every booking step inside the site", steps.length >= 6, steps.join(" → "));
-    const send = book.getByRole("button", { name: /request this time|confirm booking/i });
-    await send.click();
-    await book.locator("h2", { hasText: /holding your time|you’re booked/i }).waitFor({ timeout: 15000 });
-    confirmed = true;
-    } catch (e) {
-      const why = (await book.locator(".bk-error, .bk-refusal").allInnerTexts().catch(() => [])).join(" | ");
+    const walk = await walkBooking(page, { shot: (n) => path.join(OUT, n === "review" ? "booking-review-390.png" : `booking-step-${n}-390.png`) });
+    const { steps, shownTotal, confirmed } = walk;
+    if (shownTotal) record("P3", "walked every booking step inside the site", steps.length >= 6, steps.join(" → "));
+    if (!confirmed) {
       await page.screenshot({ path: path.join(OUT, "booking-failed-390.png") }).catch(() => {});
-      record("P3", "a booking through the site reached its confirmation", false, `${e.message.split("\n")[0]}${why ? ` — the page says: ${why}` : ""} (after ${steps.join(" → ")})`);
+      record("P3", "a booking through the site reached its confirmation", false, `${walk.error}${walk.why ? ` — the page says: ${walk.why}` : ""} (after ${steps.join(" → ")})`);
     }
     if (confirmed) {
     record("P3", "a booking through the site reached its confirmation", true, steps.at(-1));
@@ -447,6 +394,9 @@ try {
         record("P6", "the dashboard's stylesheet and fonts are not loaded", !/Archivo|JetBrains|assets\/index-[\w-]+\.(css|js)/.test(css) && /assets\/site-[\w-]+\.css/.test(css), css.slice(0, 200));
         await page.goto(`http://127.0.0.1:${port}/site/nope`, { waitUntil: "networkidle" });
         record("P6", "built preview: unknown slug shows not-found", (await page.locator("h1").innerText()).includes("There is no site"));
+        // S2: /site/preview (a revision handed in by the Studio) exists on the dev server only.
+        await page.goto(`http://127.0.0.1:${port}/site/preview`, { waitUntil: "networkidle" });
+        record("P6", "built bundle has no /site/preview (dev server only)", (await page.locator("h1").innerText()).includes("There is no site"));
         record("P6", "built preview: no console errors", !problems.length, problems.join(" | "));
         await context.close();
       } finally { preview.child.kill(); }

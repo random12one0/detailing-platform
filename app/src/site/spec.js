@@ -131,7 +131,12 @@ const ID = /^[a-z]+(-[a-z]+)*$/;
  *                 check shape only (ids are then unchecked)
  * @returns { ok, errors: [{ path, code, message }] }
  */
-export function validateSpec(spec, profile = null) {
+// `live: true` is the renderer's own check on a customer's visit. There a photo
+// the detailer has since deleted only drops out of its slot (the section draws
+// without it, §2a "no empty box"), instead of taking the whole site down. Every
+// other missing id still refuses, and saving a revision (no `live`) refuses a
+// missing photo too.
+export function validateSpec(spec, profile = null, { live = false } = {}) {
   const errors = [];
   const err = (path, code, message) => errors.push({ path, code, message });
   const keysOnly = (obj, allowed, path) => {
@@ -198,7 +203,7 @@ export function validateSpec(spec, profile = null) {
         if (!b) { err(`${at}.bind`, "unknown_binding", `${JSON.stringify(v.bind)} is not an allowed binding`); continue; }
         if (!kinds.includes(b.kind)) { err(`${at}.bind`, "unknown_binding", `${slot} takes ${kinds.join(" or ")}, not ${b.kind}`); continue; }
         if (profile) {
-          const missing = missingId(b, profile);
+          const missing = live && b.kind === "gallery" ? null : missingId(b, profile);
           if (missing) err(`${at}.bind`, "missing_id", missing);
         }
       }

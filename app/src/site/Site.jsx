@@ -35,7 +35,7 @@ function SiteBody({ spec }) {
   // A validator that throws must still refuse, never leave a blank page.
   const check = useMemo(() => {
     if (p.status !== "ready") return null;
-    try { return validateSpec(spec, p); } catch (e) { return { ok: false, errors: [{ path: "spec", code: "crash", message: String(e?.message || e) }] }; }
+    try { return validateSpec(spec, p, { live: true }); } catch (e) { return { ok: false, errors: [{ path: "spec", code: "crash", message: String(e?.message || e) }] }; }
   }, [spec, p]);
   useMeta(spec, p, check?.ok);
 

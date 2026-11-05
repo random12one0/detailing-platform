@@ -137,3 +137,11 @@ test("a service group with no active services is missing, the same way the rende
   assert.ok(profile.serviceGroups.length === 1);
   assert.ok(codes(validateSpec(spec, { ...profile, services: [] })).includes("missing_id"));
 });
+
+test("on a customer's visit (live), a deleted photo drops out; saving still refuses it; services still refuse live", () => {
+  const s = clone(); hero(s).photo = { bind: "gallery:deleted-photo" };
+  assert.deepEqual(codes(validateSpec(s, profile)), ["missing_id"], "saving a revision refuses a missing photo");
+  assert.deepEqual(validateSpec(s, profile, { live: true }).errors, [], "the live page draws without it");
+  hero(s).prices = { bind: "service_group:00000000-0000-4000-8000-000000000999" };
+  assert.deepEqual(codes(validateSpec(s, profile, { live: true })), ["missing_id"], "a missing service group still refuses live");
+});

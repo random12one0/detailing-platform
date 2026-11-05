@@ -8,7 +8,7 @@
 // Real sites (S3+) come from revisions tied to a business id, not from a slug.
 // Separate from the dashboard's main.jsx on purpose: none of the dashboard's
 // CSS, fonts, providers or routes load here. STUDIO-SPEC.md §7 row S1.
-import React from "react";
+import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom/client";
 import Site from "./Site.jsx";
 
@@ -29,11 +29,40 @@ const SPECS = Object.fromEntries(
   mq?.addEventListener("change", apply);
 }
 
+// STUDIO PREVIEW (S2/S3), DEV SERVER ONLY: /site/preview draws a revision handed
+// in from outside instead of a committed example. Two doors, both local:
+//  - the Studio page (Control Room) frames it and posts {type:"studio-spec", spec}.
+//    Only a parent on this laptop (127.0.0.1 / localhost / [::1], any port) or an
+//    origin listed in VITE_STUDIO_ORIGINS is listened to, so another web page
+//    cannot frame it and feed it words;
+//  - the connection check sets window.__STUDIO_SPEC__ before the page runs.
+// The spec is validated against the live profile like any other (Site.jsx). A
+// production build has no such route: import.meta.env.DEV is false there.
+const LOOPBACK = /^http:\/\/(127\.0\.0\.1|localhost|\[::1\])(:\d+)?$/;
+const EXTRA = String(import.meta.env.VITE_STUDIO_ORIGINS || "").split(",").map((s) => s.trim()).filter(Boolean);
+function Preview() {
+  const [got, setGot] = useState(() => (window.__STUDIO_SPEC__ ? { spec: window.__STUDIO_SPEC__, n: 0 } : null));
+  useEffect(() => {
+    const on = (e) => {
+      if (e.source !== window.parent || window.parent === window) return;
+      if (!LOOPBACK.test(e.origin) && !EXTRA.includes(e.origin)) return;
+      if (e.data?.type === "studio-spec" && e.data.spec && typeof e.data.spec === "object") setGot((g) => ({ spec: e.data.spec, n: (g?.n ?? 0) + 1 }));
+    };
+    window.addEventListener("message", on);
+    // "ready" carries nothing, so it may go to any parent; the spec only comes back from an allowed one.
+    if (window.parent !== window) window.parent.postMessage({ type: "studio-ready" }, "*");
+    return () => window.removeEventListener("message", on);
+  }, []);
+  if (!got) return <main className="site-wait" aria-busy="true" style={{ minHeight: "100vh" }} />;
+  return <Site key={got.n} spec={got.spec} />;
+}
+
 const name = /^\/site\/example\/([a-z0-9-]+)\/?$/.exec(window.location.pathname)?.[1] ?? null;
 const spec = name && Object.hasOwn(SPECS, name) ? SPECS[name] : null;
+const preview = import.meta.env.DEV && /^\/site\/preview\/?$/.test(window.location.pathname);
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <Site spec={spec} />
+    {preview ? <Preview /> : <Site spec={spec} />}
   </React.StrictMode>,
 );
