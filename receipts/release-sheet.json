@@ -1,10 +1,12 @@
 {
-  "git_sha": "0da053ddb7aab3b9a6b05954db82578f24be1cf7",
-  "git_sha_started": "0da053ddb7aab3b9a6b05954db82578f24be1cf7",
+  "git_sha": "0a1af5ca11b98901bbcabe65c6175ea2f259b95f",
+  "git_sha_started": "0a1af5ca11b98901bbcabe65c6175ea2f259b95f",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-11-03T03:25:35.315Z",
-  "failures": [],
+  "finished_at": "2026-11-05T03:08:59.510Z",
+  "failures": [
+    "STALE: receipts/deployed-inventory.json was taken at 0da053dd and supabase/functions has changed since (2 file(s)). Re-run deployed-inventory.mjs (read-only, needs credentials) and then this."
+  ],
   "warnings": [
     "Reads only the migration-drift and deployed-inventory RECEIPTS; it is as current as they are, and refuses (STALE) when supabase/ changed since either was taken.",
     "migration-drift cannot see triggers, constraints or data-only migrations; such a file reaches this sheet only when a row it reads names it.",
@@ -15,7 +17,7 @@
     "docs/release-sheet.md"
   ],
   "dimensions": {
-    "head": "0da053ddb7aab3b9a6b05954db82578f24be1cf7",
+    "head": "0a1af5ca11b98901bbcabe65c6175ea2f259b95f",
     "drift_receipt_sha": "0da053ddb7aab3b9a6b05954db82578f24be1cf7",
     "inventory_receipt_sha": "0da053ddb7aab3b9a6b05954db82578f24be1cf7",
     "migrations_from_drift": [
@@ -46,9 +48,8 @@
       "99.1",
       "0.6b"
     ],
-    "roadmap_release_lines_read": 17,
+    "roadmap_release_lines_read": 16,
     "roadmap_rules_declared": [
-      "0.11cc",
       "4.3b",
       "14.39",
       "99.2",
@@ -85,14 +86,14 @@
     "steps": 44
   },
   "check_id": "release-sheet",
-  "started_at": "2026-11-03T03:25:34.653Z",
-  "status": "pass",
-  "expected_targets": 70,
-  "discovered_targets": 70,
-  "attempted_targets": 70,
-  "completed_targets": 70,
+  "started_at": "2026-11-05T03:08:58.303Z",
+  "status": "fail",
+  "expected_targets": 69,
+  "discovered_targets": 69,
+  "attempted_targets": 69,
+  "completed_targets": 69,
   "skipped_targets": 0,
-  "assertions_executed": 151,
+  "assertions_executed": 146,
   "min_assertions": 60,
   "canary": {
     "id": "a release row and a migration file the sheet never heard of must both be reported",

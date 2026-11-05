@@ -546,7 +546,7 @@ const fnLine = (f, lead) => {
   if (onlyIf.has(f)) notes.push(`only if you did ${ref(onlyIf.get(f))}; if you skipped it, skip this one too and expect the push check to name it`);
   if (notDeployed.has(f)) notes.push("never published before");
   for (const d of Object.values(DECLARED)) for (const i of (d.waitsOn || {})[f] || []) notes.push(`carries ${i} (${waitState(i, f)})`);
-  return `${lead}\`${f}\`${notes.length ? ` — ${notes.join("; ")}` : ""}${tags(need.fn.get(f))}`;
+  return `${lead}\`${f}\`${notes.length ? ` — ${[...new Set(notes)].join("; ")}` : ""}${tags(need.fn.get(f))}`;
 };
 if (firsts.length) { out.push("**First, alone:**", ""); for (const f of firsts) push(f, fnLine(f, "Publish, alone, ")); out.push(""); }
 out.push("**Then these, in one pass, in any order among themselves:**", "");
