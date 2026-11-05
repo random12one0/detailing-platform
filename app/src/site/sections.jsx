@@ -306,9 +306,11 @@ export function Visit({ sec, p }) {
 // request feeds both.
 export function Booking({ sec }) {
   return (
-    <section className="sec booksec" id={sec.id} data-section={sec.id} data-from="book" aria-labelledby={`${sec.id}-title`}>
+    <section className="sec booksec" id={sec.id} data-section={sec.id} aria-labelledby={`${sec.id}-title`}>
       <Head sec={sec} />
-      <BookingFlow embedded />
+      {/* The stamp is on the flow, not the section, so the spec's own title and
+          intro above it are still checked for stray digits. */}
+      <div data-from="book" data-part="flow"><BookingFlow embedded /></div>
     </section>
   );
 }

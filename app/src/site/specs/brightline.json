@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "slug": "brightline",
+  "slug": "example_brightline",
   "tokens": {
     "font_display": "Newsreader",
     "font_body": "Chivo",
@@ -42,8 +42,7 @@
           },
           "group": { "bind": "service_group:00000000-0000-4000-8000-000000000201" },
           "add_ons": { "bind": "add_ons" },
-          "plans": { "bind": "plans" },
-          "sale": { "bind": "sale" }
+          "plans": { "bind": "plans" }
         },
         {
           "id": "work",

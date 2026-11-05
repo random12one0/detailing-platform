@@ -1,0 +1,36 @@
+// The offline engine (belt-staging/demo-backend.mjs) with the fictional
+// Brightline seed, its business renamed to the reserved example slug
+// `example_brightline` — a slug no real business can hold (the database allows
+// only [a-z0-9-]), so the example site at /site/example/brightline can never
+// draw a real detailer's data. The seed file itself is not edited.
+//
+//   node scripts/studio/example-engine.mjs [--port 54390]
+//
+// Prints {"ok":true,"url":...} once listening. Nothing is written to disk.
+import { readFileSync } from "node:fs";
+import { fileURLToPath, pathToFileURL } from "node:url";
+import path from "node:path";
+
+export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+export const BELT = process.env.STUDIO_BELT || "C:/Users/rando/Downloads/claude/control-room/belt-staging";
+export const EXAMPLE_SLUG = "example_brightline";
+
+export function exampleSeed() {
+  const seed = JSON.parse(readFileSync(path.join(BELT, "fixtures/sites/brightline.seed.json"), "utf8"));
+  const b = seed.tables.businesses.find((x) => x.slug === "brightline");
+  if (!b) throw new Error("the Brightline seed no longer has a business with slug brightline");
+  b.slug = EXAMPLE_SLUG;
+  return seed;
+}
+
+export async function startExampleEngine({ port = 0, quiet = true } = {}) {
+  const { startDemoBackend } = await import(pathToFileURL(path.join(BELT, "demo-backend.mjs")).href);
+  return startDemoBackend({ port, seed: exampleSeed(), platform: ROOT, quiet });
+}
+
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  const i = process.argv.indexOf("--port");
+  startExampleEngine({ port: i > 0 ? Number(process.argv[i + 1]) : 54390, quiet: false })
+    .then(({ url }) => console.log(JSON.stringify({ ok: true, url })))
+    .catch((e) => { console.log(JSON.stringify({ ok: false, error: String(e.message || e) })); process.exit(1); });
+}

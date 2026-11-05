@@ -3,7 +3,7 @@
 // price, service, hour, photo, review and phone number is looked up through
 // `resolve()` on each visit, and every bound element says where it came from
 // in `data-from`. STUDIO-SPEC.md §2c layers 1 and 2.
-import { useEffect, useMemo } from "react";
+import { Component, useEffect, useMemo } from "react";
 import { MemoryRouter } from "react-router-dom";
 import { BookingBusinessProvider, useBookingBusiness } from "../book/BookingBusinessContext.jsx";
 import { FONTS, resolve, validateSpec } from "./spec.js";
@@ -14,15 +14,16 @@ import "./site.css";
 
 const SECTIONS = { hero: Hero, catalog: Catalog, proof: Proof, visit: Visit, booking: Booking };
 
-export default function Site({ slug, spec }) {
-  if (!slug || !spec) return <NotFound />;
+export default function Site({ spec }) {
+  const slug = typeof spec?.slug === "string" ? spec.slug : null;
+  if (!slug) return <NotFound />;
   // The booking flow drives a router (its step lives in `?step=`). A memory
   // router keeps that inside the booking section, so the site's own address
   // never changes under the customer.
   return (
-    <MemoryRouter initialEntries={[`/site/${slug}`]} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+    <MemoryRouter initialEntries={[window.location.pathname]} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <BookingBusinessProvider slug={slug}>
-        <SiteBody spec={spec} />
+        <Guard tokens={spec.tokens}><SiteBody spec={spec} /></Guard>
       </BookingBusinessProvider>
     </MemoryRouter>
   );
@@ -47,7 +48,7 @@ function SiteBody({ spec }) {
       </Shell>
     );
   }
-  if (!check.ok) return <Refused errors={check.errors} tokens={spec.tokens} />;
+  if (!check.ok) return <Refused errors={check.errors} tokens={spec.tokens} phone={p.business?.phone} />;
 
   const page = spec.pages.find((x) => x.path === "/") ?? spec.pages[0];
   const phone = resolve("contact.phone", p);
@@ -151,15 +152,28 @@ function NotFound() {
 }
 
 // A spec that fails validation is never drawn, so a typed price or a binding to a
-// deleted service cannot reach a customer even if it somehow got saved.
-function Refused({ errors, tokens }) {
+// deleted service cannot reach a customer even if it somehow got saved. The
+// customer is told only that the page is unavailable, and how to reach the
+// detailer; the reasons are for the Studio (which runs the same validator before
+// any save) and go to the console here, never onto the page.
+function Refused({ errors, tokens, phone }) {
+  useEffect(() => { console.error("Studio site refused:", errors); document.title = "Page unavailable"; }, [errors]);
   return (
     <Shell tokens={tokens}>
       <main id="main" className="site-msg" data-refused={errors.length}>
-        <h1>This site is waiting on a fix</h1>
-        <p>Its design file was refused, so nothing is shown rather than something wrong.</p>
-        <ul>{errors.map((e) => <li key={e.path + e.code}><code>{e.path}</code> {e.message}</li>)}</ul>
+        <h1>This page is unavailable right now</h1>
+        <p>Please try again later{phone ? ", or call us." : "."}</p>
+        {phone && <p><a className="site-btn" href={`tel:${phone}`}>Call {phoneText(phone)}</a></p>}
       </main>
     </Shell>
   );
+}
+
+// Anything that throws while drawing shows the same plain page, never a blank one.
+class Guard extends Component {
+  constructor(props) { super(props); this.state = { failed: null }; }
+  static getDerivedStateFromError(failed) { return { failed }; }
+  render() {
+    return this.state.failed ? <Refused errors={[{ path: "render", code: "crash", message: String(this.state.failed?.message || this.state.failed) }]} tokens={this.props.tokens} /> : this.props.children;
+  }
 }

@@ -34,7 +34,7 @@ const exampleIndex = {
 // dashboard's index.html; production does the same with the `/site/*` rule at the
 // top of public/_redirects and netlify.toml.
 const siteEntry = () => (req, _res, next) => {
-  if (/^\/site\/[^/?]*\/?(\?.*)?$/.test(req.url || "")) req.url = "/site.html";
+  if (/^\/site\/(example\/)?[^/?]*\/?(\?.*)?$/.test(req.url || "")) req.url = "/site.html";
   next();
 };
 const siteRoute = {

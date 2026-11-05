@@ -140,7 +140,8 @@ export function validateSpec(spec, profile = null) {
   if (!spec || typeof spec !== "object" || Array.isArray(spec)) return { ok: false, errors: [{ path: "", code: "bad_shape", message: "A spec is a JSON object" }] };
   keysOnly(spec, ["schema", "slug", "tokens", "pages"], "spec");
   if (spec.schema !== 1) err("spec.schema", "bad_shape", "schema must be 1");
-  if (typeof spec.slug !== "string" || !/^[a-z0-9-]+$/.test(spec.slug)) err("spec.slug", "bad_shape", "slug must be lower-case letters, digits and dashes");
+  // S1 specs are committed examples, bound to a slug no real business can hold (see site/main.jsx).
+  if (typeof spec.slug !== "string" || !/^example_[a-z0-9-]+$/.test(spec.slug)) err("spec.slug", "bad_shape", "an example spec's slug is example_<name>");
 
   const tokens = spec.tokens;
   if (!tokens || typeof tokens !== "object" || Array.isArray(tokens)) err("spec.tokens", "bad_shape", "tokens are required");

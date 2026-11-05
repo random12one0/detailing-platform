@@ -1,4 +1,11 @@
-// The Studio site renderer's own entry (site.html), served at /site/<slug>.
+// The Studio site renderer's own entry (site.html).
+//
+// S1 SERVES COMMITTED EXAMPLES ONLY, at /site/example/<name>. Each example
+// spec binds to the slug `example_<name>`, which no real business can ever
+// have: the database's own rule is `slug ~ '^[a-z0-9][a-z0-9-]{1,62}$'`
+// (20260827000100_tenant_core.sql), and "_" is outside it. So an example can
+// only ever draw the offline engine's fictional data, never a real detailer's.
+// Real sites (S3+) come from revisions tied to a business id, not from a slug.
 // Separate from the dashboard's main.jsx on purpose: none of the dashboard's
 // CSS, fonts, providers or routes load here. STUDIO-SPEC.md §7 row S1.
 import React from "react";
@@ -22,10 +29,11 @@ const SPECS = Object.fromEntries(
   mq?.addEventListener("change", apply);
 }
 
-const slug = /^\/site\/([a-z0-9-]+)\/?$/.exec(window.location.pathname)?.[1] ?? null;
+const name = /^\/site\/example\/([a-z0-9-]+)\/?$/.exec(window.location.pathname)?.[1] ?? null;
+const spec = name && Object.hasOwn(SPECS, name) ? SPECS[name] : null;
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <Site slug={slug} spec={slug && Object.hasOwn(SPECS, slug) ? SPECS[slug] : null} />
+    <Site spec={spec} />
   </React.StrictMode>,
 );

@@ -653,15 +653,19 @@ export function BookingFlow({ notFound = null, embedded = false }) {
   };
 
   // --- Render --------------------------------------------------------------
+  // Embedded (a Studio site section): every state below wears the site's own
+  // colours and says its heading as an h2, because the site already has its h1.
+  const shell = embedded ? { className: "bk bk-embedded" } : { className: "bk", style: brandVars };
+  const H1 = embedded ? "h2" : "h1";
   if (status === "loading") {
-    return <div className="bk" style={brandVars}><div className="bk-center"><div className="bk-spinner" /></div></div>;
+    return <div {...shell}><div className="bk-center"><div className="bk-spinner" /></div></div>;
   }
   if (status === "not_found") {
     if (notFound) return notFound;
     return (
-      <div className="bk" style={brandVars}>
+      <div {...shell}>
         <div className="bk-center">
-          <h1>{t("Page not found")}</h1>
+          <H1>{t("Page not found")}</H1>
           <p className="bk-muted">{t("This booking link doesn’t match a business.")}</p>
         </div>
       </div>
@@ -669,9 +673,9 @@ export function BookingFlow({ notFound = null, embedded = false }) {
   }
   if (status === "error") {
     return (
-      <div className="bk" style={brandVars}>
+      <div {...shell}>
         <div className="bk-center">
-          <h1>{t("Something went wrong")}</h1>
+          <H1>{t("Something went wrong")}</H1>
           <p className="bk-muted">{t("Please refresh and try again.")}</p>
         </div>
       </div>
@@ -713,9 +717,9 @@ export function BookingFlow({ notFound = null, embedded = false }) {
       weekday: "long", month: "long", day: "numeric",
     });
     return (
-      <div className="bk" style={brandVars}>
+      <div {...shell}>
         <div className="bk-center">
-          <h1>{business?.name} is closed until {backOn}</h1>
+          <H1>{business?.name} is closed until {backOn}</H1>
           {/* NO SENTENCE UNDER THE HEADING. "You can book from then — the page
               will be back on by itself" was there and it failed his own copy
               rule twice over: the heading already says when they can book, and
@@ -737,7 +741,7 @@ export function BookingFlow({ notFound = null, embedded = false }) {
 
   if (!bookable(settings)) {
     return (
-      <div className="bk" style={brandVars}>
+      <div {...shell}>
         <div className="bk-center">
           {/* TRANSLATED 2026-09-11. `tests/spanish.test.mjs` 4a had been red
               on this block on a clean tree, and the heading beside it was
@@ -746,7 +750,7 @@ export function BookingFlow({ notFound = null, embedded = false }) {
               prose. A customer who reached this page in Spanish met three
               English sentences on the one screen that exists to tell them
               something has gone wrong. */}
-          <h1>{t("{business} isn’t taking bookings online yet", { business: business?.name ?? "" })}</h1>
+          <H1>{t("{business} isn’t taking bookings online yet", { business: business?.name ?? "" })}</H1>
           <p className="bk-muted">
             {t("They’re still setting this page up. Check back shortly, or get in touch with them directly.")}
           </p>
@@ -817,6 +821,8 @@ export function BookingFlow({ notFound = null, embedded = false }) {
           <LanguagePicker />
         </div>
       </header>}
+      {/* The masthead's language switch, kept when the masthead is not drawn. */}
+      {embedded && <div className="bk-embed-lang"><LanguagePicker /></div>}
 
       {/* ROADMAP 8.5b — **THE CUSTOMER-FACING SURFACE NEVER DECLARED A MAIN
           LANDMARK, AND EVERYTHING ELSE IN THE PRODUCT DOES.** `App.jsx`,
@@ -829,7 +835,7 @@ export function BookingFlow({ notFound = null, embedded = false }) {
           `role="main"` rather than changing the tag, because the class is
           doing the layout and a swapped element would be a styling change
           wearing an accessibility fix's clothes. */}
-      <div className="bk-wrap" role={embedded ? undefined : "main"} data-booking-step={step + 1}>
+      <div className="bk-wrap" role={embedded ? undefined : "main"} data-booking-step={embedded ? step + 1 : undefined}>
         {/* One header unit: without the wrapper, bk-wrap's flex gap opens
             28px voids between rail, label and heading. */}
         {/* The rail and the words say the same thing, so they share a line

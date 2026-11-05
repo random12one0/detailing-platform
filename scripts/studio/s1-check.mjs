@@ -19,6 +19,9 @@
 //      horizontal overflow, 44 px phone targets, one h1; every link and button
 //      outside the booking flow clicked; reduced motion leaves nothing running
 //   P5 unknown slug shows not-found; /book/:slug still works (route unchanged)
+//   P7 the states a customer can meet when something is off: the detailer is
+//      away, not set up, or the spec is refused — one h1, the site's own colours,
+//      and no internal detail on the page
 //   P6 (built) the production bundle routes /site/<slug> and the same not-found
 import { spawn, execFileSync } from "node:child_process";
 import { createRequire } from "node:module";
@@ -34,7 +37,7 @@ const BELT = process.env.STUDIO_BELT || "C:/Users/rando/Downloads/claude/control
 const OUT = path.join(ROOT, "artifacts/studio-s1");
 const BUILT = !process.argv.includes("--no-built");
 const { chromium } = createRequire(path.join(APP, "package.json"))("playwright");
-const { startDemoBackend } = await import(pathToFileURL(path.join(BELT, "demo-backend.mjs")).href);
+const { startExampleEngine, EXAMPLE_SLUG } = await import(pathToFileURL(path.join(ROOT, "scripts/studio/example-engine.mjs")).href);
 const { validateSpec, parseBinding } = await import(pathToFileURL(path.join(APP, "src/site/spec.js")).href);
 const { normalizeProfile, createBookingTransport } = await import(pathToFileURL(path.join(APP, "src/book/core.js")).href);
 const spec = (await import(pathToFileURL(path.join(APP, "src/site/specs/brightline.json")).href, { with: { type: "json" } })).default;
@@ -55,12 +58,12 @@ function startVite(args, env) {
 }
 
 mkdirSync(OUT, { recursive: true });
-const engine = await startDemoBackend({ port: 0, seed: path.join(BELT, "fixtures/sites/brightline.seed.json"), platform: ROOT, quiet: true });
+const engine = await startExampleEngine();
 const env = { VITE_SUPABASE_URL: engine.url, VITE_SUPABASE_ANON_KEY: "demo-anon" };
 const vitePort = await freePort();
 const dev = startVite(["--port", String(vitePort), "--strictPort", "--host", "127.0.0.1"], env);
 const BASE = `http://127.0.0.1:${vitePort}`;
-const SITE = `${BASE}/site/brightline`;
+const SITE = `${BASE}/site/example/brightline`;
 const browser = await chromium.launch();
 const reset = () => fetch(`${engine.url}/__demo/reset`, { method: "POST", body: "{}" });
 const T = () => engine.db.tables;
@@ -87,7 +90,7 @@ try {
 
   // ---------------------------------------------------------------- P2 (node half)
   const api = createBookingTransport({ supabaseUrl: engine.url, anonKey: "demo-anon" });
-  const live = normalizeProfile(await api.profile("brightline"));
+  const live = normalizeProfile(await api.profile(EXAMPLE_SLUG));
   const v = validateSpec(spec, live);
   record("P2", "the Brightline spec validates against the live offline profile", v.ok, v.ok ? "" : v.errors);
 
@@ -121,6 +124,14 @@ try {
         for (const n of el.childNodes) if (n.nodeType === 3 && /\d/.test(n.textContent)) out.digits.push(`${el.tagName}: ${n.textContent.trim().slice(0, 40)}`);
       }
       out.froms = [...new Set([...document.querySelectorAll("[data-from]")].map((e) => e.dataset.from))];
+      // The smallest text actually painted, site-wide and in the booking bar.
+      out.tiny = []; out.barTiny = [];
+      for (const el of document.querySelectorAll(".site *")) {
+        if (!visible(el) || ![...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim())) continue;
+        const fs = parseFloat(getComputedStyle(el).fontSize), what = `${el.tagName}.${el.className} "${el.textContent.trim().slice(0, 24)}" ${fs}px`;
+        if (fs < 12) out.tiny.push(what);
+        if (el.closest(".bk-bar") && fs < 13) out.barTiny.push(what);
+      }
       out.h1 = document.querySelectorAll("h1").length;
       out.mains = document.querySelectorAll("main, [role=main]").length;
       out.sections = [...document.querySelectorAll("[data-section]")].map((e) => e.dataset.section);
@@ -129,6 +140,7 @@ try {
     record("P4", `${w}: screenshot saved`, true, path.relative(ROOT, shot));
     record("P4", `${w}: no horizontal overflow`, m.scrollWidth <= w && !m.overflow.length, m.overflow.slice(0, 5).join(", ") || `scrollWidth ${m.scrollWidth}`);
     if (w === 390) record("P4", "390: every visible control is at least 44x44", !m.small.length, m.small.slice(0, 8).join("; ") || "all pass");
+    record("P4", `${w}: no painted text under 12px, booking bar text at least 13px`, !m.tiny.length && !m.barTiny.length, [...m.tiny, ...m.barTiny].slice(0, 5).join("; ") || "all pass");
     record("P4", `${w}: exactly one h1 and one main`, m.h1 === 1 && m.mains === 1, `h1=${m.h1} main=${m.mains}`);
     record("P4", `${w}: all five sections drawn`, ["hero", "menu", "work", "visit", "book"].every((s) => m.sections.includes(s)), m.sections.join(","));
     if (w === 390) {
@@ -225,7 +237,8 @@ try {
     record("P1", "price change shows after reload (menu)", before.includes("$185") && after.includes("$205"), `${before.replace(/\s+/g, " ")} -> ${after.replace(/\s+/g, " ")}`);
     record("P1", "price change shows after reload (hero ticket and booking step)", heroAfter.includes("$205") && bookingText.includes("$205") && !bookingText.includes("$185"), heroAfter.replace(/\s+/g, " "));
     record("P1", "hidden service disappears everywhere", (await page.locator(`[data-from^="service:${ID(303)}"]`).count()) === 0 && !bookingText.includes("Complete care"));
-    record("P1", "hours change shows", (await text(page, '[data-from="hours.week"]')).includes("9 AM – 3 PM"));
+    const hoursText = (await text(page, '[data-from="hours.week"]')).replace(/\s+/g, " ");
+    record("P1", "hours change shows", hoursText.includes("Wednesday 9 AM – 3 PM"), hoursText);
     record("P1", "sale that ended disappears", (await page.locator('[data-from="sale"]').count()) === 0);
     record("P1", "FAQ edit shows", (await text(page, '[data-from="faq"]')).includes("Do you confirm every request?"));
     await page.screenshot({ path: path.join(OUT, "edited-390.png"), fullPage: true });
@@ -249,7 +262,8 @@ try {
       return !!b && !b.disabled && b.getAttribute("aria-disabled") !== "true";
     }, null, { timeout: ms }).then(() => true).catch(() => false);
     const steps = [];
-    let shownTotal = null;
+    let shownTotal = null, confirmed = false;
+    try {
     for (let n = 1; n <= 9; n++) {
       const stepNo = Number(await book.locator("[data-booking-step]").getAttribute("data-booking-step"));
       const heading = (await book.locator(".bk-step-head h2").innerText()).trim();
@@ -297,6 +311,14 @@ try {
     const send = book.getByRole("button", { name: /request this time|confirm booking/i });
     await send.click();
     await book.locator("h2", { hasText: /holding your time|you’re booked/i }).waitFor({ timeout: 15000 });
+    confirmed = true;
+    } catch (e) {
+      const why = (await book.locator(".bk-error, .bk-refusal").allInnerTexts().catch(() => [])).join(" | ");
+      await page.screenshot({ path: path.join(OUT, "booking-failed-390.png") }).catch(() => {});
+      record("P3", "a booking through the site reached its confirmation", false, `${e.message.split("\n")[0]}${why ? ` — the page says: ${why}` : ""} (after ${steps.join(" → ")})`);
+    }
+    if (confirmed) {
+    record("P3", "a booking through the site reached its confirmation", true, steps.at(-1));
     await page.screenshot({ path: path.join(OUT, "booking-done-390.png") });
     record("P3", "the site shows the confirmation in its own design", await book.locator(".bk.bk-embedded").count() === 1 && await page.locator("h1").count() === 1);
 
@@ -308,9 +330,12 @@ try {
     record("P3", "confirmation links point at the calendar file and the booking's own page",
       ics.startsWith(`${engine.url}/functions/v1/booking-ics`) && /^\/booking\/[\w-]+$/.test(receipt) && receiptRes.ok && (await receiptRes.text()).includes('id="root"'),
       `${ics.replace(engine.url, "<engine>")} · ${receipt} (${receiptRes.status})`);
+
+    }
+    // Named even when the walk failed, so a broken create-booking reads as exactly that.
     const calls = await (await fetch(`${engine.url}/__demo/calls`)).json();
     const post = calls.find((c) => c.path === "/functions/v1/create-booking" && c.method === "POST" && c.status === 200);
-    record("P3", "a create-booking post was recorded by the offline engine", !!post, post ? `${post.body.booking_date} ${post.body.start_time}, ref ${post.body.booking_ref}` : calls.map((c) => `${c.path}:${c.status}`).join(", "));
+    record("P3", "a create-booking post was recorded by the offline engine", !!post, post ? `${post.body.booking_date} ${post.body.start_time}, ref ${post.body.booking_ref}` : calls.filter((c) => c.path.includes("functions")).map((c) => `${c.path.replace("/functions/v1/", "")}:${c.status}`).join(", "));
     if (post) {
       const { customer_name, customer_email, customer_phone, booking_ref, shown_total, sms_consent, ...quoteBody } = post.body;
       const q = await (await fetch(`${engine.url}/functions/v1/calculate-booking`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(quoteBody) })).json();
@@ -329,14 +354,71 @@ try {
   // ---------------------------------------------------------------- P5 not-found + route unchanged
   {
     const { context, page, problems } = await open(390, 844);
-    await page.goto(`${BASE}/site/nope`, { waitUntil: "networkidle" });
-    record("P5", "unknown slug shows a clear not-found", (await page.locator("h1").innerText()).includes("There is no site at this address"));
+    await page.goto(`${BASE}/site/example/nope`, { waitUntil: "networkidle" });
+    record("P5", "unknown example shows a clear not-found", (await page.locator("h1").innerText()).includes("There is no site at this address"));
+    // A bare /site/<slug> is not served in S1: a real business's slug can never
+    // pick up the committed example (review §5).
+    await page.goto(`${BASE}/site/brightline`, { waitUntil: "networkidle" });
+    record("P5", "/site/brightline (a slug a real business could own) does not draw the example", (await page.locator("h1").innerText()).includes("There is no site at this address"));
     await page.screenshot({ path: path.join(OUT, "not-found-390.png") });
-    await page.goto(`${BASE}/book/brightline`, { waitUntil: "networkidle" });
+    await page.goto(`${BASE}/book/${EXAMPLE_SLUG}`, { waitUntil: "networkidle" });
     await page.waitForSelector(".bk-step-head h2", { timeout: 15000 });
-    record("P5", "/book/brightline still draws the ordinary booking page", (await page.locator(".bk-header h1").innerText()).includes("Brightline Auto Care") && (await page.locator(".bk-embedded").count()) === 0);
+    record("P5", "/book/<slug> still draws the ordinary booking page (no step stamp, own masthead)", (await page.locator(".bk-header h1").innerText()).includes("Brightline Auto Care") && (await page.locator(".bk-embedded").count()) === 0 && (await page.locator("[data-booking-step]").count()) === 0);
+    // The masthead's language switch must survive embedding (review §7).
+    const bookChips = await page.locator(".bk-header .bk-lang button").count();
+    await page.goto(SITE, { waitUntil: "networkidle" });
+    await page.waitForSelector('[data-booking-step="1"]');
+    const siteChips = page.locator('[data-section="book"] .bk-lang button');
+    const n = await siteChips.count();
+    let switched = "";
+    if (n > 1) {
+      await siteChips.nth(1).click();
+      switched = await page.locator('[data-section="book"] .bk-step-head h2').innerText();
+      await siteChips.nth(0).click();
+    }
+    const back = await page.locator('[data-section="book"] .bk-step-head h2').innerText();
+    record("P5", "the embedded booking keeps the language switch, and it works",
+      bookChips > 1 && n === bookChips && switched && switched !== back && /pick your services/i.test(back), `${n} chips (main page ${bookChips}); "${switched}" then "${back}"`);
     record("P5", "no console errors on those pages", !problems.filter((p) => !/404/.test(p)).length, problems.join(" | "));
     await context.close();
+  }
+
+  // ---------------------------------------------------------------- P7 states that are off
+  {
+    const states = [
+      ["away", () => { T().businesses[0].closed_until = new Date(Date.now() + 9 * 86400000).toISOString().slice(0, 10); }, /closed until/i],
+      ["not set up", () => { Object.assign(T().business_settings[0], { mobile_enabled: false, dropoff_enabled: false }); }, /isn’t taking bookings online yet/i],
+    ];
+    for (const [name, mutate, words] of states) {
+      await reset(); mutate();
+      const { context, page, problems } = await open(390, 844);
+      await load(page, SITE).catch(() => {});
+      await page.waitForSelector(".bk-embedded .bk-center", { timeout: 15000 }).catch(() => {});
+      const r = await page.evaluate(() => {
+        const bk = document.querySelector('[data-section="book"] .bk');
+        return { h1: document.querySelectorAll("h1").length, embedded: !!bk?.classList.contains("bk-embedded"), inline: bk?.getAttribute("style") || "",
+          says: document.querySelector('[data-section="book"] .bk-center h2')?.textContent || "" };
+      });
+      record("P7", `booking section when the detailer is ${name}: one h1, an h2 inside, the site's colours`,
+        r.h1 === 1 && r.embedded && !r.inline && words.test(r.says), `${r.says} · h1=${r.h1} · inline style "${r.inline}"`);
+      await page.locator('[data-section="book"]').screenshot({ path: path.join(OUT, `state-${name.replace(/ /g, "-")}-390.png`) }).catch(() => {});
+      record("P7", `no console errors when ${name}`, !problems.length, problems.join(" | "));
+      await context.close();
+    }
+    // A refused spec: make the bound service group disappear from the profile.
+    await reset();
+    T().service_groups[0].id = "00000000-0000-4000-8000-000000000999";
+    const { context, page, problems } = await open(390, 844);
+    await page.goto(SITE, { waitUntil: "networkidle" });
+    const r = await page.evaluate(() => ({ h1: [...document.querySelectorAll("h1")].map((h) => h.textContent), text: document.body.innerText,
+      tel: !!document.querySelector('a[href^="tel:"]'), refused: document.querySelector("[data-refused]")?.dataset.refused }));
+    record("P7", "a refused spec shows a plain unavailable page with a way to call",
+      r.h1.length === 1 && /unavailable/i.test(r.h1[0]) && r.tel && Number(r.refused) > 0, `${r.h1.join("|")} · ${r.refused} reason(s) kept off the page`);
+    record("P7", "the public page shows no internal detail", !/spec\.|pages\[|service group|missing_id|dashboard/i.test(r.text), r.text.slice(0, 120).replace(/\s+/g, " "));
+    record("P7", "the reasons go to the console instead", problems.length >= 1 && problems.every((x) => /Studio site refused/.test(x)), problems.join(" | "));
+    await page.screenshot({ path: path.join(OUT, "state-refused-390.png") });
+    await context.close();
+    await reset();
   }
 
   // ---------------------------------------------------------------- P6 the built bundle
@@ -356,10 +438,10 @@ try {
       const port = await freePort();
       const preview = startVite(["preview", "--outDir", dist, "--port", String(port), "--strictPort", "--host", "127.0.0.1"], env);
       try {
-        await until(() => fetch(`http://127.0.0.1:${port}/site/brightline`).then((r) => r.ok), 30000);
+        await until(() => fetch(`http://127.0.0.1:${port}/site/example/brightline`).then((r) => r.ok), 30000);
         const { context, page, problems } = await open(390, 844);
-        await load(page, `http://127.0.0.1:${port}/site/brightline`);
-        record("P6", "built preview serves /site/brightline with live prices", (await text(page, '[data-section="menu"]')).includes("$185"));
+        await load(page, `http://127.0.0.1:${port}/site/example/brightline`);
+        record("P6", "built preview serves /site/example/brightline with live prices", (await text(page, '[data-section="menu"]')).includes("$185"));
         const css = await page.evaluate(() => [...document.styleSheets].map((s) => s.href || "").join(" ") + " " + [...document.scripts].map((s) => s.src).join(" ") + " " + [...document.fonts].map((f) => f.family).join(","));
         record("P6", "the dashboard's stylesheet and fonts are not loaded", !/Archivo|JetBrains|assets\/index-[\w-]+\.(css|js)/.test(css) && /assets\/site-[\w-]+\.css/.test(css), css.slice(0, 200));
         await page.goto(`http://127.0.0.1:${port}/site/nope`, { waitUntil: "networkidle" });

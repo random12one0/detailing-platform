@@ -277,10 +277,15 @@ html, body { margin: 0; background: #0f2a2b; }
   --bk-r-pill: var(--radius);
   --bk-f-body: var(--f-body);
   --bk-f-num: var(--f-body);
+  /* The flow's smallest label size is 11px; on this site nothing reads under 13. */
+  --bk-t-label: 13px;
   min-height: 0; background: transparent; isolation: auto;
 }
 .site .bk.bk-embedded::before, .site .bk.bk-embedded::after { content: none; }
 .site .bk.bk-embedded h1, .site .bk.bk-embedded h2 { font-family: var(--f-display); font-variation-settings: normal; font-weight: 500; }
+.site .bk.bk-embedded .bk-bar .total > .bk-muted { font-size: 13px; }
+.bk-embed-lang { position: relative; z-index: 1; display: flex; justify-content: flex-end; max-width: var(--bk-col); width: 100%; margin: 0 auto 4px; }
+.bk-embed-lang .bk-chip { min-width: 44px; min-height: 44px; }
 .site .bk.bk-embedded .bk-bar { background: color-mix(in srgb, var(--paper-2) 94%, transparent); backdrop-filter: blur(10px); }
 
 /* ---------------------------------------------------------------- footer + plain pages */
@@ -322,9 +327,10 @@ html, body { margin: 0; background: #0f2a2b; }
   .site { --pad: max(56px, calc((100vw - var(--col)) / 2)); }
   .hero {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: auto auto;
-    column-gap: 56px; padding: 48px var(--pad) 96px; align-items: center;
+    column-gap: 56px; padding: 48px var(--pad) 96px; align-items: start;
   }
-  .hero-photo { grid-column: 2; grid-row: 1 / span 2; aspect-ratio: 4 / 3; border-radius: var(--radius); align-self: center; }
+  /* Top edge on the copy column's first line (the eyebrow), not floating mid-column. */
+  .hero-photo { grid-column: 2; grid-row: 1 / span 2; aspect-ratio: auto; min-height: 560px; border-radius: var(--radius); align-self: stretch; }
   .hero-photo::after { background: linear-gradient(90deg, color-mix(in srgb, var(--paper) 40%, transparent), transparent 30%); }
   .hero-copy { grid-column: 1; grid-row: 1; margin: 0; padding: 0; }
   .hero h1 { font-size: 76px; }
@@ -339,3 +345,7 @@ html, body { margin: 0; background: #0f2a2b; }
 }
 
 @media (hover: none) { .site-btn:hover { transform: none; } }
+
+/* The flow's centred states (away, not set up) are full-screen pages on
+   /book/:slug; inside a section they only need their own height. */
+.site .bk.bk-embedded .bk-center { min-height: 0; padding-top: 32px; padding-bottom: 48px; }
