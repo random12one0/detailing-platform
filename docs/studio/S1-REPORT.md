@@ -235,3 +235,20 @@ where they differ.
   5 cuts, no copy). `s1-check.mjs` 64 of 64.
 - **Not done:** S2-4 (an empty frame left after a photo is removed is not yet asserted) and S2-5 (one stamp checker
   shared with G0) are later work, as the review says.
+
+## S2 leftovers (2026-11-05 evening)
+
+Commit `16164a88`.
+
+- **S2-4, done.** After a photo is removed, no picture frame may be left empty: no `figure`, photo or gallery slot,
+  or wipe slider without a picture, and no picture that failed to load. The new `--break=empty-frame` leaves one,
+  and the check goes red first on `photo`.
+- **S2-5, done.** One stamp checker, `belt-staging/site-stamps.mjs`, is shared with the site grader's G0. Of the two
+  it is the stricter: whole values per binding, plus old-value checks. `studio-check.mjs` imports it from
+  `STUDIO_BELT`, and the Studio passes its own folder.
+  - **Until `night/studio-tab` is in belt-staging `main`,** a hand run needs `STUDIO_BELT=C:/studio-work/studio-tab`.
+    Without it the check stops with a plain message naming the missing file.
+- **Results:**
+  - `tests/studio-check.test.mjs` passes 8 of 8 (whole wire, 6 cuts, no copy).
+  - `studio-check.mjs` is 20 of 20 green.
+  - `s1-check.mjs` passes 64 of 64.
