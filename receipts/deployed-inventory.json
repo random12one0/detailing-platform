@@ -1,15 +1,12 @@
 {
-  "git_sha": "e5c6a8a1d352e2956ccde6b3abe3b0fd3d021de6",
-  "git_sha_started": "e5c6a8a1d352e2956ccde6b3abe3b0fd3d021de6",
+  "git_sha": "bb3a1c2db567ae0bb74db73e0ed259d07fe8e35b",
+  "git_sha_started": "bb3a1c2db567ae0bb74db73e0ed259d07fe8e35b",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-11-06T08:50:43.977Z",
+  "finished_at": "2026-11-06T09:07:59.308Z",
   "failures": [
-    "4 function(s) are running something other than this checkout: platform-admin, create-business, create-booking, stripe-webhook",
+    "1 function(s) are running something other than this checkout: platform-admin",
     "platform-admin: 13 file(s) differ - index.ts, _shared/supportSession.ts, _shared/newBusiness.ts, _shared/tz.ts, _shared/buildStartStamp.ts, _shared/previewSwitch.ts, _shared/tenant.ts, _shared/email.ts, _shared/emailTemplates.ts, _shared/emailKit.ts, _shared/strings/es.ts, _shared/reachedProvider.ts, _shared/permissions.ts (newest commit is 23.8d after the deploy)",
-    "create-business: 4 file(s) differ - index.ts, _shared/newBusiness.ts, _shared/tenant.ts, _shared/supportSession.ts (newest commit is 10.4d after the deploy)",
-    "create-booking: 3 file(s) differ - index.ts, _shared/tenant.ts, _shared/supportSession.ts (newest commit is 10.4d after the deploy)",
-    "stripe-webhook: 1 file(s) differ - index.ts (newest commit is 10.4d after the deploy)",
     "1 function(s) exist in this repo and are NOT DEPLOYED AT ALL: google-business"
   ],
   "warnings": [],
@@ -30,6 +27,8 @@
       "calendar-feed",
       "cancel-booking",
       "connect-account",
+      "create-booking",
+      "create-business",
       "delete-customer",
       "forecast",
       "get-booking-receipt",
@@ -52,6 +51,7 @@
       "send-invoice",
       "send-owner-reminders",
       "session-ping",
+      "stripe-webhook",
       "track-visit",
       "translate-content",
       "unsubscribe",
@@ -61,10 +61,7 @@
       "watch-jobs"
     ],
     "differing": [
-      "platform-admin",
-      "create-business",
-      "create-booking",
-      "stripe-webhook"
+      "platform-admin"
     ],
     "not_deployed": [
       "google-business"
@@ -88,42 +85,14 @@
           "_shared/reachedProvider.ts",
           "_shared/permissions.ts"
         ]
-      },
-      "create-business": {
-        "function_local": [
-          "index.ts"
-        ],
-        "shared_modules": [
-          "_shared/newBusiness.ts",
-          "_shared/tenant.ts",
-          "_shared/supportSession.ts"
-        ]
-      },
-      "create-booking": {
-        "function_local": [
-          "index.ts"
-        ],
-        "shared_modules": [
-          "_shared/tenant.ts",
-          "_shared/supportSession.ts"
-        ]
-      },
-      "stripe-webhook": {
-        "function_local": [
-          "index.ts"
-        ],
-        "shared_modules": []
       }
     },
     "by_shared_module": {
       "_shared/supportSession.ts": [
-        "platform-admin",
-        "create-business",
-        "create-booking"
+        "platform-admin"
       ],
       "_shared/newBusiness.ts": [
-        "platform-admin",
-        "create-business"
+        "platform-admin"
       ],
       "_shared/tz.ts": [
         "platform-admin"
@@ -135,9 +104,7 @@
         "platform-admin"
       ],
       "_shared/tenant.ts": [
-        "platform-admin",
-        "create-business",
-        "create-booking"
+        "platform-admin"
       ],
       "_shared/email.ts": [
         "platform-admin"
@@ -161,7 +128,7 @@
     "widest_gap_days": 23.8
   },
   "check_id": "deployed-inventory",
-  "started_at": "2026-11-06T08:49:37.642Z",
+  "started_at": "2026-11-06T09:06:46.965Z",
   "status": "fail",
   "expected_targets": 44,
   "discovered_targets": 44,
