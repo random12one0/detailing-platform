@@ -1,26 +1,26 @@
 {
-  "git_sha": "6b06e8c03834583ea9d149c17a8beb56bdce7780",
-  "git_sha_started": "6b06e8c03834583ea9d149c17a8beb56bdce7780",
+  "git_sha": "558e2a53edce6aef1ca2f8e351486e48dbb5510b",
+  "git_sha_started": "558e2a53edce6aef1ca2f8e351486e48dbb5510b",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-11-06T09:17:29.033Z",
+  "finished_at": "2026-11-06T09:38:23.169Z",
   "failures": [
     "only 13 open ROADMAP item(s) with a release line were found; the parser has stopped matching (the 2026-10-24 floor is 15).",
     "scripts/release-sheet.mjs excludes ROADMAP 97.8, which has no open release line any more; remove it.",
-    "FOR-ANDREW.md:140 \"97.55 — Customers confirm the car's condition from their receipt link\": its rule \"20261024160000_damage_ack.sql before get-booking-receipt\" does not hold on the sheet (get-booking-receipt missing)",
-    "FOR-ANDREW.md:140 \"97.55 — Customers confirm the car's condition from their receipt link\": its rule \"20261024160000_damage_ack.sql before acknowledge-checkin\" does not hold on the sheet (acknowledge-checkin missing)",
-    "FOR-ANDREW.md:279 \"98.2 — Bring the server up to the saved code\" is not covered by any step",
-    "FOR-ANDREW.md:421 \"97.68 — Let Stripe tell us about refunds\": its rule \"stripe-refund-event before stripe-webhook\" does not hold on the sheet (stripe-webhook missing)",
-    "FOR-ANDREW.md:432 \"99.2a — Use the shorter email dates and times\": its rule \"website before create-booking\" does not hold on the sheet (create-booking missing)",
-    "FOR-ANDREW.md:479 \"97.53 — Subscribe your phone's calendar to your jobs\": its rule \"20261024150000_calendar_feed_token.sql before calendar-feed\" does not hold on the sheet (calendar-feed missing)",
-    "FOR-ANDREW.md:554 \"4.3b — Publish the two 4.3 pieces and check them live\": its rule \"20261024230000_support_sessions_unlock.sql before create-business\" does not hold on the sheet (create-business missing)",
+    "FOR-ANDREW.md:160 \"97.55 — Customers confirm the car's condition from their receipt link\": its rule \"20261024160000_damage_ack.sql before get-booking-receipt\" does not hold on the sheet (get-booking-receipt missing)",
+    "FOR-ANDREW.md:160 \"97.55 — Customers confirm the car's condition from their receipt link\": its rule \"20261024160000_damage_ack.sql before acknowledge-checkin\" does not hold on the sheet (acknowledge-checkin missing)",
+    "FOR-ANDREW.md:299 \"98.2 — Bring the server up to the saved code\" is not covered by any step",
+    "FOR-ANDREW.md:441 \"97.68 — Let Stripe tell us about refunds\": its rule \"stripe-refund-event before stripe-webhook\" does not hold on the sheet (stripe-webhook missing)",
+    "FOR-ANDREW.md:452 \"99.2a — Use the shorter email dates and times\": its rule \"website before create-booking\" does not hold on the sheet (create-booking missing)",
+    "FOR-ANDREW.md:499 \"97.53 — Subscribe your phone's calendar to your jobs\": its rule \"20261024150000_calendar_feed_token.sql before calendar-feed\" does not hold on the sheet (calendar-feed missing)",
+    "FOR-ANDREW.md:574 \"4.3b — Publish the two 4.3 pieces and check them live\": its rule \"20261024230000_support_sessions_unlock.sql before create-business\" does not hold on the sheet (create-business missing)",
     "ROADMAP.md:14737 \"4.3b — Make account audit history include previously orphaned events\": its rule \"20261024230000_support_sessions_unlock.sql before create-business\" does not hold on the sheet (create-business missing)",
     "ROADMAP.md:31301 \"99.2 — Can we work? Can we work on the text and emails kind of plan out so I’m gonna use that lik\": its rule \"website before create-booking\" does not hold on the sheet (create-booking missing)",
     "ROADMAP.md:32025 \"98.2 — Repair the receipt deployed-inventory.json says fail check\" is not covered by any step",
-    "ROADMAP.md:32446 \"97.37 — Open self-serve signup gives strangers a free, working booking page with no payment\": its rule \"20261024210000_awaiting_first_payment.sql before create-business\" does not hold on the sheet (create-business missing)",
-    "ROADMAP.md:32446 \"97.37 — Open self-serve signup gives strangers a free, working booking page with no payment\": its rule \"20261024210000_awaiting_first_payment.sql before stripe-webhook\" does not hold on the sheet (stripe-webhook missing)",
-    "ROADMAP.md:32446 \"97.37 — Open self-serve signup gives strangers a free, working booking page with no payment\": its rule \"stripe-webhook before create-business\" does not hold on the sheet (stripe-webhook missing)",
-    "ROADMAP.md:32446 \"97.37 — Open self-serve signup gives strangers a free, working booking page with no payment\": its rule \"website before create-business\" does not hold on the sheet (create-business missing)"
+    "ROADMAP.md:32472 \"97.37 — Open self-serve signup gives strangers a free, working booking page with no payment\": its rule \"20261024210000_awaiting_first_payment.sql before create-business\" does not hold on the sheet (create-business missing)",
+    "ROADMAP.md:32472 \"97.37 — Open self-serve signup gives strangers a free, working booking page with no payment\": its rule \"20261024210000_awaiting_first_payment.sql before stripe-webhook\" does not hold on the sheet (stripe-webhook missing)",
+    "ROADMAP.md:32472 \"97.37 — Open self-serve signup gives strangers a free, working booking page with no payment\": its rule \"stripe-webhook before create-business\" does not hold on the sheet (stripe-webhook missing)",
+    "ROADMAP.md:32472 \"97.37 — Open self-serve signup gives strangers a free, working booking page with no payment\": its rule \"website before create-business\" does not hold on the sheet (create-business missing)"
   ],
   "warnings": [
     "Reads only the migration-drift and deployed-inventory RECEIPTS; it is as current as they are, and refuses (STALE) when supabase/ changed since either was taken.",
@@ -32,7 +32,7 @@
     "docs/release-sheet.md"
   ],
   "dimensions": {
-    "head": "6b06e8c03834583ea9d149c17a8beb56bdce7780",
+    "head": "558e2a53edce6aef1ca2f8e351486e48dbb5510b",
     "drift_receipt_sha": "46efdb7dca25787c3d51d8d685f30945c187090c",
     "inventory_receipt_sha": "bb3a1c2db567ae0bb74db73e0ed259d07fe8e35b",
     "migrations_from_drift": [],
@@ -90,10 +90,17 @@
       "99.2a",
       "97.53"
     ],
-    "steps": 10
+    "steps": 10,
+    "undeclared_canary": {
+      "item": "97.15",
+      "added": [
+        "\"97.15 — Support (\"view as\") sessions never expire and hand out a refresh token\" has a release line and is neither declared nor excluded in scripts/release-sheet.mjs"
+      ],
+      "caught": true
+    }
   },
   "check_id": "release-sheet",
-  "started_at": "2026-11-06T09:17:27.212Z",
+  "started_at": "2026-11-06T09:38:20.926Z",
   "status": "fail",
   "expected_targets": 28,
   "discovered_targets": 14,

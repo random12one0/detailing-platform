@@ -21,7 +21,7 @@ const BREAK = (process.argv.find((a) => a.startsWith("--break=")) || "").slice("
 if (BREAK && BREAK !== "no-line") { console.error(`Unknown --break=${BREAK}. Known: no-line.`); process.exit(2); }
 const SCRATCH = join(REPO, ".tmp-release-sheet-undeclared"); // .tmp-*/ is gitignored
 const git = (...a) => execFileSync("git", a, { cwd: SCRATCH, encoding: "utf8" }).trim();
-const GUARD = "if (!why) { rowProblems.push(";
+const GUARD = 'if (!why) { if (BREAK !== "undeclared-off") bad.push('; // 98.12r: the rule moved into undeclared()
 const MSG = "has a release line and is neither declared nor excluded";
 const failures = [];
 let asserts = 0; // counted as they run: 9 on a full run, 8 under --break=no-line (no numstat check)
@@ -66,7 +66,7 @@ try {
 
   // Canary: the sheet's guard switched off in the scratch copy. The item must then go unnamed.
   const script = join(SCRATCH, "scripts/release-sheet.mjs");
-  writeFileSync(script, readFileSync(script, "utf8").replace(GUARD, "if (!why) { if (false) rowProblems.push("));
+  writeFileSync(script, readFileSync(script, "utf8").replace(GUARD, "if (!why) { if (false) bad.push("));
   const gs = git("diff", "--numstat", "--", "scripts/release-sheet.mjs");
   const guardLanded = check(/^1\s+1\s+scripts\/release-sheet\.mjs$/.test(gs), `the canary's guard edit did not land (numstat "${gs}")`);
   guardOffNamed = sheet("guard switched off").filter((l) => l.includes(`"${key} — `));
