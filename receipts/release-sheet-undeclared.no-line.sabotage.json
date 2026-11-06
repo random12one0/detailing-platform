@@ -1,0 +1,64 @@
+{
+  "git_sha": "0ee9d7f8588d9e223cea68c6fefd8e272f074127",
+  "git_sha_started": "0ee9d7f8588d9e223cea68c6fefd8e272f074127",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-11-05T08:05:03.731Z",
+  "failures": [
+    "with a throwaway AWAITS PUBLISH line under 97.15, the sheet named it 0 time(s), not once"
+  ],
+  "warnings": [
+    "run with --break=no-line; this receipt is a sabotage, not a result",
+    "Runs the release sheet four times in a scratch clone of HEAD (clean, with the line, guard off, line removed); judges the FAIL lines, never the verdict word, because the sheet can be red for other reasons (a STALE receipt)."
+  ],
+  "artifacts": [
+    "scripts/release-sheet-undeclared.mjs",
+    "scripts/release-sheet.mjs"
+  ],
+  "dimensions": {
+    "break": "no-line",
+    "head": "0ee9d7f8588d9e223cea68c6fefd8e272f074127",
+    "item_under_line": "97.15",
+    "named": [],
+    "added_by_line": [],
+    "guard_off_named": [],
+    "after_removal_named": [],
+    "after_removal_extra": [],
+    "runs": [
+      {
+        "label": "clean",
+        "exit": 1,
+        "completed": true
+      },
+      {
+        "label": "with the throwaway line",
+        "exit": 1,
+        "completed": true
+      },
+      {
+        "label": "guard switched off",
+        "exit": 1,
+        "completed": true
+      },
+      {
+        "label": "line removed",
+        "exit": 1,
+        "completed": true
+      }
+    ]
+  },
+  "check_id": "release-sheet-undeclared.no-line",
+  "started_at": "2026-11-05T08:04:45.944Z",
+  "status": "fail",
+  "expected_targets": 4,
+  "discovered_targets": 4,
+  "attempted_targets": 4,
+  "completed_targets": 4,
+  "skipped_targets": 0,
+  "assertions_executed": 8,
+  "min_assertions": 7,
+  "canary": {
+    "id": "with the sheet's guard switched off in the scratch copy, the same line must go unnamed",
+    "observed_failure": true
+  }
+}

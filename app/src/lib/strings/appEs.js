@@ -3163,8 +3163,8 @@ export const appEs = {
   "Dark, with the work drawn out step by step.": "Oscuro, con el trabajo explicado paso a paso.",
   "The whole price list on the page. Three colors to pick from.":
     "Toda la lista de precios en la página. Tres colores para elegir.",
-  "Light and papery. A real before-and-after slider.":
-    "Claro y con textura de papel. Un control real de antes y después.",
+  "Light or dark. Prices set by vehicle size.":
+    "Claro u oscuro. Precios según el tamaño del vehículo.",
   "One huge photo and one loud red.": "Una foto enorme y un rojo fuerte.",
   "The whole look": "El aspecto general",
   "The colors": "Los colores",
