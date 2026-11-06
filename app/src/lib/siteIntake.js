@@ -36,7 +36,7 @@ export const EXAMPLES = [
   ["/ex1", "Prime Mobile Detailing", "A big photo up top. Three pages.", "photo"],
   ["/ex2", "Delgado Mobile Detailing", "Dark, with the work drawn out step by step.", "move"],
   ["/ex3", "Ballantyne Mobile Detailing", "The whole price list on the page. Three colors to pick from.", "facts"],
-  ["/ex4", "Kinzie Mobile Detailing", "Light and papery. A real before-and-after slider.", "light"],
+  ["/ex4", "Kinzie Mobile Detailing", "Light or dark. Prices set by vehicle size.", "light"],
   ["/ex5", "Tampa Bay Auto Detail", "One huge photo and one loud red.", "dark"],
 ];
 
