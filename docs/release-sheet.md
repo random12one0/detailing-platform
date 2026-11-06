@@ -1,10 +1,10 @@
 # Release sheet — everything still to go live, in order
 
-Written by `node scripts/release-sheet.mjs` from the database check taken at `0da053dd` and the server check taken at `0da053dd`. Do not edit by hand; re-run it.
+Written by `node scripts/release-sheet.mjs` from the database check taken at `46efdb7d` and the server check taken at `46efdb7d`. Do not edit by hand; re-run it.
 
 ## In plain words
 
-This is one list for your next release, built from the release notes in your list and the release lines in the roadmap. **4 database changes** go into the live database, **31 programs** go onto the server, then **the website** goes out, then **3 more programs** straight after it. **2 programs are held back on purpose** and are listed at the bottom, never as a step. Where an order matters, the step says so and names the step it must come after.
+This is one list for your next release, built from the release notes in your list and the release lines in the roadmap. **4 database changes** go into the live database, **0 programs** go onto the server, then **the website** goes out, then **3 more programs** straight after it. **2 programs are held back on purpose** and are listed at the bottom, never as a step. Where an order matters, the step says so and names the step it must come after.
 
 **When to start.** Step 1 must already be done before you begin; if it is not, do not start. Steps 1 to 5 change nothing anybody sees, so you can stop anywhere in them. **Once you start step 6, go through to the end of the sheet in the same sitting:** the database changes, the programs and the website go out together, so no half-done state is left standing; create-booking and create-business must follow the website within minutes.
 
@@ -31,70 +31,33 @@ Nothing here has been done for you. No session applies, publishes or pushes. Eac
 
 Apply each file from `supabase/migrations/` in this order. One program goes in between them, where a rule needs it.
 
-6. Apply `20261024150000_calendar_feed_token.sql` — only after step 1 · for 97.53 (Calendar sync is one file per booking; there is no feed to subscribe to)
-7. Apply `20261024160000_damage_ack.sql` · for 97.55 (No pre-job vehicle check-in or customer sign-off)
-8. Apply `20261024210000_awaiting_first_payment.sql` · for 97.37 (Open self-serve signup gives strangers a free, working booking page with no payment)
-9. Apply `20261024230000_support_sessions_unlock.sql` · for 4.3b (Make account audit history include previously orphaned events); 4.3e (Finish the held preview-unlock branch without English fallback)
+6. Apply `20261024150000_calendar_feed_token.sql` — only after step 1 (the database check cannot see this kind of change; it is listed because your note says it is not applied) · for 97.53 (Calendar sync is one file per booking; there is no feed to subscribe to)
+7. Apply `20261024160000_damage_ack.sql` (the database check cannot see this kind of change; it is listed because your note says it is not applied) · for 97.55 (No pre-job vehicle check-in or customer sign-off)
+8. Apply `20261024210000_awaiting_first_payment.sql` (the database check cannot see this kind of change; it is listed because your note says it is not applied) · for 97.37 (Open self-serve signup gives strangers a free, working booking page with no payment)
+9. Apply `20261024230000_support_sessions_unlock.sql` (the database check cannot see this kind of change; it is listed because your note says it is not applied) · for 4.3b (Make account audit history include previously orphaned events); 4.3e (Finish the held preview-unlock branch without English fallback)
 
 ## Part 3 — the programs
 
-**First, alone:**
-
-10. Publish, alone, `update-booking` — only after step 9 · for 98.2
-
 **Then these, in one pass, in any order among themselves:**
 
-11. Publish `accept-invite` — only after step 9 · for 98.2
-12. Publish `accept-quote` — only after step 9 · for 98.2
-13. Publish `acknowledge-checkin` — only after step 7; never published before · for 97.55, 98.2
-14. Publish `available-slots` — only after step 9 · for 98.2
-15. Publish `booking-ics` — only after step 9 · for 98.2
-16. Publish `calculate-booking` — only after step 9 · for 98.2
-17. Publish `calendar-feed` — only after step 6; never published before · for 97.53, 98.2
-18. Publish `cancel-booking` — only after step 9 · for 98.2
-19. Publish `connect-account` — only after step 9 · for 98.2
-20. Publish `delete-customer` — only after step 9 · for 98.2
-21. Publish `forecast` — only after step 9 · for 98.2
-22. Publish `get-booking-receipt` — only after step 7, step 9 · for 97.55, 98.2
-23. Publish `invite-user` — only after step 9 · for 98.2, 99.2, 99.2a
-24. Publish `owner-push-subscribe` — only after step 9 · for 98.2
-25. Publish `owner-push-unsubscribe` — only after step 9 · for 98.2
-26. Publish `pay-booking` — only after step 9 · for 98.2
-27. Publish `photo-door` — only after step 9 · for 0.11bd, 14.39, 98.2
-28. Publish `plan-link` — only after step 9 · for 98.2
-29. Publish `preview-emails` — only after step 9 · for 98.2
-30. Publish `report-problem` — only after step 9 · for 98.2
-31. Publish `reschedule-booking` — only after step 9 · for 98.2
-32. Publish `respond-to-booking` — only after step 9 · for 98.2
-33. Publish `send-campaign` — only after step 9 · for 98.2
-34. Publish `send-invoice` — only after step 9 · for 98.2, 99.2, 99.2a
-35. Publish `send-owner-reminders` — only after step 9 · for 98.2, 99.2, 99.2a
-36. Publish `track-visit` — only after step 9 · for 98.2
-37. Publish `translate-content` — only after step 9 · for 98.2
-38. Publish `validate-promo-code` — only after step 9 · for 98.2
-39. Publish `verify-domain` — only after step 9 · for 98.2
-
-**Then, alone:**
-
-40. Publish, alone, `platform-billing` — only after step 9 · for 98.2
 
 ## Part 4 — the website
 
-41. **Publish the website** (a push to main). The push check will stop and name create-booking, create-business, stripe-webhook, google-business, platform-admin; when it names only those, push with `SHIP_WITH_DRIFT=1 git push`. Then wait until Netlify shows this deploy as Published (a few minutes) and go straight on. · for 0.11cc, 9.1b, 97.37, 97.53, 97.55, 99.2
+10. **Publish the website** (a push to main). The push check will stop and name create-booking, create-business, stripe-webhook, google-business, platform-admin; when it names only those, push with `SHIP_WITH_DRIFT=1 git push`. Then wait until Netlify shows this deploy as Published (a few minutes) and go straight on. · for 0.11cc, 9.1b, 97.37, 97.53, 97.55, 99.2
 
 ## Part 5 — straight after the website, same sitting
 
 **These go after the website, never before it:**
 
-42. Publish `create-booking` — only after step 9, the website step · for 98.2, 99.2
+11. Publish `create-booking` — only after step 9, the website step · for 98.2, 99.2
 
 **Then alone, nothing else running; check it before the next step:**
 
-43. Publish, alone, `stripe-webhook` — only after step 5, step 8; carries 97.10 (ticked); carries 97.11 (ticked); carries 97.69 (ticked) · for 97.37, 97.68, 98.2
+12. Publish, alone, `stripe-webhook` — only after step 5, step 8; carries 97.10 (ticked); carries 97.11 (ticked); carries 97.69 (ticked) · for 97.37, 97.68, 98.2
 
 **Last of all, after the payment webhook:**
 
-44. Publish, last, `create-business` — only after step 8, step 9, the website step, step 43 · for 97.37, 98.2
+13. Publish, last, `create-business` — only after step 8, step 9, the website step, step 12 · for 97.37, 98.2
 
 ## Held back on purpose — do NOT publish these this time
 
@@ -103,21 +66,21 @@ Apply each file from `supabase/migrations/` in this order. One program goes in b
 
 ## The rules each note set, and where this sheet keeps them
 
-- **97.55 — Customers confirm the car's condition from their receipt link.** The database change first, and it is not optional: get-booking-receipt now reads the new `damage_ack_at` column in its main booking read, so published before the change it fails and EVERY customer's receipt link says Booking not found. The check-in program and the website card need it too. Kept: 20261024160000_damage_ack.sql (step 7) before get-booking-receipt (step 22); 20261024160000_damage_ack.sql (step 7) before acknowledge-checkin (step 13); 20261024160000_damage_ack.sql (step 7) before the website.
+- **97.55 — Customers confirm the car's condition from their receipt link.** The database change first, and it is not optional: get-booking-receipt now reads the new `damage_ack_at` column in its main booking read, so published before the change it fails and EVERY customer's receipt link says Booking not found. The check-in program and the website card need it too. Kept: 20261024160000_damage_ack.sql (step 7) before get-booking-receipt (step undefined); 20261024160000_damage_ack.sql (step 7) before acknowledge-checkin (step undefined); 20261024160000_damage_ack.sql (step 7) before the website.
 - **14.39 — Unfinished receipt cleanup.** photo-door and photo-reconcile. Its two database changes went in with the 2026-10-23 release.
 - **0.11cc — Expense receipts use the new photo store.** The website is not ready to publish until its one skipped Spanish check is run clean, so that check is the first step, ahead of every database change. Kept: step 1 before 20261024150000_calendar_feed_token.sql (step 6).
 - **0.11bd — Let deleted gallery images leave Cloudflare's cache.** The cache-purge token and zone ID were saved as function secrets on 2026-10-23, so photo-door can go out as it is.
 - **98.2 — Bring the server up to the saved code.** Full green waits for platform-admin (4.3c) and google-business (99.1); both are held back on this sheet, so the server check will still name them afterwards, and that is expected.
-- **97.68 — Let Stripe tell us about refunds.** The payment webhook goes out with 97.10, 97.11 and 97.69 in it. Skipping the Stripe setting breaks nothing; the refund line just stays until it is on. Kept: step 5 before stripe-webhook (step 43).
-- **99.2a — Use the shorter email dates and times.** Publishing the website alone does not update emails; the programs do. Its database change is already in. Kept: the website before create-booking (step 42).
-- **97.53 — Subscribe your phone's calendar to your jobs.** The database change first: the feed program and the Notifications screen both read the new column, and without it the screen offers only Create calendar link and the feed refuses every link. Kept: 20261024150000_calendar_feed_token.sql (step 6) before calendar-feed (step 17); 20261024150000_calendar_feed_token.sql (step 6) before the website.
+- **97.68 — Let Stripe tell us about refunds.** The payment webhook goes out with 97.10, 97.11 and 97.69 in it. Skipping the Stripe setting breaks nothing; the refund line just stays until it is on. Kept: step 5 before stripe-webhook (step 12).
+- **99.2a — Use the shorter email dates and times.** Publishing the website alone does not update emails; the programs do. Its database change is already in. Kept: the website before create-booking (step 11).
+- **97.53 — Subscribe your phone's calendar to your jobs.** The database change first: the feed program and the Notifications screen both read the new column, and without it the screen offers only Create calendar link and the feed refuses every link. Kept: 20261024150000_calendar_feed_token.sql (step 6) before calendar-feed (step undefined); 20261024150000_calendar_feed_token.sql (step 6) before the website.
 - **2.15 — Twenty minutes on your iPhone with the keyboard up.** No order of its own.
-- **4.3b — Publish the two 4.3 pieces and check them live.** The unlock database change goes before create-business and EVERY program that carries the lock (the shared tenant and support-session files); the three support-session changes before it are already applied. Applied on its own it changes nothing. platform-admin stays held until 4.3c is finished. Kept: 20261024230000_support_sessions_unlock.sql (step 9) before create-business (step 44); 20261024230000_support_sessions_unlock.sql (step 9) before verify-domain (step 39); 20261024230000_support_sessions_unlock.sql (step 9) before update-booking (step 10); 20261024230000_support_sessions_unlock.sql (step 9) before accept-invite (step 11); 20261024230000_support_sessions_unlock.sql (step 9) before available-slots (step 14); 20261024230000_support_sessions_unlock.sql (step 9) before booking-ics (step 15); 20261024230000_support_sessions_unlock.sql (step 9) before calculate-booking (step 16); 20261024230000_support_sessions_unlock.sql (step 9) before cancel-booking (step 18); 20261024230000_support_sessions_unlock.sql (step 9) before connect-account (step 19); 20261024230000_support_sessions_unlock.sql (step 9) before delete-customer (step 20); 20261024230000_support_sessions_unlock.sql (step 9) before forecast (step 21); 20261024230000_support_sessions_unlock.sql (step 9) before get-booking-receipt (step 22); 20261024230000_support_sessions_unlock.sql (step 9) before invite-user (step 23); 20261024230000_support_sessions_unlock.sql (step 9) before owner-push-subscribe (step 24); 20261024230000_support_sessions_unlock.sql (step 9) before owner-push-unsubscribe (step 25); 20261024230000_support_sessions_unlock.sql (step 9) before pay-booking (step 26); 20261024230000_support_sessions_unlock.sql (step 9) before plan-link (step 28); 20261024230000_support_sessions_unlock.sql (step 9) before preview-emails (step 29); 20261024230000_support_sessions_unlock.sql (step 9) before report-problem (step 30); 20261024230000_support_sessions_unlock.sql (step 9) before reschedule-booking (step 31); 20261024230000_support_sessions_unlock.sql (step 9) before respond-to-booking (step 32); 20261024230000_support_sessions_unlock.sql (step 9) before send-campaign (step 33); 20261024230000_support_sessions_unlock.sql (step 9) before send-invoice (step 34); 20261024230000_support_sessions_unlock.sql (step 9) before track-visit (step 36); 20261024230000_support_sessions_unlock.sql (step 9) before translate-content (step 37); 20261024230000_support_sessions_unlock.sql (step 9) before validate-promo-code (step 38); 20261024230000_support_sessions_unlock.sql (step 9) before platform-billing (step 40); 20261024230000_support_sessions_unlock.sql (step 9) before accept-quote (step 12); 20261024230000_support_sessions_unlock.sql (step 9) before create-booking (step 42); 20261024230000_support_sessions_unlock.sql (step 9) before send-owner-reminders (step 35); 20261024230000_support_sessions_unlock.sql (step 9) before photo-door (step 27).
+- **4.3b — Publish the two 4.3 pieces and check them live.** The unlock database change goes before create-business and EVERY program that carries the lock (the shared tenant and support-session files); the three support-session changes before it are already applied. Applied on its own it changes nothing. platform-admin stays held until 4.3c is finished. Kept: 20261024230000_support_sessions_unlock.sql (step 9) before create-business (step 13); 20261024230000_support_sessions_unlock.sql (step 9) before create-booking (step 11).
 - **9.1b — Publish the booking-preview fix after it is prepared.** No order of its own.
 - **99.1 — Connect Google Business, built up to Google's gate.** Its database change is already in. The program waits for Google, so the website goes out without it, and the Google Business screen shows the wrong "Only the owner" sentence until it does.
 - **0.6b — Put the back-end programs live, in this order.** update-booking first and alone; platform-billing alone; the payment webhook last and alone. (Its two database changes, before send-email and before the webhook, went in with the 2026-10-23 release.) platform-admin and google-business are held back. When 97.37's create-business goes in the same release, it follows the payment webhook: settled at the top of this sheet.
-- **99.2 — Can we work? Can we work on the text and emails kind of plan out so I’m gonna use that lik (roadmap).** Its email wording goes out with every program carrying the shared email kit (with 99.2a). Its line says create-booking before the website; 97.64 says the reverse. Settled at the top of this sheet: website first, create-booking straight after. Kept: the website before create-booking (step 42).
-- **97.37 — Open self-serve signup gives strangers a free, working booking page with no payment (roadmap).** The database change first: create-business writes the new column and the back office list reads it, so either one ahead of it breaks signup or the list. Then the payment webhook and the website before create-business: the other way round, a signup that pays stays dark, and a new account lands on a full dashboard that cannot take bookings. The back office's "Waiting for payment" and "Put live without payment" ride with platform-admin, which is held; until it goes, a waiting signup shows as Suspended there and "Reopen account" puts it live (its mark stays set, which is harmless: the dashboard only waits while the account is also switched off). Kept: 20261024210000_awaiting_first_payment.sql (step 8) before create-business (step 44); 20261024210000_awaiting_first_payment.sql (step 8) before stripe-webhook (step 43); stripe-webhook (step 43) before create-business (step 44); the website before create-business (step 44).
+- **99.2 — Can we work? Can we work on the text and emails kind of plan out so I’m gonna use that lik (roadmap).** Its email wording goes out with every program carrying the shared email kit (with 99.2a). Its line says create-booking before the website; 97.64 says the reverse. Settled at the top of this sheet: website first, create-booking straight after. Kept: the website before create-booking (step 11).
+- **97.37 — Open self-serve signup gives strangers a free, working booking page with no payment (roadmap).** The database change first: create-business writes the new column and the back office list reads it, so either one ahead of it breaks signup or the list. Then the payment webhook and the website before create-business: the other way round, a signup that pays stays dark, and a new account lands on a full dashboard that cannot take bookings. The back office's "Waiting for payment" and "Put live without payment" ride with platform-admin, which is held; until it goes, a waiting signup shows as Suspended there and "Reopen account" puts it live (its mark stays set, which is harmless: the dashboard only waits while the account is also switched off). Kept: 20261024210000_awaiting_first_payment.sql (step 8) before create-business (step 13); 20261024210000_awaiting_first_payment.sql (step 8) before stripe-webhook (step 12); stripe-webhook (step 12) before create-business (step 13); the website before create-business (step 13).
 
 ## After the release
 

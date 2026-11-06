@@ -1,18 +1,14 @@
 {
-  "git_sha": "0da053ddb7aab3b9a6b05954db82578f24be1cf7",
-  "git_sha_started": "0da053ddb7aab3b9a6b05954db82578f24be1cf7",
+  "git_sha": "46efdb7dca25787c3d51d8d685f30945c187090c",
+  "git_sha_started": "46efdb7dca25787c3d51d8d685f30945c187090c",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-11-03T03:20:34.674Z",
-  "failures": [
-    "1 function(s) in the database do NOT match the repo's newest definition: is_support_session (the repo's newest definition is 20261024230000_support_sessions_unlock.sql)",
-    "5 column(s) the migrations declare are NOT IN THE DATABASE — the migration adding each one has never run: businesses.awaiting_first_payment (declared by 20261024210000_awaiting_first_payment.sql), business_settings.calendar_feed_token (declared by 20261024150000_calendar_feed_token.sql), bookings.damage_ack_at (declared by 20261024160000_damage_ack.sql), bookings.damage_ack_photo_count (declared by 20261024160000_damage_ack.sql), support_sessions.unlocked_at (declared by 20261024230000_support_sessions_unlock.sql)",
-    "1 index(es) the migrations declare are WRONG OR NOT IN THE DATABASE: business_settings_feed_token_uidx on business_settings — not in the database (declared by 20261024150000_calendar_feed_token.sql)"
-  ],
+  "finished_at": "2026-11-06T08:38:54.471Z",
+  "failures": [],
   "warnings": [
     "UNJUDGEABLE grant: signature `start_receipt_attempt(uuid, uuid, text), public.finish_receipt_attempt(uuid, uuid, text, bigint, integer, integer), public.claim_receipt_attempts(), public.ack_receipt_attempt(text, uuid, uuid)` — Postgres could not parse it as a function signature",
     "SEES functions (by body), tables (by existence), columns (by name and type family), policies (by existence, on public and storage schemas), GRANTS and REVOKES on public tables, columns and functions (what each named role can actually do, PUBLIC folded in) and INDEXES on public (by name, table and uniqueness). STILL CANNOT SEE: an index's column list, constraints, triggers, views, enum types, extensions, RLS enable/force state, a policy's own USING/WITH CHECK expression, a column's DEFAULT or NULLABILITY, default privileges (rules about future objects), grants on schemas or sequences or other schemas' objects, a grant inside a dollar-quoted block (named UNJUDGEABLE), or a migration whose whole content is an update/backfill with no schema trace. There is no applied-migrations ledger in this project to compare against: supabase_migrations.schema_migrations does not exist.",
-    "132 of 679 present column(s) had a declared type this check does not recognise and are UNJUDGED for type — counted, not guessed at. \"Columns by name and type family\" above means 547, not 679."
+    "137 of 684 present column(s) had a declared type this check does not recognise and are UNJUDGED for type — counted, not guessed at. \"Columns by name and type family\" above means 547, not 684."
   ],
   "artifacts": [
     "scripts/migration-drift.mjs"
@@ -22,13 +18,7 @@
     "migration_files": 143,
     "tables_declared": 63,
     "tables_absent": [],
-    "columns_absent": [
-      "businesses.awaiting_first_payment (declared by 20261024210000_awaiting_first_payment.sql)",
-      "business_settings.calendar_feed_token (declared by 20261024150000_calendar_feed_token.sql)",
-      "bookings.damage_ack_at (declared by 20261024160000_damage_ack.sql)",
-      "bookings.damage_ack_photo_count (declared by 20261024160000_damage_ack.sql)",
-      "support_sessions.unlocked_at (declared by 20261024230000_support_sessions_unlock.sql)"
-    ],
+    "columns_absent": [],
     "type_mismatch": [],
     "policies_declared": 86,
     "policies_absent": [],
@@ -47,20 +37,16 @@
       "judged": 79,
       "unjudgeable": 0
     },
-    "indexes_absent": [
-      "business_settings_feed_token_uidx on business_settings — not in the database (declared by 20261024150000_calendar_feed_token.sql)"
-    ],
+    "indexes_absent": [],
     "method": "replay create/drop function/table/policy in file and statement order; compare function bodies against pg_get_functiondef, tables/columns/policies by existence",
     "absent": [],
-    "drifted": [
-      "is_support_session (the repo's newest definition is 20261024230000_support_sessions_unlock.sql)"
-    ]
+    "drifted": []
   },
   "check_id": "migration-drift",
-  "started_at": "2026-11-03T03:19:51.212Z",
-  "status": "fail",
+  "started_at": "2026-11-06T08:38:14.599Z",
+  "status": "pass",
   "expected_targets": 405,
-  "discovered_targets": 404,
+  "discovered_targets": 405,
   "attempted_targets": 405,
   "completed_targets": 405,
   "skipped_targets": 0,

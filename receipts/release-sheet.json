@@ -1,11 +1,16 @@
 {
-  "git_sha": "bc91cd496413232c0fe5e8457c347a1390b9a597",
-  "git_sha_started": "bc91cd496413232c0fe5e8457c347a1390b9a597",
+  "git_sha": "46efdb7dca25787c3d51d8d685f30945c187090c",
+  "git_sha_started": "46efdb7dca25787c3d51d8d685f30945c187090c",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-11-05T08:15:58.107Z",
+  "finished_at": "2026-11-06T08:39:00.441Z",
   "failures": [
-    "STALE: receipts/deployed-inventory.json was taken at 0da053dd and supabase/functions has changed since (2 file(s)). Re-run deployed-inventory.mjs (read-only, needs credentials) and then this."
+    "FOR-ANDREW.md:140 \"97.55 — Customers confirm the car's condition from their receipt link\": its rule \"20261024160000_damage_ack.sql before get-booking-receipt\" does not hold on the sheet (get-booking-receipt missing)",
+    "FOR-ANDREW.md:140 \"97.55 — Customers confirm the car's condition from their receipt link\": its rule \"20261024160000_damage_ack.sql before acknowledge-checkin\" does not hold on the sheet (acknowledge-checkin missing)",
+    "FOR-ANDREW.md:479 \"97.53 — Subscribe your phone's calendar to your jobs\": its rule \"20261024150000_calendar_feed_token.sql before calendar-feed\" does not hold on the sheet (calendar-feed missing)",
+    "ROADMAP.md:32584 \"97.53 — Calendar sync is one file per booking; there is no feed to subscribe to\": its rule \"20261024150000_calendar_feed_token.sql before calendar-feed\" does not hold on the sheet (calendar-feed missing)",
+    "ROADMAP.md:32608 \"97.55 — No pre-job vehicle check-in or customer sign-off\": its rule \"20261024160000_damage_ack.sql before get-booking-receipt\" does not hold on the sheet (get-booking-receipt missing)",
+    "ROADMAP.md:32608 \"97.55 — No pre-job vehicle check-in or customer sign-off\": its rule \"20261024160000_damage_ack.sql before acknowledge-checkin\" does not hold on the sheet (acknowledge-checkin missing)"
   ],
   "warnings": [
     "Reads only the migration-drift and deployed-inventory RECEIPTS; it is as current as they are, and refuses (STALE) when supabase/ changed since either was taken.",
@@ -17,18 +22,18 @@
     "docs/release-sheet.md"
   ],
   "dimensions": {
-    "head": "bc91cd496413232c0fe5e8457c347a1390b9a597",
-    "drift_receipt_sha": "0da053ddb7aab3b9a6b05954db82578f24be1cf7",
-    "inventory_receipt_sha": "0da053ddb7aab3b9a6b05954db82578f24be1cf7",
-    "migrations_from_drift": [
+    "head": "46efdb7dca25787c3d51d8d685f30945c187090c",
+    "drift_receipt_sha": "46efdb7dca25787c3d51d8d685f30945c187090c",
+    "inventory_receipt_sha": "46efdb7dca25787c3d51d8d685f30945c187090c",
+    "migrations_from_drift": [],
+    "migrations_from_rows_only": [
       "20261024150000_calendar_feed_token.sql",
       "20261024160000_damage_ack.sql",
       "20261024210000_awaiting_first_payment.sql",
       "20261024230000_support_sessions_unlock.sql"
     ],
-    "migrations_from_rows_only": [],
-    "programs_named": 36,
-    "programs_published": 34,
+    "programs_named": 5,
+    "programs_published": 3,
     "programs_held": [
       "google-business",
       "platform-admin"
@@ -83,17 +88,17 @@
       "99.2a",
       "97.53"
     ],
-    "steps": 44
+    "steps": 13
   },
   "check_id": "release-sheet",
-  "started_at": "2026-11-05T08:15:56.295Z",
+  "started_at": "2026-11-06T08:38:59.024Z",
   "status": "fail",
-  "expected_targets": 69,
-  "discovered_targets": 69,
-  "attempted_targets": 69,
-  "completed_targets": 69,
+  "expected_targets": 34,
+  "discovered_targets": 28,
+  "attempted_targets": 34,
+  "completed_targets": 34,
   "skipped_targets": 0,
-  "assertions_executed": 146,
+  "assertions_executed": 107,
   "min_assertions": 60,
   "canary": {
     "id": "a release row and a migration file the sheet never heard of must both be reported",

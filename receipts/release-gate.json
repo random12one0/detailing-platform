@@ -1,9 +1,9 @@
 {
-  "git_sha": "13262063755973de542726ee830519828ec2e1be",
-  "git_sha_started": "13262063755973de542726ee830519828ec2e1be",
+  "git_sha": "4e8e495af102cc651b85b0daa190a7035dcd8406",
+  "git_sha_started": "4e8e495af102cc651b85b0daa190a7035dcd8406",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-12T20:55:07.983Z",
+  "finished_at": "2026-11-06T08:47:30.785Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -14,20 +14,20 @@
       "ran": true,
       "hook_exit": 1,
       "receipt_status": "fail",
-      "differing": 36,
-      "matching": 6,
+      "differing": 5,
+      "matching": 39,
       "known_different": {
-        "fn": "owner-push-subscribe",
+        "fn": "platform-admin",
         "exit": 1
       },
       "known_clean": {
-        "fn": "address-suggest",
+        "fn": "accept-invite",
         "exit": 0
       }
     }
   },
   "check_id": "release-gate",
-  "started_at": "2026-10-12T20:52:25.645Z",
+  "started_at": "2026-11-06T08:45:49.969Z",
   "status": "pass",
   "expected_targets": 9,
   "discovered_targets": 9,
