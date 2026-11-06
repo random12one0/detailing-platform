@@ -54,7 +54,8 @@ export function startPicker({ allowed }) {
     parent.postMessage({ type: "studio-pick", revision, section: sec.dataset.section, part, from, item, name, text: clip(hit.textContent),
       bounds: { x: Math.round(r.left), y: Math.round(r.top), width: Math.round(r.width), height: Math.round(r.height) } }, parentOrigin);
   }
-  for (const t of ["click", "pointerdown", "mousedown", "touchstart", "submit", "auxclick"]) addEventListener(t, pick, { capture: true, passive: false });
+  // not touchstart: stopping that would stop the phone from scrolling the page
+  for (const t of ["click", "pointerdown", "mousedown", "submit", "auxclick"]) addEventListener(t, pick, { capture: true, passive: false });
 
   function setMode(m) {
     mode = m === "select" ? "select" : "browse";
