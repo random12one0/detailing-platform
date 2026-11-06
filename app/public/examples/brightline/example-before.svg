@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1200" viewBox="0 0 1600 1200" role="img" aria-label="Example image: an illustration of a dull, swirl-marked paint surface">
+  <!-- An illustration, not a photograph: the same painted panel as example-after.svg before a polish, flat and
+       swirl-marked. Drawn for the fictional Brightline example; no real work is shown. -->
+  <defs>
+    <linearGradient id="paint" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#3a4a4b"/><stop offset=".5" stop-color="#465859"/><stop offset="1" stop-color="#2c3839"/>
+    </linearGradient>
+    <linearGradient id="haze" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#d8e0de" stop-opacity="0"/><stop offset=".5" stop-color="#d8e0de" stop-opacity=".16"/><stop offset="1" stop-color="#d8e0de" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="crease" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#000" stop-opacity="0"/><stop offset=".5" stop-color="#000" stop-opacity=".22"/><stop offset="1" stop-color="#000" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="grain" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="7" result="n"/>
+      <feColorMatrix in="n" type="matrix" values="0 0 0 0 .85  0 0 0 0 .87  0 0 0 0 .84  0 0 0 .16 0"/>
+    </filter>
+  </defs>
+  <rect width="1600" height="1200" fill="url(#paint)"/>
+  <path d="M-40 760 C 420 640, 980 600, 1660 470 L1660 560 C 980 690, 420 730, -40 850 Z" fill="url(#crease)"/>
+  <!-- a blurred, wide reflection: what a dull surface does -->
+  <path d="M-60 300 C 420 200, 1000 140, 1680 30 L1680 230 C 1000 330, 420 390, -60 490 Z" fill="url(#haze)"/>
+  <!-- swirl marks round the light -->
+  <g fill="none" stroke="#e6ecea" stroke-opacity=".2" stroke-width="2">
+    <circle cx="1180" cy="250" r="60"/><circle cx="1180" cy="250" r="96"/><circle cx="1180" cy="250" r="138"/>
+    <circle cx="1180" cy="250" r="182"/><circle cx="1180" cy="250" r="230"/><circle cx="1180" cy="250" r="284"/>
+  </g>
+  <g fill="none" stroke="#e6ecea" stroke-opacity=".12" stroke-width="1.5">
+    <path d="M200 900 q 60 -40 120 0 t 120 0"/><path d="M820 1010 q 80 -50 160 0"/><path d="M420 520 q 50 -30 100 0 t 100 0"/>
+    <path d="M1260 860 q 70 -45 140 0"/><path d="M110 180 q 60 -35 120 0"/>
+  </g>
+  <rect width="1600" height="1200" filter="url(#grain)"/>
+  <g font-family="Arial, Helvetica, sans-serif" font-weight="700">
+    <rect x="56" y="1082" width="292" height="64" rx="32" fill="#111a1b" fill-opacity=".78"/>
+    <text x="202" y="1124" text-anchor="middle" font-size="30" fill="#e8f0ee" letter-spacing="1">Example image</text>
+  </g>
+</svg>

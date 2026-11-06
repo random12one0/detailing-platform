@@ -21,11 +21,14 @@ export function exampleSeed() {
   const b = seed.tables.businesses.find((x) => x.slug === "brightline");
   if (!b) throw new Error("the Brightline seed no longer has a business with slug brightline");
   b.slug = EXAMPLE_SLUG;
-  // Pictures: only one REAL before/after pair exists for this example (see
-  // app/public/examples/brightline/credits.json). Its caption says whose work it
-  // is; the seed's other three photos are switched off, not faked.
+  // Pictures: the example has NO photographs of real work. Its one before/after
+  // pair is two drawn illustrations of a paint surface (not of a car), each
+  // marked "Example image", and its caption says so
+  // (app/public/examples/brightline/credits.json). The seed's other three photos
+  // are switched off, not faked. (2026-11-05: the earlier photo was not Andrew's.)
   for (const g of seed.tables.gallery_images) {
-    if (g.id.endsWith("801")) g.caption = "Example: the platform owner's own work, not this sample shop's.";
+    if (g.id.endsWith("801")) Object.assign(g, { before_url: "/examples/brightline/example-before.svg", after_url: "/examples/brightline/example-after.svg",
+      caption: "Example image: an illustration, not real work." });
     else g.is_active = false;
   }
   return seed;

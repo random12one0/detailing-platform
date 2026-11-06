@@ -50,7 +50,7 @@
           "variant": "wipe",
           "copy": {
             "title": "Drag across to see the difference",
-            "intro": "A real job, shown here as an example: the same car as it arrived, and after a polish and a sealant."
+            "intro": "Example images: an illustration of a paint surface before and after a polish. This sample shop has no photos of its own."
           },
           "gallery": { "bind": "gallery.best(1)" },
           "reviews": { "bind": "reviews.top(3)" }

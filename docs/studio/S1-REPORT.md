@@ -20,7 +20,7 @@ no email was sent, nothing was downloaded. Everything runs against belt-staging'
 | `app/src/book/core.js` | `normalizeSettings` passes the site-wide sale through (contract §2e). |
 | `app/vite.config.js`, `app/package.json` | **The site is a second build pass** (`vite build && vite build --mode site`). The dashboard stays one `assets/index-*.js`, as four after-publish checks expect. Dev and `vite preview` middleware route `/site/*`. |
 | `app/public/_redirects`, `app/netlify.toml` | `/site/*  /site.html  200` above the catch-all. |
-| `app/public/examples/brightline/gallery-1.webp`, `gallery-2.webp`, `credits.json` | **One real before/after pair**: Andrew's own photograph of a black Scion FR-S (see "Pictures"). Added with `git add -f` because `app/public/examples` is gitignored. |
+| `app/public/examples/brightline/example-before.svg`, `example-after.svg`, `credits.json` | **One illustrated before/after pair** (no photographs; see "Pictures"). Added with `git add -f` because `app/public/examples` is gitignored. |
 | `scripts/studio/example-engine.mjs` | Starts the offline engine with the Brightline seed changed in memory: slug renamed to `example_brightline`, and only the real photo pair kept active. The belt fixture file is not edited. |
 | `scripts/studio/s1-check.mjs` | The browser proof: 63 checks. Writes `artifacts/studio-s1/`. |
 | `tests/site-spec.test.mjs` | 14 node tests for the validator (credential-free). |
@@ -98,17 +98,16 @@ All 6 new hole tests fail against the `d2a88b51` validator; the low-false-alarm 
 
 ## Pictures
 
-The clip-art cars are gone. The only real photos on this machine that belong to the platform or its owner are:
-- `app/public/img/Black-FRS-Before-and-After-Polish-3.jpg`, recorded in `docs/tenant-sites/y-kinzie.html` as **Andrew's own photograph, sent 2026-09-09**. An earlier session split it at row 1024 and matched the halves (scale 0.9391, offset 186.2, 33.0 px). The two halves were taken byte for byte from that file's data URIs.
-
-Everything else on hand was ruled out: screenshots, an apparently generated cut-out of a detailer, or Unsplash photos (licensed, but not the owner's).
-
-So the example has **one real pair**:
-- It is the hero (after half) and the full-width wipe slider (16:9).
-- It is captioned "Example: the platform owner's own work, not this sample shop's."
-- The seed's other three photos are switched off rather than filled with stand-ins.
-
-`credits.json` records all of this. **Andrew should confirm the FR-S photo is his before any public use; the filename reads like a web upload.**
+**Changed 2026-11-05.** The example used to show a photograph of a black Scion FR-S, recorded as Andrew's own. He
+confirmed it is **not** his, so it was removed from the example everywhere (the files, the seed override, the
+credits, the wording). The example now has no photographs at all:
+- One before/after pair of two drawn illustrations of a paint surface (`example-before.svg`, `example-after.svg`):
+  abstract on purpose (not a car), so they cannot pass for anyone's real work.
+- The caption says "Example image: an illustration, not real work.", and the slider's intro says the same.
+- The seed's other three photos stay switched off. `credits.json` records all of this.
+- **Still in this copy (and in the real repo), outside the Brightline example:** `app/public/img/Black-FRS-Before-and-After-Polish-3.jpg`,
+  used by `app/public/ex4/index.html` and `docs/tenant-sites/y-kinzie.html`. Those are the real product's other demo pages;
+  they were not changed here.
 
 ## Screenshots
 
@@ -127,8 +126,7 @@ My design pass on this set:
 
 ## Not done, or worth knowing
 
-- **Andrew must confirm the FR-S photo is his** before public use.
-- **There is one photo pair**, so the gallery is one slider. More real photos (J5) remain the biggest lift for the premium feel.
+- **There are no real photos** in the example (one illustrated pair), so the gallery is one slider. Real photos (J5) remain the biggest lift for the premium feel.
 - **Bundle:** `site-*.js` is 157 KB gzip (React, router, the booking flow and supabase-js). That is under the 170 KB ceiling, but close.
 - **When the detailer is away or not set up**, the hero and nav still offer "Book". The booking section explains why it is closed, but the hero doesn't change yet.
 - **The full grader (`site-grade.mjs`) was not run.** Its G0 expects 10 to 14 sections, and S1 has 5 by design. Its G5 would flag `booking.css`'s own `box-shadow`/`background` transitions, which predate this work.
