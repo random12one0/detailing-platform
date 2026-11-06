@@ -109,17 +109,52 @@ const REQUIRED_TOKENS = ["paper", "ink", "accent", "font_display", "font_body"];
 //   "twenty-four", "free wax" and "hundreds" are refused.
 // This cannot catch every way of writing a number ("a couple", "a few bucks" is
 // caught, "a few" is not); the critic is the backstop for prose, this is the floor.
+//
+// S4 REVIEW F1: the words are judged as a READER SEES THEM, not as they are stored:
+// - invisible and format characters (Unicode Cf: soft hyphen, zero-width space and
+//   joiners, right-to-left and other direction overrides) are refused outright by
+//   validateSpec ("hidden_char"); typedFact itself drops them before looking, so
+//   "tw<soft hyphen>enty" is "twenty";
+// - the text is NFKC-normalised (fullwidth and mathematical letters become plain);
+// - Cyrillic and Greek look-alike letters are folded to Latin, so "Fivе" with a
+//   Cyrillic "е" is "Five";
+// - the hyphen escape ("hassle-free") does not apply when the word before the
+//   hyphen is itself a number word or "one": "One-hundred-percent" and
+//   "twenty-four" are refused.
+// Other look-alikes (letters from other scripts, symbols) are left to the critic.
 const TYPED_FACT = /[\p{Nd}\p{No}\p{Nl}\p{Sc}%]/u;
 const ROMAN = /(?<![\p{L}])[IVX]{2,}(?![\p{L}])/u;
-const NUMBER_WORDS = new RegExp(`(?<![\\p{L}-])(${[
+const NUMBERS = [
   "zero", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve",
   "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen", "twenty", "thirty",
   "forty", "fifty", "sixty", "seventy", "eighty", "ninety", "hundred", "thousand", "million", "billion",
   "dozen", "half", "percent", "free", "dollar", "buck",
-].join("|")})s?(?![\\p{L}])`, "iu");
+];
+const NUMBER_WORD = new RegExp(`(?<![\\p{L}])(${NUMBERS.join("|")})s?(?![\\p{L}])`, "giu");
+const COUNTS = new RegExp(`^(one|${NUMBERS.join("|")})s?$`, "iu");
+const HIDDEN = /\p{Cf}/u;
+const HIDDEN_ALL = /\p{Cf}/gu;
+// Cyrillic and Greek letters that look like Latin ones (upper and lower case).
+const LOOKALIKE = Object.fromEntries([..."аАвВеЕкКмМнНоОрРсСтТуУхХіІјЈѕЅԁһӏԛԝαΑβΒεΕηΗιΙκΚμΜνΝοΟρΡτΤυΥχΧζΖ"].map((c, i, a) => [c,
+  "aAbBeEkKmMhHoOpPcCtTyYxXiIjJsSdhlqwaAbBeEnHiIkKuMvNoOpPtTuUxXzZ"[i]]));
+/** The text as a reader sees it: no invisible characters, NFKC, look-alike letters folded to Latin. */
+export function asRead(text) {
+  return String(text).replace(HIDDEN_ALL, "").normalize("NFKC").replace(/[\u0370-\u03ff\u0400-\u052f]/g, (c) => LOOKALIKE[c] ?? c);
+}
+/** The invisible or format character in a piece of prose, or null. */
+export function hiddenChar(text) { return HIDDEN.exec(String(text))?.[0] ?? null; }
 /** The typed fact in a piece of prose, or null. Exported for the Studio's text box. */
 export function typedFact(text) {
-  return TYPED_FACT.exec(text)?.[0] ?? ROMAN.exec(text)?.[0] ?? NUMBER_WORDS.exec(text)?.[0] ?? null;
+  const t = asRead(text);
+  const sign = TYPED_FACT.exec(t)?.[0] ?? ROMAN.exec(t)?.[0];
+  if (sign) return sign;
+  for (const m of t.matchAll(NUMBER_WORD)) {
+    // the end of a compound ("hassle-free") is allowed, unless the word before it counts too ("twenty-four")
+    if (t[m.index - 1] !== "-") return m[0];
+    const before = /[\p{L}]+$/u.exec(t.slice(0, m.index - 1))?.[0];
+    if (before && COUNTS.test(before)) return `${before}-${m[0]}`;
+  }
+  return null;
 }
 // Ids and paths end up in addresses and the picker; they carry no numbers either.
 const ID = /^[a-z]+(-[a-z]+)*$/;
@@ -188,9 +223,11 @@ export function validateSpec(spec, profile = null, { live = false } = {}) {
           const v = copy[k];
           if (v === undefined) { if (required) err(`${sp}.copy.${k}`, "bad_shape", `${k} is required`); continue; }
           if (typeof v !== "string" || !v.trim()) { err(`${sp}.copy.${k}`, "bad_shape", `${k} must be text`); continue; }
+          const hid = hiddenChar(v);
+          if (hid) { err(`${sp}.copy.${k}`, "hidden_char", `The wording has a hidden character in it (U+${hid.codePointAt(0).toString(16).toUpperCase().padStart(4, "0")}), often pasted from Word or a web page. Type those words again instead of pasting them.`); continue; }
           const hit = typedFact(v);
           // The whole word that holds it ("$185", not "$"), and the reason in plain words: the Studio shows this as is.
-          const word = v.split(/\s+/).find((w) => typedFact(w))?.replace(/^[^\p{L}\p{N}\p{Sc}%]+|[^\p{L}\p{N}\p{Sc}%]+$/gu, "") || hit;
+          const word = asRead(v).split(/\s+/).find((w) => typedFact(w))?.replace(/^[^\p{L}\p{N}\p{Sc}%]+|[^\p{L}\p{N}\p{Sc}%]+$/gu, "") || hit;
           if (hit) err(`${sp}.copy.${k}`, "typed_fact", `"${word}" is a price or a number typed into the wording. Prices, hours and other facts come from the dashboard, so they cannot be typed in.`);
         }
       }

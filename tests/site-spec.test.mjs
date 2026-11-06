@@ -145,3 +145,15 @@ test("on a customer's visit (live), a deleted photo drops out; saving still refu
   hero(s).prices = { bind: "service_group:00000000-0000-4000-8000-000000000999" };
   assert.deepEqual(codes(validateSpec(s, profile, { live: true })), ["missing_id"], "a missing service group still refuses live");
 });
+
+// S4 review F1: the words are judged as a reader sees them.
+test("hidden characters are refused, and look-alike letters and hyphenated counts cannot carry a number past the check", () => {
+  for (const text of ["tw\u00ADenty-four hour service", "Done in t\u200Bwenty minutes", "\u202Eecirp", "Clean\u2060 cars", "A car\uFEFF wash"])
+    refusedAs((s) => { hero(s).copy.sub = text; }, "hidden_char", JSON.stringify(text));
+  for (const text of ["One-hundred-percent clean", "Fiv\u0435 stars", "\u0422wenty minutes", "\uFF34\uFF57\uFF45\uFF4E\uFF54\uFF59 minutes", "Done in \u{1D42D}\u{1D430}\u{1D41E}\u{1D427}\u{1D42D}\u{1D432} minutes", "One-dozen extras"])
+    refusedAs((s) => { hero(s).copy.sub = text; }, "typed_fact", JSON.stringify(text));
+  const s = clone(); hero(s).copy.sub = "Done in t\u200Bwenty minutes";
+  assert.match(validateSpec(s, profile).errors[0].message, /hidden character in it \(U\+200B\)/);
+  // and ordinary hyphenated words still pass
+  for (const text of ["One-stop care", "Hassle-free and streak-free", "A care-free afternoon"]) assert.equal(typedFact(text), null, text);
+});
