@@ -1,8 +1,8 @@
 {
   "what": "Example imagery for the fictional Brightline Auto Care sample site. No photographs: two drawn illustrations, nothing AI-generated, nothing downloaded.",
   "files": {
-    "example-before.svg": "Illustration: a dull, swirl-marked paint surface, marked 'Example image' (1600x1200)",
-    "example-after.svg": "Illustration: the same surface after a polish, glossy with crisp reflections, marked 'Example image' (1600x1200)"
+    "example-before.svg": "Illustration: a dull, swirl-marked paint surface (1600x1200); the site labels both 'Example image' in its caption",
+    "example-after.svg": "Illustration: the same surface after a polish, glossy with crisp reflections (1600x1200); the site labels both 'Example image' in its caption"
   },
   "source": "Drawn by hand as SVG for this example (2026-11-05). Abstract on purpose: a close-up of a painted panel, not a car, so it cannot pass for anyone's real work.",
   "honesty": "The site's caption says 'Example image: an illustration, not real work.' Brightline's other three seed photos (802-804) are switched off by scripts/studio/example-engine.mjs rather than replaced with stand-ins.",

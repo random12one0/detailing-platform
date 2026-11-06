@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1200" viewBox="0 0 1600 1200" role="img" aria-label="Example image: an illustration of a dull, swirl-marked paint surface">
   <!-- An illustration, not a photograph: the same painted panel as example-after.svg before a polish, flat and
-       swirl-marked. Drawn for the fictional Brightline example; no real work is shown. -->
+       swirl-marked. The site labels it "Example image" in its caption (a label drawn in the picture would be cropped differently at every width). Drawn for the fictional Brightline example; no real work is shown. -->
   <defs>
     <linearGradient id="paint" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#3a4a4b"/><stop offset=".5" stop-color="#465859"/><stop offset="1" stop-color="#2c3839"/>
@@ -30,8 +30,4 @@
     <path d="M1260 860 q 70 -45 140 0"/><path d="M110 180 q 60 -35 120 0"/>
   </g>
   <rect width="1600" height="1200" filter="url(#grain)"/>
-  <g font-family="Arial, Helvetica, sans-serif" font-weight="700">
-    <rect x="56" y="1082" width="292" height="64" rx="32" fill="#111a1b" fill-opacity=".78"/>
-    <text x="202" y="1124" text-anchor="middle" font-size="30" fill="#e8f0ee" letter-spacing="1">Example image</text>
-  </g>
 </svg>
