@@ -156,7 +156,7 @@ const MULTI = [
   // availability chip, so a rounded pill dropped on top would be the one
   // thing on the page that breaks its own corner language.
   ["ex4", "y-kinzie.html", "Kinzie Mobile Detailing",
-   "One page, light or dark · a before-and-after slider a customer can drag · for paint correction and detailing where the result is the argument", {}],
+   "One page, light or dark · every price set by vehicle size · for paint correction and detailing", {}],
   // SITE 5. HIS INSTRUCTION, 2026-09-09: *"not do any more artifacts and just
   // publish to /ex5… make sure future sessions don't make any more artifacts
   // unless I specifically request it."* So this row IS the delivery mechanism
