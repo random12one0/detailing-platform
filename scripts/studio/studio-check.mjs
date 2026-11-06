@@ -28,6 +28,10 @@
 // tick list as JSON in --out (default artifacts/studio-check/result.json).
 // Exit 0 when every tick is green, 1 otherwise.
 //
+// --quick is the QUICK CHECK the Studio runs on every applied change card (STUDIO-SPEC.md §1c.6, §4e): the copy, the
+// revision fits it, the site draws, every stamp matches, nothing spills sideways at --width (default 390), no
+// console errors. It stops there: no facts moved, no practice booking. A few seconds.
+//
 // --break=<kind> cuts the wire on purpose, for tests/studio-check.test.mjs:
 //   missing-id     the revision's menu points at a service group the dashboard lacks
 //   wrong-stamp    the page claims one service's price is another's
@@ -83,6 +87,9 @@ const PLAN = [
   ["post", "Practice booking: exactly one booking was recorded"],
   ["console", "The page showed no errors"],
 ];
+const QUICK = process.argv.includes("--quick");
+const WIDTH = Math.max(320, Math.min(1600, Number(arg("width")) || 390));
+if (QUICK) { PLAN.splice(0, PLAN.length, ...PLAN.filter(([k]) => ["copy", "valid", "drawn", "stamps", "console"].includes(k))); PLAN.splice(4, 0, ["layout", `Nothing spills off the side of the page at ${WIDTH} wide, and it has one main heading`]); }
 if (process.argv.includes("--plan")) { console.log(JSON.stringify(PLAN.concat([["thrown", "Test copy thrown away; nothing went to the real dashboard"]]))); process.exit(0); }
 const SAYS = Object.fromEntries(PLAN);
 
@@ -189,7 +196,7 @@ try {
   const SITE = `http://127.0.0.1:${port}/site/preview`;
   if (!(await until(() => fetch(SITE).then((r) => r.ok)))) { line("drawn", false, "the site renderer (Vite) did not start"); skipFrom("stamps", "the site renderer did not start"); }
   browser = await chromium.launch();
-  const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  const context = await browser.newContext({ viewport: { width: WIDTH, height: 844 } });
   await context.addInitScript((s) => { window.__STUDIO_SPEC__ = s; }, spec);
   if (BREAK === "wrong-stamp") await context.addInitScript(() => {
     new MutationObserver(() => {
@@ -251,6 +258,12 @@ try {
   }
   if (SHOT) { await page.evaluate(() => document.fonts.ready); await page.waitForTimeout(900); await page.screenshot({ path: SHOT }).catch(() => {}); }
   await verifyAll("stamps");
+  if (QUICK) {
+    const lay = await page.evaluate(() => ({ wide: document.documentElement.scrollWidth, view: innerWidth, h1: document.querySelectorAll("h1").length }));
+    line("layout", lay.wide <= lay.view + 1 && lay.h1 === 1, lay.wide > lay.view + 1 ? `the page is ${lay.wide} px wide on a ${lay.view} px screen` : lay.h1 !== 1 ? `${lay.h1} main headings, needs exactly one` : `${lay.view} px, no sideways scroll`);
+    line("console", !problems.length, problems.slice(0, 3).join(" | "));
+    throw Object.assign(new Error("quick check done"), { quiet: true });
+  }
 
   // ---- 3. every bound fact moves; one reload; each stamp is judged against its new value and its old one
   const oldP = p;

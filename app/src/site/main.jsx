@@ -11,6 +11,7 @@
 import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom/client";
 import Site from "./Site.jsx";
+import { startPicker } from "./picker.js";
 
 // Committed example specs. Real clients' specs will come from the Studio's
 // revisions table, not from git (WEBSITE-STEP1-BRIEF J7).
@@ -38,8 +39,12 @@ const SPECS = Object.fromEntries(
 //  - the connection check sets window.__STUDIO_SPEC__ before the page runs.
 // The spec is validated against the live profile like any other (Site.jsx). A
 // production build has no such route: import.meta.env.DEV is false there.
+// S4 (review S2-3): when the Studio starts the preview it names its own page in VITE_STUDIO_ORIGINS, and then ONLY
+// those origins are listened to, not every page on this laptop. Without it (the connection check's own server, a
+// hand-started one) any loopback parent is, as before.
 const LOOPBACK = /^http:\/\/(127\.0\.0\.1|localhost|\[::1\])(:\d+)?$/;
 const EXTRA = String(import.meta.env.VITE_STUDIO_ORIGINS || "").split(",").map((s) => s.trim()).filter(Boolean);
+const allowed = (origin) => (EXTRA.length ? EXTRA.includes(origin) : LOOPBACK.test(origin));
 // It also tells the Studio what it drew ("drawn", "refused" or "not_found"), so the Studio can say in its own words
 // that a revision cannot be drawn instead of showing a customer's error page.
 function tellParent(origin) {
@@ -51,14 +56,18 @@ function tellParent(origin) {
   new MutationObserver(look).observe(document.body, { childList: true, subtree: true });
   look();
 }
+// The picker (S4): one per page, told the revision with every spec. A tap in Select mode is reported for that revision.
+let picker = null;
 function Preview() {
   const [got, setGot] = useState(() => (window.__STUDIO_SPEC__ ? { spec: window.__STUDIO_SPEC__, n: 0 } : null));
   useEffect(() => {
     let told = false;
     const on = (e) => {
       if (e.source !== window.parent || window.parent === window) return;
-      if (!LOOPBACK.test(e.origin) && !EXTRA.includes(e.origin)) return;
+      if (!allowed(e.origin)) return;
       if (e.data?.type === "studio-spec" && e.data.spec && typeof e.data.spec === "object") {
+        picker ||= startPicker({ allowed });
+        picker.revision(e.origin, typeof e.data.revision === "string" ? e.data.revision : null);
         setGot((g) => ({ spec: e.data.spec, n: (g?.n ?? 0) + 1 }));
         if (!told) { told = true; tellParent(e.origin); }
       }
