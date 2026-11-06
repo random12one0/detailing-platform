@@ -1,16 +1,14 @@
 {
-  "git_sha": "46efdb7dca25787c3d51d8d685f30945c187090c",
-  "git_sha_started": "46efdb7dca25787c3d51d8d685f30945c187090c",
+  "git_sha": "e5c6a8a1d352e2956ccde6b3abe3b0fd3d021de6",
+  "git_sha_started": "e5c6a8a1d352e2956ccde6b3abe3b0fd3d021de6",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-11-06T08:39:00.441Z",
+  "finished_at": "2026-11-06T08:56:19.657Z",
   "failures": [
+    "only 14 open ROADMAP item(s) with a release line were found; the parser has stopped matching (the 2026-10-24 floor is 15).",
     "FOR-ANDREW.md:140 \"97.55 — Customers confirm the car's condition from their receipt link\": its rule \"20261024160000_damage_ack.sql before get-booking-receipt\" does not hold on the sheet (get-booking-receipt missing)",
     "FOR-ANDREW.md:140 \"97.55 — Customers confirm the car's condition from their receipt link\": its rule \"20261024160000_damage_ack.sql before acknowledge-checkin\" does not hold on the sheet (acknowledge-checkin missing)",
-    "FOR-ANDREW.md:479 \"97.53 — Subscribe your phone's calendar to your jobs\": its rule \"20261024150000_calendar_feed_token.sql before calendar-feed\" does not hold on the sheet (calendar-feed missing)",
-    "ROADMAP.md:32584 \"97.53 — Calendar sync is one file per booking; there is no feed to subscribe to\": its rule \"20261024150000_calendar_feed_token.sql before calendar-feed\" does not hold on the sheet (calendar-feed missing)",
-    "ROADMAP.md:32608 \"97.55 — No pre-job vehicle check-in or customer sign-off\": its rule \"20261024160000_damage_ack.sql before get-booking-receipt\" does not hold on the sheet (get-booking-receipt missing)",
-    "ROADMAP.md:32608 \"97.55 — No pre-job vehicle check-in or customer sign-off\": its rule \"20261024160000_damage_ack.sql before acknowledge-checkin\" does not hold on the sheet (acknowledge-checkin missing)"
+    "FOR-ANDREW.md:479 \"97.53 — Subscribe your phone's calendar to your jobs\": its rule \"20261024150000_calendar_feed_token.sql before calendar-feed\" does not hold on the sheet (calendar-feed missing)"
   ],
   "warnings": [
     "Reads only the migration-drift and deployed-inventory RECEIPTS; it is as current as they are, and refuses (STALE) when supabase/ changed since either was taken.",
@@ -22,9 +20,9 @@
     "docs/release-sheet.md"
   ],
   "dimensions": {
-    "head": "46efdb7dca25787c3d51d8d685f30945c187090c",
+    "head": "e5c6a8a1d352e2956ccde6b3abe3b0fd3d021de6",
     "drift_receipt_sha": "46efdb7dca25787c3d51d8d685f30945c187090c",
-    "inventory_receipt_sha": "46efdb7dca25787c3d51d8d685f30945c187090c",
+    "inventory_receipt_sha": "e5c6a8a1d352e2956ccde6b3abe3b0fd3d021de6",
     "migrations_from_drift": [],
     "migrations_from_rows_only": [
       "20261024150000_calendar_feed_token.sql",
@@ -53,15 +51,13 @@
       "99.1",
       "0.6b"
     ],
-    "roadmap_release_lines_read": 16,
+    "roadmap_release_lines_read": 14,
     "roadmap_rules_declared": [
       "4.3b",
       "14.39",
       "99.2",
       "98.2",
-      "97.37",
-      "97.53",
-      "97.55"
+      "97.37"
     ],
     "roadmap_excluded": [
       "97.8",
@@ -91,14 +87,14 @@
     "steps": 13
   },
   "check_id": "release-sheet",
-  "started_at": "2026-11-06T08:38:59.024Z",
+  "started_at": "2026-11-06T08:56:18.362Z",
   "status": "fail",
-  "expected_targets": 34,
-  "discovered_targets": 28,
-  "attempted_targets": 34,
-  "completed_targets": 34,
+  "expected_targets": 32,
+  "discovered_targets": 29,
+  "attempted_targets": 32,
+  "completed_targets": 32,
   "skipped_targets": 0,
-  "assertions_executed": 107,
+  "assertions_executed": 97,
   "min_assertions": 60,
   "canary": {
     "id": "a release row and a migration file the sheet never heard of must both be reported",

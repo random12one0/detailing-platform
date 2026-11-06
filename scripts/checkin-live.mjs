@@ -22,7 +22,8 @@
 //
 // NOT RUN BY THE SESSION THAT WROTE IT: that copy had no keys. It is committed unrun, and the roadmap entry says so.
 import "../tests/_env.mjs";
-import { writeReceipt } from "./receipt.mjs";
+import { writeReceipt, receiptFile } from "./receipt.mjs";
+import { writeFileSync } from "node:fs";
 
 const URL_ = process.env.SUPABASE_URL;
 const SERVICE = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -50,7 +51,8 @@ const fn = async (name, payload) => {
 
 let assertions = 0, reached = 0;
 const failures = [];
-const check = (name, cond, detail = "") => { assertions++; if (cond) console.log(`  ok    ${name}`); else { failures.push(`${name} ${detail}`.trim()); console.error(`  FAIL  ${name} ${detail}`); } return cond; };
+const lines = [];
+const check = (name, cond, detail = "") => { assertions++; lines.push(`${cond ? "ok  " : "FAIL"}  ${name} ${cond ? "" : detail}`.trim()); if (cond) console.log(`  ok    ${name}`); else { failures.push(`${name} ${detail}`.trim()); console.error(`  FAIL  ${name} ${detail}`); } return cond; };
 
 const biz = await svc(`/rest/v1/businesses?select=id&slug=eq.demo-detail`);
 const BIZ = biz.body?.[0]?.id;
@@ -111,10 +113,13 @@ try {
   }
 }
 
+// The run's own lines, so the receipt has something a person can read (receipt.mjs refuses none).
+const log = receiptFile("checkin-live.txt");
+writeFileSync(log, lines.join("\n") + "\n");
 const { path } = writeReceipt({
-  check_id: "checkin-live", started_at, status: failures.length === 0 && reached >= 4 ? "pass" : "fail",
-  expected_targets: 4, discovered_targets: reached >= 4 ? 4 : reached, attempted_targets: reached, completed_targets: failures.length === 0 ? reached : 0, skipped_targets: 0,
-  assertions_executed: assertions, min_assertions: 8, failures, artifacts: [], warnings: cancelled.body?.[0]?.id ? [] : ["no cancelled demo booking: refusal not asked live"],
+  check_id: "checkin-live", started_at, status: failures.length === 0 && reached >= 6 ? "pass" : "fail",
+  expected_targets: 6, discovered_targets: reached >= 6 ? 6 : reached, attempted_targets: reached, completed_targets: failures.length === 0 ? reached : 0, skipped_targets: 0,
+  assertions_executed: assertions, min_assertions: 8, failures, artifacts: [log], warnings: cancelled.body?.[0]?.id ? [] : ["no cancelled demo booking: refusal not asked live"],
   dimensions: { project: "kguqylyzgyzfktkfnhjb", tenant: "demo-detail" },
   canary: { id: "an unknown booking id must be refused", observed_failure: failures.every((f) => !f.startsWith("unknown")), caught_by: ["404 assertion"], findings: ["the unknown-id case is asserted on every run"] },
 });

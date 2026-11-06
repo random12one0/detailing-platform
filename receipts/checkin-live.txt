@@ -1,0 +1,14 @@
+ok    column: the receipt answers 200 (a missing column would read as not found)
+ok    column: the receipt carries damage_ack_at, and it is null
+ok    nothing: with no damage photo recorded the press is refused with 409
+ok    nothing: and the booking stays unticked
+ok    fixture: one damage photo row added so there is a check-in to confirm
+ok    tick: the first press succeeds with a time
+ok    tick: and saves the damage photo count it covered
+ok    tick: the receipt then carries that same time
+ok    duplicate: the second press answers duplicate with the FIRST time
+ok    refusal: a cancelled booking is refused with 409
+ok    refusal: and stays unticked
+ok    unknown: a booking id that does not exist is refused with 404
+ok    cleanup: the demo booking is back to unticked
+ok    cleanup: the fixture damage photo row is deleted

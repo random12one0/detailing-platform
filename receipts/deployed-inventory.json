@@ -1,9 +1,9 @@
 {
-  "git_sha": "4e8e495af102cc651b85b0daa190a7035dcd8406",
-  "git_sha_started": "4e8e495af102cc651b85b0daa190a7035dcd8406",
+  "git_sha": "e5c6a8a1d352e2956ccde6b3abe3b0fd3d021de6",
+  "git_sha_started": "e5c6a8a1d352e2956ccde6b3abe3b0fd3d021de6",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-11-06T08:47:20.839Z",
+  "finished_at": "2026-11-06T08:50:43.977Z",
   "failures": [
     "4 function(s) are running something other than this checkout: platform-admin, create-business, create-booking, stripe-webhook",
     "platform-admin: 13 file(s) differ - index.ts, _shared/supportSession.ts, _shared/newBusiness.ts, _shared/tz.ts, _shared/buildStartStamp.ts, _shared/previewSwitch.ts, _shared/tenant.ts, _shared/email.ts, _shared/emailTemplates.ts, _shared/emailKit.ts, _shared/strings/es.ts, _shared/reachedProvider.ts, _shared/permissions.ts (newest commit is 23.8d after the deploy)",
@@ -161,7 +161,7 @@
     "widest_gap_days": 23.8
   },
   "check_id": "deployed-inventory",
-  "started_at": "2026-11-06T08:46:08.432Z",
+  "started_at": "2026-11-06T08:49:37.642Z",
   "status": "fail",
   "expected_targets": 44,
   "discovered_targets": 44,

@@ -478,6 +478,8 @@ texting registration just from these local copies: the checkbox and privacy para
 
 ## DO, AT YOUR NEXT RELEASE · Subscribe your phone's calendar to your jobs (ROADMAP 97.53)
 
+**Live since 2026-11-06: you can do this now.** The link was checked on the live site (right link works, wrong link refused, a reset link stops the old one).
+
 Your jobs can now live in Apple Calendar or Google Calendar: on Notifications there is a Your calendar section with a private link (Copy) and a Reset link button that asks first. The link shows only upcoming jobs with customer names and numbers, and anyone holding an old link loses access when you reset. Checked here on a practice copy at phone, tablet and desktop sizes, and in the code checks; it goes live only at your release.
 
 **At your next release,** apply the new database file `supabase/migrations/20261024150000_calendar_feed_token.sql` (one secret column, filled in automatically for every business), publish the new `calendar-feed` program alongside the app, and then subscribe for real: in Google Calendar use From URL, in Apple Calendar New Calendar Subscription, paste the link from Notifications, and check a moved booking moves on the calendar. Reset the link once and check the old one stops working.

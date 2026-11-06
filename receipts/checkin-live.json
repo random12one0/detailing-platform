@@ -1,0 +1,36 @@
+{
+  "git_sha": "e5c6a8a1d352e2956ccde6b3abe3b0fd3d021de6",
+  "git_sha_started": "e5c6a8a1d352e2956ccde6b3abe3b0fd3d021de6",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-11-06T08:54:31.074Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "receipts/checkin-live.txt"
+  ],
+  "dimensions": {
+    "project": "kguqylyzgyzfktkfnhjb",
+    "tenant": "demo-detail"
+  },
+  "check_id": "checkin-live",
+  "started_at": "2026-11-06T08:54:25.046Z",
+  "status": "pass",
+  "expected_targets": 6,
+  "discovered_targets": 6,
+  "attempted_targets": 6,
+  "completed_targets": 6,
+  "skipped_targets": 0,
+  "assertions_executed": 14,
+  "min_assertions": 8,
+  "canary": {
+    "id": "an unknown booking id must be refused",
+    "observed_failure": true,
+    "caught_by": [
+      "404 assertion"
+    ],
+    "findings": [
+      "the unknown-id case is asserted on every run"
+    ]
+  }
+}
