@@ -25,8 +25,8 @@ const centre = async (l) => { await l.evaluate((e) => e.scrollIntoView({ block: 
 const until = async (fn, ms = 60000) => { const t = Date.now(); while (Date.now() - t < ms) { try { if (await fn()) return true; } catch {} await new Promise((r) => setTimeout(r, 300)); } return false; };
 
 // A parent page like the Studio's: frames the preview, answers "ready" with the revision, then switches to Select.
-const parentPage = (site) => `<!doctype html><meta charset="utf-8"><body style="margin:0">
-<iframe id="f" src="${site}" width="390" height="844" style="border:0"></iframe>
+const parentPage = (site, w = 390, h = 844) => `<!doctype html><meta charset="utf-8"><body style="margin:0">
+<iframe id="f" src="${site}" width="${w}" height="${h}" style="border:0"></iframe>
 <script>
 window.got = [];
 const f = document.getElementById("f"), origin = new URL(f.src).origin;
@@ -47,7 +47,7 @@ test("the picker takes a revision and reports taps only for the Studio's own ori
   const vite = spawn(process.execPath, [path.join(APP, "node_modules/vite/bin/vite.js"), "--port", String(vitePort), "--strictPort", "--host", "127.0.0.1"],
     { cwd: APP, windowsHide: true, stdio: "ignore",
       env: { ...process.env, VITE_SUPABASE_URL: engine.url, VITE_SUPABASE_ANON_KEY: "demo-anon", VITE_STUDIO_ORIGINS: `http://127.0.0.1:${okPort}` } });
-  const parents = [okPort, otherPort].map((p) => createServer((_q, s) => { s.writeHead(200, { "content-type": "text/html" }); s.end(parentPage(SITE)); }).listen(p, "127.0.0.1"));
+  const parents = [okPort, otherPort].map((p) => createServer((q, s) => { const u = new URL(q.url, "http://x"); s.writeHead(200, { "content-type": "text/html" }); s.end(parentPage(SITE, Number(u.searchParams.get("w")) || 390, Number(u.searchParams.get("h")) || 844)); }).listen(p, "127.0.0.1"));
   const browser = await chromium.launch();
   t.after(async () => {
     await browser.close().catch(() => {});
@@ -93,6 +93,46 @@ test("the picker takes a revision and reports taps only for the Studio's own ori
   assert.equal((await page.evaluate(() => window.got)).filter((m) => m.data?.type === "studio-pick").length, before, "no pick in Browse mode");
   assert.equal(await frame.locator("body").evaluate(() => location.hash), "#book", "in Browse mode the link works");
   assert.deepEqual(problems, []);
+
+  // ---- the outline's name tag never covers content, at phone, tablet and desktop width (Andrew: zero visual problems)
+  const PARTS = ['[data-section="hero"] [data-part="headline"]', '[data-section="hero"] [data-part="eyebrow"]', '[data-section="hero"] [data-part="sub"]',
+    '[data-section="menu"] [data-part="title"]', '[data-section="menu"] [data-part="intro"]', '[data-section="menu"] [data-from$=".price"]',
+    '[data-section="menu"] [data-from$=".name"]', '[data-section="work"] [data-part="title"]', '[data-section="visit"] [data-part="title"]', '[data-section="book"] [data-part="title"]'];
+  for (const [w, h] of [[390, 844], [768, 1024], [1440, 900]]) {
+    const pg = await browser.newPage({ viewport: { width: w + 20, height: h + 20 } });
+    await pg.goto(`http://127.0.0.1:${okPort}/?w=${w}&h=${h}`);
+    const fl = pg.frameLocator("#f");
+    await fl.locator('[data-section="menu"] [data-from$=".price"]').first().waitFor({ timeout: 30000 });
+    await pg.waitForTimeout(500);
+    let shown = 0;
+    for (const sel of PARTS) {
+      const el = fl.locator(sel).first();
+      if (!(await el.count())) continue;
+      await centre(el); await el.click();
+      for (const text of ["Headline", "Line under the headline"]) {
+        await pg.evaluate((t) => { const f = document.getElementById("f"); f.contentWindow.postMessage({ type: "studio-tag", text: t }, new URL(f.src).origin); }, text);
+        await pg.waitForTimeout(350);   // and after the scroll the pick started has settled
+        const r = await fl.locator("body").evaluate(() => {
+          const tag = document.querySelector(".stu-pick b");
+          if (!tag || tag.hidden || !tag.textContent) return { hidden: true };
+          const t = tag.getBoundingClientRect(), box = document.querySelector(".stu-pick"), out = [];
+          const walk = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, { acceptNode: (n) => (n.nodeValue.trim() && !box.contains(n) ? 1 : 2) });
+          const range = document.createRange();
+          for (let n = walk.nextNode(); n; n = walk.nextNode()) { range.selectNodeContents(n); for (const x of range.getClientRects()) if (x.width && x.height) out.push({ x, what: n.nodeValue.trim().slice(0, 30) }); }
+          for (const e of document.querySelectorAll("img, svg, button, input, select, textarea, a.site-btn")) { const x = e.getBoundingClientRect(); if (x.width && x.height) out.push({ x, what: e.tagName }); }
+          const over = out.filter(({ x }) => t.left < x.right && x.left < t.right && t.top < x.bottom && x.top < t.bottom).map((o) => o.what);
+          return { hidden: false, over, inside: t.left >= 0 && t.right <= document.documentElement.clientWidth };
+        });
+        if (r.hidden) continue;
+        shown++;
+        assert.deepEqual(r.over, [], `${w}px, ${sel}, "${text}": the tag covers content`);
+        assert.ok(r.inside, `${w}px, ${sel}: the tag runs off the screen`);
+      }
+    }
+    t.diagnostic(`${w}px: tag drawn for ${shown} picks, hidden for the rest`);
+    assert.ok(shown >= 6, `${w}px: the tag was drawn for only ${shown} of the picks (it hides only when nothing is free)`);
+    await pg.close();
+  }
 
   // ---- any other origin: the same page from another port gets no revision drawn, no Select, no pick
   const other = await browser.newPage({ viewport: { width: 500, height: 900 } });

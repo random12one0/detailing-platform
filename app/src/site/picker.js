@@ -13,9 +13,39 @@ const STYLE = `
 html.stu-select [data-section] *{cursor:pointer}
 html.stu-select [data-from]{outline:1px dashed rgba(56,224,139,.75);outline-offset:2px}
 .stu-pick{position:absolute;z-index:2147483646;pointer-events:none;border:2px solid #38E08B;border-radius:6px;box-shadow:0 0 0 3px rgba(11,13,14,.55)}
-.stu-pick b{position:absolute;left:-2px;bottom:100%;margin-bottom:3px;padding:2px 7px;border-radius:5px;background:#38E08B;color:#05210F;
+.stu-pick b{position:absolute;left:0;top:0;padding:2px 7px;border-radius:5px;background:#38E08B;color:#05210F;
   font:600 12px/1.4 ui-monospace,Menlo,Consolas,monospace;white-space:nowrap}
-.stu-pick b:empty{display:none}`;
+.stu-pick b:empty,.stu-pick b[hidden]{display:none}`;
+
+// THE TAG NEVER COVERS CONTENT (Andrew: zero visual problems). It goes in the first free spot of: above the outline at
+// the left, above at the right, below at the left, below at the right; a spot is free when it stays on the screen
+// and touches no text, picture or control on the page. When none is free the tag is not drawn (the Studio's sheet
+// names the part anyway).
+const GAP = 3;
+function contentBoxes(skip) {
+  const out = [];
+  const walk = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, { acceptNode: (n) => (n.nodeValue.trim() && !skip.contains(n) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT) });
+  const range = document.createRange();
+  for (let n = walk.nextNode(); n; n = walk.nextNode()) { range.selectNodeContents(n); for (const r of range.getClientRects()) if (r.width && r.height) out.push(r); }
+  for (const e of document.querySelectorAll("img, svg, video, button, input, select, textarea, a.site-btn")) {
+    if (skip.contains(e)) continue;
+    const r = e.getBoundingClientRect(); if (r.width && r.height) out.push(r);
+  }
+  return out;
+}
+const hits = (a, b) => a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+export function tagSpot(outlineRect, w, h, boxes, viewW) {
+  const o = outlineRect, spots = [
+    { left: o.left, top: o.top - GAP - h }, { left: o.right - w, top: o.top - GAP - h },
+    { left: o.left, top: o.bottom + GAP }, { left: o.right - w, top: o.bottom + GAP },
+  ];
+  for (const sp of spots) {
+    const r = { left: sp.left, top: sp.top, right: sp.left + w, bottom: sp.top + h };
+    if (r.left < 0 || r.right > viewW) continue;
+    if (!boxes.some((b) => hits(r, b))) return sp;
+  }
+  return null;
+}
 
 const idOf = (from) => /^(?:service|service_group|gallery):([\w-]+)/.exec(from || "")?.[1] ?? null;
 const clip = (s, n = 200) => String(s || "").replace(/\s+/g, " ").trim().slice(0, n);
@@ -30,9 +60,21 @@ export function startPicker({ allowed }) {
     if (!box) { box = document.createElement("div"); box.className = "stu-pick"; box.appendChild(document.createElement("b")); document.body.appendChild(box); }
     const r = picked.getBoundingClientRect();
     Object.assign(box.style, { left: `${r.left + scrollX - 4}px`, top: `${r.top + scrollY - 4}px`, width: `${r.width + 8}px`, height: `${r.height + 8}px` });
+    placeTag();
   };
+  function placeTag() {
+    const tag = box?.firstChild; if (!tag || !tag.textContent) return;
+    tag.hidden = false;
+    const o = box.getBoundingClientRect(), t = tag.getBoundingClientRect();
+    const sp = tagSpot({ left: o.left, top: o.top, right: o.right, bottom: o.bottom }, t.width, t.height, contentBoxes(box), document.documentElement.clientWidth);
+    if (!sp) { tag.hidden = true; return; }
+    Object.assign(tag.style, { left: `${sp.left - o.left}px`, top: `${sp.top - o.top}px` });
+  }
   const clear = () => { picked = null; outline(); };
   addEventListener("resize", outline);
+  // the site's bar stays at the top while the page scrolls under it: the tag is placed again so it never covers it
+  let frame = 0;
+  addEventListener("scroll", () => { if (box && !frame) frame = requestAnimationFrame(() => { frame = 0; placeTag(); }); }, { passive: true });
 
   function pick(e) {
     if (mode !== "select") return;
@@ -68,7 +110,7 @@ export function startPicker({ allowed }) {
     const d = e.data;
     if (d?.type === "studio-mode") setMode(d.mode);
     else if (d?.type === "studio-clear") clear();
-    else if (d?.type === "studio-tag" && box) box.firstChild.textContent = clip(d.text, 40);
+    else if (d?.type === "studio-tag" && box) { box.firstChild.textContent = clip(d.text, 40); placeTag(); }
   });
 
   // main.jsx calls this with every revision it is handed: a new revision clears the old outline
