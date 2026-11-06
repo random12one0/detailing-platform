@@ -1,9 +1,9 @@
 {
-  "git_sha": "4d4c9e4ac4a6d729d98441050e0e38cadae3fe6b",
-  "git_sha_started": "4d4c9e4ac4a6d729d98441050e0e38cadae3fe6b",
+  "git_sha": "ab33f0aa8a7f4fd03306a4f8f4fd2ea2494271a3",
+  "git_sha_started": "ab33f0aa8a7f4fd03306a4f8f4fd2ea2494271a3",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-11-05T03:21:05.458Z",
+  "finished_at": "2026-11-06T09:28:45.544Z",
   "failures": [
     "STALE: receipts/deployed-inventory.json was taken at 0da053dd and supabase/functions has changed since (2 file(s)). Re-run deployed-inventory.mjs (read-only, needs credentials) and then this."
   ],
@@ -17,7 +17,7 @@
     "docs/release-sheet.md"
   ],
   "dimensions": {
-    "head": "4d4c9e4ac4a6d729d98441050e0e38cadae3fe6b",
+    "head": "ab33f0aa8a7f4fd03306a4f8f4fd2ea2494271a3",
     "drift_receipt_sha": "0da053ddb7aab3b9a6b05954db82578f24be1cf7",
     "inventory_receipt_sha": "0da053ddb7aab3b9a6b05954db82578f24be1cf7",
     "migrations_from_drift": [
@@ -86,7 +86,7 @@
     "steps": 44
   },
   "check_id": "release-sheet",
-  "started_at": "2026-11-05T03:21:04.512Z",
+  "started_at": "2026-11-06T09:28:43.388Z",
   "status": "fail",
   "expected_targets": 69,
   "discovered_targets": 69,
