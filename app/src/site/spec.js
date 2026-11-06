@@ -189,7 +189,9 @@ export function validateSpec(spec, profile = null, { live = false } = {}) {
           if (v === undefined) { if (required) err(`${sp}.copy.${k}`, "bad_shape", `${k} is required`); continue; }
           if (typeof v !== "string" || !v.trim()) { err(`${sp}.copy.${k}`, "bad_shape", `${k} must be text`); continue; }
           const hit = typedFact(v);
-          if (hit) err(`${sp}.copy.${k}`, "typed_fact", `"${hit}" typed into prose: facts like prices must come from a binding, not be written in`);
+          // The whole word that holds it ("$185", not "$"), and the reason in plain words: the Studio shows this as is.
+          const word = v.split(/\s+/).find((w) => typedFact(w))?.replace(/^[^\p{L}\p{N}\p{Sc}%]+|[^\p{L}\p{N}\p{Sc}%]+$/gu, "") || hit;
+          if (hit) err(`${sp}.copy.${k}`, "typed_fact", `"${word}" is a price or a number typed into the wording. Prices, hours and other facts come from the dashboard, so they cannot be typed in.`);
         }
       }
 
