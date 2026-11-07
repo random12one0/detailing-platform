@@ -321,7 +321,8 @@
   .site[data-family="workshop"] .hero--ledger .hero-copy { grid-column: 1; grid-row: 1 / span 2; }
   .site[data-family="workshop"] .hero--ledger .hero-act { grid-column: 1; grid-row: 3; }
   .site[data-family="workshop"] .hero--ledger .hero-ticket { grid-column: 2; grid-row: 1; }
-  .site[data-family="workshop"] .hero--ledger .hero-photo { grid-column: 2; grid-row: 2 / span 2; margin-top: 24px; aspect-ratio: 16 / 10; align-self: start; }
+  .site[data-family="workshop"] .hero--ledger .hero-photo { grid-column: 2; grid-row: 2 / span 2; margin-top: 20px; aspect-ratio: 16 / 9; align-self: start; }
+  .site[data-family="workshop"] .hero--ledger .hero-act { align-self: end; }
 }
 .site[data-family="neighbourhood"] .sec { padding-top: 52px; padding-bottom: 52px; }
 @media (min-width: 768px) { .site[data-family="neighbourhood"] .sec { padding-top: 72px; padding-bottom: 72px; } }
