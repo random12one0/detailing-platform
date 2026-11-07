@@ -12,6 +12,7 @@ import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom/client";
 import Site from "./Site.jsx";
 import { startPicker } from "./picker.js";
+import DetailerPreview, { installPreviewGuard } from "./Detailer.jsx";
 
 // Committed example specs. Real clients' specs will come from the Studio's
 // revisions table, not from git (WEBSITE-STEP1-BRIEF J7).
@@ -84,9 +85,12 @@ function Preview() {
 const name = /^\/site\/example\/([a-z0-9-]+)\/?$/.exec(window.location.pathname)?.[1] ?? null;
 const spec = name && Object.hasOwn(SPECS, name) ? SPECS[name] : null;
 const preview = import.meta.env.DEV && /^\/site\/preview\/?$/.test(window.location.pathname);
+// S7: the detailer's preview page, /site/p/<link> (dev server only for now). Its guard is in place before anything runs.
+const link = import.meta.env.DEV ? /^\/site\/p\/([A-Za-z0-9_-]{1,100})\/?$/.exec(window.location.pathname)?.[1] ?? null : null;
+if (link) installPreviewGuard();
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    {preview ? <Preview /> : <Site spec={spec} />}
+    {link ? <DetailerPreview token={link} /> : preview ? <Preview /> : <Site spec={spec} />}
   </React.StrictMode>,
 );
