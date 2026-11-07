@@ -60,7 +60,8 @@ try {
   }
   const withLine = sheet("with the throwaway line");
   named = withLine.filter((l) => l.includes(`"${key} — `) && l.includes(MSG));
-  added = withLine.filter((l) => !clean.includes(l));
+  const bare = (l) => l.replace(/ROADMAP\.md:\d+/, "ROADMAP.md:N").replace(/only \d+ open/, "only N open"), cleanBare = clean.map(bare); // line numbers shift when the throwaway line is inserted
+  added = withLine.filter((l) => !cleanBare.includes(bare(l)));
   check(named.length === 1, `with a throwaway AWAITS PUBLISH line under ${key}, the sheet named it ${named.length} time(s), not once`);
   check(added.length === named.length && added.every((l) => named.includes(l)), `the line changed more than the one FAIL: ${added.join(" | ")}`);
 
