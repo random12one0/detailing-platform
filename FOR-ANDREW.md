@@ -430,9 +430,10 @@ has not pushed, published, deployed or changed the database.
 
 ## DO, AT YOUR NEXT RELEASE · Let Stripe tell us about refunds (ROADMAP 97.68)
 
-**Update 2026-11-07: this went out with the 23 October release. One thing is left, and it is the same key as the
-"Put the Stripe TEST secret key into `.env`" row (ROADMAP 12.1).** With that one line in `.env`, a session can make a
-practice refund itself and watch the red line go. **Please do not refund the $195 practice payment from Stripe's
+**Update 2026-11-07: this went out with the 23 October release. Two things are left. One is yours: the same key as the
+"Put the Stripe TEST secret key into `.env`" row (ROADMAP 12.1). The other is a session's: setting up a fresh practice
+payment for the test to refund (ROADMAP 97.68a, not built yet). The key alone does not finish it.** With both, a session
+refunds that practice payment and watches the red line go. **Please do not refund the $195 practice payment from Stripe's
 dashboard, as the 2 November note suggested:** the practice job it belonged to was deleted when that test finished,
 so the refund would change nothing and would look like a fault. Something nobody here can see: whether
 `charge.refunded` was added to the connected-account webhook endpoint on 23 October. If it was not, the steps below
@@ -2343,8 +2344,9 @@ still knows them.
   `.env` in this folder in Notepad and add one line: `STRIPE_SECRET_KEY=`
   followed by the key. Save. **Never the live key** — the script refuses
   anything that does not start `sk_test_`, and `.env` is never committed.
-  Then tell a session to run `node scripts/billing-walk.mjs`. **The same key also finishes ROADMAP 97.68**
-  (a practice refund that clears the job's red "refund it" line): `node scripts/refund-live.mjs`.
+  Then tell a session to run `node scripts/billing-walk.mjs`. **The same key is also needed for ROADMAP 97.68's last
+  check** (a practice refund that clears a job's red "refund it" line), once a session has set up a fresh practice
+  payment for it (ROADMAP 97.68a, not built yet).
 
   **Nothing breaks while this waits.** No real money moves either way.
 
