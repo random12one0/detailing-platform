@@ -97,7 +97,7 @@ No hurry: nightly runs began 2026-09-08, so no 1st-of-month copy older than Octo
 
 Every screen with something pinned over the scroll now has a check that measures it, and the dashboard and website-preview bars were fixed along the way. The one thing left is a live run of the back-office check, which needs your database key and so cannot be done from the belt's copy.
 
-**The step, a few minutes in a terminal in the main folder:** run `node --env-file=.env scripts/admin-furniture-clearance.mjs`, then `node --env-file=.env scripts/admin-furniture-clearance.mjs --break=rect`. Do not wrap either in `timeout`. The first should report 0 failures with its built-in test defect caught; the second should go red on purpose. Then tick 9.11e. Recommendation: do it at your next sitting; nothing is live or at risk meanwhile.
+**The step, a few minutes in a terminal in the main folder:** run `node --env-file=.env scripts/admin-furniture-clearance.mjs`, then `node --env-file=.env scripts/admin-furniture-clearance.mjs --break=rect`. Do not wrap either in `timeout`. The first should report 0 failures with its built-in test defect caught; the second should go red on purpose. Each run keeps its own screenshots, so the second no longer erases the first's. (Before either, `node scripts/admin-furniture-clearance.mjs --self-test` needs no key and takes a second.) Then tick 9.11e. Recommendation: do it at your next sitting; nothing is live or at risk meanwhile.
 
 ## ANSWERED · Backup-deletion paperwork: Spanish-line requirement retired (ROADMAP 97.28)
 

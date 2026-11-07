@@ -93,8 +93,12 @@
 //              loop's own ±1px (a 44.0 target on a fractional edge reads 43).
 //              Without this the check would blame the furniture for a control
 //              that was too small to begin with.
-//   reachable  where the browser puts it when it is focused, 43 (the same floor) of those rows
-//              survive. Losses are attributed by `elementFromPoint`, so "the
+//   reachable  where the browser puts it when it is focused, as many rows survive as it
+//              had legal rows, capped at 44 — so a 44px control must keep all 44 and a
+//              control that read 43 on a fractional edge must keep its 43. The
+//              tolerance is on how a control is MEASURED, never on a row the
+//              furniture took: 44 legal with 43 surviving, one row lost to the
+//              dock, fails. Losses are attributed by `elementFromPoint`, so "the
 //              dock did it" is read off the page rather than assumed. The
 //              scroll uses `block: "end"` because the furniture here is at the
 //              BOTTOM — the old screen's `"start"` would park controls at the
@@ -156,7 +160,10 @@ const ABSOLUTE = 44;
 // ONE floor for BOTH questions (99.10 item 6). The row loop counts INTEGER rows and carries
 // ±1px at a fractional edge, so 44 − 1. `legal` used to accept 43 while `reachable` demanded 44.
 const FLOOR = ABSOLUTE - 1;
-const ART = fileURLToPath(new URL("../artifacts/admin-furniture-clearance/", import.meta.url));
+// A sabotage run keeps its own screenshots: both runs clear their folder at the start, so a
+// shared one let the `--break=rect` run delete the clean run's evidence under its receipt.
+const ART_NAME = "admin-furniture-clearance" + (BREAK ? "-" + BREAK.replace(/[^w.-]+/g, "-") : "");
+const ART = fileURLToPath(new URL(`../artifacts/${ART_NAME}/`, import.meta.url));
 
 let assertions = 0;
 const failures = [];
@@ -283,6 +290,29 @@ const MEASURE = ({ sel, absolute, useRect, within }) => {
 // again — so a run that observes nothing here has stopped looking.
 const CANARY_CSS = `html { scroll-padding-bottom: 0 !important; }`;
 
+if (process.argv.includes("--self-test")) {
+  // The grading rule alone, on hand-made controls; no browser, no credentials, no receipt.
+  // `--self-test --break=floor-reach` must go red on the first case.
+  const ctl = (legal, reachable, lost) => ({ text: "t", cls: "c", legal, reachable, lost, rectH: legal, overhang: 0, top: 0, bottom: 0 });
+  const cases = [
+    ["44 legal, 43 reachable, one row lost to the dock FAILS", ctl(44, 43, { ".bo-rail": 1 }), false],
+    ["44 legal, 30 reachable, lost to the open panel FAILS", ctl(44, 30, { ".bo-panel": 14 }), false],
+    ["43 legal, 20 reachable, lost to the dock FAILS", ctl(43, 20, { ".bo-rail": 23 }), false],
+    ["43 legal, 43 reachable passes", ctl(43, 43, {}), true],
+    ["44 legal, 44 reachable passes", ctl(44, 44, {}), true],
+  ];
+  let bad = 0;
+  for (const [name, c, passes] of cases) {
+    let ok;
+    grade("self-test", { controls: [c], railTop: 0 }, "tab", (t, q, cond) => { if (q === "reachable") ok = cond; });
+    const right = ok === passes;
+    if (!right) bad++;
+    console.log(`  ${right ? "ok  " : "WRONG"}  ${name}`);
+  }
+  console.log(bad ? `SELF-TEST FAIL — ${bad} of ${cases.length} wrong` : `SELF-TEST PASS — ${cases.length} of ${cases.length}`);
+  process.exit(bad ? 1 : 0);
+}
+
 rmSync(ART, { recursive: true, force: true });
 mkdirSync(ART, { recursive: true });
 
@@ -407,7 +437,7 @@ async function surface(size, { tab, panel, label, canary }) {
     // page would be a picture of somewhere the numbers did not come from.
     const file = `${label.replace(/[^\w.-]+/g, "-")}.png`;
     await page.screenshot({ path: ART + file, animations: "disabled" });
-    artifacts.push("artifacts/admin-furniture-clearance/" + file);
+    artifacts.push(`artifacts/${ART_NAME}/` + file);
     return m;
   } finally {
     await ctx.close();
@@ -439,10 +469,14 @@ function grade(id, m, kind, sink) {
   // `.bo-panel` is furniture too (99.10 item 6): `who()` names a loss to the open sheet's own
   // fixed edge ".bo-panel", and `mine()` used to know only the dock.
   const mine = (c) => Object.keys(c.lost || {}).some((k) => k === ".bo-rail" || k === ".bo-panel");
-  const short = controls.filter((c) => c.legal >= FLOOR && c.reachable < FLOOR && mine(c));
-  const elsewhere = controls.filter((c) => c.legal >= FLOOR && c.reachable < FLOOR && !mine(c));
+  // WHAT MUST SURVIVE is what the control measured legal, capped at 44. Judging every control
+  // against 43 let "44 legal, 43 reachable, one row lost to .bo-rail" pass, which this check used
+  // to refuse. `--break=floor-reach` is that weakening on purpose.
+  const need = (c) => (BREAK === "floor-reach" ? FLOOR : Math.min(c.legal, ABSOLUTE));
+  const short = controls.filter((c) => c.legal >= FLOOR && c.reachable < need(c) && mine(c));
+  const elsewhere = controls.filter((c) => c.legal >= FLOOR && c.reachable < need(c) && !mine(c));
   if (elsewhere.length) {
-    observed.push(`${id}: ${elsewhere.length} control(s) short of ${FLOOR}px for reasons OTHER `
+    observed.push(`${id}: ${elsewhere.length} control(s) short of their legal height for reasons OTHER `
       + `than the fixed furniture — worst «${elsewhere[0].text}» at ${elsewhere[0].reachable}px, `
       + `lost to ${JSON.stringify(elsewhere[0].lost)} (recorded, not this item's fault)`);
   }
