@@ -259,7 +259,8 @@ if (job) {
       const p = { width: w, lines: real.lines, box: real.box, errors: real.errors.length, warnings: real.warns.length, shot: real.shot, second_account: { not_found: other.notFound, lines: other.lines, shot: other.shot } };
       if (gone) {
         // The canary: the same view with the refund record removed must show the line again.
-        const control = await view(owner, w, h, { add: REHEARSE, strip: true }, "canary-refund-stripped");
+        // Named by run, so a clean run never overwrites a sabotage run's evidence.
+        const control = await view(owner, w, h, { add: REHEARSE, strip: true }, `${label}-canary-refund-stripped`);
         canaryHits.push(control.reads > 0 && control.lines.some((t) => t.includes(AMOUNT)));
         probed.push({ ...p, canary_lines: control.lines, canary_shot: control.shot });
       } else {
