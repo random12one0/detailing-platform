@@ -50,7 +50,7 @@
           "variant": "wipe",
           "copy": {
             "title": "Drag across to see the difference",
-            "intro": "Example images: an illustration of a paint surface before and after a polish. This sample shop has no photos of its own."
+            "intro": "Example images: an illustration of a paint surface, before and after. This sample shop has no photos of its own."
           },
           "gallery": { "bind": "gallery.best(1)" },
           "reviews": { "bind": "reviews.top(3)" }

@@ -174,6 +174,52 @@ export function typedFact(text) {
   }
   return null;
 }
+// A CLAIM ONLY THE DASHBOARD CAN MAKE, written in words instead of digits (S6 review finding 1: "Open every Sunday."
+// and "Pay a penny for a full detail." passed every gate). Refused in every piece of wording, whoever wrote it:
+// - when the detailer works: weekday names, weekends, holidays, same-day, overnight, around the clock, open late…
+//   (the hours are bound; "See the hours below" is how wording points at them);
+// - money in other words: penny, cents, complimentary, gratis, on the house, no charge, cheapest, bargain, discount,
+//   refund, money-back, price match…;
+// - credentials and records: insured, licensed, certified, bonded, award-winning, guaranteed, warranty, family-owned,
+//   eco-friendly, years of experience, top-rated, number one…
+// A phrase matches as whole words (case and look-alike letters ignored), so "weekend" is refused and "endless" is not.
+const CLAIMS = [
+  ["says when the detailer works.", ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday", "weekend", "weekday", "weeknight",
+    "holiday", "tonight", "tomorrow", "same-day", "same day", "next-day", "next day", "overnight", "around the clock", "round the clock", "all night",
+    "open late", "late night", "anytime", "any time", "always open", "open daily", "open every", "noon", "midnight", "o'clock", "mornings", "evenings"]],
+  ["is a price or a deal.", ["penny", "pennies", "cent", "cents", "nickel", "dime", "complimentary", "gratis", "on the house", "no charge", "no extra charge",
+    "at no cost", "no cost", "cheap", "cheaper", "cheapest", "lowest price", "best price", "bargain", "discount", "discounted", "coupon", "rebate", "refund",
+    "money-back", "money back", "price match", "price-match", "for nothing"]],
+  ["is a claim about the business that the detailer has not made.", ["insured", "licensed", "certified", "bonded", "accredited", "award", "award-winning",
+    "guarantee", "guaranteed", "warranty", "warranties", "family-owned", "family owned", "veteran-owned", "locally owned", "eco-friendly", "eco friendly",
+    "organic", "non-toxic", "biodegradable", "years of experience", "top-rated", "top rated", "number one", "best in town", "trusted by"]],
+];
+const phrase = (p) => new RegExp(`(?<![\\p{L}])${p.replace(/[-\s]/g, "[-\\s]").replace(/'/g, "['’]")}s?(?![\\p{L}])`, "iu");
+const CLAIM_RES = CLAIMS.map(([why, list]) => [why, list.map((p) => [p, phrase(p)])]);
+/** [the words, why] for a claim only the dashboard can make, or null. */
+export function claimWord(text) {
+  const t = asRead(text);
+  for (const [why, list] of CLAIM_RES) for (const [, re] of list) { const m = re.exec(t); if (m) return [m[0], why]; }
+  return null;
+}
+// AGAINST THIS DETAILER'S DASHBOARD: wording may name a kind of work or a way of working only if the dashboard has it.
+// A service word (ceramic, tint, paint correction…) must appear in a service, add-on or plan; "we come to you" needs
+// travel zones or a service area; "drop-off" / "our workshop" needs a drop-off address.
+const SERVICE_WORDS = ["ceramic", "coating", "paint correction", "correction", "polish", "polishing", "wax", "waxing", "sealant", "tint", "tinting",
+  "window film", "ppf", "paint protection film", "headlight", "engine bay", "odor", "odour", "ozone", "pet hair", "upholstery", "leather", "shampoo",
+  "steam", "clay", "decontamination", "scratch", "swirl", "dent", "windshield", "chrome", "boat", "rv", "motorcycle", "fleet"].map((p) => [p, phrase(p)]);
+const MOBILE = /\b(come|comes|coming) to (you|your)\b|\byour (driveway|door|home|office|place)\b|\bmobile\b|\bat your\b/i;
+const DROPOFF = /\bdrop[-\s]?offs?\b|\bdrop (it|your car|the car|your vehicle) (off|at)\b|\bour (workshop|shop|garage|bay|studio)\b|\bbring (it|your car|your vehicle) (in|to us)\b/i;
+export function inventedFact(text, p) {
+  const t = asRead(text);
+  const known = [...(p.services || []), ...(p.addOns || []), ...(p.plans || [])]
+    .map((s) => [s.name, s.description, ...(Array.isArray(s.features) ? s.features : [])].filter(Boolean).join(" ")).join(" \n ");
+  for (const [w, re] of SERVICE_WORDS) if (re.test(t) && !re.test(asRead(known))) return `"${w}" names work the dashboard does not list. Add it as a service in the dashboard, or leave it out of the wording.`;
+  const zones = (p.settings?.travel_zones ?? []).filter((z) => z?.name);
+  if (MOBILE.test(t) && !zones.length && !p.business?.service_area) return "The wording says the detailer comes to the customer, and the dashboard has no area or travel zones.";
+  if (DROPOFF.test(t) && !p.business?.dropoff_address) return "The wording offers drop-offs at a workshop, and the dashboard has no drop-off address.";
+  return null;
+}
 // Ids and paths end up in addresses and the picker; they carry no numbers either.
 const ID = /^[a-z]+(-[a-z]+)*$/;
 
@@ -246,7 +292,12 @@ export function validateSpec(spec, profile = null, { live = false } = {}) {
           const hit = typedFact(v);
           // The whole word that holds it ("$185", not "$"), and the reason in plain words: the Studio shows this as is.
           const word = asRead(v).split(/\s+/).find((w) => typedFact(w))?.replace(/^[^\p{L}\p{N}\p{Sc}%]+|[^\p{L}\p{N}\p{Sc}%]+$/gu, "") || hit;
-          if (hit) err(`${sp}.copy.${k}`, "typed_fact", `"${word}" is a price or a number typed into the wording. Prices, hours and other facts come from the dashboard, so they cannot be typed in.`);
+          if (hit) { err(`${sp}.copy.${k}`, "typed_fact", `"${word}" is a price or a number typed into the wording. Prices, hours and other facts come from the dashboard, so they cannot be typed in.`); continue; }
+          const claim = claimWord(v);
+          if (claim) { err(`${sp}.copy.${k}`, "claim", `"${claim[0]}" ${claim[1]} Only the dashboard can say that, so it cannot be in the wording.`); continue; }
+          // against THIS detailer's dashboard: never on a customer's visit (a later dashboard edit must not take the site
+          // down), always when a revision or a look is checked (the connection check, the Studio's gate G0)
+          if (profile && !live) { const inv = inventedFact(v, profile); if (inv) err(`${sp}.copy.${k}`, "invented", inv); }
         }
       }
 
