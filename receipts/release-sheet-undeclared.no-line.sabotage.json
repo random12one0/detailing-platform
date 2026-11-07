@@ -1,9 +1,9 @@
 {
-  "git_sha": "44f81a30c1c861c7cfa03206e685da87bb0d7318",
-  "git_sha_started": "44f81a30c1c861c7cfa03206e685da87bb0d7318",
+  "git_sha": "9ea5fea541f33385ac626b817539270df6b761b2",
+  "git_sha_started": "9ea5fea541f33385ac626b817539270df6b761b2",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-11-07T08:16:01.604Z",
+  "finished_at": "2026-11-07T08:19:44.989Z",
   "failures": [
     "with a throwaway AWAITS PUBLISH line under 97.15, the sheet named it 0 time(s), not once"
   ],
@@ -17,7 +17,7 @@
   ],
   "dimensions": {
     "break": "no-line",
-    "head": "44f81a30c1c861c7cfa03206e685da87bb0d7318",
+    "head": "9ea5fea541f33385ac626b817539270df6b761b2",
     "item_under_line": "97.15",
     "named": [],
     "added_by_line": [],
@@ -48,7 +48,7 @@
     ]
   },
   "check_id": "release-sheet-undeclared.no-line",
-  "started_at": "2026-11-07T08:15:54.990Z",
+  "started_at": "2026-11-07T08:19:36.511Z",
   "status": "fail",
   "expected_targets": 4,
   "discovered_targets": 4,
