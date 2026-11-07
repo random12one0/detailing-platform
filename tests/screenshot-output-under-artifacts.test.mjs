@@ -43,6 +43,17 @@ test("outDir puts a relative name under artifacts/ and leaves the rest alone", (
   assert.equal(outDir(undefined), undefined);
 });
 
+// Review of 97.63: a relative path must not climb out of its folder. Every one of
+// these used to land in the repo root (`../shots` became `shots`, the `artifacts/../`
+// forms passed through as typed). The harmless `..` that stays inside is still fine.
+test("outDir refuses a path that climbs out of its folder", () => {
+  for (const bad of ["../shots", "..", "a/../../shots", "artifacts/../shots", "./artifacts/../../x", ".manager-shots/../x", "artifacts\\..\\shots"]) {
+    assert.throws(() => outDir(bad), /climbs out/, bad);
+  }
+  assert.equal(outDir("a/../b"), "artifacts/b");
+  assert.equal(outDir("artifacts/a/../b"), "artifacts/a/../b");
+});
+
 // Review fix: a TYPED `--shots=shots-2.7` made a root folder just as a default did,
 // and the default-only scan above could not see it. Every line that reads a typed
 // --shots / --out must go through outDir. sweep-booking-steps.mjs was the declared
