@@ -32173,6 +32173,10 @@ explicitly warns against — git history is the archive. Revisit at step 7.
     scratch copy, see the run name it, remove it.
 
 - [ ] **98.12r — Review notes on 98.12 (belt follow-up from AI notes, 2026-11-05).**
+  **BELT PARKED (same failure) with no failed attempts, 2026-11-07 08:04:50.** it failed the same way 2 times (review-findings), and each distinct failure gets one retry. The belt could not
+  finish this and moved on rather than looping. The last attempt's full output
+  is at `belt/runs/2026-11-07T08-01-47-955Z-98.12r.md`. Needs a person or a different
+  approach — unpark by deleting these four lines.
   **Held for a builder, not for Andrew (belt 2026-11-07).** The finish review still found problems; they are work, not a question. Continue branch `belt/98.12r-20261107080100384`: fix each finding that is real, re-run the item's proof, and say in this entry why any finding is wrong.
   - the builder stopped instead of fixing
   NEEDS ANDREW: the belt held this job's work instead of merging it — Review, merge and re-test stopped: the strong review is problems (The job adds an automatic check for a missing release instruction and updates the separate scratch-copy test. Those changes are useful saved work, but the required scratch-test execution and historica); the box is not ticked on the branch.
