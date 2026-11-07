@@ -30,7 +30,8 @@
 // SABOTAGE: --break=blind looks for $196 instead of $195, so "the line is there" goes red before the refund.
 // --break=no-refund strips the refund record from the real view (the webhook before 97.68), so "the line is gone" goes
 // red after it (or in the rehearsal). --break=one-account opens the second account's views as the demo owner, so
-// "Booking not found." goes red.
+// "Booking not found." goes red. --break=stuck-canary leaves the refund record in the canary view, so the
+// line never comes back and the canary itself goes red (ROADMAP 97.68r: it once failed without failing the run).
 //
 // THE $195 TEST PAYMENT CAN NEVER CLEAR A LINE, measured 2026-11-07. The 2026-10-23 live run that took it
 // soft-deleted its job (eaa40f95) 12 seconds later, and the webhook skips deleted jobs on purpose
@@ -58,7 +59,7 @@ const BREAK = arg("break");
 const SHOTS = outDir(arg("shots") || "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68/png");
 const WIDTHS = [[1440, 900], [768, 1024], [390, 844], [320, 700]];
 const started_at = new Date().toISOString();
-if (BREAK && !["blind", "no-refund", "one-account"].includes(BREAK)) { console.error(`unknown --break=${BREAK}`); process.exit(2); }
+if (BREAK && !["blind", "no-refund", "one-account", "stuck-canary"].includes(BREAK)) { console.error(`unknown --break=${BREAK}`); process.exit(2); }
 
 const URL_ = process.env.SUPABASE_URL ?? "", KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY;
 if (!URL_.includes("kguqylyzgyzfktkfnhjb") || !KEY) {
@@ -261,11 +262,14 @@ if (job) {
       if (gone) {
         // The canary: the same view with the refund record removed must show the line again.
         // Named by run, so a clean run never overwrites a sabotage run's evidence.
-        const control = await view(owner, w, h, { add: REHEARSE, strip: true }, `${label}-canary-refund-stripped`);
+        const control = await view(owner, w, h, { add: REHEARSE, strip: BREAK !== "stuck-canary" }, `${label}-canary-refund-stripped`);
+        // A canary that fails is a failure of the run, not only of the receipt (ROADMAP 97.68r).
         canaryHits.push(control.reads > 0 && control.lines.some((t) => t.includes(AMOUNT)));
+        check(`${tag} · canary: with the refund record removed the line names ${AMOUNT} again`, canaryHits.at(-1), control.reads ? control.lines.join(" | ") || "no [data-refund-owed] line" : "no bookings read returned this job");
         probed.push({ ...p, canary_lines: control.lines, canary_shot: control.shot });
       } else {
         canaryHits.push(real.reads > 0 && !real.lines.some((t) => t.includes(WRONG)));
+        check(`${tag} · canary: no line names ${WRONG}, a figure this job does not carry`, canaryHits.at(-1), real.lines.join(" | "));
         probed.push(p);
       }
       completed++;
