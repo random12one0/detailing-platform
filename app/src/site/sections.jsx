@@ -95,7 +95,9 @@ export function Hero({ sec, p, bookId }) {
       <div className="hero-copy">{sale}{sub}{cta}{where}</div>{ticket}
     </>,
     stack: <><div className="hero-copy">{where}{h1}{sub}{sale}{cta}</div>{figure}{ticket}</>,
-    ledger: <><div className="hero-copy">{eyebrow}{h1}{sub}{sale}</div>{ticket}<div className="hero-act">{cta}{where}</div>{figure}</>,
+    // two columns on a desktop (the words and buttons; the price sheet and the photo), one on a phone in the order
+    // words, prices, buttons, photo (families.css: the two wrappers step aside below 1180)
+    ledger: <><div className="hero-main"><div className="hero-copy">{eyebrow}{h1}{sub}{sale}</div><div className="hero-act">{cta}{where}</div></div><div className="hero-side">{ticket}{figure}</div></>,
     split: <><div className="hero-copy">{eyebrow}{h1}{sub}{sale}{cta}{where}</div>{figure}{ticket}</>,
   }[variant] ?? null;
   return (

@@ -21,8 +21,14 @@
 .hero--stack .hero-photo { margin: 30px var(--pad) 0; aspect-ratio: 4 / 3; border-radius: var(--radius); }
 .hero--stack .hero-photo::after { content: none; }
 
-/* ledger: the prices are the first screen */
+/* ledger: the prices are the first screen. Below 1180 the two wrappers step aside and the parts stack as words,
+   prices, buttons, photo. */
 .hero--ledger { padding: 32px 0 56px; }
+@media (max-width: 1179px) {
+  .hero--ledger { display: flex; flex-direction: column; }
+  .hero--ledger .hero-main, .hero--ledger .hero-side { display: contents; }
+  .hero--ledger .hero-copy { order: 1; } .hero--ledger .hero-ticket { order: 2; } .hero--ledger .hero-act { order: 3; } .hero--ledger .hero-photo { order: 4; }
+}
 .hero--ledger .hero-ticket { margin-top: 26px; }
 .hero--ledger .hero-act { padding: 0 var(--pad); margin-top: 22px; }
 .hero--ledger .hero-act .hero-cta { margin-top: 0; }
@@ -56,10 +62,11 @@
   .hero--stack .hero-ticket { grid-column: 1; margin: 36px 0 0; }
 
   .hero--ledger { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); column-gap: 64px; padding: 64px var(--pad) 96px; align-items: start; }
-  .hero--ledger .hero-copy { grid-column: 1; grid-row: 1; padding: 0; }
-  .hero--ledger .hero-ticket { grid-column: 2; grid-row: 1 / span 3; margin: 0; max-width: none; }
-  .hero--ledger .hero-act { grid-column: 1; grid-row: 2; padding: 0; margin-top: 28px; }
-  .hero--ledger .hero-photo { grid-column: 1; grid-row: 3; margin: 32px 0 0; }
+  .hero--ledger .hero-main, .hero--ledger .hero-side { display: flex; flex-direction: column; }
+  .hero--ledger .hero-copy { padding: 0; }
+  .hero--ledger .hero-ticket { margin: 0; max-width: none; }
+  .hero--ledger .hero-act { padding: 0; margin-top: 28px; }
+  .hero--ledger .hero-photo { margin: 24px 0 0; }
 
   .hero--split { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); column-gap: 72px; padding: 72px var(--pad) 104px; align-items: start; }
   .hero--split .hero-copy { grid-column: 1; grid-row: 1; padding: 24px 0 0; }
@@ -169,11 +176,18 @@
 .site[data-family="workshop"] .site-btn { font-family: var(--f-display); text-transform: uppercase; letter-spacing: .08em; font-weight: 600; font-size: 17px; }
 .site[data-family="workshop"] .site-btn.big { font-size: 18px; }
 .site[data-family="workshop"] .site-btn.ghost { box-shadow: inset 0 0 0 1.5px var(--ink); }
-.site[data-family="workshop"] .hero {
-  /* a faint grid, fading out downwards, so it never competes with the words set on it */
-  --grid: rgba(27, 31, 35, .065);
+/* the grid sits only where the price sheet and photo are, fading in from the words, so it never crosses them
+   (review D2): on a phone below the words, on a desktop in the right-hand column */
+.site[data-family="workshop"] .hero { position: relative; isolation: isolate; }
+.site[data-family="workshop"] .hero::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  --grid: rgba(27, 31, 35, .08);
   background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
   background-size: 28px 28px; background-position: -1px -1px;
+  -webkit-mask-image: linear-gradient(180deg, transparent 0 34%, #000 52%); mask-image: linear-gradient(180deg, transparent 0 34%, #000 52%);
+}
+@media (min-width: 1180px) {
+  .site[data-family="workshop"] .hero::before { -webkit-mask-image: linear-gradient(90deg, transparent 0 44%, #000 62%); mask-image: linear-gradient(90deg, transparent 0 44%, #000 62%); }
 }
 .site[data-family="workshop"] .hero > * { position: relative; }
 .site[data-family="workshop"] .eyebrow { color: var(--accent-text); font-family: var(--f-display); font-size: 15px; letter-spacing: .16em; }
@@ -277,8 +291,6 @@
   .site[data-family="showroom"] .hero--overlay .hero-stage { min-height: min(70vh, 640px); }
   .site[data-family="showroom"] .hero h1 { font-size: 124px; }
   .site[data-family="neighbourhood"] .hero h1 { font-size: 88px; }
-  .site[data-family="workshop"] .hero--ledger .hero-photo { grid-column: 2; grid-row: 4; margin-top: 28px; }
-  .site[data-family="workshop"] .hero--ledger .hero-ticket { grid-row: 1 / span 3; }
 }
 .site[data-family="boutique"] .compare figcaption { margin-top: 16px; }
 
@@ -318,11 +330,36 @@
   .site[data-family] .booksec > [data-part="flow"] { max-width: 880px; padding: 28px 32px; border-radius: var(--radius); background: var(--paper-2); box-shadow: inset 0 0 0 1px var(--line); }
   .site[data-family] .booksec .bk.bk-embedded { --bk-col: 100%; --bk-bg: var(--paper-2); }
   /* Precision workshop: the photo runs the full width under the words and the price sheet */
-  .site[data-family="workshop"] .hero--ledger .hero-copy { grid-column: 1; grid-row: 1 / span 2; }
-  .site[data-family="workshop"] .hero--ledger .hero-act { grid-column: 1; grid-row: 3; }
-  .site[data-family="workshop"] .hero--ledger .hero-ticket { grid-column: 2; grid-row: 1; }
-  .site[data-family="workshop"] .hero--ledger .hero-photo { grid-column: 2; grid-row: 2 / span 2; margin-top: 20px; aspect-ratio: 16 / 9; align-self: start; }
-  .site[data-family="workshop"] .hero--ledger .hero-act { align-self: end; }
 }
 .site[data-family="neighbourhood"] .sec { padding-top: 52px; padding-bottom: 52px; }
 @media (min-width: 768px) { .site[data-family="neighbourhood"] .sec { padding-top: 72px; padding-bottom: 72px; } }
+/* the sale band's note in ink on Boutique's pale band (the soft colour fell under 4.5:1 there) */
+.site[data-family="boutique"] .sale span { color: var(--ink); }
+
+/* ================================================================ after the S6 review (design D1, D3, D4)
+   D1 Showroom: on a phone the photo no longer spends the first screen on atmosphere; the words start higher and the
+   price strip begins inside the first screen. */
+@media (max-width: 767px) {
+  .site[data-family="showroom"] .hero--overlay .hero-stage { min-height: min(46svh, 400px); }
+  .site[data-family="showroom"] .hero h1 { font-size: clamp(52px, 15vw, 64px); }
+}
+/* D3 Boutique: the editorial split holds from tablet width (words and prices beside a shorter framed photo), so the
+   page does not become one long column at 768. */
+@media (min-width: 768px) and (max-width: 1179px) {
+  .site[data-family="boutique"] .hero--split { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); column-gap: 40px; padding: 56px var(--pad) 72px; align-items: start; }
+  .site[data-family="boutique"] .hero--split .hero-copy { grid-column: 1; grid-row: 1; padding: 0; }
+  .site[data-family="boutique"] .hero--split .hero-photo { grid-column: 2; grid-row: 1 / span 2; margin: 0; max-width: none; }
+  .site[data-family="boutique"] .hero--split .hero-photo img { aspect-ratio: 3 / 4; }
+  .site[data-family="boutique"] .hero--split .hero-ticket { grid-column: 1; grid-row: 2; margin: 32px 0 0; }
+  .site[data-family="boutique"] .hero h1 { font-size: 64px; }
+}
+/* D4 Neighbourhood: the work is shown its own way, not in one more white rounded card: the photo runs to the screen's
+   edges on a phone and sits on a sunflower block offset behind it, the same sticker offset as its buttons. */
+.site[data-family="neighbourhood"] .hero--stack .hero-photo { border-radius: 0; box-shadow: 10px 10px 0 var(--accent); margin-right: calc(var(--pad) + 10px); }
+@media (max-width: 767px) {
+  .site[data-family="neighbourhood"] .hero--stack .hero-photo { margin-left: 0; margin-right: 10px; }
+}
+@media (min-width: 1180px) {
+  .site[data-family="neighbourhood"] .hero--stack .hero-photo { margin-right: 10px; transform: none; border-radius: 4px; box-shadow: 14px 14px 0 var(--accent); }
+}
+.site[data-family="neighbourhood"] .cmp-frame { border-radius: 0; box-shadow: 8px 8px 0 var(--accent); }
