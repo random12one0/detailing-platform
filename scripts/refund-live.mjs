@@ -43,6 +43,7 @@
 import { mkdirSync } from "node:fs";
 import { createRequire } from "node:module";
 import { demoOwner } from "./lib/demoOwner.mjs";
+import { outDir } from "./lib/outDir.mjs";
 import { writeReceipt } from "./receipt.mjs";
 import { money } from "../app/src/lib/format.js";
 
@@ -54,7 +55,7 @@ const ACCOUNT = arg("account") || "acct_1UCMp1JeoZ7g84se", INTENT = arg("intent"
 const PAID_CENTS = Number(arg("cents") || 19500);
 const BASE = arg("base") || process.env.BASE_URL || "http://localhost:5173";
 const BREAK = arg("break");
-const SHOTS = arg("shots") || "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68/png";
+const SHOTS = outDir(arg("shots") || "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68/png");
 const WIDTHS = [[1440, 900], [768, 1024], [390, 844], [320, 700]];
 const started_at = new Date().toISOString();
 if (BREAK && !["blind", "no-refund", "one-account"].includes(BREAK)) { console.error(`unknown --break=${BREAK}`); process.exit(2); }
