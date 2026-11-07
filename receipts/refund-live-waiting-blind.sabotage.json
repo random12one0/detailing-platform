@@ -1,9 +1,9 @@
 {
-  "git_sha": "31f34d2e9296a0b0d6886fe58644e113592eaafd",
-  "git_sha_started": "31f34d2e9296a0b0d6886fe58644e113592eaafd",
+  "git_sha": "7d848604dc53501b204e933fa2002d3d0380301b",
+  "git_sha_started": "7d848604dc53501b204e933fa2002d3d0380301b",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-11-07T08:56:16.861Z",
+  "finished_at": "2026-11-07T09:23:22.063Z",
   "failures": [
     "1440x900 · the \"refund it\" line names $196 — A card payment of $195 did not match what this job was owed, and the job has since been paid. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
     "768x1024 · the \"refund it\" line names $196 — A card payment of $195 did not match what this job was owed, and the job has since been paid. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
@@ -15,7 +15,7 @@
     "No refund is recorded: this receipt proves only that the check sees the line on the real job. ROADMAP 97.68 ticks on `refund-live` from a real refund."
   ],
   "artifacts": [
-    "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68/png"
+    "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68r/png"
   ],
   "dimensions": {
     "base": "http://127.0.0.1:5180",
@@ -25,7 +25,7 @@
     "deleted_at": "2026-10-23T18:40:29.641+00:00",
     "refunded": false,
     "rehearsal": false,
-    "frozen_now": "2026-11-07T08:54:47.919Z",
+    "frozen_now": "2026-11-07T09:21:53.588Z",
     "browser_tz": "Asia/Tokyo",
     "second_account": "final-owner@fixture.test",
     "widths": [
@@ -44,11 +44,11 @@
         "box": null,
         "errors": 0,
         "warnings": 0,
-        "shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68/png/live-break-blind-1440x900.png",
+        "shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68r/png/live-break-blind-1440x900.png",
         "second_account": {
           "not_found": true,
           "lines": [],
-          "shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68/png/live-break-blind-second-account-1440x900.png"
+          "shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68r/png/live-break-blind-second-account-1440x900.png"
         }
       },
       {
@@ -59,11 +59,11 @@
         "box": null,
         "errors": 0,
         "warnings": 0,
-        "shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68/png/live-break-blind-768x1024.png",
+        "shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68r/png/live-break-blind-768x1024.png",
         "second_account": {
           "not_found": true,
           "lines": [],
-          "shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68/png/live-break-blind-second-account-768x1024.png"
+          "shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68r/png/live-break-blind-second-account-768x1024.png"
         }
       },
       {
@@ -74,11 +74,11 @@
         "box": null,
         "errors": 0,
         "warnings": 0,
-        "shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68/png/live-break-blind-390x844.png",
+        "shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68r/png/live-break-blind-390x844.png",
         "second_account": {
           "not_found": true,
           "lines": [],
-          "shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68/png/live-break-blind-second-account-390x844.png"
+          "shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68r/png/live-break-blind-second-account-390x844.png"
         }
       },
       {
@@ -89,24 +89,24 @@
         "box": null,
         "errors": 0,
         "warnings": 0,
-        "shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68/png/live-break-blind-320x700.png",
+        "shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68r/png/live-break-blind-320x700.png",
         "second_account": {
           "not_found": true,
           "lines": [],
-          "shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68/png/live-break-blind-second-account-320x700.png"
+          "shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68r/png/live-break-blind-second-account-320x700.png"
         }
       }
     ]
   },
   "check_id": "refund-live-waiting-blind",
-  "started_at": "2026-11-07T08:54:47.919Z",
+  "started_at": "2026-11-07T09:21:53.588Z",
   "status": "fail",
   "expected_targets": 4,
   "discovered_targets": 4,
   "attempted_targets": 4,
   "completed_targets": 4,
   "skipped_targets": 0,
-  "assertions_executed": 43,
+  "assertions_executed": 47,
   "min_assertions": 24,
   "canary": {
     "id": "break-blind",
