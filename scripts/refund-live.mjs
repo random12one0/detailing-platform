@@ -6,34 +6,39 @@
 // the published `stripe-webhook`, the webhook finding the job on the real database and recording the refund,
 // and the job record then dropping the line. This is that check, on the one payment set aside for it: a $195
 // test payment (ACCOUNT, INTENT below) that `demo-detail`'s job holds on its refund-owed list since 2026-10-23.
-// NOTHING HERE IS FED: the job is read from the database and the page as the server serves it, except the
-// canary view, which says so.
+// NOTHING HERE IS FED except the canary view and --rehearse-refunded, which say so: the job is read from the
+// database and the page as the server serves it.
 //
-//   set -a; . ./.env; set +a          (SUPABASE_URL, the service key, DEMO_OWNER_PW; STRIPE_SECRET_KEY for --refund)
-//   node scripts/refund-live.mjs [--base=<app>]          reads only. Before the refund: receipt `refund-live-waiting`,
-//                                                         which passes when the line IS there at every width. After it:
-//                                                         receipt `refund-live`, which passes when the refund is recorded
-//                                                         on the job AND the line is gone at every width. 97.68 ticks on that one.
-//   node scripts/refund-live.mjs --refund                makes the refund itself on the test account (a sk_test_ key only;
-//                                                         anything else, or a live-mode payment, is refused), waits up to
-//                                                         two minutes for the webhook to record it, then judges as above.
+//   set -a; . ./.env; set +a     (SUPABASE_URL, the service key, DEMO_OWNER_PW, FIXTURE_OWNER_PW; STRIPE_SECRET_KEY for --refund)
+//   node scripts/refund-live.mjs [--base=<app>]   reads only. No refund recorded: receipt `refund-live-waiting`, which passes
+//        when the line IS there, inside the screen and painted, at every width. A refund recorded: receipt `refund-live`,
+//        which passes when the line is gone at every width. 97.68 ticks on `refund-live` from a REAL refund, nothing else.
+//   node scripts/refund-live.mjs --intent=<pi_…> [--cents=<paid>] --refund   refunds that payment on the test account and
+//        REQUIRES the webhook's record within two minutes (receipt `refund-live`). Refused before any request to Stripe
+//        unless every check passed (one job, demo-detail's, on --account, of --cents, not deleted), the key is sk_test_,
+//        and Stripe says the payment is a succeeded test-mode one of exactly that amount.
+//   node scripts/refund-live.mjs --rehearse-refunded   the after-refund judgement on the real row with a refund record FED in
+//        (receipt `refund-live-rehearsal`): proves the half that ticks the item runs before a real refund exists. Never a tick.
 //   A belt copy's server has no app settings: BASE=http://127.0.0.1:5180 node --import ./scripts/lib/inject-app-env.mjs scripts/refund-live.mjs
 //
-// THE CANARY IS THE OTHER HALF, so a probe that sees nothing cannot pass either way. Before the refund the
-// same probe looks for a figure the job does not carry ($196) and must find nothing; after it, one view per
-// width is fed the real row with its refund record removed and must show the line again.
+// EVERY VIEW: the page's clock frozen (--now=, BELT_FROZEN_NOW, else this run's start) in a far-off browser (--tz=, default
+// Asia/Tokyo), read back; no console error AND no console warning; and the same address opened by a SECOND ACCOUNT,
+// another business's owner (final-owner@fixture.test), which must get "Booking not found." with no line and no figure.
+// THE CANARY IS THE OTHER HALF, so a probe that sees nothing cannot pass either way. Before the refund the same probe
+// looks for a figure the job does not carry ($196) and must find nothing; after it, one view per width is fed the real
+// row with its refund record removed and must show the line again.
 // SABOTAGE: --break=blind looks for $196 instead of $195, so "the line is there" goes red before the refund.
-// --break=no-refund strips the refund record from the real view (the webhook before 97.68), so "the line is
-// gone" goes red after it. No frozen clock: this job's line carries no date (the dated refund note is the
-// cancelled-job view, proved under a frozen clock by payment-problem-late.mjs).
+// --break=no-refund strips the refund record from the real view (the webhook before 97.68), so "the line is gone" goes
+// red after it (or in the rehearsal). --break=one-account opens the second account's views as the demo owner, so
+// "Booking not found." goes red.
 //
 // THE $195 TEST PAYMENT CAN NEVER CLEAR A LINE, measured 2026-11-07. The 2026-10-23 live run that took it
 // soft-deleted its job (eaa40f95) 12 seconds later, and the webhook skips deleted jobs on purpose
-// (`chargeRefunded`'s `deleted_at` filter), as does the job page. So refunding it is logged as "a refund for a
-// payment no job here took" and changes nothing, which would read as 97.68 broken in production. Un-deleting
-// it was tried and REFUSED by the database (`bookings_no_overlap`): live job 04cb1a5d holds the same 7 July
-// 9-11 slot. So a deleted job is reported as NOT READY, never judged, and the check is pointed at a FRESH test
-// payment on a live job with --intent=<pi_…> [--account=<acct_…>] [--cents=<paid>], defaults the old payment.
+// (`chargeRefunded`'s `deleted_at` filter). The job PAGE does not skip it (`fetchBooking` reads by id) and still shows
+// its red line, so the screen is judged; only a refund is refused, because it would be logged as "a refund for a
+// payment no job here took" and change nothing, which would read as 97.68 broken in production. Un-deleting the job
+// was tried and REFUSED by the database (`bookings_no_overlap`: live job 04cb1a5d holds the same 7 July 9-11 slot).
+// So the refund needs a FRESH test payment on a live job (ROADMAP 97.68a): --intent=<pi_…> [--account=] [--cents=].
 
 import { mkdirSync } from "node:fs";
 import { createRequire } from "node:module";
@@ -52,7 +57,7 @@ const BREAK = arg("break");
 const SHOTS = arg("shots") || "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68/png";
 const WIDTHS = [[1440, 900], [768, 1024], [390, 844], [320, 700]];
 const started_at = new Date().toISOString();
-if (BREAK && !["blind", "no-refund"].includes(BREAK)) { console.error(`unknown --break=${BREAK}`); process.exit(2); }
+if (BREAK && !["blind", "no-refund", "one-account"].includes(BREAK)) { console.error(`unknown --break=${BREAK}`); process.exit(2); }
 
 const URL_ = process.env.SUPABASE_URL ?? "", KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY;
 if (!URL_.includes("kguqylyzgyzfktkfnhjb") || !KEY) {
@@ -84,10 +89,18 @@ const check = (name, ok, detail = "") => {
   if (!ok) failures.push(`${name}${detail ? ` — ${detail}` : ""}`);
 };
 
+const REFUND = process.argv.includes("--refund"), REHEARSE = process.argv.includes("--rehearse-refunded");
+if (REFUND && REHEARSE) { console.error("--refund and --rehearse-refunded cannot be combined: a rehearsal feeds the refund record. NOTHING WAS MEASURED."); process.exit(2); }
+// A FROZEN CLOCK AND A FAR-OFF BROWSER on every view, read back from each page. Default: this run's own start,
+// so the demo session stays valid; --now= or the belt's BELT_FROZEN_NOW to pin it.
+const NOW = arg("now") || process.env.BELT_FROZEN_NOW || started_at, TZ = arg("tz") || "Asia/Tokyo";
+const SECOND = { email: "final-owner@fixture.test", password: process.env.FIXTURE_OWNER_PW };  // mail-sink: another business's seeded owner
+if (!SECOND.password) { console.error("FIXTURE_OWNER_PW is not set, so the second account cannot sign in. Load .env. NOTHING WAS MEASURED."); process.exit(2); }
+
 let jobs = await readJobs();
 check("exactly one job holds the test payment", jobs.length === 1, `${jobs.length} jobs`);
-let job = jobs[0];
-const AMOUNT = money(PAID_CENTS / 100), LOOK = BREAK === "blind" ? money(PAID_CENTS / 100 + 1) : AMOUNT, WRONG = money(PAID_CENTS / 100 + 1);
+let job = jobs.length === 1 ? jobs[0] : undefined;
+const AMOUNT = money(PAID_CENTS / 100), WRONG = money(PAID_CENTS / 100 + 1), LOOK = BREAK === "blind" ? WRONG : AMOUNT;
 let account = null;
 if (job) {
   const [biz] = await rest(`businesses?select=slug&id=eq.${job.business_id}`);
@@ -97,65 +110,85 @@ if (job) {
   const listed = (job.payment_problem?.payments ?? []).find((p) => p?.intent === INTENT);
   check(`the payment is the ${AMOUNT} one`, Number(listed?.paid_cents ?? refundOf(job)?.paid_cents) === PAID_CENTS, JSON.stringify(listed ?? refundOf(job)));
 }
+// The webhook skips a deleted job (`chargeRefunded`'s `deleted_at` filter); the job page does NOT (`fetchBooking`
+// reads by id, measured 2026-11-07), so the screen is still judged and only a refund is refused.
 const deletedAt = job?.deleted_at ?? null;
-if (deletedAt) check("the job is not deleted (the webhook and the job page both skip a deleted job)", false, `NOT READY: deleted ${deletedAt}; point the check at a fresh test payment on a live job (--intent=)`);
+const warnings = [];
+if (deletedAt) {
+  if (REFUND) check("the job is not deleted: the webhook skips a deleted job, so this refund could never be recorded", false, `deleted ${deletedAt}`);
+  warnings.push(`NOT READY FOR A REFUND: job ${job.id} was soft-deleted ${deletedAt}, and the webhook skips deleted jobs, so refunding ${INTENT} would be logged as "a payment no job here took" and change nothing. Point --intent= at a fresh test payment on a live job (ROADMAP 97.68a).`);
+}
+if (REHEARSE) warnings.push("REHEARSAL: every view is fed the real row WITH A REFUND RECORD ADDED. It proves the after-refund judgement runs; it is not a refund and never ticks 97.68.");
+
+// NOTHING REACHES STRIPE UNLESS EVERY CHECK ABOVE PASSED: one job, demo-detail's, on this account, this amount, not deleted.
+let refunded = isRefunded(job);
+if (REFUND) {
+  if (failures.length) { console.error(`refusing to refund: ${failures.length} check(s) above failed. NOTHING WAS REFUNDED.`); process.exit(2); }
+  const sk = process.env.STRIPE_SECRET_KEY ?? "";
+  if (!sk.startsWith("sk_test_")) { console.error("--refund needs STRIPE_SECRET_KEY to be a TEST key (sk_test_…); refusing anything else. NOTHING WAS REFUNDED."); process.exit(2); }
+  const stripe = async (path, form) => {
+    const r = await fetch(`https://api.stripe.com/v1/${path}`, {
+      method: form ? "POST" : "GET",
+      headers: { Authorization: `Bearer ${sk}`, "Stripe-Account": ACCOUNT, ...(form ? { "Content-Type": "application/x-www-form-urlencoded", "Idempotency-Key": `roadmap-97.68-${INTENT}` } : {}) },
+      body: form ? new URLSearchParams(form) : undefined,
+    });
+    return [r.status, await r.json()];
+  };
+  const [s, pi] = await stripe(`payment_intents/${INTENT}?expand[]=latest_charge`);
+  if (s !== 200 || pi.livemode !== false || pi.status !== "succeeded" || pi.amount_received !== PAID_CENTS) {
+    console.error(`refusing to refund: Stripe answered ${s}, livemode ${pi?.livemode}, status ${pi?.status}, received ${pi?.amount_received} (wanted a ${PAID_CENTS}-cent TEST payment). NOTHING WAS REFUNDED.`);
+    process.exit(2);
+  }
+  if (Number(pi.latest_charge?.amount_refunded ?? 0) < PAID_CENTS) {
+    const [rs, rf] = await stripe("refunds", { payment_intent: INTENT });
+    console.log(`refund: Stripe answered ${rs}, ${rf.id ?? rf.error?.message}, ${rf.status ?? ""}`);
+    if (rs !== 200) process.exit(1);
+  } else console.log("refund: already refunded in Stripe; waiting for the record");
+  // Stripe's notice reaches the webhook in seconds. Two minutes, then the record is REQUIRED, never assumed.
+  for (let i = 0; i < 40 && !isRefunded(job); i++) { await new Promise((r) => setTimeout(r, 3000)); job = (await readJobs()).find((j) => j.id === job.id) ?? job; }
+  refunded = isRefunded(job);
+  check("the webhook recorded the refund on the job within two minutes", refunded, JSON.stringify(job?.payment_problem?.refunds ?? null));
+}
+// What the screen must show: after a refund (requested, recorded or rehearsed) the line is gone; before it, it is there.
+const gone = REFUND || REHEARSE || refunded;
+console.log(gone ? `judging that the line is GONE${REHEARSE ? " (rehearsal: refund record fed)" : ""}` : "no refund recorded: judging that the line is still there");
 
 const probed = [];
-let discovered = 0, attempted = 0, completed = 0, refunded = isRefunded(job);
+let discovered = 0, attempted = 0, completed = 0;
 const canaryHits = [];
-if (job && !deletedAt) {
+if (job) {
   const browser = await chromium.launch();
   try {
-    if (process.argv.includes("--refund")) {
-      const sk = process.env.STRIPE_SECRET_KEY ?? "";
-      if (!sk.startsWith("sk_test_")) { console.error("--refund needs STRIPE_SECRET_KEY to be a TEST key (sk_test_…); refusing anything else. NOTHING WAS REFUNDED."); await browser.close(); process.exit(2); }
-      const stripe = async (path, form) => {
-        const r = await fetch(`https://api.stripe.com/v1/${path}`, {
-          method: form ? "POST" : "GET",
-          headers: { Authorization: `Bearer ${sk}`, "Stripe-Account": ACCOUNT, ...(form ? { "Content-Type": "application/x-www-form-urlencoded", "Idempotency-Key": `roadmap-97.68-${INTENT}` } : {}) },
-          body: form ? new URLSearchParams(form) : undefined,
-        });
-        return [r.status, await r.json()];
-      };
-      const [s, pi] = await stripe(`payment_intents/${INTENT}?expand[]=latest_charge`);
-      if (s !== 200 || pi.livemode !== false || pi.status !== "succeeded" || pi.amount_received !== PAID_CENTS) {
-        console.error(`refusing to refund: Stripe answered ${s}, livemode ${pi?.livemode}, status ${pi?.status}, received ${pi?.amount_received} (wanted a ${PAID_CENTS}-cent TEST payment). NOTHING WAS REFUNDED.`);
-        await browser.close(); process.exit(2);
+    const signIn = async ({ email, password }) => {
+      const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+      const p = await ctx.newPage();
+      await p.goto(`${BASE}/app`, { waitUntil: "domcontentloaded" });
+      await p.waitForSelector("input[type=email], .tabbar", { timeout: 30000 });
+      if (await p.locator("input[type=email]").count()) {
+        await p.fill("input[type=email]", email);
+        await p.fill("input[type=password]", password);
+        await p.click("form button.btn.primary");
+        await p.waitForSelector(".tabbar", { timeout: 30000 });
       }
-      if (Number(pi.latest_charge?.amount_refunded ?? 0) < PAID_CENTS) {
-        const [rs, rf] = await stripe("refunds", { payment_intent: INTENT });
-        console.log(`refund: Stripe answered ${rs}, ${rf.id ?? rf.error?.message}, ${rf.status ?? ""}`);
-        if (rs !== 200) { await browser.close(); process.exit(1); }
-      } else console.log("refund: already refunded in Stripe; waiting for the record");
-      // Stripe's notice reaches the webhook in seconds; two minutes, then judge whatever is there.
-      for (let i = 0; i < 40 && !isRefunded(job); i++) { await new Promise((r) => setTimeout(r, 3000)); job = (await readJobs()).find((j) => j.id === job.id) ?? job; }
-      refunded = isRefunded(job);
-    }
-    console.log(refunded ? `the refund IS recorded: ${JSON.stringify(refundOf(job))}` : "the refund is NOT recorded yet: judging that the line is still there");
-
-    const login = await browser.newContext({ viewport: { width: 1440, height: 900 } });
-    const lp = await login.newPage();
-    await lp.goto(`${BASE}/app`, { waitUntil: "domcontentloaded" });
-    await lp.waitForSelector("input[type=email], .tabbar", { timeout: 30000 });
-    if (await lp.locator("input[type=email]").count()) {
-      await lp.fill("input[type=email]", demoOwner().email);
-      await lp.fill("input[type=password]", demoOwner().password);
-      await lp.click("form button.btn.primary");
-      await lp.waitForSelector(".tabbar", { timeout: 30000 });
-    }
-    const state = await login.storageState();
-    await login.close();
+      const state = await ctx.storageState();
+      await ctx.close();
+      return state;
+    };
+    const owner = await signIn(demoOwner());
+    // --break=one-account opens the "second" views as the demo owner: "Booking not found." must then go red.
+    const second = BREAK === "one-account" ? owner : await signIn(SECOND);
     mkdirSync(SHOTS, { recursive: true });
 
-    // One view of the job record. `strip` feeds the real row with its refund record removed (the canary, or
-    // --break=no-refund); otherwise the page reads the database untouched. Settled on the job's own read
-    // arriving, never on what has rendered (docs/gotchas.md 109).
-    const view = async (w, h, strip, name) => {
-      const ctx = await browser.newContext({ viewport: { width: w, height: h }, storageState: state });
+    // One view of the job record. The row is the database's own; `add` feeds it a refund record (rehearsal),
+    // `strip` removes the record (the canary, or --break=no-refund). Settled on the job's own read arriving,
+    // never on what has rendered (docs/gotchas.md 109).
+    const view = async (state, w, h, { add = false, strip = false } = {}, name) => {
+      const ctx = await browser.newContext({ viewport: { width: w, height: h }, storageState: state, timezoneId: TZ });
+      await ctx.clock.setFixedTime(new Date(NOW));
       await ctx.addInitScript(() => localStorage.setItem("dp.lang.app", "en"));
       const page = await ctx.newPage();
-      const errors = [];
-      page.on("console", (m) => { if (m.type() === "error") errors.push(m.text()); });
+      const errors = [], warns = [];
+      page.on("console", (m) => { if (m.type() === "error") errors.push(m.text()); if (m.type() === "warning") warns.push(m.text()); });
       page.on("pageerror", (e) => errors.push(String(e)));
       let reads = 0;
       await page.route("**/rest/v1/bookings?**", async (route) => {
@@ -163,9 +196,11 @@ if (job && !deletedAt) {
         const res = await route.fetch();
         let body = await res.json().catch(() => null);
         const edit = (b) => {
-          if (!strip || b?.id !== job.id || !b.payment_problem?.refunds) return b;
-          const { refunds, ...others } = b.payment_problem;
-          return { ...b, payment_problem: others };
+          if (b?.id !== job.id) return b;
+          let pp = b.payment_problem;
+          if (add && pp) pp = { ...pp, refunds: { ...(pp.refunds ?? {}), [INTENT]: { paid_cents: PAID_CENTS, refunded_cents: PAID_CENTS, at: NOW } } };
+          if (strip && pp?.refunds) { const { refunds, ...others } = pp; pp = others; }
+          return { ...b, payment_problem: pp };
         };
         body = Array.isArray(body) ? body.map(edit) : edit(body);
         if ((Array.isArray(body) ? body : [body]).some((b) => b?.id === job.id)) reads++;
@@ -173,30 +208,63 @@ if (job && !deletedAt) {
       });
       await page.goto(`${BASE}/job/${job.id}`, { waitUntil: "domcontentloaded" });
       for (let i = 0; i < 60 && !reads; i++) await page.waitForTimeout(250);
-      await page.waitForSelector(".jobbar, .error-box", { timeout: 30000 }).catch(() => {});
+      await page.waitForSelector(".jobbar, .error-box, .center p", { timeout: 30000 }).catch(() => {});
       await page.waitForTimeout(1500);
-      const lines = await page.evaluate(() => [...document.querySelectorAll("[data-refund-owed]")].map((el) => el.innerText));
+      const clock = await page.evaluate(() => [new Date().toISOString(), Intl.DateTimeFormat().resolvedOptions().timeZone]);
+      // Each line, and for the one naming the figure: inside the screen, painted on top, fully opaque.
+      const seen = await page.evaluate((look) => {
+        const els = [...document.querySelectorAll("[data-refund-owed]")];
+        const el = els.find((e) => e.innerText.includes(look));
+        let box = null;
+        if (el) {
+          el.scrollIntoView({ block: "center" });
+          const r = el.getBoundingClientRect();
+          const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+          box = { left: r.left, right: r.right, top: r.top, bottom: r.bottom, vw: window.innerWidth, vh: window.innerHeight, hit: !!hit && (hit === el || el.contains(hit)), opacity: getComputedStyle(el).opacity };
+        }
+        return { lines: els.map((e) => e.innerText), box, notFound: document.body.innerText.includes("Booking not found."), body: document.body.innerText };
+      }, LOOK);
       const shot = `${SHOTS}/live-${name}-${w}x${h}.png`;
       await page.screenshot({ path: shot, fullPage: false });
       await ctx.close();
-      return { reads, lines, errors, shot };
+      return { reads, clock, errors, warns, shot, ...seen };
+    };
+    const clean = (tag, v) => {
+      check(`${tag} · the page's clock is frozen at ${NOW} in ${TZ}`, v.clock[0] === new Date(NOW).toISOString() && v.clock[1] === TZ, v.clock.join(" "));
+      check(`${tag} · no console error`, v.errors.length === 0, v.errors.slice(0, 3).join(" | "));
+      check(`${tag} · no console warning`, v.warns.length === 0, v.warns.slice(0, 3).join(" | "));
     };
 
+    const label = BREAK ? `break-${BREAK}` : REHEARSE ? "rehearsal" : gone ? "after" : "before";
     for (const [w, h] of WIDTHS) {
       discovered++; attempted++;
       const tag = `${w}x${h}`;
-      const real = await view(w, h, BREAK === "no-refund", BREAK ? `break-${BREAK}` : refunded ? "after" : "before");
+      const real = await view(owner, w, h, { add: REHEARSE, strip: BREAK === "no-refund" }, label);
       check(`${tag} · the page read the job itself`, real.reads > 0, "no bookings read returned this job");
-      if (refunded) check(`${tag} · no "refund it" line: the refunded payment is not owed`, real.lines.length === 0, real.lines.join(" | "));
-      else check(`${tag} · the "refund it" line names ${LOOK}`, real.lines.some((t) => t.includes(LOOK)), real.lines.join(" | ") || "no [data-refund-owed] line");
-      check(`${tag} · console clean`, real.errors.length === 0, real.errors.slice(0, 3).join(" | "));
-      if (refunded) {
-        const control = await view(w, h, true, "canary-refund-stripped");
+      clean(tag, real);
+      if (gone) check(`${tag} · no "refund it" line: the refunded payment is not owed`, real.lines.length === 0, real.lines.join(" | "));
+      else {
+        check(`${tag} · the "refund it" line names ${LOOK}`, !!real.box, real.lines.join(" | ") || "no [data-refund-owed] line");
+        if (real.box) {
+          check(`${tag} · the line is inside the screen`, real.box.left >= 0 && real.box.right <= real.box.vw + 0.5 && real.box.top >= 0 && real.box.bottom <= real.box.vh + 0.5, JSON.stringify(real.box));
+          check(`${tag} · the line is painted on top (hit test lands on it)`, real.box.hit);
+          check(`${tag} · the line is fully opaque`, real.box.opacity === "1", `opacity ${real.box.opacity}`);
+        }
+      }
+      // THE SECOND ACCOUNT: another business's owner opening the same address sees no job and no figure.
+      const other = await view(second, w, h, { add: REHEARSE }, `${label}-second-account`);
+      check(`${tag} · second account: "Booking not found."`, other.notFound, other.body.slice(0, 160));
+      check(`${tag} · second account: no refund line and no ${AMOUNT}`, other.lines.length === 0 && !other.body.includes(AMOUNT), other.lines.join(" | "));
+      clean(`${tag} · second account`, other);
+      const p = { width: w, lines: real.lines, box: real.box, errors: real.errors.length, warnings: real.warns.length, shot: real.shot, second_account: { not_found: other.notFound, lines: other.lines, shot: other.shot } };
+      if (gone) {
+        // The canary: the same view with the refund record removed must show the line again.
+        const control = await view(owner, w, h, { add: REHEARSE, strip: true }, "canary-refund-stripped");
         canaryHits.push(control.reads > 0 && control.lines.some((t) => t.includes(AMOUNT)));
-        probed.push({ width: w, lines: real.lines, errors: real.errors.length, shot: real.shot, canary_lines: control.lines, canary_shot: control.shot });
+        probed.push({ ...p, canary_lines: control.lines, canary_shot: control.shot });
       } else {
         canaryHits.push(real.reads > 0 && !real.lines.some((t) => t.includes(WRONG)));
-        probed.push({ width: w, lines: real.lines, errors: real.errors.length, shot: real.shot });
+        probed.push(p);
       }
       completed++;
     }
@@ -205,7 +273,8 @@ if (job && !deletedAt) {
   }
 }
 
-const id = refunded ? "refund-live" : "refund-live-waiting";
+// `refund-live` is the receipt 97.68 ticks on: a refund requested here, or one already recorded. Never a rehearsal.
+const id = REHEARSE ? "refund-live-rehearsal" : REFUND || refunded ? "refund-live" : "refund-live-waiting";
 console.log(`\n${assertions - failures.length} passed, ${failures.length} failed, ${completed} of ${WIDTHS.length} widths.`);
 const { path } = writeReceipt({
   check_id: BREAK ? `${id}-${BREAK}` : id,
@@ -217,14 +286,14 @@ const { path } = writeReceipt({
   completed_targets: completed,
   skipped_targets: 0,
   assertions_executed: assertions,
-  min_assertions: 12,
+  min_assertions: 24,
   failures,
-  warnings: refunded ? [] : ["The refund has NOT been made yet: this receipt proves only that the check sees the line on the real job today. ROADMAP 97.68 ticks on `refund-live`, written once the refund is recorded."],
-  dimensions: { base: BASE, job: job?.id ?? null, account, intent: INTENT, deleted_at: deletedAt, refunded, refund: refundOf(job), widths: WIDTHS.map(([w, h]) => `${w}x${h}`), ...(BREAK ? { break: BREAK } : {}), probed },
+  warnings: [...warnings, ...(gone ? [] : ["No refund is recorded: this receipt proves only that the check sees the line on the real job. ROADMAP 97.68 ticks on `refund-live` from a real refund."])],
+  dimensions: { base: BASE, job: job?.id ?? null, account, intent: INTENT, deleted_at: deletedAt, refunded, rehearsal: REHEARSE, frozen_now: NOW, browser_tz: TZ, second_account: SECOND.email, widths: WIDTHS.map(([w, h]) => `${w}x${h}`), ...(BREAK ? { break: BREAK } : {}), probed },
   artifacts: [SHOTS],
   canary: BREAK
     ? { id: `break-${BREAK}`, observed_failure: failures.length > 0 }
-    : refunded
+    : gone
       ? { id: "refund-stripped-shows-the-line", observed_failure: canaryHits.length === WIDTHS.length && canaryHits.every(Boolean) }
       : { id: `${WRONG}-not-found`, observed_failure: canaryHits.length === WIDTHS.length && canaryHits.every(Boolean) },
 });
