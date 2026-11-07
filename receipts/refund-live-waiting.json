@@ -1,46 +1,145 @@
 {
-  "git_sha": "7fadff978ecb677f3a9488e12e5407e80d4a298a",
-  "git_sha_started": "7fadff978ecb677f3a9488e12e5407e80d4a298a",
+  "git_sha": "31f34d2e9296a0b0d6886fe58644e113592eaafd",
+  "git_sha_started": "31f34d2e9296a0b0d6886fe58644e113592eaafd",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-11-07T08:36:45.417Z",
-  "failures": [
-    "the job is not deleted (the webhook and the job page both skip a deleted job) — NOT READY: deleted 2026-10-23T18:40:29.641+00:00; point the check at a fresh test payment on a live job (--intent=)"
-  ],
+  "finished_at": "2026-11-07T09:00:06.055Z",
+  "failures": [],
   "warnings": [
-    "The refund has NOT been made yet: this receipt proves only that the check sees the line on the real job today. ROADMAP 97.68 ticks on `refund-live`, written once the refund is recorded."
+    "NOT READY FOR A REFUND: job eaa40f95-1e62-4439-834f-a3b1a3895715 was soft-deleted 2026-10-23T18:40:29.641+00:00, and the webhook skips deleted jobs, so refunding pi_3UTnNpJeoZ7g84se0AeDet4F would be logged as \"a payment no job here took\" and change nothing. Point --intent= at a fresh test payment on a live job (ROADMAP 97.68a).",
+    "No refund is recorded: this receipt proves only that the check sees the line on the real job. ROADMAP 97.68 ticks on `refund-live` from a real refund."
   ],
   "artifacts": [
     "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68/png"
   ],
   "dimensions": {
-    "base": "http://localhost:5173",
+    "base": "http://127.0.0.1:5180",
     "job": "eaa40f95-1e62-4439-834f-a3b1a3895715",
     "account": "acct_1UCMp1JeoZ7g84se",
     "intent": "pi_3UTnNpJeoZ7g84se0AeDet4F",
     "deleted_at": "2026-10-23T18:40:29.641+00:00",
     "refunded": false,
-    "refund": null,
+    "rehearsal": false,
+    "frozen_now": "2026-11-07T08:58:36.784Z",
+    "browser_tz": "Asia/Tokyo",
+    "second_account": "final-owner@fixture.test",
     "widths": [
       "1440x900",
       "768x1024",
       "390x844",
       "320x700"
     ],
-    "probed": []
+    "probed": [
+      {
+        "width": 1440,
+        "lines": [
+          "A card payment of $195 did not match what this job was owed, and the job has since been paid. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you."
+        ],
+        "box": {
+          "left": 473,
+          "right": 967,
+          "top": 209.390625,
+          "bottom": 265.921875,
+          "vw": 1440,
+          "vh": 900,
+          "hit": true,
+          "opacity": "1"
+        },
+        "errors": 0,
+        "warnings": 0,
+        "shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68/png/live-before-1440x900.png",
+        "second_account": {
+          "not_found": true,
+          "lines": [],
+          "shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68/png/live-before-second-account-1440x900.png"
+        }
+      },
+      {
+        "width": 768,
+        "lines": [
+          "A card payment of $195 did not match what this job was owed, and the job has since been paid. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you."
+        ],
+        "box": {
+          "left": 137,
+          "right": 631,
+          "top": 200.75,
+          "bottom": 257.28125,
+          "vw": 768,
+          "vh": 1024,
+          "hit": true,
+          "opacity": "1"
+        },
+        "errors": 0,
+        "warnings": 0,
+        "shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68/png/live-before-768x1024.png",
+        "second_account": {
+          "not_found": true,
+          "lines": [],
+          "shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68/png/live-before-second-account-768x1024.png"
+        }
+      },
+      {
+        "width": 390,
+        "lines": [
+          "A card payment of $195 did not match what this job was owed, and the job has since been paid. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you."
+        ],
+        "box": {
+          "left": 33,
+          "right": 357,
+          "top": 200.75,
+          "bottom": 276.125,
+          "vw": 390,
+          "vh": 844,
+          "hit": true,
+          "opacity": "1"
+        },
+        "errors": 0,
+        "warnings": 0,
+        "shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68/png/live-before-390x844.png",
+        "second_account": {
+          "not_found": true,
+          "lines": [],
+          "shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68/png/live-before-second-account-390x844.png"
+        }
+      },
+      {
+        "width": 320,
+        "lines": [
+          "A card payment of $195 did not match what this job was owed, and the job has since been paid. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you."
+        ],
+        "box": {
+          "left": 33,
+          "right": 287,
+          "top": 200.75,
+          "bottom": 294.96875,
+          "vw": 320,
+          "vh": 700,
+          "hit": true,
+          "opacity": "1"
+        },
+        "errors": 0,
+        "warnings": 0,
+        "shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68/png/live-before-320x700.png",
+        "second_account": {
+          "not_found": true,
+          "lines": [],
+          "shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68/png/live-before-second-account-320x700.png"
+        }
+      }
+    ]
   },
   "check_id": "refund-live-waiting",
-  "started_at": "2026-11-07T08:36:44.836Z",
-  "status": "fail",
+  "started_at": "2026-11-07T08:58:36.784Z",
+  "status": "pass",
   "expected_targets": 4,
-  "discovered_targets": 0,
-  "attempted_targets": 0,
-  "completed_targets": 0,
+  "discovered_targets": 4,
+  "attempted_targets": 4,
+  "completed_targets": 4,
   "skipped_targets": 0,
-  "assertions_executed": 4,
-  "min_assertions": 12,
+  "assertions_executed": 55,
+  "min_assertions": 24,
   "canary": {
     "id": "$196-not-found",
-    "observed_failure": false
+    "observed_failure": true
   }
 }

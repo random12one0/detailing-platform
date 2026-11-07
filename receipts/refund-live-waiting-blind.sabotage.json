@@ -1,0 +1,115 @@
+{
+  "git_sha": "31f34d2e9296a0b0d6886fe58644e113592eaafd",
+  "git_sha_started": "31f34d2e9296a0b0d6886fe58644e113592eaafd",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-11-07T08:56:16.861Z",
+  "failures": [
+    "1440x900 · the \"refund it\" line names $196 — A card payment of $195 did not match what this job was owed, and the job has since been paid. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
+    "768x1024 · the \"refund it\" line names $196 — A card payment of $195 did not match what this job was owed, and the job has since been paid. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
+    "390x844 · the \"refund it\" line names $196 — A card payment of $195 did not match what this job was owed, and the job has since been paid. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
+    "320x700 · the \"refund it\" line names $196 — A card payment of $195 did not match what this job was owed, and the job has since been paid. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you."
+  ],
+  "warnings": [
+    "NOT READY FOR A REFUND: job eaa40f95-1e62-4439-834f-a3b1a3895715 was soft-deleted 2026-10-23T18:40:29.641+00:00, and the webhook skips deleted jobs, so refunding pi_3UTnNpJeoZ7g84se0AeDet4F would be logged as \"a payment no job here took\" and change nothing. Point --intent= at a fresh test payment on a live job (ROADMAP 97.68a).",
+    "No refund is recorded: this receipt proves only that the check sees the line on the real job. ROADMAP 97.68 ticks on `refund-live` from a real refund."
+  ],
+  "artifacts": [
+    "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68/png"
+  ],
+  "dimensions": {
+    "base": "http://127.0.0.1:5180",
+    "job": "eaa40f95-1e62-4439-834f-a3b1a3895715",
+    "account": "acct_1UCMp1JeoZ7g84se",
+    "intent": "pi_3UTnNpJeoZ7g84se0AeDet4F",
+    "deleted_at": "2026-10-23T18:40:29.641+00:00",
+    "refunded": false,
+    "rehearsal": false,
+    "frozen_now": "2026-11-07T08:54:47.919Z",
+    "browser_tz": "Asia/Tokyo",
+    "second_account": "final-owner@fixture.test",
+    "widths": [
+      "1440x900",
+      "768x1024",
+      "390x844",
+      "320x700"
+    ],
+    "break": "blind",
+    "probed": [
+      {
+        "width": 1440,
+        "lines": [
+          "A card payment of $195 did not match what this job was owed, and the job has since been paid. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you."
+        ],
+        "box": null,
+        "errors": 0,
+        "warnings": 0,
+        "shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68/png/live-break-blind-1440x900.png",
+        "second_account": {
+          "not_found": true,
+          "lines": [],
+          "shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68/png/live-break-blind-second-account-1440x900.png"
+        }
+      },
+      {
+        "width": 768,
+        "lines": [
+          "A card payment of $195 did not match what this job was owed, and the job has since been paid. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you."
+        ],
+        "box": null,
+        "errors": 0,
+        "warnings": 0,
+        "shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68/png/live-break-blind-768x1024.png",
+        "second_account": {
+          "not_found": true,
+          "lines": [],
+          "shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68/png/live-break-blind-second-account-768x1024.png"
+        }
+      },
+      {
+        "width": 390,
+        "lines": [
+          "A card payment of $195 did not match what this job was owed, and the job has since been paid. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you."
+        ],
+        "box": null,
+        "errors": 0,
+        "warnings": 0,
+        "shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68/png/live-break-blind-390x844.png",
+        "second_account": {
+          "not_found": true,
+          "lines": [],
+          "shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68/png/live-break-blind-second-account-390x844.png"
+        }
+      },
+      {
+        "width": 320,
+        "lines": [
+          "A card payment of $195 did not match what this job was owed, and the job has since been paid. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you."
+        ],
+        "box": null,
+        "errors": 0,
+        "warnings": 0,
+        "shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68/png/live-break-blind-320x700.png",
+        "second_account": {
+          "not_found": true,
+          "lines": [],
+          "shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68/png/live-break-blind-second-account-320x700.png"
+        }
+      }
+    ]
+  },
+  "check_id": "refund-live-waiting-blind",
+  "started_at": "2026-11-07T08:54:47.919Z",
+  "status": "fail",
+  "expected_targets": 4,
+  "discovered_targets": 4,
+  "attempted_targets": 4,
+  "completed_targets": 4,
+  "skipped_targets": 0,
+  "assertions_executed": 43,
+  "min_assertions": 24,
+  "canary": {
+    "id": "break-blind",
+    "observed_failure": true
+  }
+}
