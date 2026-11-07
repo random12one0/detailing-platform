@@ -8,7 +8,7 @@
 
 /* overlay: the words over the foot of a full-bleed photo */
 .hero--overlay { padding: 0 0 52px; }
-.hero--overlay .hero-stage { position: relative; display: grid; align-items: end; min-height: min(64svh, 600px); overflow: hidden; }
+.hero--overlay .hero-stage { position: relative; display: grid; align-items: end; min-height: min(64svh, 600px); }
 .hero--overlay .hero-photo { position: absolute; inset: 0; aspect-ratio: auto; }
 .hero--overlay .hero-photo img { height: 100%; }
 .hero--overlay .hero-photo::after { background: linear-gradient(180deg, color-mix(in srgb, var(--paper) 30%, transparent) 0, transparent 26%, transparent 38%, color-mix(in srgb, var(--paper) 94%, transparent) 86%); }
@@ -279,3 +279,28 @@
   .site[data-family="workshop"] .hero--ledger .hero-ticket { grid-row: 1 / span 3; }
 }
 .site[data-family="boutique"] .compare figcaption { margin-top: 16px; }
+
+/* ================================================================ round two (from the critic's first answers, 2026-11-07)
+   "supporting copy very small", "price crowds the next heading at 768", "large empty space beside the booking form",
+   "an empty cell in the tablet price grid". */
+.site[data-family] .sec-intro { font-size: 18px; }
+.site[data-family] .t-dur, .site[data-family] .t-inc { font-size: 16px; }
+.site[data-family] .compare figcaption, .site[data-family] .still figcaption { font-size: 15px; }
+.site[data-family] .by { font-size: 15px; }
+.site[data-family] .extras small, .site[data-family] .plans small { font-size: 15px; }
+.site[data-family] .t-sizes dt { font-size: 13px; }
+@media (max-width: 420px) {
+  .site[data-family] .site-nav .site-btn { min-height: 48px; }
+}
+/* Showroom and Precision workshop list the services as rows: one column until there is room for the wide layout. */
+@media (min-width: 768px) and (max-width: 1179px) {
+  .site[data-family="showroom"] .tickets, .site[data-family="workshop"] .tickets { grid-template-columns: 1fr; }
+  .site[data-family="workshop"] .ticket:nth-child(odd) { border-right: 0; }
+}
+/* The booking form beside its heading on a wide screen, instead of a narrow column in an empty band. */
+@media (min-width: 1180px) {
+  .site[data-family] .booksec { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); column-gap: 64px; align-items: start; }
+  .site[data-family] .booksec .sec-head { margin: 0; max-width: none; position: sticky; top: 96px; }
+  .site[data-family] .booksec > [data-part="flow"] { min-width: 0; }
+  .site[data-family] .booksec .bk.bk-embedded { --bk-col: 100%; }
+}
