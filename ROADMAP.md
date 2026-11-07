@@ -32177,6 +32177,7 @@ explicitly warns against — git history is the archive. Revisit at step 7.
     scratch copy, see the run name it, remove it.
 
 - [ ] **98.12r — Review notes on 98.12 (belt follow-up from AI notes, 2026-11-05).**
+  **Fourth review, 2026-11-07, answered at `06bc59a2`.** Note 3 (scratch trial compared FAILs with source line numbers): REAL, FIXED. `release-sheet-undeclared.mjs` now compares with `ROADMAP.md:N` and the floor count blanked; it passes 4 of 4 again (`--break=no-line` still exits 1, `named it 0 time(s)`). Note 1 (BLOCKER): the sentence quoted is a recommendation I wrote in this entry, not an instruction to the reviewer; it is a request to Andrew and changes nothing in the code, so no change. Note 2: ordinary-run canary is `undeclared_canary` in `receipts/release-sheet.json` (caught: true at the merge); the scratch trial and its `--break=no-line` run are in the receipts at `06bc59a2`. Note 4: unverifiable by the reviewer, true by the command in R26; no change. Note 5: the 16 FAILs and 14 of 28 are main's own items (97.37, 4.3b, 99.2, 98.2) and the STALE line; not this item's, and clearing them means editing those items' declarations. Not ticked.
   **BELT PARKED (same failure) with no failed attempts, 2026-11-07 08:04:50.** it failed the same way 2 times (review-findings), and each distinct failure gets one retry. The belt could not
   finish this and moved on rather than looping. The last attempt's full output
   is at `belt/runs/2026-11-07T08-01-47-955Z-98.12r.md`. Needs a person or a different
