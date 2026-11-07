@@ -162,7 +162,10 @@ const ABSOLUTE = 44;
 const FLOOR = ABSOLUTE - 1;
 // A sabotage run keeps its own screenshots: both runs clear their folder at the start, so a
 // shared one let the `--break=rect` run delete the clean run's evidence under its receipt.
-const ART_NAME = "admin-furniture-clearance" + (BREAK ? "-" + BREAK.replace(/[^w.-]+/g, "-") : "");
+// The class lost its backslash once (`[^w.-]`), which named `rect` and `canary` both
+// `admin-furniture-clearance--`, so one sabotage erased the other's screenshots (9.11er).
+const artName = (brk) => "admin-furniture-clearance" + (brk ? "-" + brk.replace(/[^\w.-]+/g, "-") : "");
+const ART_NAME = artName(BREAK);
 const ART = fileURLToPath(new URL(`../artifacts/${ART_NAME}/`, import.meta.url));
 
 let assertions = 0;
@@ -309,7 +312,13 @@ if (process.argv.includes("--self-test")) {
     if (!right) bad++;
     console.log(`  ${right ? "ok  " : "WRONG"}  ${name}`);
   }
-  console.log(bad ? `SELF-TEST FAIL — ${bad} of ${cases.length} wrong` : `SELF-TEST PASS — ${cases.length} of ${cases.length}`);
+  // Every run keeps its own screenshot folder: the clean run and each `--break=` it documents.
+  const names = ["", "rect", "canary", "floor-reach"].map(artName);
+  const apart = new Set(names).size === names.length;
+  if (!apart) bad++;
+  console.log(`  ${apart ? "ok  " : "WRONG"}  ${names.length} runs, ${new Set(names).size} screenshot folders (${names.join(", ")})`);
+  const total = cases.length + 1;
+  console.log(bad ? `SELF-TEST FAIL — ${bad} of ${total} wrong` : `SELF-TEST PASS — ${total} of ${total}`);
   process.exit(bad ? 1 : 0);
 }
 
