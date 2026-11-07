@@ -14,6 +14,10 @@
 //   node scripts/release-sheet.mjs --break=lock-one    # 4.3b's lock declared as update-booking only: names 4.3b and verify-domain
 //   node scripts/release-sheet.mjs --break=lock-order  # re-adds the retired 97.13 rule (verify-domain before a database change): names 4.3b
 //   node scripts/release-sheet.mjs --break=webhook-last # the payment webhook back after create-business: names 0.6b and 97.37
+//   node scripts/release-sheet.mjs --break=undeclared-line # a throwaway AWAITS PUBLISH line under the first open item with no step,
+//                                                       # in this run's copy of ROADMAP.md only: names that item (98.12; reads no receipt, bites on any)
+//   node scripts/release-sheet.mjs --break=dup-carries   # puts back the 98.18 bug (a "carries <item>" note printed twice on one step): names the step (98.18r)
+//   node scripts/release-sheet.mjs --break=undeclared-off # the undeclared-line rule switched off: the every-run canary must go red naming it (98.12r)
 //
 // lock-one, lock-order, fn-before-page and webhook-last (and drop-line, unhold) only bite while the server check names the programs they
 // move. On a receipt naming none (the stale one 98.18 met) fn-before-page and lock-order printed
@@ -76,7 +80,7 @@ import { join } from "node:path";
 import { writeReceipt, REPO } from "./receipt.mjs";
 
 const started_at = new Date().toISOString();
-const BREAKS = ["drop-step", "drop-line", "unhold", "open-wait", "no-cron", "no-order", "no-escape", "fn-before-page", "lock-one", "lock-order", "webhook-last"];
+const BREAKS = ["drop-step", "drop-line", "unhold", "open-wait", "no-cron", "no-order", "no-escape", "fn-before-page", "lock-one", "lock-order", "webhook-last", "undeclared-line", "dup-carries", "undeclared-off"];
 const BREAK = (process.argv.find((a) => a.startsWith("--break=")) || "").slice("--break=".length);
 if (BREAK && !BREAKS.includes(BREAK)) {
   console.error(`Unknown --break=${BREAK}. Known: ${BREAKS.join(", ")}.`);
@@ -269,6 +273,7 @@ const EXCLUDED = {
   "97.71": "released 2026-10-23; ticked",
   "97.72": "released 2026-10-23; ticked",
   "3.1d": "released 2026-10-23; ticked",
+  "98.3": "its publish line named only database changes, already steps in Part 2 through migration-drift.json; released 2026-10-23; ticked (98.12)",
   "97.28": "a two-minute edit in the private backups repository, not part of this release (like 97.25)",
   "Publish and apply — the one ordered list": "says DONE 2026-10-10, steps 1 to 9, nothing left",
   "Waiting on you — nothing breaks while these wait": "a 1,400-line group of older rows; NOT READ by this sheet, said on the sheet",
@@ -343,7 +348,15 @@ const rows = everyRow.filter((r) => r.release && !EXCLUDED[r.key] && !EXCLUDED[r
 const rowName = (row) => `${row.file || "FOR-ANDREW.md"}:${row.line} "${row.key} — ${row.title}"`;
 
 // ROADMAP titles and box states.
-const roadmap = rd("ROADMAP.md");
+let roadmap = rd("ROADMAP.md");
+// 98.12: 98.3 wrote AWAITS PUBLISH after this sheet was built and main went red unnoticed. The sabotage puts such a
+// line under the first open item with no step, in memory; the file on disk is never written.
+if (BREAK === "undeclared-line") {
+  const m = [...roadmap.matchAll(/^- \[ \] \*\*([0-9][0-9.]*[a-z]*) — .*$/gm)].find((x) => !DECLARED[x[1]] && !ROADMAP_NO_ORDER[x[1]]);
+  if (!m) { console.error("--break=undeclared-line found no open item without a step to put the line under."); process.exit(2); }
+  roadmap = roadmap.slice(0, m.index + m[0].length) + "\n  AWAITS PUBLISH (98.12 sabotage, never written to disk): a throwaway release line." + roadmap.slice(m.index + m[0].length);
+  console.log(`--break=undeclared-line: throwaway AWAITS PUBLISH line put under ROADMAP ${m[1]}, in memory only`);
+}
 const entryOf = (id) => {
   const re = new RegExp(`^- \\[(.)\\] \\*\\*${id.replace(/\./g, "\\.")} — (.*?)\\*\\*`, "m");
   const m = re.exec(roadmap);
@@ -356,9 +369,10 @@ const itemTitle = entryOf;
 // Every OPEN ROADMAP item's release line(s): a line that STARTS with the marker,
 // plus its wrapped continuation lines. A line that only quotes the phrase is not one.
 const MARKER = /^\s*(?:- )?(?:\*\*)?(?:AWAITS PUBLISH|Release step, not a decision)/;
-const roadmapRows = [];
-{
-  const L = roadmap.split(/\r?\n/);
+// A function so the 98.12r canary below runs this same parser on its in-memory copy.
+function releaseLines(text) {
+  const roadmapRows = [];
+  const L = text.split(/\r?\n/);
   L.forEach((l, i) => {
     // A title can wrap onto the next line (0.4g), so the closing ** is optional.
     const m = /^- \[ \] \*\*([0-9][0-9.]*[a-z]*) — (.*?)(?:\*\*|$)/.exec(l);
@@ -372,7 +386,9 @@ const roadmapRows = [];
     }
     if (body.length) roadmapRows.push({ file: "ROADMAP.md", key: m[1], id: m[1], title: m[2].replace(/\.$/, "").replace(/\s*\([^()]*\)$/, ""), line: i + 1, body: body.join("\n") });
   });
+  return roadmapRows;
 }
+const roadmapRows = releaseLines(roadmap);
 // Floor 20 on 2026-10-18; 15 since 98.18 (2026-10-24): the 2026-10-23 release ticked twelve items, leaving 17, and
 // an independent line count agreed. A floor, never an equality: more release lines is not a fault.
 if (roadmapRows.length < 15) failures.push(`only ${roadmapRows.length} open ROADMAP item(s) with a release line were found; the parser has stopped matching (the 2026-10-24 floor is 15).`);
@@ -436,13 +452,31 @@ for (const row of readRows) {
 }
 // ROADMAP release lines that are not declared must be excluded by name, and an
 // exclusion may not wave through a line that states an order.
-for (const row of roadmapRows) {
-  if (DECLARED[row.key]) continue;
-  const why = ROADMAP_NO_ORDER[row.key];
-  if (!why) { rowProblems.push(`${rowName(row)} has a release line and is neither declared nor excluded in scripts/release-sheet.mjs`); continue; }
-  const said = STRONG.map((re) => (re.exec(row.body) || [])[0]).find(Boolean);
-  if (said) rowProblems.push(`${rowName(row)} states an order ("${said}") and is excluded as "${why}"; declare its rule`);
+function undeclared(list) {
+  const bad = [];
+  for (const row of list) {
+    if (DECLARED[row.key]) continue;
+    const why = ROADMAP_NO_ORDER[row.key];
+    if (!why) { if (BREAK !== "undeclared-off") bad.push(`${rowName(row)} has a release line and is neither declared nor excluded in scripts/release-sheet.mjs`); continue; }
+    const said = STRONG.map((re) => (re.exec(row.body) || [])[0]).find(Boolean);
+    if (said) bad.push(`${rowName(row)} states an order ("${said}") and is excluded as "${why}"; declare its rule`);
+  }
+  return bad;
 }
+const undeclaredNow = undeclared(roadmapRows);
+rowProblems.push(...undeclaredNow);
+// CANARY (98.12r): 98.12's scratch-copy trial, run by EVERY run of this sheet (the belt's own regenerate run included),
+// so its proof is not only a builder's receipt. A throwaway AWAITS PUBLISH line under the first open item with no
+// release line and no declaration, in an in-memory copy of ROADMAP.md, must add exactly one FAIL, naming that item as
+// undeclared. Line numbers are stripped before comparing: the inserted line shifts every row below it.
+const undeclaredProbe = [...roadmap.matchAll(/^- \[ \] \*\*([0-9][0-9.]*[a-z]*) — .*$/gm)]
+  .find((x) => !DECLARED[x[1]] && !ROADMAP_NO_ORDER[x[1]] && !roadmapRows.some((r) => r.key === x[1]));
+const noLine = (s) => s.replace(/^ROADMAP\.md:\d+ /, "");
+const undeclaredAdded = undeclaredProbe ? undeclared(releaseLines(roadmap.slice(0, undeclaredProbe.index + undeclaredProbe[0].length)
+  + "\n  AWAITS PUBLISH (release-sheet canary, in memory only): a throwaway release line." + roadmap.slice(undeclaredProbe.index + undeclaredProbe[0].length)))
+  .map(noLine).filter((p) => !undeclaredNow.map(noLine).includes(p)) : [];
+const undeclaredCaught = undeclaredAdded.length === 1 && undeclaredAdded[0].startsWith(`"${undeclaredProbe[1]} — `) && undeclaredAdded[0].includes("neither declared nor excluded");
+if (!undeclaredCaught) failures.push(`CANARY: a throwaway AWAITS PUBLISH line under ROADMAP ${undeclaredProbe ? undeclaredProbe[1] : "(no open item without one)"}, in memory, added ${undeclaredAdded.length} FAIL(s), not exactly one naming that item as neither declared nor excluded`);
 for (const k of Object.keys(ROADMAP_NO_ORDER)) if (!roadmapRows.some((r) => r.key === k)) failures.push(`scripts/release-sheet.mjs excludes ROADMAP ${k}, which has no open release line any more; remove it.`);
 for (const key of Object.keys(DECLARED)) if (!readRows.some((r) => r.key === key)) failures.push(`scripts/release-sheet.mjs declares ${key}, which has no release row in FOR-ANDREW.md and no open release line in ROADMAP.md any more; remove it.`);
 // Programs a program-level wait leaves unfinished are held, with the reason.
@@ -546,7 +580,7 @@ const fnLine = (f, lead) => {
   if (onlyIf.has(f)) notes.push(`only if you did ${ref(onlyIf.get(f))}; if you skipped it, skip this one too and expect the push check to name it`);
   if (notDeployed.has(f)) notes.push("never published before");
   for (const d of Object.values(DECLARED)) for (const i of (d.waitsOn || {})[f] || []) notes.push(`carries ${i} (${waitState(i, f)})`);
-  return `${lead}\`${f}\`${notes.length ? ` — ${[...new Set(notes)].join("; ")}` : ""}${tags(need.fn.get(f))}`;
+  return `${lead}\`${f}\`${notes.length ? ` — ${(BREAK === "dup-carries" ? notes : [...new Set(notes)]).join("; ")}` : ""}${tags(need.fn.get(f))}`;
 };
 if (firsts.length) { out.push("**First, alone:**", ""); for (const f of firsts) push(f, fnLine(f, "Publish, alone, ")); out.push(""); }
 out.push("**Then these, in one pass, in any order among themselves:**", "");
@@ -586,12 +620,15 @@ if (BREAK === "drop-line") sheet = sheet.split("\n").filter((l) => !l.includes("
 // ---------------------------------------------------------------------------
 // VERIFY THE WRITTEN TEXT
 // ---------------------------------------------------------------------------
+// 98.18 printed `carries 97.10 (ticked)` twice on one step (two declarations wait on the same item). Returns the repeated note, or "".
+const repeatedCarries = (line) => { const seen = new Set(); for (const m of line.match(/carries [^;(]+\([^)]*\)/g) || []) { if (seen.has(m)) return m; seen.add(m); } return ""; };
 function verify(text, { migs, fns, rowList, decl, extraRows = [] }) {
   const bad = [];
   const all = text.split("\n");
   const stepLines = all.filter((l) => /^\d+\. /.test(l));
   const heldStart = all.findIndex((l) => l.startsWith("## Held back"));
   const heldLines = heldStart < 0 ? [] : all.slice(heldStart + 1, all.findIndex((l, i) => i > heldStart && l.startsWith("## ")));
+  for (const l of stepLines) { const d = repeatedCarries(l); if (d) bad.push(`a step prints "${d}" more than once: ${l.slice(0, 80)}`); }
   const lineOf = (needle) => stepLines.findIndex((l) => l.includes(needle));
   const count = (needle) => text.split(needle).length - 1;
   const isHeld = (f) => heldLines.some((l) => l.startsWith(`- \`${f}\``));
@@ -686,7 +723,8 @@ failures.push(...sheetFindings);
 const canaryRow = { key: "0.0", id: "0.0", title: "canary row", line: 0, body: "" };
 const canaryMig = "20991231000000_canary.sql";
 const canaryFindings = verify(sheet, { ...ctx, migs: [...ctx.migs, canaryMig], extraRows: [canaryRow] });
-const canaryCaught = canaryFindings.some((f) => f.includes('"0.0 — canary row" is not covered')) && canaryFindings.some((f) => f.includes(canaryMig));
+const canaryCaught = canaryFindings.some((f) => f.includes('"0.0 — canary row" is not covered')) && canaryFindings.some((f) => f.includes(canaryMig))
+  && verify("1. `x` — carries 1.1 (ticked); carries 1.1 (ticked)", { migs: [], fns: [], rowList: [], decl: {} }).some((f) => f.includes("carries 1.1 (ticked)"));
 
 // ---------------------------------------------------------------------------
 // WRITE
@@ -733,6 +771,7 @@ const { path: receiptPath } = writeReceipt({
     after_the_last_program: afterLast,
     at_your_next_release_rows: thirteen.map((r) => r.key),
     steps: n,
+    undeclared_canary: { item: undeclaredProbe ? undeclaredProbe[1] : null, added: undeclaredAdded, caught: undeclaredCaught },
   },
   canary: {
     id: "a release row and a migration file the sheet never heard of must both be reported",
@@ -742,7 +781,7 @@ const { path: receiptPath } = writeReceipt({
 });
 
 console.log(`${rows.length} release row(s) read (${thirteen.length} "AT YOUR NEXT RELEASE") and ${roadmapRows.length} ROADMAP release line(s) (${readRows.filter((r) => r.file).length} declared), ${ctx.migs.length} unapplied database change(s) from the drift check (+${allMigs.length - ctx.migs.length} named only by a row), ${invFns.length} program(s) not live: ${publish.length} published, ${heldHere.length} held (${heldHere.join(", ")}); ${n} step(s).`);
-console.log(`canary ${canaryCaught ? "caught" : "NOT CAUGHT"}`);
+console.log(`canary ${canaryCaught ? "caught" : "NOT CAUGHT"}; undeclared-line canary (ROADMAP ${undeclaredProbe ? undeclaredProbe[1] : "none"}, in memory) ${undeclaredCaught ? "caught" : "NOT CAUGHT"}`);
 for (const f of failures) console.log("FAIL — " + f);
 console.log(`${ok ? "PASS" : "FAIL"} — sheet ${sheetPath}, receipt ${receiptPath}`);
 process.exit(ok ? 0 : 1);

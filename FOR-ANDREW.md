@@ -123,6 +123,26 @@ those old pieces back into the new back office, which would be separate work.
 (Written by the 98.4 job on its unmerged branch; supervision 2026-10-19 brought
 it here so it reaches you while the rest of that work is finished.)
 
+## DECIDE · The belt's reviewer keeps refusing one small checklist job for reasons only the belt can fix (ROADMAP 98.12r)
+
+The job checked that your release checklist catches a missing "publish this" note. The work is
+finished and has been proved four times. The reviewer still says no, every time, for three
+reasons that are all about the belt itself, not the work:
+
+1. The belt adds its own sentence to everything the reviewer reads ("to propose a change, write
+   a line in your answer"). The reviewer treats that as somebody trying to give it orders, and
+   refuses. No job can remove the sentence, because the belt writes it.
+2. The reviewer wants the belt itself to have run the job's test copy of the checklist. Only the
+   belt's own settings can tell it to run a job's proof. A job cannot.
+3. The reviewer wants to see old saved versions of two files, and the belt never shows it old
+   versions, so anything about the past reads to it as "the builder says so".
+
+**Recommendation: say "take the belt's own sentence out of what the reviewer reads, and let it
+run this one proof".** That clears this item, and it stops the first reason from refusing other
+jobs too: it has refused this same item three times. The other choice is to say "accept 98.12r
+as it is", which closes the item without changing the belt. Either way, nothing on your website
+changes.
+
 ## DECIDE · Fifteen old back-office pieces have no place in the new one (ROADMAP 99.3)
 
 When the new back office replaced the old screen, most things moved across, but fifteen did not.
@@ -477,6 +497,8 @@ texting registration just from these local copies: the checkbox and privacy para
 ---
 
 ## DO, AT YOUR NEXT RELEASE · Subscribe your phone's calendar to your jobs (ROADMAP 97.53)
+
+**Live since 2026-11-06: you can do this now.** The link was checked on the live site (right link works, wrong link refused, a reset link stops the old one).
 
 Your jobs can now live in Apple Calendar or Google Calendar: on Notifications there is a Your calendar section with a private link (Copy) and a Reset link button that asks first. The link shows only upcoming jobs with customer names and numbers, and anyone holding an old link loses access when you reset. Checked here on a practice copy at phone, tablet and desktop sizes, and in the code checks; it goes live only at your release.
 
