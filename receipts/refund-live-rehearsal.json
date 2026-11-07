@@ -1,16 +1,16 @@
 {
-  "git_sha": "31f34d2e9296a0b0d6886fe58644e113592eaafd",
-  "git_sha_started": "31f34d2e9296a0b0d6886fe58644e113592eaafd",
+  "git_sha": "7d848604dc53501b204e933fa2002d3d0380301b",
+  "git_sha_started": "7d848604dc53501b204e933fa2002d3d0380301b",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-11-07T09:01:48.614Z",
+  "finished_at": "2026-11-07T09:26:41.374Z",
   "failures": [],
   "warnings": [
     "NOT READY FOR A REFUND: job eaa40f95-1e62-4439-834f-a3b1a3895715 was soft-deleted 2026-10-23T18:40:29.641+00:00, and the webhook skips deleted jobs, so refunding pi_3UTnNpJeoZ7g84se0AeDet4F would be logged as \"a payment no job here took\" and change nothing. Point --intent= at a fresh test payment on a live job (ROADMAP 97.68a).",
     "REHEARSAL: every view is fed the real row WITH A REFUND RECORD ADDED. It proves the after-refund judgement runs; it is not a refund and never ticks 97.68."
   ],
   "artifacts": [
-    "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68/png"
+    "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68r/png"
   ],
   "dimensions": {
     "base": "http://127.0.0.1:5180",
@@ -20,7 +20,7 @@
     "deleted_at": "2026-10-23T18:40:29.641+00:00",
     "refunded": false,
     "rehearsal": true,
-    "frozen_now": "2026-11-07T09:00:06.630Z",
+    "frozen_now": "2026-11-07T09:24:58.750Z",
     "browser_tz": "Asia/Tokyo",
     "second_account": "final-owner@fixture.test",
     "widths": [
@@ -36,16 +36,16 @@
         "box": null,
         "errors": 0,
         "warnings": 0,
-        "shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68/png/live-rehearsal-1440x900.png",
+        "shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68r/png/live-rehearsal-1440x900.png",
         "second_account": {
           "not_found": true,
           "lines": [],
-          "shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68/png/live-rehearsal-second-account-1440x900.png"
+          "shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68r/png/live-rehearsal-second-account-1440x900.png"
         },
         "canary_lines": [
           "A card payment of $195 did not match what this job was owed, and the job has since been paid. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you."
         ],
-        "canary_shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68/png/live-rehearsal-canary-refund-stripped-1440x900.png"
+        "canary_shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68r/png/live-rehearsal-canary-refund-stripped-1440x900.png"
       },
       {
         "width": 768,
@@ -53,16 +53,16 @@
         "box": null,
         "errors": 0,
         "warnings": 0,
-        "shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68/png/live-rehearsal-768x1024.png",
+        "shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68r/png/live-rehearsal-768x1024.png",
         "second_account": {
           "not_found": true,
           "lines": [],
-          "shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68/png/live-rehearsal-second-account-768x1024.png"
+          "shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68r/png/live-rehearsal-second-account-768x1024.png"
         },
         "canary_lines": [
           "A card payment of $195 did not match what this job was owed, and the job has since been paid. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you."
         ],
-        "canary_shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68/png/live-rehearsal-canary-refund-stripped-768x1024.png"
+        "canary_shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68r/png/live-rehearsal-canary-refund-stripped-768x1024.png"
       },
       {
         "width": 390,
@@ -70,16 +70,16 @@
         "box": null,
         "errors": 0,
         "warnings": 0,
-        "shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68/png/live-rehearsal-390x844.png",
+        "shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68r/png/live-rehearsal-390x844.png",
         "second_account": {
           "not_found": true,
           "lines": [],
-          "shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68/png/live-rehearsal-second-account-390x844.png"
+          "shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68r/png/live-rehearsal-second-account-390x844.png"
         },
         "canary_lines": [
           "A card payment of $195 did not match what this job was owed, and the job has since been paid. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you."
         ],
-        "canary_shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68/png/live-rehearsal-canary-refund-stripped-390x844.png"
+        "canary_shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68r/png/live-rehearsal-canary-refund-stripped-390x844.png"
       },
       {
         "width": 320,
@@ -87,28 +87,28 @@
         "box": null,
         "errors": 0,
         "warnings": 0,
-        "shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68/png/live-rehearsal-320x700.png",
+        "shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68r/png/live-rehearsal-320x700.png",
         "second_account": {
           "not_found": true,
           "lines": [],
-          "shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68/png/live-rehearsal-second-account-320x700.png"
+          "shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68r/png/live-rehearsal-second-account-320x700.png"
         },
         "canary_lines": [
           "A card payment of $195 did not match what this job was owed, and the job has since been paid. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you."
         ],
-        "canary_shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68/png/live-rehearsal-canary-refund-stripped-320x700.png"
+        "canary_shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68r/png/live-rehearsal-canary-refund-stripped-320x700.png"
       }
     ]
   },
   "check_id": "refund-live-rehearsal",
-  "started_at": "2026-11-07T09:00:06.630Z",
+  "started_at": "2026-11-07T09:24:58.750Z",
   "status": "pass",
   "expected_targets": 4,
   "discovered_targets": 4,
   "attempted_targets": 4,
   "completed_targets": 4,
   "skipped_targets": 0,
-  "assertions_executed": 43,
+  "assertions_executed": 47,
   "min_assertions": 24,
   "canary": {
     "id": "refund-stripped-shows-the-line",

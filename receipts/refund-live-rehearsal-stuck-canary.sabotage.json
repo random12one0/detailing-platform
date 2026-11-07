@@ -1,0 +1,115 @@
+{
+  "git_sha": "7d848604dc53501b204e933fa2002d3d0380301b",
+  "git_sha_started": "7d848604dc53501b204e933fa2002d3d0380301b",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-11-07T09:21:53.071Z",
+  "failures": [
+    "1440x900 · canary: with the refund record removed the line names $195 again — no [data-refund-owed] line",
+    "768x1024 · canary: with the refund record removed the line names $195 again — no [data-refund-owed] line",
+    "390x844 · canary: with the refund record removed the line names $195 again — no [data-refund-owed] line",
+    "320x700 · canary: with the refund record removed the line names $195 again — no [data-refund-owed] line"
+  ],
+  "warnings": [
+    "NOT READY FOR A REFUND: job eaa40f95-1e62-4439-834f-a3b1a3895715 was soft-deleted 2026-10-23T18:40:29.641+00:00, and the webhook skips deleted jobs, so refunding pi_3UTnNpJeoZ7g84se0AeDet4F would be logged as \"a payment no job here took\" and change nothing. Point --intent= at a fresh test payment on a live job (ROADMAP 97.68a).",
+    "REHEARSAL: every view is fed the real row WITH A REFUND RECORD ADDED. It proves the after-refund judgement runs; it is not a refund and never ticks 97.68."
+  ],
+  "artifacts": [
+    "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68r/png"
+  ],
+  "dimensions": {
+    "base": "http://127.0.0.1:5180",
+    "job": "eaa40f95-1e62-4439-834f-a3b1a3895715",
+    "account": "acct_1UCMp1JeoZ7g84se",
+    "intent": "pi_3UTnNpJeoZ7g84se0AeDet4F",
+    "deleted_at": "2026-10-23T18:40:29.641+00:00",
+    "refunded": false,
+    "rehearsal": true,
+    "frozen_now": "2026-11-07T09:20:11.845Z",
+    "browser_tz": "Asia/Tokyo",
+    "second_account": "final-owner@fixture.test",
+    "widths": [
+      "1440x900",
+      "768x1024",
+      "390x844",
+      "320x700"
+    ],
+    "break": "stuck-canary",
+    "probed": [
+      {
+        "width": 1440,
+        "lines": [],
+        "box": null,
+        "errors": 0,
+        "warnings": 0,
+        "shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68r/png/live-break-stuck-canary-1440x900.png",
+        "second_account": {
+          "not_found": true,
+          "lines": [],
+          "shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68r/png/live-break-stuck-canary-second-account-1440x900.png"
+        },
+        "canary_lines": [],
+        "canary_shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68r/png/live-break-stuck-canary-canary-refund-stripped-1440x900.png"
+      },
+      {
+        "width": 768,
+        "lines": [],
+        "box": null,
+        "errors": 0,
+        "warnings": 0,
+        "shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68r/png/live-break-stuck-canary-768x1024.png",
+        "second_account": {
+          "not_found": true,
+          "lines": [],
+          "shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68r/png/live-break-stuck-canary-second-account-768x1024.png"
+        },
+        "canary_lines": [],
+        "canary_shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68r/png/live-break-stuck-canary-canary-refund-stripped-768x1024.png"
+      },
+      {
+        "width": 390,
+        "lines": [],
+        "box": null,
+        "errors": 0,
+        "warnings": 0,
+        "shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68r/png/live-break-stuck-canary-390x844.png",
+        "second_account": {
+          "not_found": true,
+          "lines": [],
+          "shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68r/png/live-break-stuck-canary-second-account-390x844.png"
+        },
+        "canary_lines": [],
+        "canary_shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68r/png/live-break-stuck-canary-canary-refund-stripped-390x844.png"
+      },
+      {
+        "width": 320,
+        "lines": [],
+        "box": null,
+        "errors": 0,
+        "warnings": 0,
+        "shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68r/png/live-break-stuck-canary-320x700.png",
+        "second_account": {
+          "not_found": true,
+          "lines": [],
+          "shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68r/png/live-break-stuck-canary-second-account-320x700.png"
+        },
+        "canary_lines": [],
+        "canary_shot": "C:/Users/rando/Downloads/claude/control-room/belt/shots/97.68r/png/live-break-stuck-canary-canary-refund-stripped-320x700.png"
+      }
+    ]
+  },
+  "check_id": "refund-live-rehearsal-stuck-canary",
+  "started_at": "2026-11-07T09:20:11.845Z",
+  "status": "fail",
+  "expected_targets": 4,
+  "discovered_targets": 4,
+  "attempted_targets": 4,
+  "completed_targets": 4,
+  "skipped_targets": 0,
+  "assertions_executed": 47,
+  "min_assertions": 24,
+  "canary": {
+    "id": "break-stuck-canary",
+    "observed_failure": true
+  }
+}
