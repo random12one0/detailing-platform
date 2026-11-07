@@ -1,9 +1,9 @@
 {
-  "git_sha": "9ea5fea541f33385ac626b817539270df6b761b2",
-  "git_sha_started": "9ea5fea541f33385ac626b817539270df6b761b2",
+  "git_sha": "0b754178b6c5173fd3fbf53b68d2e859e58c0261",
+  "git_sha_started": "0b754178b6c5173fd3fbf53b68d2e859e58c0261",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-11-07T08:20:40.017Z",
+  "finished_at": "2026-11-07T08:20:59.058Z",
   "failures": [
     "only 13 open ROADMAP item(s) with a release line were found; the parser has stopped matching (the 2026-10-24 floor is 15).",
     "scripts/release-sheet.mjs excludes ROADMAP 97.8, which has no open release line any more; remove it.",
@@ -32,7 +32,7 @@
     "docs/release-sheet.md"
   ],
   "dimensions": {
-    "head": "9ea5fea541f33385ac626b817539270df6b761b2",
+    "head": "0b754178b6c5173fd3fbf53b68d2e859e58c0261",
     "drift_receipt_sha": "46efdb7dca25787c3d51d8d685f30945c187090c",
     "inventory_receipt_sha": "bb3a1c2db567ae0bb74db73e0ed259d07fe8e35b",
     "migrations_from_drift": [],
@@ -100,7 +100,7 @@
     }
   },
   "check_id": "release-sheet",
-  "started_at": "2026-11-07T08:20:39.422Z",
+  "started_at": "2026-11-07T08:20:58.052Z",
   "status": "fail",
   "expected_targets": 28,
   "discovered_targets": 14,
