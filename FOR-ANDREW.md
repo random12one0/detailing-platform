@@ -93,6 +93,12 @@ Supervision October 22 re-ran the copied pruning step, including failed listing 
 
 No hurry: nightly runs began 2026-09-08, so no 1st-of-month copy older than October 2026 can exist, and the new rule first deletes one on 2027-01-01. Until you paste it, the 1st-of-month copies are kept for ever.
 
+## DO · Run two checks on the new back office from your own session (ROADMAP 9.11e)
+
+Every screen with something pinned over the scroll now has a check that measures it, and the dashboard and website-preview bars were fixed along the way. The one thing left is a live run of the back-office check, which needs your database key and so cannot be done from the belt's copy.
+
+**The step, a few minutes in a terminal in the main folder:** run `node --env-file=.env scripts/admin-furniture-clearance.mjs`, then `node --env-file=.env scripts/admin-furniture-clearance.mjs --break=rect`. Do not wrap either in `timeout`. The first should report 0 failures with its built-in test defect caught; the second should go red on purpose. Then tick 9.11e. Recommendation: do it at your next sitting; nothing is live or at risk meanwhile.
+
 ## ANSWERED · Backup-deletion paperwork: Spanish-line requirement retired (ROADMAP 97.28)
 
 **Answered October 22 (R7/R8 only):** drop the Spanish half — the privacy page stays English-only under the standing legal-page rule, and the requirement is the three-month sentence on the English privacy page as built. Locked R7/R8 are waived by this decision. The locked R9 English-and-Spanish check is NOT covered by that waiver and is reconciled by its own amendment proposal (next row). The paste DO row below stands: the private-repo install is still yours.
