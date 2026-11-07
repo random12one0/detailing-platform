@@ -304,3 +304,22 @@
   .site[data-family] .booksec > [data-part="flow"] { min-width: 0; }
   .site[data-family] .booksec .bk.bk-embedded { --bk-col: 100%; }
 }
+
+/* ================================================================ round three (the second real critique, 2026-11-07)
+   "the desktop booking panel leaves substantial unused space", "phone booking text very small", "large empty bands
+   between sections" (Neighbourhood), "the desktop hero has a large empty centre" (Precision workshop). */
+.site[data-family] .bk.bk-embedded { --bk-t-label: 13px; --bk-t-meta: 14px; --bk-t-body: 16px; }
+@media (min-width: 1180px) {
+  /* booking: the heading above, the form as one wide panel under it (no empty column beside a long form) */
+  .site[data-family] .booksec { display: block; }
+  .site[data-family] .booksec .sec-head { position: static; max-width: 880px; margin: 0 0 32px; }
+  .site[data-family] .booksec > [data-part="flow"] { max-width: 880px; padding: 28px 32px; border-radius: var(--radius); background: var(--paper-2); box-shadow: inset 0 0 0 1px var(--line); }
+  .site[data-family] .booksec .bk.bk-embedded { --bk-col: 100%; --bk-bg: var(--paper-2); }
+  /* Precision workshop: the photo runs the full width under the words and the price sheet */
+  .site[data-family="workshop"] .hero--ledger .hero-copy { grid-column: 1; grid-row: 1 / span 2; }
+  .site[data-family="workshop"] .hero--ledger .hero-act { grid-column: 1; grid-row: 3; }
+  .site[data-family="workshop"] .hero--ledger .hero-ticket { grid-column: 2; grid-row: 1; }
+  .site[data-family="workshop"] .hero--ledger .hero-photo { grid-column: 2; grid-row: 2 / span 2; margin-top: 24px; aspect-ratio: 16 / 10; align-self: start; }
+}
+.site[data-family="neighbourhood"] .sec { padding-top: 52px; padding-bottom: 52px; }
+@media (min-width: 768px) { .site[data-family="neighbourhood"] .sec { padding-top: 72px; padding-bottom: 72px; } }
