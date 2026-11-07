@@ -11,6 +11,7 @@ import { Hero, Catalog, Proof, Visit, Booking } from "./sections.jsx";
 import { phone as phoneText } from "../lib/format.js";
 import "../book/booking.css";
 import "./site.css";
+import "./families.css";
 
 const SECTIONS = { hero: Hero, catalog: Catalog, proof: Proof, visit: Visit, booking: Booking };
 
@@ -83,7 +84,7 @@ function SiteBody({ spec }) {
 const navWord = (type) => ({ catalog: "Prices", proof: "Work", visit: "Visit", booking: "Book" })[type];
 
 function Shell({ tokens, children }) {
-  return <div className="site" id="top" style={tokenVars(tokens)}>{children}</div>;
+  return <div className="site" id="top" data-family={tokens?.family || undefined} style={tokenVars(tokens)}>{children}</div>;
 }
 
 const tokenVars = (t = {}) => ({
@@ -97,9 +98,11 @@ function useFonts(tokens) {
   useEffect(() => {
     const families = [...new Set([tokens?.font_display, tokens?.font_body])].filter((f) => f in FONTS);
     if (!families.length) return undefined;
+    // crossOrigin: the font sheet is then readable by the page (CORS), so the motion gate (G5) can see it holds only
+    // @font-face rules instead of failing on a sheet it cannot open.
     const link = Object.assign(document.createElement("link"), {
-      rel: "stylesheet",
-      href: `https://fonts.googleapis.com/css2?${families.map((f) => `family=${f.replace(/ /g, "+")}:${FONTS[f]}`).join("&")}&display=swap`,
+      rel: "stylesheet", crossOrigin: "anonymous",
+      href: `https://fonts.googleapis.com/css2?${families.map((f) => `family=${f.replace(/ /g, "+")}${FONTS[f] ? `:${FONTS[f]}` : ""}`).join("&")}&display=swap`,
     });
     document.head.appendChild(link);
     return () => link.remove();

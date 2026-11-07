@@ -50,8 +50,14 @@ export function parseBinding(text) {
 // Per section type: its copy fields (prose, never facts), its binding slots and
 // which binding kinds each slot takes, and its variants. Five types for S1.
 export const SECTION_TYPES = {
+  // Hero layouts (S6): one per style family, so three looks never share a first screen.
+  //   poster  photo, then the words over its foot, then the price strip (the S1 example)
+  //   overlay the words set over a full-bleed photo (Showroom)
+  //   stack   the words first, then the photo as a rounded card (Neighbourhood)
+  //   ledger  the price list IS the first screen; the photo is small (Precision workshop)
+  //   split   an editorial page: words left, a tall framed photo right (Boutique)
   hero: {
-    variants: ["poster"],
+    variants: ["poster", "overlay", "stack", "ledger", "split"],
     copy: { eyebrow: false, headline: true, sub: false },
     slots: { photo: ["gallery", "gallery.best"], prices: ["service_group"], cta: ["book"], call: ["contact.phone"], area: ["area"], sale: ["sale"] },
   },
@@ -78,10 +84,21 @@ export const SECTION_TYPES = {
 };
 
 // Fonts are a curated list, not free text: the axes each one is loaded with.
+// "" means the family has one style and no axes to ask for.
 export const FONTS = {
   Newsreader: "ital,opsz,wght@0,6..72,400..800;1,6..72,400..600",
   Chivo: "wght@400..800",
+  "Big Shoulders Display": "wght@600..900",
+  Figtree: "ital,wght@0,400..700;1,400..600",
+  "Changa One": "",
+  "Barlow Condensed": "wght@500;600;700",
+  "Source Sans 3": "ital,wght@0,400..700;1,400..600",
+  Fraunces: "ital,opsz,wght@0,9..144,300..700;1,9..144,300..600",
+  "Public Sans": "wght@400..700",
 };
+// The style families' keys (families.js holds the families themselves). A spec may name one; the renderer's CSS then
+// draws that family's look. No family: the S1 look.
+export const FAMILY_KEYS = ["showroom", "neighbourhood", "workshop", "boutique"];
 const HEX = /^#[0-9a-f]{6}$/i;
 // Own-key lookups only: `"toString" in FONTS` is true, `Object.hasOwn(FONTS, "toString")` is not.
 const own = (table, key) => typeof key === "string" && Object.hasOwn(table, key);
@@ -90,6 +107,7 @@ const TOKENS = {
   ink: (v) => HEX.test(v), paper: (v) => HEX.test(v), paper_2: (v) => HEX.test(v),
   accent: (v) => HEX.test(v), on_accent: (v) => HEX.test(v), soft: (v) => HEX.test(v),
   radius: (v) => Number.isInteger(v) && v >= 0 && v <= 24,
+  family: (v) => FAMILY_KEYS.includes(v),
 };
 
 // Tokens a site cannot be drawn without. The rest fall back to these.

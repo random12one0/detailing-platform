@@ -3,7 +3,7 @@
 // stamped `data-from="<binding>"`. `data-section` / `data-part` give the Studio's
 // picker stable handles (STUDIO-SPEC.md §6d). A slot whose data is absent draws
 // nothing — no empty box, no placeholder.
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { resolve } from "./spec.js";
 import { BookingFlow } from "../book/BookingPage.jsx";
 import { bookable, closedUntil, vehicleSizeExtra } from "../book/core.js";
@@ -38,7 +38,8 @@ function SaleBand({ sale, part = "sale" }) {
 // second sentence set in the accent italic. One sentence is drawn plain.
 function Headline({ text }) {
   const parts = text.split(/(?<=[.!?])\s+/);
-  return parts.map((s, i) => (i ? <em key={i}> {s}</em> : <span key={i}>{s}</span>));
+  // the space sits outside the <em>, so a family that marks the second sentence (a highlighter) does not mark the gap
+  return parts.map((s, i) => (i ? <Fragment key={i}>{" "}<em>{s}</em></Fragment> : <span key={i}>{s}</span>));
 }
 
 function photoOf(g) {
@@ -47,6 +48,10 @@ function photoOf(g) {
 }
 
 // ------------------------------------------------------------------ hero
+// One section, five layouts (spec.js SECTION_TYPES.hero.variants). The parts are the same in all of them (the photo,
+// the words, the buttons, the price strip) and carry the same stamps; only their arrangement and size change.
+// `data-stack` marks parts that sit on top of each other ON PURPOSE (words over a photo): the layout gate lets the
+// parts inside one stack overlap each other, and still checks them against everything else.
 export function Hero({ sec, p, bookId }) {
   const photo = bound(sec, "photo", p);
   const g = Array.isArray(photo) ? photo[0] : photo;
@@ -54,36 +59,48 @@ export function Hero({ sec, p, bookId }) {
   const group = bound(sec, "prices", p);
   const phone = bound(sec, "call", p);
   const area = bound(sec, "area", p);
+  const variant = sec.variant || "poster";
+  const figure = src && (
+    <figure className="hero-photo" data-part="photo" data-from={g && `gallery:${g.id}`}>
+      <img src={src} alt={g.caption || ""} {...IMG} fetchpriority="high" />
+      {g.caption && <figcaption>{g.caption}</figcaption>}
+    </figure>
+  );
+  const sale = <SaleBand sale={bound(sec, "sale", p)} />;
+  const eyebrow = sec.copy.eyebrow && <p className="eyebrow" data-part="eyebrow">{sec.copy.eyebrow}</p>;
+  const h1 = <h1 id={`${sec.id}-h`} data-part="headline"><Headline text={sec.copy.headline} /></h1>;
+  const sub = sec.copy.sub && <p className="hero-sub" data-part="sub">{sec.copy.sub}</p>;
+  const cta = (
+    <div className="hero-cta" data-part="cta">
+      {sec.cta && <a className="site-btn big" href={`#${bookId}`} data-book data-from="book">Book a time</a>}
+      {phone && <a className="site-btn ghost" href={`tel:${phone}`} data-from="contact.phone">Call</a>}
+      {phone && <a className="site-btn ghost" href={`sms:${phone}`} data-from="contact.phone">Text</a>}
+    </div>
+  );
+  const where = area?.text && <p className="hero-area" data-part="area" data-from="area">Serving {area.text}</p>;
+  const ticket = group && (
+    <ol className="hero-ticket" data-part="prices" data-from={sec.prices.bind} aria-label={`${group.name} prices`}>
+      {group.items.map((s) => (
+        <li key={s.id}>
+          <span data-from={`service:${s.id}.name`}>{s.name}</span>
+          <b data-from={`service:${s.id}.price`}>{s.price_is_from && <small>from </small>}{money(s.price)}</b>
+        </li>
+      ))}
+    </ol>
+  );
+  const body = {
+    poster: <>{figure}<div className="hero-copy">{sale}{eyebrow}{h1}{sub}{cta}{where}</div>{ticket}</>,
+    overlay: <>
+      <div className="hero-stage" data-stack>{figure}<div className="hero-over">{eyebrow}{h1}</div></div>
+      <div className="hero-copy">{sale}{sub}{cta}{where}</div>{ticket}
+    </>,
+    stack: <><div className="hero-copy">{where}{h1}{sub}{sale}{cta}</div>{figure}{ticket}</>,
+    ledger: <><div className="hero-copy">{eyebrow}{h1}{sub}{sale}</div>{ticket}<div className="hero-act">{cta}{where}</div>{figure}</>,
+    split: <><div className="hero-copy">{eyebrow}{h1}{sub}{sale}{cta}{where}</div>{figure}{ticket}</>,
+  }[variant] ?? null;
   return (
-    <section className="sec hero" id={sec.id} data-section={sec.id} aria-labelledby={`${sec.id}-h`}>
-      {src && (
-        <figure className="hero-photo" data-part="photo" data-from={g && `gallery:${g.id}`}>
-          <img src={src} alt={g.caption || ""} {...IMG} fetchpriority="high" />
-          {g.caption && <figcaption>{g.caption}</figcaption>}
-        </figure>
-      )}
-      <div className="hero-copy">
-        <SaleBand sale={bound(sec, "sale", p)} />
-        {sec.copy.eyebrow && <p className="eyebrow" data-part="eyebrow">{sec.copy.eyebrow}</p>}
-        <h1 id={`${sec.id}-h`} data-part="headline"><Headline text={sec.copy.headline} /></h1>
-        {sec.copy.sub && <p className="hero-sub" data-part="sub">{sec.copy.sub}</p>}
-        <div className="hero-cta" data-part="cta">
-          {sec.cta && <a className="site-btn big" href={`#${bookId}`} data-book data-from="book">Book a time</a>}
-          {phone && <a className="site-btn ghost" href={`tel:${phone}`} data-from="contact.phone">Call</a>}
-          {phone && <a className="site-btn ghost" href={`sms:${phone}`} data-from="contact.phone">Text</a>}
-        </div>
-        {area?.text && <p className="hero-area" data-part="area" data-from="area">Serving {area.text}</p>}
-      </div>
-      {group && (
-        <ol className="hero-ticket" data-part="prices" data-from={sec.prices.bind} aria-label={`${group.name} prices`}>
-          {group.items.map((s) => (
-            <li key={s.id}>
-              <span data-from={`service:${s.id}.name`}>{s.name}</span>
-              <b data-from={`service:${s.id}.price`}>{s.price_is_from && <small>from </small>}{money(s.price)}</b>
-            </li>
-          ))}
-        </ol>
-      )}
+    <section className={`sec hero hero--${variant}`} id={sec.id} data-section={sec.id} aria-labelledby={`${sec.id}-h`} data-stack={variant === "poster" ? "" : undefined}>
+      {body}
     </section>
   );
 }
@@ -172,7 +189,7 @@ function Compare({ g }) {
   const [pos, setPos] = useState(50);
   return (
     <figure className="compare" data-from={`gallery:${g.id}`} style={{ "--pos": `${pos}%` }}>
-      <div className="cmp-frame">
+      <div className="cmp-frame" data-stack>
         <img src={g.before_url} alt={`Before: ${g.caption || "the car as it arrived"}`} {...IMG} loading="lazy" />
         <img className="cmp-after" src={g.after_url} alt={`After: ${g.caption || "the same car finished"}`} {...IMG} loading="lazy" />
         <span className="cmp-tag cmp-b" aria-hidden="true">Before</span>

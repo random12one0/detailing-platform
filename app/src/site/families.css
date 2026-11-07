@@ -1,0 +1,281 @@
+/* STYLE FAMILIES v1 — the hero layouts (any family can name them, spec.js) and the four families' own looks
+   (families.js). site.css is the shared section library; this file only re-dresses it. Phone first: each block is
+   written for 390 and widened at 768 and 1180. Motion stays the one hero entrance in site.css (transform/opacity). */
+
+/* ================================================================ hero layouts */
+.hero--overlay, .hero--stack, .hero--ledger, .hero--split { display: block; }
+.hero--overlay .hero-copy, .hero--stack .hero-copy, .hero--ledger .hero-copy, .hero--split .hero-copy { margin-top: 0; }
+
+/* overlay: the words over the foot of a full-bleed photo */
+.hero--overlay { padding: 0 0 52px; }
+.hero--overlay .hero-stage { position: relative; display: grid; align-items: end; min-height: min(64svh, 600px); overflow: hidden; }
+.hero--overlay .hero-photo { position: absolute; inset: 0; aspect-ratio: auto; }
+.hero--overlay .hero-photo img { height: 100%; }
+.hero--overlay .hero-photo::after { background: linear-gradient(180deg, color-mix(in srgb, var(--paper) 30%, transparent) 0, transparent 26%, transparent 38%, color-mix(in srgb, var(--paper) 94%, transparent) 86%); }
+.hero--overlay .hero-over { position: relative; z-index: 2; padding: 0 var(--pad) 18px; }
+.hero--overlay .hero-copy { padding-top: 6px; }
+
+/* stack: words first, the photo below as a held card */
+.hero--stack { padding: 28px 0 56px; }
+.hero--stack .hero-area { margin: 0 0 18px; }
+.hero--stack .hero-photo { margin: 30px var(--pad) 0; aspect-ratio: 4 / 3; border-radius: var(--radius); }
+.hero--stack .hero-photo::after { content: none; }
+
+/* ledger: the prices are the first screen */
+.hero--ledger { padding: 32px 0 56px; }
+.hero--ledger .hero-ticket { margin-top: 26px; }
+.hero--ledger .hero-act { padding: 0 var(--pad); margin-top: 22px; }
+.hero--ledger .hero-act .hero-cta { margin-top: 0; }
+.hero--ledger .hero-photo { margin: 30px var(--pad) 0; aspect-ratio: 16 / 9; }
+.hero--ledger .hero-photo::after { content: none; }
+
+/* split: an editorial page, a tall framed photo */
+.hero--split { padding: 36px 0 56px; }
+.hero--split .hero-photo { margin: 34px var(--pad) 0; aspect-ratio: 4 / 5; overflow: visible; background: none; }
+.hero--split .hero-photo img { height: 100%; }
+.hero--split .hero-photo::after { content: none; }
+
+@media (min-width: 768px) {
+  .hero--overlay .hero-stage { min-height: 72vh; }
+  .hero--stack .hero-photo, .hero--split .hero-photo { max-width: 640px; }
+  .hero--ledger .hero-ticket { max-width: 720px; }
+}
+@media (min-width: 1180px) {
+  .hero--overlay { padding-bottom: 88px; }
+  .hero--overlay .hero-stage { min-height: min(84vh, 820px); }
+  .hero--overlay .hero-over { padding: 0 var(--pad) 28px; }
+  .hero--overlay .hero-copy, .hero--overlay .hero-ticket { width: calc(50% - var(--pad) / 2); }
+  .hero--overlay { display: grid; grid-template-columns: 1fr 1fr; column-gap: 48px; }
+  .hero--overlay .hero-stage { grid-column: 1 / -1; }
+  .hero--overlay .hero-copy { width: auto; grid-column: 1; padding: 20px 0 0 var(--pad); }
+  .hero--overlay .hero-ticket { width: auto; grid-column: 2; margin: 28px var(--pad) 0 0; align-self: start; }
+
+  .hero--stack { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); column-gap: 64px; padding: 64px var(--pad) 96px; align-items: center; }
+  .hero--stack .hero-copy { padding: 0; }
+  .hero--stack .hero-photo { margin: 0; grid-column: 2; grid-row: 1 / span 2; max-width: none; transform: rotate(1.5deg); }
+  .hero--stack .hero-ticket { grid-column: 1; margin: 36px 0 0; }
+
+  .hero--ledger { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); column-gap: 64px; padding: 64px var(--pad) 96px; align-items: start; }
+  .hero--ledger .hero-copy { grid-column: 1; grid-row: 1; padding: 0; }
+  .hero--ledger .hero-ticket { grid-column: 2; grid-row: 1 / span 3; margin: 0; max-width: none; }
+  .hero--ledger .hero-act { grid-column: 1; grid-row: 2; padding: 0; margin-top: 28px; }
+  .hero--ledger .hero-photo { grid-column: 1; grid-row: 3; margin: 32px 0 0; }
+
+  .hero--split { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); column-gap: 72px; padding: 72px var(--pad) 104px; align-items: start; }
+  .hero--split .hero-copy { grid-column: 1; grid-row: 1; padding: 24px 0 0; }
+  .hero--split .hero-photo { grid-column: 2; grid-row: 1 / span 2; margin: 0; max-width: none; }
+  .hero--split .hero-ticket { grid-column: 1; grid-row: 2; margin: 40px 0 0; align-self: start; }
+}
+
+/* ================================================================ shared for the families */
+.site[data-family] { background: var(--paper); }
+.site[data-family="neighbourhood"]::after, .site[data-family="workshop"]::after, .site[data-family="boutique"]::after { content: none; }
+.site[data-family] .hero-ticket { -webkit-mask: none; mask: none; }
+
+/* ================================================================ SHOWROOM — dark, cinematic, copper */
+.site[data-family="showroom"] {
+  --accent-text: #f2a26f;
+  background: radial-gradient(70vmax 50vmax at 100% 0, color-mix(in srgb, var(--accent) 12%, transparent), transparent 60%), var(--paper);
+}
+.site[data-family="showroom"] .site-name { font-weight: 800; font-size: 25px; text-transform: uppercase; letter-spacing: .03em; }
+.site[data-family="showroom"] .site-btn { text-transform: uppercase; letter-spacing: .06em; font-size: 15px; }
+.site[data-family="showroom"] .site-btn.big { font-size: 16px; }
+.site[data-family="showroom"] .hero h1 {
+  font-weight: 800; text-transform: uppercase; font-size: clamp(60px, 17.5vw, 150px); line-height: .84; letter-spacing: .002em;
+}
+.site[data-family="showroom"] .hero h1 em { font-style: normal; font-weight: 800; color: var(--accent-text); }
+.site[data-family="showroom"] .eyebrow { color: var(--accent-text); }
+.site[data-family="showroom"] .hero-sub { color: var(--ink); opacity: .82; font-size: 18px; }
+.site[data-family="showroom"] .hero-ticket { background: transparent; box-shadow: none; padding: 0; border-top: 2px solid var(--accent); border-radius: 0; }
+.site[data-family="showroom"] .hero-ticket li { border-bottom: 1px solid var(--line); padding: 12px 0; }
+.site[data-family="showroom"] .hero-ticket span { text-transform: uppercase; letter-spacing: .06em; font-size: 14px; font-weight: 600; }
+.site[data-family="showroom"] .hero-ticket b { font-family: var(--f-display); font-size: 26px; font-weight: 700; }
+.site[data-family="showroom"] .sec-head h2 { font-weight: 800; text-transform: uppercase; font-size: 50px; line-height: .9; letter-spacing: .005em; }
+.site[data-family="showroom"] :where(h3) { color: var(--accent-text); }
+.site[data-family="showroom"] .tickets { gap: 0; border-top: 2px solid var(--accent); }
+.site[data-family="showroom"] .ticket { background: transparent; box-shadow: none; border-radius: 0; padding: 22px 0; border-bottom: 1px solid var(--line); }
+.site[data-family="showroom"] .ticket h3 { font-weight: 700; text-transform: uppercase; font-size: 32px; letter-spacing: .01em; line-height: 1; }
+.site[data-family="showroom"] .t-price { font-family: var(--f-display); font-weight: 700; font-size: 36px; }
+.site[data-family="showroom"] .t-sizes { border-top: 1px solid var(--line); }
+.site[data-family="showroom"] .t-sizes div { background: transparent; box-shadow: inset 0 0 0 1px var(--line-2); }
+.site[data-family="showroom"] .extras li, .site[data-family="showroom"] .plans li { border-radius: 0; box-shadow: none; border-top: 1px solid var(--line); padding: 14px 0; }
+.site[data-family="showroom"] .reviews li { background: transparent; box-shadow: none; border-left: 2px solid var(--accent); border-radius: 0; padding: 4px 0 4px 18px; }
+.site[data-family="showroom"] .reviews blockquote p { font-family: var(--f-body); font-style: normal; font-size: 20px; line-height: 1.4; }
+.site[data-family="showroom"] .board { background: transparent; box-shadow: none; border-top: 2px solid var(--accent); border-radius: 0; padding: 18px 0 0; }
+.site[data-family="showroom"] .board .big { font-weight: 700; text-transform: uppercase; font-size: 28px; }
+.site[data-family="showroom"] .booksec { background: var(--paper-2); }
+@media (min-width: 768px) {
+  .site[data-family="showroom"] .sec-head h2 { font-size: 76px; }
+  .site[data-family="showroom"] .ticket { padding: 26px 0; }
+}
+@media (min-width: 1180px) {
+  .site[data-family="showroom"] .tickets { grid-template-columns: 1fr; }
+  .site[data-family="showroom"] .ticket { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 4fr) minmax(0, 3fr); column-gap: 40px; align-items: start; }
+  .site[data-family="showroom"] .ticket .t-top { grid-column: 1; }
+  .site[data-family="showroom"] .ticket > :not(.t-top):not(.t-sizes) { grid-column: 2; }
+  .site[data-family="showroom"] .ticket .t-dur { grid-row: 1; margin: 0; }
+  .site[data-family="showroom"] .ticket .t-sizes { grid-column: 3; grid-row: 1 / span 4; margin: 0; padding: 0; border: 0; grid-template-columns: 1fr; }
+  .site[data-family="showroom"] .hero h1 { font-size: 150px; }
+}
+
+/* ================================================================ NEIGHBOURHOOD — sky, sunflower, round */
+.site[data-family="neighbourhood"] { --accent-text: #13284a; --line: rgba(19, 40, 74, .12); --line-2: rgba(19, 40, 74, .26); }
+.site[data-family="neighbourhood"] .site-nav { background: color-mix(in srgb, var(--paper) 90%, transparent); border-bottom-color: transparent; }
+.site[data-family="neighbourhood"] .site-name { font-weight: 400; font-size: 23px; }
+.site[data-family="neighbourhood"] .site-btn { border-radius: 999px; }
+.site[data-family="neighbourhood"] .site-btn:not(.ghost) { box-shadow: 0 3px 0 var(--ink); }
+.site[data-family="neighbourhood"] .site-btn:not(.ghost):active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
+.site[data-family="neighbourhood"] .site-btn.ghost { background: var(--paper-2); box-shadow: inset 0 0 0 2px var(--ink); }
+.site[data-family="neighbourhood"] .hero-area {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 36px; padding: 0 14px 0 10px; border-radius: 999px;
+  background: var(--paper-2); color: var(--ink); font-weight: 600; font-size: 14px;
+}
+.site[data-family="neighbourhood"] .hero-area::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 2px var(--ink); }
+.site[data-family="neighbourhood"] .hero h1 { font-weight: 400; font-size: clamp(46px, 13vw, 104px); line-height: .98; letter-spacing: -.005em; }
+.site[data-family="neighbourhood"] .hero h1 em {
+  display: inline; font-style: normal; font-weight: 400; color: inherit;
+  background: linear-gradient(transparent 58%, var(--accent) 58%, var(--accent) 92%, transparent 92%);
+  -webkit-box-decoration-break: clone; box-decoration-break: clone;
+}
+.site[data-family="neighbourhood"] .hero-sub { color: var(--soft); font-size: 18px; }
+.site[data-family="neighbourhood"] .hero--stack .hero-photo { box-shadow: 0 0 0 6px var(--paper-2), 0 18px 40px -22px rgba(19, 40, 74, .55); }
+.site[data-family="neighbourhood"] .hero-ticket { background: var(--paper-2); box-shadow: none; border-radius: var(--radius); }
+.site[data-family="neighbourhood"] .hero-ticket li { border-bottom-style: solid; border-bottom-color: var(--line); }
+.site[data-family="neighbourhood"] .sec-head h2 { font-weight: 400; font-size: 40px; line-height: 1; letter-spacing: 0; }
+.site[data-family="neighbourhood"] :where(h3) { color: var(--ink); text-transform: none; letter-spacing: 0; font-size: 17px; }
+.site[data-family="neighbourhood"] .ticket { background: var(--paper-2); box-shadow: 0 1px 0 rgba(19, 40, 74, .06), 0 14px 30px -22px rgba(19, 40, 74, .45); }
+.site[data-family="neighbourhood"] .ticket h3 { font-weight: 400; font-size: 27px; }
+.site[data-family="neighbourhood"] .t-sizes { border-top: 2px dotted var(--line-2); }
+.site[data-family="neighbourhood"] .t-sizes div { background: var(--paper); border-radius: 12px; }
+.site[data-family="neighbourhood"] .t-inc li::before { border-color: var(--ink); }
+.site[data-family="neighbourhood"] .extras li, .site[data-family="neighbourhood"] .plans li { background: var(--paper-2); box-shadow: none; }
+.site[data-family="neighbourhood"] .cmp-frame { border-radius: var(--radius); box-shadow: 0 0 0 6px var(--paper-2); }
+.site[data-family="neighbourhood"] .reviews li { background: var(--paper-2); box-shadow: none; }
+.site[data-family="neighbourhood"] .stars { color: #c98a00; }
+.site[data-family="neighbourhood"] .reviews blockquote p { font-family: var(--f-body); font-style: normal; font-size: 19px; line-height: 1.45; }
+.site[data-family="neighbourhood"] .board { background: var(--paper-2); box-shadow: none; }
+.site[data-family="neighbourhood"] .board .big { font-size: 26px; }
+.site[data-family="neighbourhood"] .board tr.today th { box-shadow: inset 4px 0 0 var(--accent); }
+.site[data-family="neighbourhood"] .booksec { background: var(--paper-2); border-top: 0; border-radius: 28px 28px 0 0; }
+.site[data-family="neighbourhood"] .bk.bk-embedded { --bk-bg: var(--paper-2); --bk-danger: #b42318; }
+@media (min-width: 768px) {
+  .site[data-family="neighbourhood"] .sec-head h2 { font-size: 56px; }
+}
+
+/* ================================================================ PRECISION WORKSHOP — porcelain, graphite, cobalt */
+.site[data-family="workshop"] { --accent-text: #2350d8; --line: rgba(27, 31, 35, .14); --line-2: rgba(27, 31, 35, .32); font-size: 17px; }
+.site[data-family="workshop"] .site-nav { background: color-mix(in srgb, var(--paper-2) 94%, transparent); border-bottom: 1px solid var(--ink); }
+.site[data-family="workshop"] .site-name { font-weight: 700; text-transform: uppercase; letter-spacing: .08em; font-size: 22px; }
+.site[data-family="workshop"] .site-btn { font-family: var(--f-display); text-transform: uppercase; letter-spacing: .08em; font-weight: 600; font-size: 17px; }
+.site[data-family="workshop"] .site-btn.big { font-size: 18px; }
+.site[data-family="workshop"] .site-btn.ghost { box-shadow: inset 0 0 0 1.5px var(--ink); }
+.site[data-family="workshop"] .hero {
+  background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: 28px 28px; background-position: -1px -1px;
+}
+.site[data-family="workshop"] .hero > * { position: relative; }
+.site[data-family="workshop"] .eyebrow { color: var(--accent-text); font-family: var(--f-display); font-size: 15px; letter-spacing: .16em; }
+.site[data-family="workshop"] .hero h1 { font-weight: 700; text-transform: uppercase; font-size: clamp(44px, 12vw, 92px); line-height: .9; letter-spacing: -.004em; }
+.site[data-family="workshop"] .hero h1 em { font-style: normal; font-weight: 600; color: var(--accent-text); }
+.site[data-family="workshop"] .hero-sub { color: var(--soft); }
+.site[data-family="workshop"] .hero-ticket { background: var(--paper-2); border-radius: 0; box-shadow: inset 0 0 0 1px var(--ink); border-top: 4px solid var(--accent); padding: 6px 18px; }
+.site[data-family="workshop"] .hero-ticket li { border-bottom: 1px solid var(--line); padding: 13px 0; }
+.site[data-family="workshop"] .hero-ticket span { font-weight: 600; }
+.site[data-family="workshop"] .hero-ticket b { font-family: var(--f-display); font-size: 26px; font-weight: 600; }
+.site[data-family="workshop"] .hero-photo { border-radius: 0; box-shadow: 0 0 0 1px var(--ink); }
+.site[data-family="workshop"] .sec { border-top: 1px solid var(--ink); }
+.site[data-family="workshop"] .sec.hero { border-top: 0; }
+.site[data-family="workshop"] .sec-head h2 { font-weight: 700; text-transform: uppercase; font-size: 42px; line-height: .92; letter-spacing: 0; }
+.site[data-family="workshop"] :where(h3) { color: var(--ink); font-family: var(--f-display); font-size: 15px; letter-spacing: .14em; }
+.site[data-family="workshop"] .tickets { gap: 0; box-shadow: inset 0 0 0 1px var(--ink); background: var(--paper-2); }
+.site[data-family="workshop"] .ticket { background: transparent; border-radius: 0; box-shadow: none; border-bottom: 1px solid var(--line-2); padding: 20px 18px; }
+.site[data-family="workshop"] .ticket h3 { font-weight: 600; text-transform: uppercase; font-size: 26px; letter-spacing: .02em; }
+.site[data-family="workshop"] .t-price { font-family: var(--f-display); font-weight: 600; font-size: 32px; }
+.site[data-family="workshop"] .t-dur { font-family: var(--f-display); text-transform: uppercase; letter-spacing: .1em; font-size: 14px; color: var(--accent-text); }
+.site[data-family="workshop"] .t-sizes { border-top: 1px solid var(--line-2); gap: 0; }
+.site[data-family="workshop"] .t-sizes div { background: transparent; border-radius: 0; border-left: 1px solid var(--line-2); padding: 4px 10px; }
+.site[data-family="workshop"] .t-sizes div:first-child { border-left: 0; padding-left: 0; }
+.site[data-family="workshop"] .t-sizes dd { font-family: var(--f-display); font-size: 21px; font-weight: 600; }
+.site[data-family="workshop"] .t-inc li::before { border-color: var(--accent); }
+.site[data-family="workshop"] .extras li, .site[data-family="workshop"] .plans li { border-radius: 0; box-shadow: inset 0 0 0 1px var(--line-2); background: var(--paper-2); }
+.site[data-family="workshop"] .extras b, .site[data-family="workshop"] .plans b { font-family: var(--f-display); font-size: 20px; }
+.site[data-family="workshop"] .cmp-frame { border-radius: 0; box-shadow: 0 0 0 1px var(--ink); }
+.site[data-family="workshop"] .reviews li { background: var(--paper-2); border-radius: 0; box-shadow: inset 3px 0 0 var(--accent), inset 0 0 0 1px var(--line-2); }
+.site[data-family="workshop"] .reviews blockquote p { font-family: var(--f-body); font-style: normal; font-size: 18px; line-height: 1.5; }
+.site[data-family="workshop"] .board { background: var(--paper-2); border-radius: 0; box-shadow: inset 0 0 0 1px var(--ink); }
+.site[data-family="workshop"] .board .big { font-weight: 600; text-transform: uppercase; font-size: 26px; }
+.site[data-family="workshop"] .booksec { background: var(--paper); }
+.site[data-family="workshop"] .bk.bk-embedded { --bk-danger: #b42318; }
+@media (min-width: 768px) {
+  .site[data-family="workshop"] .sec-head h2 { font-size: 64px; }
+  .site[data-family="workshop"] .tickets { grid-template-columns: 1fr 1fr; }
+  .site[data-family="workshop"] .ticket:nth-child(odd) { border-right: 1px solid var(--line-2); }
+}
+@media (min-width: 1180px) {
+  .site[data-family="workshop"] .tickets { grid-template-columns: repeat(3, 1fr); }
+  .site[data-family="workshop"] .ticket { border-right: 1px solid var(--line-2); }
+  .site[data-family="workshop"] .ticket:nth-child(3n) { border-right: 0; }
+}
+
+/* ================================================================ BOUTIQUE — petrol on cool white, a soft serif */
+.site[data-family="boutique"] { --accent-text: #0f3133; --line: rgba(15, 49, 51, .14); --line-2: rgba(15, 49, 51, .3); }
+.site[data-family="boutique"] .site-nav { background: color-mix(in srgb, var(--paper) 92%, transparent); }
+.site[data-family="boutique"] .site-name { font-weight: 400; font-style: italic; font-size: 24px; font-variation-settings: "opsz" 36; }
+.site[data-family="boutique"] .site-btn { font-weight: 600; letter-spacing: .02em; }
+.site[data-family="boutique"] .site-btn.ghost { box-shadow: inset 0 0 0 1px var(--line-2); }
+.site[data-family="boutique"] .eyebrow { font-size: 12px; letter-spacing: .2em; }
+.site[data-family="boutique"] .hero h1 { font-weight: 360; font-size: clamp(46px, 12.6vw, 104px); line-height: 1; letter-spacing: -.025em; font-variation-settings: "opsz" 144; }
+.site[data-family="boutique"] .hero h1 em { display: inline; font-weight: 300; color: inherit; }
+.site[data-family="boutique"] .hero-sub { font-size: 18px; line-height: 1.6; }
+.site[data-family="boutique"] .hero--split .hero-photo { padding: 12px 12px 0; background: var(--paper-2); box-shadow: 0 0 0 1px var(--line); height: fit-content; aspect-ratio: auto; }
+.site[data-family="boutique"] .hero--split .hero-photo img { aspect-ratio: 4 / 5; object-fit: cover; }
+.site[data-family="boutique"] .hero--split .hero-photo figcaption { position: static; display: block; max-width: none; padding: 10px 2px 12px; background: none; color: var(--soft); border-radius: 0; font-weight: 400; font-style: italic; font-family: var(--f-display); font-size: 14px; }
+.site[data-family="boutique"] .hero-ticket { background: transparent; box-shadow: none; border-radius: 0; padding: 0; border-top: 1px solid var(--ink); }
+.site[data-family="boutique"] .hero-ticket li { border-bottom: 1px solid var(--line); padding: 13px 0; }
+.site[data-family="boutique"] .hero-ticket span { font-family: var(--f-display); font-size: 19px; }
+.site[data-family="boutique"] .hero-ticket b { font-weight: 600; font-size: 17px; }
+.site[data-family="boutique"] .sec { padding-top: 76px; padding-bottom: 76px; }
+.site[data-family="boutique"] .sec-head h2 { font-weight: 360; font-size: 42px; line-height: 1.04; letter-spacing: -.02em; font-variation-settings: "opsz" 144; }
+.site[data-family="boutique"] :where(h3) { font-size: 12px; letter-spacing: .2em; }
+.site[data-family="boutique"] .tickets { gap: 0; border-top: 1px solid var(--ink); }
+.site[data-family="boutique"] .ticket { background: transparent; box-shadow: none; border-radius: 0; padding: 26px 0; border-bottom: 1px solid var(--line); }
+.site[data-family="boutique"] .ticket h3 { font-weight: 400; font-size: 30px; letter-spacing: -.01em; font-variation-settings: "opsz" 72; }
+.site[data-family="boutique"] .t-price { font-size: 22px; font-weight: 600; }
+.site[data-family="boutique"] .t-sizes { border-top: 1px solid var(--line); }
+.site[data-family="boutique"] .t-sizes div { background: var(--paper-2); border-radius: 2px; }
+.site[data-family="boutique"] .t-inc li::before { border-color: var(--ink); }
+.site[data-family="boutique"] .extras li, .site[data-family="boutique"] .plans li { border-radius: 0; box-shadow: none; border-top: 1px solid var(--line); padding: 14px 0; }
+.site[data-family="boutique"] .cmp-frame { box-shadow: 0 0 0 12px var(--paper-2), 0 0 0 13px var(--line); margin: 13px; }
+.site[data-family="boutique"] .reviews li { background: transparent; box-shadow: none; border-radius: 0; padding: 22px 0; border-top: 1px solid var(--line); }
+.site[data-family="boutique"] .reviews blockquote p { font-size: 25px; font-weight: 360; line-height: 1.3; }
+.site[data-family="boutique"] .board { background: transparent; box-shadow: none; border-radius: 0; border-top: 1px solid var(--ink); padding: 18px 0 0; }
+.site[data-family="boutique"] .board .big { font-size: 26px; font-weight: 360; }
+.site[data-family="boutique"] .booksec { background: var(--paper-2); }
+.site[data-family="boutique"] .bk.bk-embedded { --bk-danger: #b42318; }
+@media (min-width: 768px) {
+  .site[data-family="boutique"] .sec { padding-top: 112px; padding-bottom: 112px; }
+  .site[data-family="boutique"] .sec-head h2 { font-size: 64px; }
+}
+@media (min-width: 1180px) {
+  .site[data-family="boutique"] .tickets { grid-template-columns: 1fr 1fr; column-gap: 64px; }
+}
+
+/* The business name wraps to a second line before it is ever cut off. */
+.site[data-family] .site-name { white-space: normal; overflow: visible; text-overflow: clip; line-height: 1.05; overflow-wrap: anywhere; }
+@media (max-width: 420px) {
+  .site[data-family="showroom"] .site-name { font-size: 21px; }
+  .site[data-family="workshop"] .site-name { font-size: 18px; letter-spacing: .05em; }
+  .site[data-family="boutique"] .site-name { font-size: 21px; }
+}
+
+/* A sale band under the words, not stuck to them. */
+.site .hero-sub + .sale { margin: 20px 0 0; }
+.site[data-family="workshop"] .sale { border-radius: 0; }
+@media (min-width: 1180px) {
+  .site[data-family="showroom"] .hero--overlay .hero-stage { min-height: min(70vh, 640px); }
+  .site[data-family="showroom"] .hero h1 { font-size: 124px; }
+  .site[data-family="neighbourhood"] .hero h1 { font-size: 88px; }
+  .site[data-family="workshop"] .hero--ledger .hero-photo { grid-column: 2; grid-row: 4; margin-top: 28px; }
+  .site[data-family="workshop"] .hero--ledger .hero-ticket { grid-row: 1 / span 3; }
+}
+.site[data-family="boutique"] .compare figcaption { margin-top: 16px; }

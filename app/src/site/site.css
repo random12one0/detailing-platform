@@ -165,12 +165,11 @@ html, body { margin: 0; background: #0f2a2b; }
 .t-inc li { display: flex; gap: 10px; }
 .t-inc li::before { content: ""; flex: none; width: 14px; height: 8px; margin-top: 6px; border: solid var(--accent-text); border-width: 0 0 2px 2px; transform: rotate(-45deg); }
 /* The perforation: a dashed tear line with a notch bitten out of each edge. */
+/* The tear line runs inside the ticket's padding: nothing spills past its edge. */
 .t-sizes {
   display: grid; grid-template-columns: repeat(auto-fit, minmax(84px, 1fr)); gap: 8px;
-  margin: 18px -18px 0; padding: 18px 18px 0; border-top: 2px dashed var(--line-2); position: relative;
+  margin: 18px 0 0; padding: 18px 0 0; border-top: 2px dashed var(--line-2);
 }
-.t-sizes::before, .t-sizes::after { content: ""; position: absolute; top: -10px; width: 18px; height: 18px; border-radius: 50%; background: var(--paper); }
-.t-sizes::before { left: -9px; } .t-sizes::after { right: -9px; }
 .t-sizes div { padding: 8px 10px; border-radius: calc(var(--radius) - 2px); background: color-mix(in srgb, var(--paper) 60%, transparent); }
 .t-sizes dt { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--soft); }
 .t-sizes dd { font-weight: 800; font-size: 17px; font-variant-numeric: tabular-nums; }
@@ -197,19 +196,25 @@ html, body { margin: 0; background: #0f2a2b; }
 .cmp-frame .cmp-after { position: absolute; inset: 0; clip-path: inset(0 0 0 var(--pos)); }
 .cmp-b { left: 12px; } .cmp-a { left: auto; right: 12px; }
 .cmp-line {
-  position: absolute; top: 0; bottom: 0; left: var(--pos); width: 2px; margin-left: -1px; z-index: 2;
-  background: var(--ink); box-shadow: 0 0 0 1px rgba(0, 0, 0, .25); pointer-events: none;
+  position: absolute; top: 0; bottom: 0; left: var(--pos); width: 44px; margin-left: -22px; z-index: 2; pointer-events: none;
+  background: linear-gradient(90deg, transparent 20px, rgba(0, 0, 0, .25) 20px 21px, var(--ink) 21px 23px, rgba(0, 0, 0, .25) 23px 24px, transparent 24px);
 }
 .cmp-line::after {
   content: ""; position: absolute; top: 50%; left: 50%; width: 44px; height: 44px; transform: translate(-50%, -50%);
   border-radius: 50%; background: var(--accent); box-shadow: 0 6px 18px rgba(0, 0, 0, .35);
   background-image: linear-gradient(90deg, transparent 13px, var(--on-accent) 13px 15px, transparent 15px 29px, var(--on-accent) 29px 31px, transparent 31px);
 }
+/* The range input covers the frame and draws nothing itself (no track, no thumb), so its own focus ring is the
+   frame's ring: keyboard users see it, and the accessibility gate finds it on the focused element. */
 .cmp-frame input {
   position: absolute; inset: 0; z-index: 3; width: 100%; height: 100%; margin: 0;
-  opacity: 0; cursor: ew-resize; -webkit-appearance: none; appearance: none;
+  background: transparent; cursor: ew-resize; -webkit-appearance: none; appearance: none;
 }
-.cmp-frame:has(input:focus-visible) { outline: 2px solid var(--accent-text); outline-offset: 3px; }
+.cmp-frame input::-webkit-slider-runnable-track { background: transparent; border: 0; height: 100%; }
+.cmp-frame input::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 44px; height: 100%; background: transparent; border: 0; }
+.cmp-frame input::-moz-range-track { background: transparent; border: 0; }
+.cmp-frame input::-moz-range-thumb { width: 44px; height: 100%; background: transparent; border: 0; }
+.cmp-frame input:focus-visible { outline: 3px solid var(--accent-text); outline-offset: -3px; border-radius: var(--radius); }
 
 .reviews { margin-top: 36px; display: grid; gap: 14px; }
 .reviews li { padding: 22px 20px; border-radius: var(--radius); background: var(--paper-2); box-shadow: inset 0 0 0 1px var(--line); }
@@ -253,6 +258,7 @@ html, body { margin: 0; background: #0f2a2b; }
 }
 .faq details[open] summary::after { transform: rotate(225deg); }
 .faq details p { padding: 0 0 18px; color: var(--soft); max-width: 40rem; }
+.faq details:not([open]) > p { display: none; }
 
 /* ---------------------------------------------------------------- booking
    The existing booking flow, restyled through its own --bk-* tokens so it wears
@@ -306,15 +312,15 @@ html, body { margin: 0; background: #0f2a2b; }
 @media (min-width: 768px) {
   .site { --pad: 40px; }
   .site-nav nav { display: block; }
-  .site-nav ul { display: flex; gap: 4px; }
+  .site-nav ul { display: flex; gap: 8px; }
   .site-nav nav a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; text-decoration: none; color: var(--soft); font-weight: 600; font-size: 15px; }
   .site-nav nav a:hover { color: var(--ink); }
   .sec { padding: 88px var(--pad); }
   .hero { padding: 0 0 72px; }
   .hero h1 { font-size: 68px; }
   .sec-head h2 { font-size: 48px; }
-  .hero-photo { aspect-ratio: 16 / 9; }
-  .hero-copy { margin-top: -64px; }
+  .hero--poster .hero-photo { aspect-ratio: 16 / 9; }
+  .hero--poster .hero-copy { margin-top: -64px; }
   .hero-cta .big, .hero-cta .ghost { flex: 0 0 auto; }
   .hero-ticket { max-width: 640px; }
   .tickets { grid-template-columns: 1fr 1fr; }
@@ -328,16 +334,16 @@ html, body { margin: 0; background: #0f2a2b; }
 /* ---------------------------------------------------------------- 1180 */
 @media (min-width: 1180px) {
   .site { --pad: max(56px, calc((100vw - var(--col)) / 2)); }
-  .hero {
+  .hero--poster {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: auto auto;
     column-gap: 56px; padding: 48px var(--pad) 96px; align-items: start;
   }
   /* Top edge on the copy column's first line (the eyebrow), not floating mid-column. */
-  .hero-photo { grid-column: 2; grid-row: 1 / span 2; aspect-ratio: auto; min-height: 560px; border-radius: var(--radius); align-self: stretch; }
-  .hero-photo::after { background: linear-gradient(90deg, color-mix(in srgb, var(--paper) 40%, transparent), transparent 30%); }
-  .hero-copy { grid-column: 1; grid-row: 1; margin: 0; padding: 0; }
+  .hero--poster .hero-photo { grid-column: 2; grid-row: 1 / span 2; aspect-ratio: auto; min-height: 560px; border-radius: var(--radius); align-self: stretch; }
+  .hero--poster .hero-photo::after { background: linear-gradient(90deg, color-mix(in srgb, var(--paper) 40%, transparent), transparent 30%); }
+  .hero--poster .hero-copy { grid-column: 1; grid-row: 1; margin: 0; padding: 0; }
   .hero h1 { font-size: 76px; }
-  .hero-ticket { grid-column: 1; grid-row: 2; margin: 36px 0 0; max-width: none; align-self: start; }
+  .hero--poster .hero-ticket { grid-column: 1; grid-row: 2; margin: 36px 0 0; max-width: none; align-self: start; }
   .tickets { grid-template-columns: repeat(3, 1fr); }
   .menu .sec-head, .work .sec-head, .visit .sec-head { margin-bottom: 40px; }
   .work-grid { grid-template-columns: repeat(3, 1fr); }
