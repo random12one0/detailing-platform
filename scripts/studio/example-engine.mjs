@@ -31,6 +31,11 @@ export function exampleSeed() {
       caption: "Example image: an illustration, not real work." });
     else g.is_active = false;
   }
+  // STUDIO S8 rehearsal only: STUDIO_EXAMPLE_PAYING=1 makes the example business a paying website customer, so the
+  // publish path can be walked end to end on the test domain (brightline.example.test). Without it the example is a
+  // prospect, and the Studio refuses to publish it, as it must. Never a setting: only a test or a rehearsal sets it.
+  seed.tables.platform_subscriptions = process.env.STUDIO_EXAMPLE_PAYING === "1"
+    ? [{ business_id: b.id, plan: "website", term: "monthly", status: "active", recurring_cents: 9900, bill_interval: "month" }] : [];
   return seed;
 }
 

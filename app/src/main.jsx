@@ -13,7 +13,8 @@ import PlansPage from "./book/PlansPage.jsx";
 import PlanMemberPage from "./book/PlanMemberPage.jsx";
 import UnsubscribePage from "./book/UnsubscribePage.jsx";
 import LandingPage from "./landing/LandingPage.jsx";
-import { isPlatformHost } from "./lib/host.js";
+import TenantHome from "./site/TenantHome.jsx";
+import { isPlatformHost, isTenantRoot } from "./lib/host.js";
 import { installEmbedHeight } from "./lib/embedHeight.js";
 import PricingPage from "./landing/PricingPage.jsx";
 import LegalPage from "./landing/LegalPage.jsx";
@@ -68,13 +69,12 @@ installEmbedHeight();
 // the page wait on an auth round trip it can never satisfy, and would apply
 // whatever theme the last dashboard user picked on that device. Those pages
 // carry their own BookingBusinessProvider, hydrated from the URL slug.
-ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
-    {/* The two React Router v7 future flags, on, so the console is clean on every
+const app = (
+    /* The two React Router v7 future flags, on, so the console is clean on every
         navigation. `v7_relativeSplatPath` changes how a RELATIVE link under a
         `*` route resolves; the only splat route is NotFound, which links with
         plain `<a href>`, and nothing here uses a relative `to`. `v7_startTransition`
-        wraps router state updates in React.startTransition. */}
+        wraps router state updates in React.startTransition. */
     <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <ErrorBoundary>
       <Routes>
@@ -219,6 +219,15 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       </Routes>
       </ErrorBoundary>
     </BrowserRouter>
+);
+// STUDIO S8: `/` on a detailer's own verified address shows their published site when it has a live release, drawn
+// OUTSIDE the app's router (the site keeps its own); otherwise the app answers exactly as before (the booking page).
+// On the Studio's phone preview (dev server only), /?as-host=<a .test address> shows what that address serves, because
+// a test address cannot resolve on this laptop. A production build has no such door (import.meta.env.DEV is false).
+const asHost = import.meta.env.DEV ? (/^[a-z0-9.-]+\.test$/.exec(new URLSearchParams(window.location.search).get("as-host") || "")?.[0] ?? null) : null;
+ReactDOM.createRoot(document.getElementById("root")).render(
+  <React.StrictMode>
+    {isTenantRoot() || (asHost && window.location.pathname === "/") ? <TenantHome app={app} host={asHost || undefined} /> : app}
   </React.StrictMode>,
 );
 

@@ -17,6 +17,9 @@ import "./detailer.css";
 
 const BASE = String(import.meta.env.VITE_STUDIO_LINKS || "").replace(/\/+$/, "");
 const NAMES = { hero: "The first screen", catalog: "Prices", proof: "Photos and reviews", visit: "Hours and contact", booking: "Booking" };
+// S8: a preview drawn from example data says so plainly, so nobody takes made-up prices for their own.
+const isExample = (spec) => /^example_/.test(String(spec?.slug || ""));
+const ExampleNote = () => <p className="dp-ui dp-example" role="note"><b>Example data.</b> The prices, hours, photos and reviews here are made up for this preview, not yours. The site that goes live reads your own dashboard.</p>;
 export const PREVIEW_SAID = "This is a preview, nothing was booked.";
 
 // THE PREVIEW NEVER BOOKS. Every call that would write something for real (create-booking first of all) is answered
@@ -109,6 +112,7 @@ function Review({ token, data, reload }) {
       </div>
       {mode === "comment" && <p className="dp-ui dp-hint" role="status">Tap anything you want changed.</p>}
       <Pins comments={comments} draft={draft} />
+      {isExample(data.spec) && <ExampleNote />}
       <Site spec={data.spec} />
       <section className="dp-ui dp-end" aria-labelledby="dpEndH">
         <h2 id="dpEndH">How is each part?</h2>
@@ -170,6 +174,7 @@ function Chooser({ token, data, reload }) {
           {data.looks.map((l) => <button key={l.letter} type="button" aria-pressed={l.letter === look.letter} onClick={() => { setAt(l.letter); setSaid(null); }}>{l.letter}</button>)}
         </div>
       </div>
+      {isExample(look.spec) && <ExampleNote />}
       <Site key={look.letter} spec={look.spec} />
       <div className="dp-ui dp-pickbar">
         {data.picked === look.letter

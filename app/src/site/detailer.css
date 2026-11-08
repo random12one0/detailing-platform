@@ -15,6 +15,7 @@
 .dp-seg button { min-height: 44px; min-width: 44px; padding: 0 12px; border: 0; border-radius: 8px; background: transparent; font: 600 14px system-ui, sans-serif; color: #444; cursor: pointer; }
 .dp-seg button[aria-pressed="true"] { background: #111; color: #fff; }
 .dp-hint { position: fixed; left: 50%; top: calc(var(--dpbar) + 8px); transform: translateX(-50%); z-index: 2147483000; margin: 0; padding: 6px 12px; border-radius: 99px; background: #111; color: #fff; font-size: 13px; pointer-events: none; }
+.dp-example { margin: 0; padding: 10px 12px; background: #fff4d6; border-bottom: 1px solid #e6d29a; font-size: 14px; }
 .dp-comment [data-section] { cursor: crosshair; }
 .dp-comment [data-section]:hover { outline: 2px dashed rgba(17, 17, 17, .35); outline-offset: -2px; }
 .dp-pin {

@@ -63,6 +63,9 @@ const siteRoute = {
 // its own assets to the same dist/ without emptying it (see package.json).
 export default defineConfig(({ mode }) => ({
   plugins: [react(), exampleIndex, siteRoute],
+  // STUDIO S8: a test host mapping (the publish tests and nightly parity map e.g. brightline.example.test to this
+  // laptop) must reach the dev server; Vite refuses unknown Host headers otherwise. Dev server only.
+  server: process.env.STUDIO_TEST_HOSTS ? { allowedHosts: process.env.STUDIO_TEST_HOSTS.split(",").map((h) => h.trim()).filter(Boolean) } : undefined,
   build: mode === "site"
     ? { emptyOutDir: false, copyPublicDir: false, rollupOptions: { input: { site: fileURLToPath(new URL("./site.html", import.meta.url)) } } }
     : undefined,

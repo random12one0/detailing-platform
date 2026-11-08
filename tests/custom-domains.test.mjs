@@ -187,6 +187,10 @@ console.log("\n7. the hostname changes exactly one route");
   check("no OTHER route branches on the hostname",
     (strip(main).match(/isPlatformHost\(/g) ?? []).length === 1,
     "every other path serves the same thing on either host, because the tenant's domain is aliased onto this same site");
+  // STUDIO S8: a published site is asked for before the router exists, and still only on `/`
+  const host = read("app/src/lib/host.js");
+  check("the published-site fork (isTenantRoot) is `/` on a tenant host and nothing else",
+    /\(loc\?\.pathname \?\? ""\) === "\/" && !isPlatformHost\(/.test(host) && /isTenantRoot\(\) \|\|/.test(main));
   check("the routes the emails point at all still exist",
     ["/book/:slug", "/booking/:id", "/plan/:memberId", "/unsubscribe/:customerId"]
       .every((r) => others.includes(r)), others.join(" "));
