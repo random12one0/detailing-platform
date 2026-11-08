@@ -11,7 +11,7 @@
 //            request for Andrew. Each part can also get a quick Good / Change it, and the end of the page has
 //            "I'm happy with it".
 //   Choose   the three looks, each the real site; "Pick this one".
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Site from "./Site.jsx";
 import "./detailer.css";
 
@@ -22,7 +22,8 @@ export const PREVIEW_SAID = "This is a preview, nothing was booked.";
 // THE PREVIEW NEVER BOOKS. Every call that would write something for real (create-booking first of all) is answered
 // here, in the page, with the preview's own words, and never leaves it. Reads stay real: the profile, prices
 // (calculate-booking) and free times (available-slots). Installed before anything on the page runs.
-const READS = /\/functions\/v1\/(calculate-booking|available-slots)$|\/rest\/v1\/rpc\/get_[a-z_]+$/;
+// validate-promo-code only answers whether a code is good (S7 review F6: a detailer may try their own promo code)
+const READS = /\/functions\/v1\/(calculate-booking|available-slots|validate-promo-code)$|\/rest\/v1\/rpc\/get_[a-z_]+$/;
 export function installPreviewGuard(win = window) {
   if (win.__previewGuard) return;
   const real = win.fetch.bind(win);
@@ -49,6 +50,8 @@ export default function DetailerPreview({ token }) {
   const load = () => api(token).then(setGot, () => setGot({ ok: false, said: "This page could not load. Check your connection and try again." }));
   useEffect(() => { load(); }, [token]);
   useEffect(() => { document.title = got?.business ? `${got.business}: your new site` : "Your new site"; }, [got?.business]);
+  // a private preview: never in a search engine (the link server also says so in its replies)
+  useEffect(() => { const m = Object.assign(document.createElement("meta"), { name: "robots", content: "noindex, nofollow" }); document.head.appendChild(m); return () => m.remove(); }, []);
   if (!got) return <main className="dp-msg" aria-busy="true"><p>Loading your site…</p></main>;
   if (!got.ok) return <main className="dp-msg"><h1>{got.status === 410 ? "This link no longer works" : "Nothing to show here"}</h1><p>{got.said}</p></main>;
   return got.purpose === "choose" ? <Chooser token={token} data={got} reload={load} /> : <Review token={token} data={got} reload={load} />;
@@ -61,8 +64,8 @@ function Review({ token, data, reload }) {
   const [said, setSaid] = useState(null);
   const [busy, setBusy] = useState(false);
   const root = useRef(null);
-  const comments = data.comments.filter((c) => c.text);
-  const thumbs = useMemo(() => Object.fromEntries(data.comments.filter((c) => !c.text).map((c) => [c.section, c.thumbs])), [data.comments]);
+  const comments = data.comments;
+  const thumbs = data.thumbs || {};
   const sections = data.spec.pages[0].sections;
 
   // In Comment, a tap on the site does not follow links or press buttons: it marks the spot.
@@ -86,7 +89,13 @@ function Review({ token, data, reload }) {
     setBusy(false); setSaid(r.said);
     if (r.ok) { setDraft(null); reload(); }
   };
-  const vote = async (section, v) => { const r = await api(token, "thumbs", { section, thumbs: thumbs[section] === v ? null : v }); setSaid(r.said); if (r.ok) reload(); };
+  const vote = async (section, v) => { const r = await api(token, "thumbs", { section, thumbs: thumbs[section] === v ? null : v }); setSaid(r.said); if (r.ok) reload(); return r; };
+  // "Change it" asks what to change (S7 review F6): the vote, and the comment box for that part, which makes a card
+  const changeIt = async (section) => {
+    if (thumbs[section] === "down") return vote(section, "down");
+    await vote(section, "down");
+    setSaid(null); setDraft({ section, part: null, at: null, n: comments.length + 1 });
+  };
   const happy = async () => { setBusy(true); const r = await api(token, "happy", {}); setBusy(false); setSaid(r.said); if (r.ok) reload(); };
 
   return (
@@ -107,7 +116,7 @@ function Review({ token, data, reload }) {
           <li key={s.id}><span>{NAMES[s.type] || s.id}</span>
             <span className="dp-votes" role="group" aria-label={`${NAMES[s.type] || s.id}`}>
               <button type="button" aria-pressed={thumbs[s.id] === "up"} onClick={() => vote(s.id, "up")}>Good</button>
-              <button type="button" aria-pressed={thumbs[s.id] === "down"} onClick={() => vote(s.id, "down")}>Change it</button>
+              <button type="button" aria-pressed={thumbs[s.id] === "down"} onClick={() => changeIt(s.id)}>Change it</button>
             </span></li>))}</ul>
         {comments.length > 0 && <p className="dp-note">{comments.length === 1 ? "You left one comment." : `You left ${comments.length} comments.`} We read every one.</p>}
         {data.approved_at
