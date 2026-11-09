@@ -13,6 +13,8 @@ import ReactDOM from "react-dom/client";
 import Site from "./Site.jsx";
 import { startPicker } from "./picker.js";
 import DetailerPreview, { installPreviewGuard } from "./Detailer.jsx";
+import Published from "./Published.jsx";
+import { tenantHost } from "../lib/host.js";
 
 // Committed example specs. Real clients' specs will come from the Studio's
 // revisions table, not from git (WEBSITE-STEP1-BRIEF J7).
@@ -88,9 +90,14 @@ const preview = import.meta.env.DEV && /^\/site\/preview\/?$/.test(window.locati
 // S7: the detailer's preview page, /site/p/<link> (dev server only for now). Its guard is in place before anything runs.
 const link = import.meta.env.DEV ? /^\/site\/p\/([A-Za-z0-9_-]{1,100})\/?$/.exec(window.location.pathname)?.[1] ?? null : null;
 if (link) installPreviewGuard();
+// S8: `/` reaches this page only through the edge (or the dev server) on a verified address with a live release. On the
+// Studio's phone preview (dev only) /site/live?as-host=<a .test address> shows what that address serves, because a
+// test address cannot resolve on this laptop.
+const asHost = import.meta.env.DEV && /^\/site\/live\/?$/.test(window.location.pathname) ? (/^[a-z0-9.-]+\.test$/.exec(new URLSearchParams(window.location.search).get("as-host") || "")?.[0] ?? null) : null;
+const liveHost = window.location.pathname === "/" ? tenantHost() : asHost;
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    {link ? <DetailerPreview token={link} /> : preview ? <Preview /> : <Site spec={spec} />}
+    {liveHost ? <Published host={liveHost} /> : link ? <DetailerPreview token={link} /> : preview ? <Preview /> : <Site spec={spec} />}
   </React.StrictMode>,
 );

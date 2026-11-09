@@ -47,10 +47,3 @@ export function isPlatformHost(hostname = globalThis.location?.hostname ?? "") {
 export function tenantHost(hostname = globalThis.location?.hostname ?? "") {
   return String(hostname).toLowerCase().replace(/:\d+$/, "").replace(/^www\./, "");
 }
-
-// STUDIO S8 — the same fork, asked before the router exists: is this `/` on a detailer's own address? Only `/`, so
-// every other path still serves the same thing on either host. main.jsx then shows the published site, if there is one,
-// and otherwise the app as before (whose `/` route asks isPlatformHost itself).
-export function isTenantRoot(loc = globalThis.location) {
-  return (loc?.pathname ?? "") === "/" && !isPlatformHost(loc?.hostname ?? "");
-}

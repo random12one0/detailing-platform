@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { fileURLToPath } from "node:url";
+import { decide, fetchPublished } from "./netlify/edge-functions/tenant-site.mjs";
 
 // SMOKE_PROXY_TARGET is test scaffolding only: the headless-browser smoke
 // test runs in a sandbox whose egress proxy Chromium can't use, so the built
@@ -48,9 +49,19 @@ const previewId = (req, res, next) => {
   res.setHeader("cache-control", "no-store");
   res.end(id || "");
 };
+// STUDIO S8 — what the edge does for `/` on a detailer's verified address (netlify/edge-functions/tenant-site.mjs), the
+// same code, against the dev server's own data (VITE_SUPABASE_URL: the offline engine in the Studio and its tests).
+const publishedRoot = async (req, _res, next) => {
+  try {
+    if (!/^\/(\?.*)?$/.test(req.url || "") || !process.env.VITE_SUPABASE_URL) return next();
+    const to = await decide(`http://${req.headers.host || "localhost"}${req.url}`, (h) => fetchPublished(h, { base: process.env.VITE_SUPABASE_URL, key: process.env.VITE_SUPABASE_ANON_KEY || "demo-anon" }));
+    if (to) req.url = "/site.html" + to.search;
+  } catch {}
+  next();
+};
 const siteRoute = {
   name: "studio-site-route",
-  configureServer(server) { server.middlewares.use(previewId); server.middlewares.use(siteEntry()); },
+  configureServer(server) { server.middlewares.use(previewId); server.middlewares.use(publishedRoot); server.middlewares.use(siteEntry()); },
   configurePreviewServer(server) { server.middlewares.use(siteEntry()); },
 };
 
