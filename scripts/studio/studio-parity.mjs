@@ -55,6 +55,10 @@ const skipRest = (why) => { for (const [k] of PLAN) if (!lines.some((l) => l.id 
 const freePort = () => new Promise((r) => { const s = net.createServer().listen(0, "127.0.0.1", () => { const p = s.address().port; s.close(() => r(p)); }); });
 const until = async (fn, ms = 60000) => { const t = Date.now(); while (Date.now() - t < ms) { try { if (await fn()) return true; } catch {} await new Promise((r) => setTimeout(r, 300)); } return false; };
 const mismatches = [];
+// what a person calls the thing a stamp shows (the alarm is read by Andrew, not by a developer)
+const KIND = { "hours.week": "The opening hours", gallery: "A photo", "gallery.best": "The photos", "reviews.top": "The reviews", "contact.phone": "The phone number", sale: "The sale", area: "The area served", add_ons: "The add-ons", plans: "The plans", faq: "The questions", pay: "The payment notes", service_group: "A group of services" };
+const FIELD = { price: "price", name: "name", duration: "length", description: "description", features: "inclusions", sizes: "size prices" };
+const labelOf = (from, p) => { const b = parseBinding(from); if (b?.kind === "service") { const sv = p?.services?.find((x) => String(x.id) === String(b.id)); return `${sv ? sv.name : "A service"}'s ${FIELD[b.field] || b.field}`; } return KIND[b?.kind] || from; };
 let engine = null, browser = null, vite = null, release = null;
 const problems = [];
 try {
@@ -99,7 +103,7 @@ try {
   if (!line("served", shown && shown.release === release.release && shown.revision === release.revision && shown.sections > 0,
     shown ? `release ${shown.release} (revision ${shown.revision}), ${shown.sections} sections; the Studio says release ${release.release} (revision ${release.revision})` : "the address shows the booking page, not the site")) skipRest("the live release is not what the address shows");
   const stamps = await page.evaluate(SS.readStamps);
-  for (const st of stamps) { const why = stampProblem(st, p); if (why) mismatches.push({ from: st.from, shows: String(st.text || "").replace(/\s+/g, " ").trim().slice(0, 80), why }); }
+  for (const st of stamps) { const why = stampProblem(st, p); if (why) mismatches.push({ from: st.from, label: labelOf(st.from, p), shows: String(st.text || "").replace(/\s+/g, " ").trim().slice(0, 80), why }); }
   line("stamps", stamps.length > 0 && !mismatches.length, mismatches.length ? mismatches.slice(0, 3).map((m) => `${m.from}: ${m.why}`).join("; ") : `${stamps.length} items, all as the dashboard says`);
   // a quote, never a booking
   const st = stamps.find((s) => /^service:[^.]+\.price$/.test(s.from));
@@ -113,7 +117,7 @@ try {
     }
     const onSite = String(st.text || "");
     const ok = !!q && SS.shows(onSite, F.money(q.base_price));
-    if (!ok && q) mismatches.push({ from: st.from, shows: onSite.trim().slice(0, 80), why: `the booking system charges ${F.money(q.base_price)}` });
+    if (!ok && q) mismatches.push({ from: st.from, label: labelOf(st.from, p), shows: onSite.trim().slice(0, 80), why: `the booking system charges ${F.money(q.base_price)}` });
     line("quote", ok, q ? `${sv?.name}: the site shows ${onSite.replace(/\s+/g, " ").trim()}, the booking system quotes ${F.money(q.base_price)}` : "the booking system gave no quote");
   }
   line("console", !problems.length, problems.slice(0, 3).join(" | "));
