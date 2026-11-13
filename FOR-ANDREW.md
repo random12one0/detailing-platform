@@ -155,6 +155,8 @@ You said yes on 2026-10-15 to a timed tick box, and with no lawyer wait: it is b
 
 ## DO · Keep the security settings in your nightly backups (ROADMAP 97.25)
 
+**AI WORK since 2026-11-13, not yours.** An AI with access to your private backups repo makes the two-line edit below, together with the backup-key rotation that is under way, and runs the restore check after one night. Nothing for you to do; the steps below are its checklist.
+
 Your nightly database copy leaves out the settings that say who may read and
 change what. Every row comes back, but in a database restored from one, the
 tables and actions we have closed to the public would be open again. The check that restores a copy now
@@ -2902,6 +2904,7 @@ still knows them.
   **Nothing breaks while this waits.**
 
 - [ ] **AT LAUNCH · Run one command that adds a "this is a test row" tick box to your
+  **Re-marked 2026-11-13: an AI does this in launch week, not you.** Applying a database change is release work, which is AI work since 2026-11-05; your 2026-10-09 "hold and test" ruling sets the timing (ROADMAP 0.3, 0.3b).
   customer list. Everything else for ROADMAP 1.3 is built and proved; this is
   the one step that makes it real, and it is yours because it changes the
   shape of the database (Andrew, 2026-10-12: leave test accounts visible for now, run this at launch).**

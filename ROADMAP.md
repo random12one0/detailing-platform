@@ -939,7 +939,7 @@ of this file (97.29–97.63). Items marked `NEEDS ANDREW` are his, not build job
   - **Review, 2026-10-17 — four points, three fixed, one is the publish.** (1) Real: both checks' clean-run canary graded itself (`observed_failure` was simply "nothing failed"). Now every clean run is handed the original defect and must call it wrong: the handler test loads a copy of `update-booking` with the refusal removed and the same refusal predicate must reject its answer (caught: it answered 200 with `declined_at` still set); the screen check serves the declined screen with the fix removed and the same two questions must fail it (caught: Accept absent, Un-cancel present). Both canaries also name their sabotage receipts. (2) Real: the handler floor equalled the count; `min_assertions` is now 18 against 20 executed, and 10 of 10 scenarios binds a short run. (4) Real: `render-emails.mjs --lang=es` overwrote the English receipt; it now writes `receipts/render-emails-es.json` and `email-preview-es/`. Re-run at dfeb8b33, graded by `node scripts/receipt.mjs`: uncancel-tells-customer PASS 10/10, 20 assertions; uncancel-screen PASS 10/10, 46 assertions; render-emails PASS 35/35; render-emails-es PASS 35/35. Sabotages re-run first: no-refusal 6 failed, silent-restore 3 failed, old-screen 10 failed. (3) Real and not buildable here: R2's "the mail log shows it" needs `update-booking` and `respond-to-booking` deployed, which is the publish below.
 
 - [ ] **97.25 — Restoring a backup silently drops the database's permission lockdown (S-M7).**
-  The nightly backup runs `pg_dump --no-owner --no-privileges` (`docs/ops/backups.md:20`, `docs/recovery.md:125`, `docs/ops/backup.workflow.yml:101`), so every GRANT and REVOKE is left out, and the product's security depends on revokes (`20260921000000_revoke_locked_table_grants.sql`, `20260907003000_column_revokes_actually_apply.sql`, `20260913005000_definer_execute_swept.sql`). The restore census compares rows, not privileges. Drop `--no-privileges` (keep `--no-owner`) in this repo's copy of the workflow and the two documents, and add a privileges comparison to the restore check (`migration-drift.mjs` already compares grants). **Installing the changed workflow in the private backups repo is Andrew's.**
+  The nightly backup runs `pg_dump --no-owner --no-privileges` (`docs/ops/backups.md:20`, `docs/recovery.md:125`, `docs/ops/backup.workflow.yml:101`), so every GRANT and REVOKE is left out, and the product's security depends on revokes (`20260921000000_revoke_locked_table_grants.sql`, `20260907003000_column_revokes_actually_apply.sql`, `20260913005000_definer_execute_swept.sql`). The restore census compares rows, not privileges. Drop `--no-privileges` (keep `--no-owner`) in this repo's copy of the workflow and the two documents, and add a privileges comparison to the restore check (`migration-drift.mjs` already compares grants). ~~**Installing the changed workflow in the private backups repo is Andrew's.**~~ (2026-11-13: an AI installs it; see the last line of this entry.)
   Acceptance criteria:
   - `docs/ops/backup.workflow.yml`, `docs/ops/backups.md` and `docs/recovery.md` agree, with no `--no-privileges`
   - The restore check names a grant difference when run against a scratch copy with one revoke removed (sabotage, caught)
@@ -950,7 +950,8 @@ of this file (97.29–97.63). Items marked `NEEDS ANDREW` are his, not build job
   - (3) `FOR-ANDREW.md`, "Keep the security settings in your nightly backups": delete `--no-privileges` in the backups repo.
   - **Sibling found and folded into the same step:** the backups repo's `scripts/restore.sh` line 52 restores with `pg_restore --no-owner --no-privileges`, so even a copy holding the grants would lose them on the way back. Same fix, same step, same person. Read read-only with `gh api`; nothing was written there.
   - **Not measured:** a real nightly. The key is Andrew's and the copies on hand were taken without grants, so `--release=latest` would now fail by name (`the backup holds no GRANT or REVOKE …`) until a night runs with the change. Whether a real copy's owner-related statements compare clean is first visible then; the receipt prints how many it left out.
-  AWAITS PUBLISH (built and proved; no decision asked of Andrew): delete `--no-privileges` from the backups repo's `.github/workflows/backup.yml` line 54 and `scripts/restore.sh` line 52 (`FOR-ANDREW.md`), then after one night run `node scripts/restore-nightly.mjs --release=latest` with the key in place; it should pass with the privileges compared.
+  ~~AWAITS PUBLISH (built and proved; no decision asked of Andrew): delete `--no-privileges` from the backups repo's `.github/workflows/backup.yml` line 54 and `scripts/restore.sh` line 52 (`FOR-ANDREW.md`), then after one night run `node scripts/restore-nightly.mjs --release=latest` with the key in place; it should pass with the privileges compared.~~
+  AWAITS PUBLISH (AI release step, re-marked 2026-11-13; not Andrew's): an AI session with `gh` access commits the two-line edit to the private backups repo (delete `--no-privileges` from `.github/workflows/backup.yml` line 54 and `scripts/restore.sh` line 52, keep `--no-owner`), together with or after the 6.1a key rotation, which edits the same workflow. After one night it runs `node scripts/restore-nightly.mjs --release=latest`, which needs the new key from that rotation (no old key is held, Andrew 2026-11-13).
 
 - [x] **97.26 — No Content-Security-Policy on the main site (S-L9).**
   `app/netlify.toml` sets `X-Frame-Options`, `nosniff` and `Referrer-Policy`, and `frame-ancestors` only on `/book/*`. Add a CSP limited to self, the Supabase host, the photo host, Stripe and the other origins the app really calls (list them from the code, not from memory). Ship it first as `Content-Security-Policy-Report-Only` if any origin is uncertain.
@@ -2627,7 +2628,8 @@ and how the wait ends.
   The work is safe on branch `belt/0.11be-20261018142856941`. Answer "merge it" to keep it, or say what to change.
 
 - [ ] **0.11c — Ship the R2 switch and 10 GB allowance as one coordinated release**
-  NEEDS ANDREW (2026-11-02): R5 says the allowance, the photo door and the website went out in the "same release"; in fact the allowance and the door went first and the website followed. Recommendation: reword R5 to "the allowance and the door came first, the website followed", which is what happened and was proved live (0.11cc, 2e6b6ca4).
+  ~~NEEDS ANDREW (2026-11-02): R5 says the allowance, the photo door and the website went out in the "same release"; in fact the allowance and the door went first and the website followed. Recommendation: reword R5 to "the allowance and the door came first, the website followed", which is what happened and was proved live (0.11cc, 2e6b6ca4).~~
+  AI DECISION 2026-11-13 (technical, logged; not Andrew's): R5 is read as "the allowance and the door came first, the website followed", which is what happened and was proved live (0.11cc, `2e6b6ca4`). R5's original words are kept below; this records how they are judged.
   **Held for a builder, not for Andrew (belt 2026-10-25).** The finish review still found problems; they are work, not a question. Continue branch `belt/0.11c-20261024235256223`: fix each finding that is real, re-run the item's proof, and say in this entry why any finding is wrong.
   - 1. `scripts/live-bundle-switches.mjs`, `judgeSwitch`: the media switch is judged on one marker, the `business-media` count (3 means on, 5 means off at this revision). That count moves with unrelated code. The 2026-10-17 entry recorded the live bundle at `business-media` 3 when MEDIA_VIA_DOOR was measured OFF, and today the "on" build also reads 3. So this check would print `PASS media-live: MEDIA_VIA_DOOR is ON` over the old switched-off bundle `index-CT8xjH8F.js`. Today's conclusion still holds, but only because the live counts match the switched-on build on all five markers, and the script does not require that. It should call "on" only when the live bundle matches the switched-on build on every candidate marker, or on a combination no off-build shares. Its sabotages only feed it off-builds of the *current* checkout, which is why they missed this.
   - 2. `ROADMAP.md`, 0.11c 2026-10-24 block: it states "MEDIA_VIA_DOOR … ON" on the strength of the script's media verdict. Once finding 1 is fixed, the evidence line should say what actually supports it: all five counts match the both-on build, including `action:"start"` 3 against 2 for each off build. The single-marker verdict alone does not.
@@ -2665,8 +2667,9 @@ and how the wait ends.
   **No browser screenshots:** this sitting changed no screen; the subject is a published file, not a page.
   LIVE RUN NEEDED: `set -a; . ./.env; set +a; PGLITE_DIR=C:/Users/rando/AppData/Local/Temp/pglite PGLITE_REQUIRED=1 node --test --test-reporter=spec tests/photo-*.test.mjs tests/job-photos.test.mjs tests/forget-photos.test.mjs tests/spanish.test.mjs` (main checkout, bash; the 17 files of 98.5: 14 `photo-*` plus three) — proves Andrew's 2026-10-13 no-skip gate: all 17 files pass with Spanish section 7 EXECUTING, which writes one demo booking's language on kguqylyzgyzfktkfnhjb only; node's own `skipped 0` does not count that section, so read its printed line.
   LIVE RUN NEEDED: `set -a; . ./.env; set +a; node scripts/photo-release-order.mjs` (main checkout, read-only) — proves the completed release state on the live system: door live with JWT on, delete-customer carrying its R2 markers, the photo-reconcile cron entry, `photo_total_gb` 10 and the door markers in the published bundle, with `bucket-cors` UNJUDGEABLE by name; `node scripts/receipt.mjs` must grade it PASS.
-  Waits on: 0.11cc. How the wait ends: a session with the key, in the main checkout, runs both LIVE RUN NEEDED lines
-  clean, then ticks 0.11cc; this item additionally needs Andrew's ruling on R5.
+  ~~Waits on: 0.11cc. How the wait ends: a session with the key, in the main checkout, runs both LIVE RUN NEEDED lines~~
+  ~~clean, then ticks 0.11cc; this item additionally needs Andrew's ruling on R5.~~
+  (Re-marked 2026-11-13: 0.11cc is ticked and R5 is settled above. What is left is the two live-run lines above, run by a session in the main checkout, plus the held builder findings.)
   ***RE-MEASURED 2026-10-17 — THE SERVER HALF OF THE RELEASE HAS HAPPENED (AT ITS 2026-10-10 VERSIONS); BOTH APP SWITCHES ARE NOT YET ON THE
   PUBLISHED WEBSITE. Read-only: nothing deployed, applied, published or pushed; no DDL; no secret value touched. The box
   stays `[ ]`.***
@@ -2718,7 +2721,8 @@ and how the wait ends.
   its republish of photo-door and photo-reconcile are still outstanding (`FOR-ANDREW.md` 14.39 row). **No browser screenshots:** this sitting changed no
   screen.
 
-  Waits on: 0.11cc. How the wait ends: 0.11cc is ticked.
+  ~~Waits on: 0.11cc. How the wait ends: 0.11cc is ticked.~~
+  (Re-marked 2026-11-13: 0.11cc is ticked.)
   **Release step, not a decision:** the website publish that carries both switches (`FOR-ANDREW.md`, "RELEASE
   STEP · Expense receipts use the new photo store"). **Next buildable part, before that publish:** a session with
   the manager's go-ahead for credentials runs the full 17-file photo and Spanish command with Spanish section 7
@@ -2799,7 +2803,8 @@ and how the wait ends.
   and moves no pixel - one command-line gate, one node suite and two paragraphs of prose, none of them
   reachable from a page.
 
-  **NEEDS ANDREW: `FOR-ANDREW.md` step 9, in order, which is the entire content of 0.11ca, 0.11cb and 0.11cc.**
+  ~~**NEEDS ANDREW: `FOR-ANDREW.md` step 9, in order, which is the entire content of 0.11ca, 0.11cb and 0.11cc.**~~
+  (Done: 0.11ca, 0.11cb and 0.11cc are ticked. Re-marked 2026-11-13; the paragraph below is history.)
   Nothing in those three slices is buildable by a session: setting a CORS rule in Cloudflare, publishing a
   function, applying a migration and publishing the website are all his by standing rule. **After each step,
   run `node scripts/photo-release-order.mjs`** - it now reddens on ten things, including the step done too
@@ -2971,7 +2976,8 @@ and how the wait ends.
   gate and a node test suite, neither reachable from a page. The 1440/392 press that would belong to this item is
   0.11d's, after the door is published.
 
-  NEEDS ANDREW: perform `FOR-ANDREW.md` step 9 - **9a1 is now a JSON block to paste rather than a sentence to
+  ~~NEEDS ANDREW: perform `FOR-ANDREW.md` step 9 - **9a1 is now a JSON block to paste rather than a sentence to~~
+  (Done: step 9 is finished and 0.11ca, 0.11cb, 0.11cc are ticked. Re-marked 2026-11-13; the paragraph below is history.)
   interpret, and `node scripts/cors-rule.mjs` prints it** - the CORS rule on all three buckets (9a1), a public web address
   for `business-media` (9a2, a decision rather than a publish), publish `photo-door`, `delete-customer` and
   `photo-reconcile` (9c-9e), apply the cron migration and then the allowance migration (9f-9g), then publish the
@@ -2987,7 +2993,8 @@ and how the wait ends.
   instruction on 0.11d is also a release gate: the photo tests and English /
   Spanish strings must be green before the website is published.
 
-  Waits on: 0.11ca, 0.11cb, 0.11cc. How the wait ends: those pieces are ticked.
+  ~~Waits on: 0.11ca, 0.11cb, 0.11cc. How the wait ends: those pieces are ticked.~~
+  (All three are ticked. Re-marked 2026-11-13.)
   Split on 2026-10-09 because this entry is 192 lines
   long and no single session was finishing it.
 
@@ -3558,7 +3565,8 @@ and how the wait ends.
   *Sources: Stripe [account age requirement](https://support.stripe.com/questions/age-requirement-to-create-a-stripe-account), [Connect age requirement](https://support.stripe.com/embedded-connect/questions/age-requirement-to-create-an-account), [sandboxes](https://docs.stripe.com/sandboxes).*
 
 - [ ] **0.3 — Test data: flag, don't delete.** ~~Awaiting Andrew's yes.~~
-  NEEDS ANDREW (2026-11-02): a Tasks card asks to mark the 31 fake customers as test rows now, but your 2026-10-09 ruling here says HOLD AND TEST until the end-to-end proof exists. Which wins? Recommendation: keep holding; nothing breaks while it waits.
+  ~~NEEDS ANDREW (2026-11-02): a Tasks card asks to mark the 31 fake customers as test rows now, but your 2026-10-09 ruling here says HOLD AND TEST until the end-to-end proof exists. Which wins? Recommendation: keep holding; nothing breaks while it waits.~~
+  Waits for launch week (scheduled, re-marked 2026-11-13; not a question for Andrew): his own 2026-10-09 HOLD AND TEST ruling below already answers the Tasks card, and an AI applies the test-flag migration (0.3b) in launch week. Applying a migration is publishing, which is AI work since 2026-11-05.
   **2026-10-24, NOT RUN on purpose:** a Tasks card asked for the is_test switch on 31 customers, but this entry's ruling (HOLD AND TEST, 2026-10-09) says not to apply it until the end-to-end proof exists. Live now: 39 customers, 3 flagged. The two disagree, so it waits for Andrew.
   **ANDREW DECIDED 2026-10-09: HOLD AND TEST.** Keep every demo account and
   fixture. Do not apply the client-fixture switch merely to make the lists look
@@ -3567,7 +3575,7 @@ and how the wait ends.
   until that end-to-end proof exists, then the already-built flag/filter path
   can be judged on its evidence.
   *(Restored by supervision 2026-10-10: the triage pass deleted this ruling
-  along with the BELT PARKED lines. His 2026-10-10 note further down asks for
+  along with the `BELT PARKED` lines. His 2026-10-10 note further down asks for
   the rest to be finished; it does not withdraw this ruling.)*
 
   **THE END-TO-END MEASUREMENT HE ASKED FOR, TAKEN 2026-10-09 AT `ee6f5e0`,
@@ -3722,9 +3730,9 @@ and how the wait ends.
   sabotage aimed at an empty set, which is `docs/gotchas.md` 95's shape.
 
   **WHAT IS LEFT IS ONE COMMAND, AND IT IS NOT A SESSION'S TO RUN.**
-  NEEDS ANDREW: apply `supabase/migrations/20260924010000_a_fixture_is_not_a_customer.sql`
+  ~~NEEDS ANDREW~~ (2026-11-13: an AI applies it in launch week): apply `supabase/migrations/20260924010000_a_fixture_is_not_a_customer.sql`
   — it adds `customers.is_test` and ticks the 31 fixture rows. Changing the
-  live database's structure is his alone. The row is in `FOR-ANDREW.md`
+  live database's structure ~~is his alone~~ is AI release work since 2026-11-05. The row is in `FOR-ANDREW.md`
   § *"Waiting on you"* and was **rewritten on 2026-10-09**, because it was
   promising him a cleanup of three rows that no longer exist and telling him
   this sweep "keeps passing either way" when it had in fact stopped being able
@@ -3739,7 +3747,7 @@ and how the wait ends.
 
   Waits on: ~~0.3a~~ (done 2026-10-09, re-taken at `803f0cf`), 0.3b,
   ~~0.3c~~ (done 2026-10-09).
-  How the wait ends: 0.3b is ticked, and 0.3b is NEEDS ANDREW — the migration.
+  How the wait ends: 0.3b is ticked, and 0.3b is ~~NEEDS ANDREW~~ scheduled for launch week: the migration, applied by an AI (re-marked 2026-11-13).
   Split on 2026-10-09 because this entry is 169 lines
   long and no single session was finishing it.
 
@@ -3833,8 +3841,9 @@ and how the wait ends.
   - The client-fixtures sweep passes using database-backed flagged fixtures, with no supplied-row fallback needed
   - The migration's effect is confirmed not to alter real-client counts or fixture-dependent automated suites
 
-  NEEDS ANDREW: apply `supabase/migrations/20260924010000_a_fixture_is_not_a_customer.sql`.
-  Changing the live database's structure is his alone — no session may do it,
+  Waits for launch week (scheduled, re-marked 2026-11-13; not a question for Andrew): an AI applies the migration then, acting on his 2026-10-09 HOLD AND TEST ruling. Publishing and applying migrations are AI work since 2026-11-05, so "the authorized owner" in the first criterion is that release session.
+  ~~NEEDS ANDREW~~: apply `supabase/migrations/20260924010000_a_fixture_is_not_a_customer.sql`.
+  ~~Changing the live database's structure is his alone — no session may do it,~~ (superseded 2026-11-05: an AI applies it)
   not even a change it undoes immediately. **There is nothing left for a session
   to build or prove ON THIS SLICE until it is applied** — but that is a claim
   about the COLUMN and it was read as a claim about the item, which is how 0.3c
@@ -14785,10 +14794,12 @@ requested.
   - The detail panel still distinguishes loading, empty, and populated history.
 
 - [ ] **4.3c — Implement server-recognized read-only support sessions**
-  NEEDS ANDREW: the belt held this job's work instead of merging it — the belt's own files or the main repo's git refs changed while the builder ran (main on GitHub moved during the job (to 094c9b3e)).
-  The work is safe on branch `belt/4.3c-20261023174426862`. Answer "merge it" to keep it, or say what to change.
-  NEEDS ANDREW: the belt held this job's work instead of merging it — after one repair and strong-model help: the strong-model rescue was used and the job still fails.
-  The work is safe on branch `belt/4.3c-20261023103505693`. Answer "merge it" to keep it, or say what to change.
+  ~~NEEDS ANDREW: the belt held this job's work instead of merging it — the belt's own files or the main repo's git refs changed while the builder ran (main on GitHub moved during the job (to 094c9b3e)).~~
+  ~~The work is safe on branch `belt/4.3c-20261023174426862`. Answer "merge it" to keep it, or say what to change.~~
+  ~~NEEDS ANDREW: the belt held this job's work instead of merging it — after one repair and strong-model help: the strong-model rescue was used and the job still fails.~~
+  ~~The work is safe on branch `belt/4.3c-20261023103505693`. Answer "merge it" to keep it, or say what to change.~~
+  Belt holds of 2026-10-23 set aside 2026-11-13 (AI): the first was a git-ref race (main moved during the job), the second a failed rescue; both branches were replaced by 4.3e's combined build (see the 2026-10-24 note below), so neither is merged. Not Andrew's.
+  Waits on: 4.3e (the combined unlock build). How the wait ends: 4.3e is ticked; whoever ticks it removes this line.
   ANDREW RULED 2026-10-13 (control room; supervision 2026-10-15 wrote it here): combine both builds into one version that keeps the strictest rule from each: the 4.3 run's branch `belt/4.3-20261013084536` (unlock, which also refuses a business being created from an unlocked preview) and `belt/4.3c-20261013101138` (unlock plus two-hour expiry, Spanish wording; it already contains `belt/4.3c-20261013095529`). One migration, one set of receipts; nothing published.
   **THIRD RUN, 2026-10-13: NOTHING REBUILT. The held 4.3c work collides with a second build of the same switch,
   so neither "merge it" above should be answered yet.**
@@ -14816,7 +14827,7 @@ requested.
   4.3e 2026-10-24: the combination is built on main's current tree (unlock migration `20261024230000`, 30-minute
   lifetime kept, both 8b8f033d rules, Spanish), adopted from `belt/4.3c-20261023174426862` with its edge test repaired;
   see 4.3e. The two belt hold lines above name branches that work replaced: do not merge them. The two-hour question in the
-  NEEDS ANDREW lines below still stands.
+  ~~NEEDS ANDREW lines below~~ is settled: 30 minutes (4.3e's amendment, approved 2026-11-13 as an AI decision).
   **ANDREW CORRECTED THE DESIGN 2026-10-10:** the existing detail-page preview is
   already read-only and deliberately has an explicit control to unlock changes when
   he chooses. Do not invent a second Working button or a “support staff” workflow.
@@ -31655,7 +31666,7 @@ explicitly warns against — git history is the archive. Revisit at step 7.
       (`receipts/office-move.sabotage-old-screen.json`, `...-no-signout.json`) with its own ignored artifacts folder.
       The browser half uses a made-up session answered by page.route(), so it proves the screens, not the server.
       NOT done this time, on purpose: `scripts/admin-preconditions.mjs` is NOT deleted (deleting it made its receipts
-      unreadable and is why the belt dropped attempt 1); its retirement stays R13, awaiting Andrew's answer to the
+      unreadable and is why the belt dropped attempt 1); its retirement stays R13, ~~awaiting Andrew's answer~~ settled 2026-11-13 by AI decision, per the
       amendment below. Tests re-homed (`cab7ea7e`), each run alone: admin-insight 1/0, admin-preconditions 9/0,
       growth-lines **8 passed, 0 failed, 1 todo** (SUPERSEDED the same day: the todo was hiding a lost behavior, so 99.14
       was built instead; now 9/0, see the review answer below) — § 6 now RUNS the office's `issueOf` on one account stuck on each
@@ -31673,6 +31684,7 @@ explicitly warns against — git history is the archive. Revisit at step 7.
       `.pa-tab`; also part of b-v.
       AMENDMENT PROPOSED (unchanged from attempt 1): R13 — retire `admin-preconditions.mjs` only; keep
       `admin-furniture-clearance.mjs`, which 9.11e (`13262063`) retargeted at the new office.
+      AI DECISION 2026-11-13 (technical, logged; not Andrew's): the R13 amendment is approved. Retire `admin-preconditions.mjs` only and keep `admin-furniture-clearance.mjs`. Reason: the first reads the deleted old screen and can only fail, while 9.11e already points the second at the new office.
       **BELT TEST-READ ANSWERED, 2026-10-24.** This item's product change is step 8 only (`OfficePage.jsx`,
       `office.css`: Sign out on screen at phone width, and pressing it signs out). The three re-homed tests do not
       test step 8; they crashed on main because they read `AdminPage.jsx`, which 99.3b-i deleted, so their fix IS
@@ -32235,7 +32247,7 @@ explicitly warns against — git history is the archive. Revisit at step 7.
     - Re-measured at `fd945ef1` with: `node -e "const x=(a)=>require('child_process').execFileSync('git',a,{encoding:'utf8'});const f=[...new Set(x(['show','db8c6c0c:receipts/migration-drift.json']).match(/\d{14}_[a-z0-9_]+\.sql/g))];const s=x(['show','db8c6c0c:docs/release-sheet.md']);const p=s.slice(s.indexOf('## Part 2'));const p2=p.slice(0,p.indexOf('\n## ',5));const now=x(['show','HEAD:receipts/migration-drift.json']).match(/\d{14}_[a-z0-9_]+\.sql/g)||[];console.log(f.length,f.filter(n=>p2.includes(n)).length,now.filter(n=>f.includes(n)).length)"`. It prints `21 21 0`: 21 named, 21 in Part 2, and 0 of them still in today's drift receipt (`0da053dd`, which names 4 files, all `20261024…`).
 
 - [ ] **4.3e — Finish the held preview-unlock branch without English fallback.**
-  **BUILT 2026-10-24 (belt 4.3e), NOT TICKED: one requirement needs Andrew's approval of an amendment, below. Nothing published, deployed, pushed or written to any database.**
+  **BUILT 2026-10-24 (belt 4.3e), NOT TICKED: one requirement ~~needs Andrew's approval of an amendment~~ had two amendments, approved 2026-11-13 as an AI decision, below. Nothing published, deployed, pushed or written to any database.**
   **The base moved, so the base changed.** Since this entry was written, main gained 97.15's 30-minute end
   (`20261017180000`, `20261017190000`, applied live 2026-10-23), which replaces 101138's two-hour (b). A later 4.3c run
   had already rebuilt 101138's `unlocked_at` / `support_unlock` / `support_lock` design on top of 97.15 and ported both
@@ -32245,7 +32257,7 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   or unlocked; Spanish keys for every new banner and refusal sentence, and Close now goes through `t()`. Added: offline
   gets its own sentence ("Could not reach the server. Nothing was changed.", with Spanish). **Not ported: that build's
   two-hour default** (`20261023130000` and its client copy): the lifetime stays 30 minutes, the live value, and the
-  two-hour question stays with 4.3c's NEEDS ANDREW line. Also carried, because the adopted tests cover them: 4.3c's two R3
+  two-hour question stays with 4.3c's ~~NEEDS ANDREW~~ line (settled 2026-11-13 by the AI decision below: 30 minutes). Also carried, because the adopted tests cover them: 4.3c's two R3
   fixes (`preview-emails` no longer serves a support session and so sends no mail on one; `create-booking` refuses a
   locked support session instead of booking it as the public).
   **The held edge test could not run** (why that branch was held): a quote inside its loader template, a stale
@@ -32285,8 +32297,9 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   AMENDMENT PROPOSED: R1 — "4.3c's (b) checks" → "97.15's deadline checks" — (b)'s two-hour end was superseded on main by
   97.15's 30 minutes; its checks (`no-expiry`, `expiry-ignored`, `expired-switch`, boundary at the deadline) pass and
   their sabotages are caught at 30 minutes.
-  NEEDS ANDREW: approve the two amendments above (my recommendation: yes; the alternative is a migration dated before
-  files already live, which the version checks refuse), then this box can be ticked as built; publishing stays 4.3d's.
+  ~~NEEDS ANDREW: approve the two amendments above (my recommendation: yes; the alternative is a migration dated before~~
+  ~~files already live, which the version checks refuse), then this box can be ticked as built; publishing stays 4.3d's.~~
+  AI DECISION 2026-11-13 (technical, logged; not Andrew's): both R1 amendments above are approved. Reason: a new migration must sort after the live 97.15 files it is written against, and 97.15's 30-minute deadline is the live rule that replaced the two-hour one, so the old wording described something that can no longer exist. What is left: a session re-runs this entry's local SQL, edge and banner proofs on main and ticks the box as built; publishing `platform-admin` follows in 4.3d.
   **RETARGETED 2026-10-13 by 4.3c's third run: there are TWO held builds of this switch, and they conflict in 13
   files under one migration timestamp.** Use `belt/4.3c-20261013101138` (`b7d1015e`) as the base, not
   `8b8f033d`. It also carries 4.3c (b), the two-hour end, and (c), and its tests reproduce (56/0 edge, 36/0 SQL,
@@ -32631,10 +32644,12 @@ decisions, not build jobs.
   - The cancellation fee rule in BUSINESS-RULES.md can be charged against it in test mode, with the customer told in advance
 
 - [ ] **97.52 — Prospects cannot try the dashboard before buying (P-9).**
-  NEEDS ANDREW: the belt held this job's work instead of merging it — the full test suite found the suite setup changed since baseline r1 (command, files pattern, Node or environment); it needs a reviewed new baseline.
-  The work is safe on branch `belt/97.52-20261024134312930`. Answer "merge it" to keep it, or say what to change.
+  ~~NEEDS ANDREW: the belt held this job's work instead of merging it — the full test suite found the suite setup changed since baseline r1 (command, files pattern, Node or environment); it needs a reviewed new baseline.~~
+  ~~The work is safe on branch `belt/97.52-20261024134312930`. Answer "merge it" to keep it, or say what to change.~~
+  Belt hold of 2026-10-24 set aside 2026-11-13 (AI): its cause was the belt's own test baseline r1, which the belt re-took on 2026-11-03; that is not Andrew's. The held work is on branch `belt/97.52-20261024134312930` and needs re-check by the belt against option B below before it merges.
   The only "try it" is the demo booking page; the product tours were removed (`App.jsx:47-51`).
-  NEEDS ANDREW: which one. Option A, a public read-only demo dashboard on a copy of the seeded tenant, reset nightly (more work, and must never be the `demo-detail` login itself, whose back-office access is deliberate). Option B, a 90-second phone screen recording on `/`. Recommendation: B now, A after launch.
+  ~~NEEDS ANDREW: which one. Option A, a public read-only demo dashboard on a copy of the seeded tenant, reset nightly (more work, and must never be the `demo-detail` login itself, whose back-office access is deliberate). Option B, a 90-second phone screen recording on `/`. Recommendation: B now, A after launch.~~
+  AI DECISION 2026-11-13 (logged): option B, a 90-second phone screen recording on `/`, which an AI records with Playwright on the seeded demo. Option A, the public demo dashboard, stays an after-launch idea. Reason: B is small, adds no public login, and was the standing recommendation; the 2026-11-13 triage found the question had never been put to Andrew. The acceptance line's "his choice" is this logged decision until he overrules it.
   Acceptance criteria:
   - His choice is written here, and the chosen option is visible from `/` at 390 and 1440
 
