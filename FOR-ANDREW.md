@@ -48,7 +48,27 @@ written or rewritten this morning.
 
 Updated 2026-09-21.
 
-## YOUR NEXT RELEASE, IN ONE LIST · start here (ROADMAP 97.91)
+## START HERE · What is truly yours, re-checked 2026-11-13
+
+Everything else in this file is done, or is AI work: publishing and releasing have been AI work since 5 November, and technical approvals are AI decisions written into the roadmap with a reason. Your answers of 13 November (keys, backup key, demo logins, the purge token, the signup placeholders) are recorded in their rows below.
+
+**Before launch**
+
+1. **One phone sitting, about 25 minutes, with a real iPhone and a real Android.** Do the booking walk (ROADMAP 2.15 and 8.2; the "Twenty minutes on your iPhone" row below has the steps), then subscribe the phone's calendar to your jobs (97.53), then tap one job notification and say what opened (14.34).
+2. **Sign in to Stripe when an AI asks**, so it can fetch the test key (12.1, 97.68). Nothing else.
+3. **At launch prep:** sign in and say OK when an AI creates the Cloudflare cache-purge token (0.11bd), and set a real password on the demo owner login yourself when the demo logins come out (12.4); no AI handles passwords.
+
+**After launch: money and business calls, no rush**
+
+- Texting: pay for the number and its registration, or keep texting off (0.14); then the shorter Booked text (99.2g).
+- Google Business: check Google's quota and send the verification (0.15).
+- Deposits at booking, yes or no (12.3).
+- How many vans or named workers a detailer can schedule (97.54p).
+- The five gift card rules (97.56a).
+
+Real-world launch steps outside the roadmap are still yours too: opening Stripe's live mode after 2 December, a city licence, an hour with an accountant, and the paid email plan. The "Open the Stripe account" and "The paid email plan" rows near the end of this file carry the first and last.
+
+## YOUR NEXT RELEASE, IN ONE LIST (ROADMAP 97.91) · now AI work; publishing is not yours since 2026-11-05
 
 When you release, open `docs/release-sheet.md` and go top to bottom. It merges the five still-open "AT YOUR NEXT RELEASE"
 rows below, the other rows in this list that carry a release step (the scheduler key, 97.3; the launch order, 0.6b;
@@ -510,6 +530,8 @@ texting registration just from these local copies: the checkbox and privacy para
 
 ## DO, AT YOUR NEXT RELEASE · Subscribe your phone's calendar to your jobs (ROADMAP 97.53)
 
+**Part of one phone sitting (2026-11-13):** the calendar is live; do this right after the phone walk (2.15, 8.2). See START HERE at the top.
+
 **Live since 2026-11-06: you can do this now.** The link was checked on the live site (right link works, wrong link refused, a reset link stops the old one).
 
 Your jobs can now live in Apple Calendar or Google Calendar: on Notifications there is a Your calendar section with a private link (Copy) and a Reset link button that asks first. The link shows only upcoming jobs with customer names and numbers, and anyone holding an old link loses access when you reset. Checked here on a practice copy at phone, tablet and desktop sizes, and in the code checks; it goes live only at your release.
@@ -570,6 +592,8 @@ means the work can start the day you launch.
 ---
 
 ## AT RELEASE · Twenty minutes on your iPhone with the keyboard up (ROADMAP 2.15 and 8.2)
+
+**Part of one phone sitting (2026-11-13):** do this, then the calendar subscribe (97.53) and one notification tap (14.34), in the same sitting. See START HERE at the top.
 
 The booking page's bottom bar is proven clear of every choice on every screen size a computer can pretend to be. What no computer can pretend is the iPhone keyboard, and that is the one question left. Four booking steps have a text box: vehicle, address, name/phone/email/notes, and the promo code. On each, tap the box, type three letters, and look: can you still see what you are typing and the button you need next? Does the bar sit behind the keyboard, or ride up over the box?
 

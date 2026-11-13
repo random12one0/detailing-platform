@@ -2,6 +2,12 @@
 
 ---
 
+## READ FIRST: owner rules that override older wording (2026-11-13)
+
+Publishing, releasing, applying migrations and pushing are AI work (Andrew, 2026-11-05). Wherever an older line below says a publish or a migration is "Andrew's", "his alone", or that sessions never publish, read it as AI release work. The live blocker lines in open items were reworded on 2026-11-13; history lines were left as written. Technical approvals are AI decisions, written into the entry with a one-line reason. Only real-world steps, real opinions (money, legal, customer-facing, taste) and big-picture approvals are marked as his.
+
+---
+
 ## STATE CHANGED OUTSIDE THE REPO — 2026-09-21 night. `git log` cannot show any of this.
 
 **WRITTEN HERE RATHER THAN IN `FOR-ANDREW.md`, AND THAT IS A LANE REFUSAL, NOT
@@ -9591,6 +9597,7 @@ the wrong service, and never book a job we cannot reach.
   instead of quietly widening the gap between the walk and the product.
 
   **NEEDS ANDREW: this item can only close from the physical-phone walk above.**
+  ONE PHONE SITTING (grouped 2026-11-13): 2.15, 8.2, 97.53 and 14.34 are Andrew's in one sitting of about 25 minutes, with a real iPhone and a real Android in hand: the walk (8.2's 18 steps, which include 2.15's), then subscribe the phone calendar (97.53), then tap one job notification (14.34). FOR-ANDREW.md, START HERE, item 1.
   The belt cannot substitute another source count, browser viewport or documentation
   pass for an iPhone keyboard. Do not dispatch this item again until Andrew has run
   section 5 of `docs/testing/phones-we-do-not-own.md` and reported what happened.
@@ -21082,6 +21089,7 @@ the dashboard or back office at phone width at all.
   neither needs a publish.
 
   **NEEDS ANDREW: the walk itself.** Only a person holding a real iPhone and a real Android can answer the 18 steps of § 5 of `docs/testing/phones-we-do-not-own.md`; no session here can. Nothing buildable is left. His row is in FOR-ANDREW.md ("Twenty minutes on your iPhone with the keyboard up"); it was corrected 2026-10-24 because it had asked for only steps 4, 5, 7 and 8, iPhone only, and said that closed 8.2. Those four steps close 2.15 only; 8.2 needs all 18 on the iPhone and all 18 on a named Android (R1, R2). Recorded 2026-10-24; box stays `[ ]` and no per-step answers exist yet.
+  ONE PHONE SITTING (grouped 2026-11-13): 2.15, 8.2, 97.53 and 14.34 are Andrew's in one sitting of about 25 minutes, with a real iPhone and a real Android in hand: the walk (8.2's 18 steps, which include 2.15's), then subscribe the phone calendar (97.53), then tap one job notification (14.34). FOR-ANDREW.md, START HERE, item 1.
 
 - [x] **8.3 — DONE 2026-09-24. Small grey text is unreadable outdoors.**
   Both audits, everywhere: body copy, letter-spaced all-caps micro-labels,
@@ -30734,6 +30742,7 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   Supabase values in memory from `.env` (ref checked) only when the served module lacks them. Nothing was written to the database
   (one booking id read), nothing was deployed, and no shared budget was spent (address and weather calls routed to abort).
   NEEDS ANDREW: tap the next job notification on your subscribed phone and say whether it opened that job's page (time, money, buttons) or a "page does not exist" screen — the fixed links have been live since 2026-10-10 and that one tap is the only thing left before this can be ticked.
+  ONE PHONE SITTING (grouped 2026-11-13): 2.15, 8.2, 97.53 and 14.34 are Andrew's in one sitting of about 25 minutes, with a real iPhone and a real Android in hand: the walk (8.2's 18 steps, which include 2.15's), then subscribe the phone calendar (97.53), then tap one job notification (14.34). FOR-ANDREW.md, START HERE, item 1.
 
 ### 14.33 — PARKED 2026-10-06: pinning the last document's figures, stopped at the halfway point rather than dropped
 
@@ -32697,6 +32706,7 @@ decisions, not build jobs.
   Left alone, already red on main: `tests/ics-audience.test.mjs` § 1 still expects `requireMember(req, booking.business_id)` while `booking-ics` passes `{ allowSupport: true }` since 4.3c, so its matcher is stale. Not edited here, because it grades this area and a test change needs its own review.
   **RELEASED 2026-11-06 (Claude, release session):** the migration was already live (calendar_feed_token column, default and unique index read back; 0 of 17 businesses without a token), `calendar-feed` is the checkout's copy (deployed-inventory does not name it), and the app went live at `e5c6a8a1`. Live feed fetched for demo-detail: right token 200 VCALENDAR with 10 events, wrong token 404, no token 404; after a reset (done as a direct database write of a new token, not through the Notifications button) the old token 404 and the new one 200. Left: the real subscription below.
   NEEDS ANDREW: subscribe once for real on your phone (Google Calendar, From URL, or Apple Calendar, New Calendar Subscription) with the link from Notifications, Your calendar; then a session ticks this box.
+  ONE PHONE SITTING (grouped 2026-11-13): 2.15, 8.2, 97.53 and 14.34 are Andrew's in one sitting of about 25 minutes, with a real iPhone and a real Android in hand: the walk (8.2's 18 steps, which include 2.15's), then subscribe the phone calendar (97.53), then tap one job notification (14.34). FOR-ANDREW.md, START HERE, item 1.
   Was: AWAITS PUBLISH (built and proved; no decision asked of Andrew): apply `20261024150000_calendar_feed_token.sql` first, then publish `calendar-feed` and the app (release sheet, 97.53). After that a session fetches the live link with the right, a wrong and a reset token, and subscribes Google Calendar and Apple Calendar; that run ticks the box.
 
 - [x] **97.54 — Team scheduling stops at roles: no per-worker jobs or availability (P-13).**
