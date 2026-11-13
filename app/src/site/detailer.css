@@ -56,3 +56,10 @@
 .dp-msg { max-width: 34rem; margin: 0 auto; padding: 18vh 20px; font: 17px/1.5 system-ui, sans-serif; color: #111; }
 .dp-msg h1 { font-size: 26px; margin: 0 0 12px; }
 @media (min-width: 768px) { .dp-sheet { left: 50%; right: auto; width: 560px; transform: translateX(-50%); } }
+/* What the Studio took from the detailer's current website, each with its page, for them to check */
+.dp-web { padding-bottom: 32px; background: #fffbea; }
+.dp-web li { align-items: flex-start; }
+.dp-web li > div { display: grid; gap: 2px; min-width: 0; }
+.dp-web .dp-val { overflow-wrap: anywhere; white-space: pre-line; }
+.dp-web a { color: #444; font-size: 14px; overflow-wrap: anywhere; }
+.dp-web button { flex: none; min-height: 44px; padding: 0 12px; border: 1px solid #bbb; border-radius: 10px; background: #fff; font: 600 14px system-ui, sans-serif; color: #111; cursor: pointer; }

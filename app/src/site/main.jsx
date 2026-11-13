@@ -87,8 +87,10 @@ function Preview() {
 const name = /^\/site\/example\/([a-z0-9-]+)\/?$/.exec(window.location.pathname)?.[1] ?? null;
 const spec = name && Object.hasOwn(SPECS, name) ? SPECS[name] : null;
 const preview = import.meta.env.DEV && /^\/site\/preview\/?$/.test(window.location.pathname);
-// S7: the detailer's preview page, /site/p/<link> (dev server only for now). Its guard is in place before anything runs.
-const link = import.meta.env.DEV ? /^\/site\/p\/([A-Za-z0-9_-]{1,100})\/?$/.exec(window.location.pathname)?.[1] ?? null : null;
+// S7: the detailer's preview page. detailingplatform.com/p/<link> (the hosted copy the Studio sends, read through the
+// site-preview function), and on the Studio's own dev server also /site/p/<link> (its laptop link server). Its guard is
+// in place before anything runs.
+const link = (import.meta.env.DEV ? /^\/(?:site\/)?p\/([A-Za-z0-9_-]{1,100})\/?$/ : /^\/p\/([A-Za-z0-9_-]{1,100})\/?$/).exec(window.location.pathname)?.[1] ?? null;
 if (link) installPreviewGuard();
 // S8: `/` reaches this page only through the edge (or the dev server) on a verified address with a live release. On the
 // Studio's phone preview (dev only) /site/live?as-host=<a .test address> shows what that address serves, because a

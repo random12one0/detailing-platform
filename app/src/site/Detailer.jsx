@@ -15,8 +15,10 @@ import { useEffect, useRef, useState } from "react";
 import Site from "./Site.jsx";
 import "./detailer.css";
 
-const BASE = String(import.meta.env.VITE_STUDIO_LINKS || "").replace(/\/+$/, "");
-const NAMES = { hero: "The first screen", catalog: "Prices", proof: "Photos and reviews", visit: "Hours and contact", booking: "Booking" };
+// The Studio's laptop link server when it runs the page (dev), else the hosted copy: detailingplatform.com/p/<link> reads
+// the snapshot the Studio sent, through the public site-preview function, which answers only for that link.
+const BASE = String(import.meta.env.VITE_STUDIO_LINKS || (import.meta.env.VITE_SUPABASE_URL ? `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/site-preview` : "")).replace(/\/+$/, "");
+const NAMES = { hero: "The first screen", catalog: "Prices", proof: "Photos and reviews", visit: "Hours and contact", booking: "Booking", website: "From your website" };
 // S8: a preview drawn from example data says so plainly, so nobody takes made-up prices for their own.
 const isExample = (spec) => /^example_/.test(String(spec?.slug || ""));
 const ExampleNote = () => <p className="dp-ui dp-example" role="note"><b>Example data.</b> The prices, hours, photos and reviews here are made up for this preview, not yours. The site that goes live reads your own dashboard.</p>;
@@ -27,13 +29,20 @@ export const PREVIEW_SAID = "This is a preview, nothing was booked.";
 // (calculate-booking) and free times (available-slots). Installed before anything on the page runs.
 // validate-promo-code only answers whether a code is good (S7 review F6: a detailer may try their own promo code)
 const READS = /\/functions\/v1\/(calculate-booking|available-slots|validate-promo-code)$|\/rest\/v1\/rpc\/get_[a-z_]+$/;
+// A hosted preview of a site still drawn from EXAMPLE data carries that example profile in its snapshot (the real
+// database has no example business). The page answers the profile from it, and booking stops before a quote, in words.
+const PROFILE = /\/rest\/v1\/rpc\/get_public_business_profile$/, QUOTES = /\/functions\/v1\/(calculate-booking|available-slots|validate-promo-code)$/;
+export const EXAMPLE_BOOKING = "This preview shows example prices, so booking stops here. Your own site books for real.";
+const answer = (o, status = 200) => Promise.resolve(new Response(JSON.stringify(o), { status, headers: { "content-type": "application/json" } }));
 export function installPreviewGuard(win = window) {
   if (win.__previewGuard) return;
   const real = win.fetch.bind(win);
   win.__previewGuard = { blocked: [] };
   win.fetch = (input, init = {}) => {
     const url = typeof input === "string" ? input : input?.url || "", method = String(init.method || input?.method || "GET").toUpperCase();
-    const ours = BASE && url.startsWith(BASE + "/");
+    const ours = BASE && url.startsWith(BASE + "/"), path = url.split("?")[0], example = win.__previewGuard.example;
+    if (example && PROFILE.test(path)) return answer(example);
+    if (example && QUOTES.test(path)) return answer({ success: false, error: EXAMPLE_BOOKING }, 409);
     if (method !== "GET" && method !== "HEAD" && !ours && !READS.test(url.split("?")[0])) {
       win.__previewGuard.blocked.push(url);
       return Promise.resolve(new Response(JSON.stringify({ error: PREVIEW_SAID }), { status: 409, headers: { "content-type": "application/json" } }));
@@ -50,7 +59,7 @@ const api = async (token, what = "", body) => {
 
 export default function DetailerPreview({ token }) {
   const [got, setGot] = useState(null);
-  const load = () => api(token).then(setGot, () => setGot({ ok: false, said: "This page could not load. Check your connection and try again." }));
+  const load = () => api(token).then((r) => { if (r.ok && r.profile && window.__previewGuard) window.__previewGuard.example = r.profile; setGot(r); }, () => setGot({ ok: false, said: "This page could not load. Check your connection and try again." }));
   useEffect(() => { load(); }, [token]);
   useEffect(() => { document.title = got?.business ? `${got.business}: your new site` : "Your new site"; }, [got?.business]);
   // a private preview: never in a search engine (the link server also says so in its replies)
@@ -114,6 +123,7 @@ function Review({ token, data, reload }) {
       <Pins comments={comments} draft={draft} />
       {isExample(data.spec) && <ExampleNote />}
       <Site spec={data.spec} />
+      {data.from_website?.length > 0 && <FromWebsite items={data.from_website} onWrong={(f) => { setMode("use"); setSaid(null); setDraft({ section: "website", part: f.id.toLowerCase(), at: null, n: comments.length + 1, label: `From your website: ${f.question}` }); }} />}
       <section className="dp-ui dp-end" aria-labelledby="dpEndH">
         <h2 id="dpEndH">How is each part?</h2>
         <ul>{sections.map((s) => (
@@ -127,9 +137,26 @@ function Review({ token, data, reload }) {
           ? <p className="dp-done" role="status">You said you are happy with it. Thank you.</p>
           : <button type="button" className="dp-happy" disabled={busy} onClick={happy}>I'm happy with it</button>}
       </section>
-      {draft && <CommentBox n={draft.n} where={NAMES[sections.find((s) => s.id === draft.section)?.type] || "This part"} busy={busy} said={said} onSend={send} onCancel={() => setDraft(null)} />}
+      {draft && <CommentBox n={draft.n} where={draft.label || NAMES[sections.find((s) => s.id === draft.section)?.type] || "This part"} busy={busy} said={said} onSend={send} onCancel={() => setDraft(null)} />}
       {said && !draft && <p className="dp-ui dp-toast" role="status">{said}</p>}
     </div>
+  );
+}
+
+// What the Studio took from the detailer's current website for their form, each with the page it came from, for them to
+// check. "Not right" opens the comment box for that answer; the words reach Andrew like any comment.
+function FromWebsite({ items, onWrong }) {
+  const where = (u) => { try { const x = new URL(u); return x.host.replace(/^www\./, "") + (x.pathname === "/" ? "" : x.pathname); } catch { return u; } };
+  return (
+    <section className="dp-ui dp-end dp-web" aria-labelledby="dpWebH">
+      <h2 id="dpWebH">Taken from your website. Please check</h2>
+      <p className="dp-note">We read your current site to answer these for you. Tap "Not right" on anything that is wrong.</p>
+      <ul>{items.map((f) => (
+        <li key={f.id}>
+          <div><b>{f.question}</b><span className="dp-val">{f.value}</span><a href={f.url} target="_blank" rel="noopener noreferrer nofollow">from {where(f.url)}</a></div>
+          <button type="button" onClick={() => onWrong(f)}>Not right</button>
+        </li>))}</ul>
+    </section>
   );
 }
 

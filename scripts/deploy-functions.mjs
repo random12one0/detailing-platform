@@ -34,6 +34,8 @@ const PUBLIC_FUNCTIONS = new Set([
   "calculate-booking",
   "create-booking",
   "validate-promo-code",
+  // Studio: the detailer opens their preview link with no account; the link's secret is the key (site-preview).
+  "site-preview",
   "get-booking-receipt",
   "track-visit",
   "cancel-booking",

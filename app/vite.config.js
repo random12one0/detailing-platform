@@ -35,8 +35,8 @@ const exampleIndex = {
 // dashboard's index.html; production does the same with the `/site/*` rule at the
 // top of public/_redirects and netlify.toml.
 const siteEntry = () => (req, _res, next) => {
-  // S7: /site/p/<link> is the detailer's preview page (dev server only, like /site/preview)
-  if (/^\/site\/((example|p)\/)?[^/?]*\/?(\?.*)?$/.test(req.url || "")) req.url = "/site.html";
+  // S7: /site/p/<link> is the detailer's preview page; /p/<link> is the same page as production serves it
+  if (/^\/(site\/((example|p)\/)?[^/?]*|p\/[A-Za-z0-9_-]{1,100})\/?(\?.*)?$/.test(req.url || "")) req.url = "/site.html";
   next();
 };
 // STUDIO S3 — the Studio starts its phone-preview dev server with STUDIO_PREVIEW_ID set to a random id, and asks for
