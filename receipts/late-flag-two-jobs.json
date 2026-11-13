@@ -1,9 +1,9 @@
 {
-  "git_sha": "04806f46fda1804d7c437f6a84613c5ca4666a79",
-  "git_sha_started": "04806f46fda1804d7c437f6a84613c5ca4666a79",
+  "git_sha": "491c0ed485aadca0fbb1bcef5abb35130aca8053",
+  "git_sha_started": "491c0ed485aadca0fbb1bcef5abb35130aca8053",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-10T23:21:33.527Z",
+  "finished_at": "2026-11-13T23:43:36.287Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -20,7 +20,7 @@
     "break": null
   },
   "check_id": "late-flag-two-jobs",
-  "started_at": "2026-10-10T23:21:21.866Z",
+  "started_at": "2026-11-13T23:43:04.741Z",
   "status": "pass",
   "expected_targets": 2,
   "discovered_targets": 2,
@@ -50,12 +50,12 @@
     {
       "id": "staged-today",
       "ok": true,
-      "detail": "read back 3 rows: Late-Check Later 2026-10-10 confirmed; Late-Check Past 2026-10-10 confirmed; Late-Check Future 2026-10-10 confirmed; today is 2026-10-10 Pacific"
+      "detail": "read back 3 rows: Late-Check Past 2026-11-13 confirmed; Late-Check Future 2026-11-13 confirmed; Late-Check Later 2026-11-13 confirmed; today is 2026-11-13 Pacific"
     },
     {
       "id": "1440/both-listed",
       "ok": true,
-      "detail": "under \"Still to do\": 2:21 PMLateLate-Check Past in \"Still to do\" as row; Late-Check Future5:21 PM – 6:21 PM$65Dro in \"Still to do\" as next-card; 7:21 PMLate-Check Later in \"Still to do\" as row"
+      "detail": "under \"Still to do\": 1:43 PMLateLate-Check Past in \"Still to do\" as row; Late-Check Future4:43 PM – 5:43 PM$95Dro in \"Still to do\" as next-card; 6:43 PMLate-Check Later in \"Still to do\" as row"
     },
     {
       "id": "1440/past-late",
@@ -85,7 +85,7 @@
     {
       "id": "392/both-listed",
       "ok": true,
-      "detail": "under \"Still to do\": 2:21 PMLateLate-Check Past in \"Still to do\" as row; Late-Check Future5:21 PM – 6:21 PM$65Dro in \"Still to do\" as next-card; 7:21 PMLate-Check Later in \"Still to do\" as row"
+      "detail": "under \"Still to do\": 1:43 PMLateLate-Check Past in \"Still to do\" as row; Late-Check Future4:43 PM – 5:43 PM$95Dro in \"Still to do\" as next-card; 6:43 PMLate-Check Later in \"Still to do\" as row"
     },
     {
       "id": "392/past-late",
@@ -115,7 +115,7 @@
     {
       "id": "cleaned-up",
       "ok": true,
-      "detail": "0 Late-Check rows remain; demo bookings 32 before, 32 after"
+      "detail": "0 Late-Check rows remain; demo bookings 69 before, 69 after"
     },
     {
       "id": "canary/both-read-late",

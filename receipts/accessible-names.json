@@ -1,40 +1,39 @@
 {
-  "git_sha": "d0ad9a69747d7282c1ec55e5501873a34302f64d",
-  "git_sha_started": "d0ad9a69747d7282c1ec55e5501873a34302f64d",
+  "git_sha": "491c0ed485aadca0fbb1bcef5abb35130aca8053",
+  "git_sha_started": "491c0ed485aadca0fbb1bcef5abb35130aca8053",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-24T18:21:12.705Z",
-  "failures": [],
+  "finished_at": "2026-11-13T23:45:02.039Z",
+  "failures": [
+    "1440/job/found: no usable job row came back",
+    "392/job/found: no usable job row came back"
+  ],
   "warnings": [],
   "artifacts": [
     ".manager-shots/14.24-names/date-1440.png",
     ".manager-shots/14.24-names/date-1440.trace.json",
     ".manager-shots/14.24-names/date-392.png",
-    ".manager-shots/14.24-names/date-392.trace.json",
-    ".manager-shots/14.24-names/job-1440.png",
-    ".manager-shots/14.24-names/job-1440.trace.json",
-    ".manager-shots/14.24-names/job-392.png",
-    ".manager-shots/14.24-names/job-392.trace.json"
+    ".manager-shots/14.24-names/date-392.trace.json"
   ],
   "dimensions": {
-    "base": "http://127.0.0.1:5180",
+    "base": "http://localhost:5173",
     "widths": [
       "1440x900",
       "392x844"
     ],
-    "fixture": true,
+    "fixture": false,
     "owner_session": "DEMO_OWNER_PW from the environment",
     "chrome": "playwright default"
   },
   "check_id": "accessible-names",
-  "started_at": "2026-10-24T18:20:37.760Z",
-  "status": "pass",
+  "started_at": "2026-11-13T23:43:40.908Z",
+  "status": "fail",
   "expected_targets": 4,
   "discovered_targets": 4,
   "attempted_targets": 4,
   "completed_targets": 4,
   "skipped_targets": 0,
-  "assertions_executed": 98,
+  "assertions_executed": 114,
   "min_assertions": 52,
   "assertion_floor": "2 widths x (13 date + 10 job) + 6 rule guards/canaries = 52; per-control name verdicts run above it, and verdicts-present (6 date, 4 job) is the tripwire on that variable part.",
   "canary": {
@@ -72,9 +71,27 @@
       "controls": [
         {
           "role": "button",
+          "name": "8 AM",
+          "text": "8 AM",
+          "desc": "button.bk-chip. text=\"8 AM\""
+        },
+        {
+          "role": "button",
+          "name": "8:30 AM",
+          "text": "8:30 AM",
+          "desc": "button.bk-chip. text=\"8:30 AM\""
+        },
+        {
+          "role": "button",
           "name": "9 AM",
           "text": "9 AM",
           "desc": "button.bk-chip. text=\"9 AM\""
+        },
+        {
+          "role": "button",
+          "name": "9:30 AM",
+          "text": "9:30 AM",
+          "desc": "button.bk-chip. text=\"9:30 AM\""
         },
         {
           "role": "button",
@@ -84,9 +101,87 @@
         },
         {
           "role": "button",
+          "name": "10:30 AM",
+          "text": "10:30 AM",
+          "desc": "button.bk-chip. text=\"10:30 AM\""
+        },
+        {
+          "role": "button",
+          "name": "11 AM",
+          "text": "11 AM",
+          "desc": "button.bk-chip. text=\"11 AM\""
+        },
+        {
+          "role": "button",
+          "name": "11:30 AM",
+          "text": "11:30 AM",
+          "desc": "button.bk-chip. text=\"11:30 AM\""
+        },
+        {
+          "role": "button",
+          "name": "12 PM",
+          "text": "12 PM",
+          "desc": "button.bk-chip. text=\"12 PM\""
+        },
+        {
+          "role": "button",
+          "name": "12:30 PM",
+          "text": "12:30 PM",
+          "desc": "button.bk-chip. text=\"12:30 PM\""
+        },
+        {
+          "role": "button",
           "name": "1 PM",
           "text": "1 PM",
           "desc": "button.bk-chip. text=\"1 PM\""
+        },
+        {
+          "role": "button",
+          "name": "1:30 PM",
+          "text": "1:30 PM",
+          "desc": "button.bk-chip. text=\"1:30 PM\""
+        },
+        {
+          "role": "button",
+          "name": "2 PM",
+          "text": "2 PM",
+          "desc": "button.bk-chip. text=\"2 PM\""
+        },
+        {
+          "role": "button",
+          "name": "2:30 PM",
+          "text": "2:30 PM",
+          "desc": "button.bk-chip. text=\"2:30 PM\""
+        },
+        {
+          "role": "button",
+          "name": "3 PM",
+          "text": "3 PM",
+          "desc": "button.bk-chip. text=\"3 PM\""
+        },
+        {
+          "role": "button",
+          "name": "3:30 PM",
+          "text": "3:30 PM",
+          "desc": "button.bk-chip. text=\"3:30 PM\""
+        },
+        {
+          "role": "button",
+          "name": "4 PM",
+          "text": "4 PM",
+          "desc": "button.bk-chip. text=\"4 PM\""
+        },
+        {
+          "role": "button",
+          "name": "4:30 PM",
+          "text": "4:30 PM",
+          "desc": "button.bk-chip. text=\"4:30 PM\""
+        },
+        {
+          "role": "button",
+          "name": "5 PM",
+          "text": "5 PM",
+          "desc": "button.bk-chip. text=\"5 PM\""
         },
         {
           "role": "button",
@@ -120,31 +215,85 @@
         },
         {
           "role": "button",
-          "name": "Monday, October 26",
+          "name": "Saturday, November 14",
+          "text": "14",
+          "desc": "div.cell. text=\"14\""
+        },
+        {
+          "role": "button",
+          "name": "Monday, November 16",
+          "text": "16",
+          "desc": "div.cell. text=\"16\""
+        },
+        {
+          "role": "button",
+          "name": "Tuesday, November 17",
+          "text": "17",
+          "desc": "div.cell. text=\"17\""
+        },
+        {
+          "role": "button",
+          "name": "Wednesday, November 18",
+          "text": "18",
+          "desc": "div.cell. text=\"18\""
+        },
+        {
+          "role": "button",
+          "name": "Thursday, November 19",
+          "text": "19",
+          "desc": "div.cell. text=\"19\""
+        },
+        {
+          "role": "button",
+          "name": "Friday, November 20",
+          "text": "20",
+          "desc": "div.cell. text=\"20\""
+        },
+        {
+          "role": "button",
+          "name": "Saturday, November 21",
+          "text": "21",
+          "desc": "div.cell. text=\"21\""
+        },
+        {
+          "role": "button",
+          "name": "Monday, November 23",
+          "text": "23",
+          "desc": "div.cell. text=\"23\""
+        },
+        {
+          "role": "button",
+          "name": "Tuesday, November 24",
+          "text": "24",
+          "desc": "div.cell. text=\"24\""
+        },
+        {
+          "role": "button",
+          "name": "Wednesday, November 25",
+          "text": "25",
+          "desc": "div.cell. text=\"25\""
+        },
+        {
+          "role": "button",
+          "name": "Thursday, November 26",
           "text": "26",
           "desc": "div.cell. text=\"26\""
         },
         {
           "role": "button",
-          "name": "Tuesday, October 27",
+          "name": "Friday, November 27",
           "text": "27",
           "desc": "div.cell. text=\"27\""
         },
         {
           "role": "button",
-          "name": "Wednesday, October 28",
+          "name": "Saturday, November 28",
           "text": "28",
           "desc": "div.cell. text=\"28\""
         },
         {
           "role": "button",
-          "name": "Thursday, October 29",
-          "text": "29",
-          "desc": "div.cell. text=\"29\""
-        },
-        {
-          "role": "button",
-          "name": "Friday, October 30",
+          "name": "Monday, November 30",
           "text": "30",
           "desc": "div.cell.selected text=\"30\""
         }
@@ -157,9 +306,27 @@
       "controls": [
         {
           "role": "button",
+          "name": "8 AM",
+          "text": "8 AM",
+          "desc": "button.bk-chip. text=\"8 AM\""
+        },
+        {
+          "role": "button",
+          "name": "8:30 AM",
+          "text": "8:30 AM",
+          "desc": "button.bk-chip. text=\"8:30 AM\""
+        },
+        {
+          "role": "button",
           "name": "9 AM",
           "text": "9 AM",
           "desc": "button.bk-chip. text=\"9 AM\""
+        },
+        {
+          "role": "button",
+          "name": "9:30 AM",
+          "text": "9:30 AM",
+          "desc": "button.bk-chip. text=\"9:30 AM\""
         },
         {
           "role": "button",
@@ -169,9 +336,87 @@
         },
         {
           "role": "button",
+          "name": "10:30 AM",
+          "text": "10:30 AM",
+          "desc": "button.bk-chip. text=\"10:30 AM\""
+        },
+        {
+          "role": "button",
+          "name": "11 AM",
+          "text": "11 AM",
+          "desc": "button.bk-chip. text=\"11 AM\""
+        },
+        {
+          "role": "button",
+          "name": "11:30 AM",
+          "text": "11:30 AM",
+          "desc": "button.bk-chip. text=\"11:30 AM\""
+        },
+        {
+          "role": "button",
+          "name": "12 PM",
+          "text": "12 PM",
+          "desc": "button.bk-chip. text=\"12 PM\""
+        },
+        {
+          "role": "button",
+          "name": "12:30 PM",
+          "text": "12:30 PM",
+          "desc": "button.bk-chip. text=\"12:30 PM\""
+        },
+        {
+          "role": "button",
           "name": "1 PM",
           "text": "1 PM",
           "desc": "button.bk-chip. text=\"1 PM\""
+        },
+        {
+          "role": "button",
+          "name": "1:30 PM",
+          "text": "1:30 PM",
+          "desc": "button.bk-chip. text=\"1:30 PM\""
+        },
+        {
+          "role": "button",
+          "name": "2 PM",
+          "text": "2 PM",
+          "desc": "button.bk-chip. text=\"2 PM\""
+        },
+        {
+          "role": "button",
+          "name": "2:30 PM",
+          "text": "2:30 PM",
+          "desc": "button.bk-chip. text=\"2:30 PM\""
+        },
+        {
+          "role": "button",
+          "name": "3 PM",
+          "text": "3 PM",
+          "desc": "button.bk-chip. text=\"3 PM\""
+        },
+        {
+          "role": "button",
+          "name": "3:30 PM",
+          "text": "3:30 PM",
+          "desc": "button.bk-chip. text=\"3:30 PM\""
+        },
+        {
+          "role": "button",
+          "name": "4 PM",
+          "text": "4 PM",
+          "desc": "button.bk-chip. text=\"4 PM\""
+        },
+        {
+          "role": "button",
+          "name": "4:30 PM",
+          "text": "4:30 PM",
+          "desc": "button.bk-chip. text=\"4:30 PM\""
+        },
+        {
+          "role": "button",
+          "name": "5 PM",
+          "text": "5 PM",
+          "desc": "button.bk-chip. text=\"5 PM\""
         },
         {
           "role": "button",
@@ -205,131 +450,87 @@
         },
         {
           "role": "button",
-          "name": "Monday, October 26",
+          "name": "Saturday, November 14",
+          "text": "14",
+          "desc": "div.cell. text=\"14\""
+        },
+        {
+          "role": "button",
+          "name": "Monday, November 16",
+          "text": "16",
+          "desc": "div.cell. text=\"16\""
+        },
+        {
+          "role": "button",
+          "name": "Tuesday, November 17",
+          "text": "17",
+          "desc": "div.cell. text=\"17\""
+        },
+        {
+          "role": "button",
+          "name": "Wednesday, November 18",
+          "text": "18",
+          "desc": "div.cell. text=\"18\""
+        },
+        {
+          "role": "button",
+          "name": "Thursday, November 19",
+          "text": "19",
+          "desc": "div.cell. text=\"19\""
+        },
+        {
+          "role": "button",
+          "name": "Friday, November 20",
+          "text": "20",
+          "desc": "div.cell. text=\"20\""
+        },
+        {
+          "role": "button",
+          "name": "Saturday, November 21",
+          "text": "21",
+          "desc": "div.cell. text=\"21\""
+        },
+        {
+          "role": "button",
+          "name": "Monday, November 23",
+          "text": "23",
+          "desc": "div.cell. text=\"23\""
+        },
+        {
+          "role": "button",
+          "name": "Tuesday, November 24",
+          "text": "24",
+          "desc": "div.cell. text=\"24\""
+        },
+        {
+          "role": "button",
+          "name": "Wednesday, November 25",
+          "text": "25",
+          "desc": "div.cell. text=\"25\""
+        },
+        {
+          "role": "button",
+          "name": "Thursday, November 26",
           "text": "26",
           "desc": "div.cell. text=\"26\""
         },
         {
           "role": "button",
-          "name": "Tuesday, October 27",
+          "name": "Friday, November 27",
           "text": "27",
           "desc": "div.cell. text=\"27\""
         },
         {
           "role": "button",
-          "name": "Wednesday, October 28",
+          "name": "Saturday, November 28",
           "text": "28",
           "desc": "div.cell. text=\"28\""
         },
         {
           "role": "button",
-          "name": "Thursday, October 29",
-          "text": "29",
-          "desc": "div.cell. text=\"29\""
-        },
-        {
-          "role": "button",
-          "name": "Friday, October 30",
+          "name": "Monday, November 30",
           "text": "30",
           "desc": "div.cell.selected text=\"30\""
-        }
-      ]
-    },
-    {
-      "width": 1440,
-      "screen": "job",
-      "job": "00000000",
-      "controls": [
-        {
-          "role": "link",
-          "name": "Call",
-          "text": "Call",
-          "desc": "a.btn.sm text=\"Call\""
-        },
-        {
-          "role": "button",
-          "name": "Text",
-          "text": "Text",
-          "desc": "button.btn.sm text=\"Text\""
-        },
-        {
-          "role": "link",
-          "name": "On my way",
-          "text": "On my way",
-          "desc": "a.btn.sm text=\"On my way\""
-        },
-        {
-          "role": "link",
-          "name": "Navigate",
-          "text": "Navigate",
-          "desc": "a.btn.sm text=\"Navigate\""
-        },
-        {
-          "role": "button",
-          "name": "Calendar",
-          "text": "Calendar",
-          "desc": "button.btn.sm text=\"Calendar\""
-        },
-        {
-          "role": "button",
-          "name": "Contacts",
-          "text": "Contacts",
-          "desc": "button.btn.sm text=\"Contacts\""
-        },
-        {
-          "role": "button",
-          "name": "Reminder",
-          "text": "Reminder",
-          "desc": "button.btn.sm text=\"Reminder\""
-        }
-      ]
-    },
-    {
-      "width": 392,
-      "screen": "job",
-      "job": "00000000",
-      "controls": [
-        {
-          "role": "link",
-          "name": "Call",
-          "text": "Call",
-          "desc": "a.btn.sm text=\"Call\""
-        },
-        {
-          "role": "button",
-          "name": "Text",
-          "text": "Text",
-          "desc": "button.btn.sm text=\"Text\""
-        },
-        {
-          "role": "link",
-          "name": "On my way",
-          "text": "On my way",
-          "desc": "a.btn.sm text=\"On my way\""
-        },
-        {
-          "role": "link",
-          "name": "Navigate",
-          "text": "Navigate",
-          "desc": "a.btn.sm text=\"Navigate\""
-        },
-        {
-          "role": "button",
-          "name": "Calendar",
-          "text": "Calendar",
-          "desc": "button.btn.sm text=\"Calendar\""
-        },
-        {
-          "role": "button",
-          "name": "Contacts",
-          "text": "Contacts",
-          "desc": "button.btn.sm text=\"Contacts\""
-        },
-        {
-          "role": "button",
-          "name": "Reminder",
-          "text": "Reminder",
-          "desc": "button.btn.sm text=\"Reminder\""
         }
       ]
     }
