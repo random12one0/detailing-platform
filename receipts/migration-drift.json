@@ -1,9 +1,9 @@
 {
-  "git_sha": "46efdb7dca25787c3d51d8d685f30945c187090c",
-  "git_sha_started": "46efdb7dca25787c3d51d8d685f30945c187090c",
+  "git_sha": "0e78df19c71c114a1c3cee188dfa1297333fc53a",
+  "git_sha_started": "0e78df19c71c114a1c3cee188dfa1297333fc53a",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-11-06T08:38:54.471Z",
+  "finished_at": "2026-11-13T17:42:35.720Z",
   "failures": [],
   "warnings": [
     "UNJUDGEABLE grant: signature `start_receipt_attempt(uuid, uuid, text), public.finish_receipt_attempt(uuid, uuid, text, bigint, integer, integer), public.claim_receipt_attempts(), public.ack_receipt_attempt(text, uuid, uuid)` — Postgres could not parse it as a function signature",
@@ -43,7 +43,7 @@
     "drifted": []
   },
   "check_id": "migration-drift",
-  "started_at": "2026-11-06T08:38:14.599Z",
+  "started_at": "2026-11-13T17:41:52.567Z",
   "status": "pass",
   "expected_targets": 405,
   "discovered_targets": 405,

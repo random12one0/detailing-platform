@@ -1,9 +1,9 @@
 {
-  "git_sha": "bb3a1c2db567ae0bb74db73e0ed259d07fe8e35b",
-  "git_sha_started": "bb3a1c2db567ae0bb74db73e0ed259d07fe8e35b",
+  "git_sha": "0e78df19c71c114a1c3cee188dfa1297333fc53a",
+  "git_sha_started": "0e78df19c71c114a1c3cee188dfa1297333fc53a",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-11-06T09:07:59.308Z",
+  "finished_at": "2026-11-13T17:43:52.235Z",
   "failures": [
     "1 function(s) are running something other than this checkout: platform-admin",
     "platform-admin: 13 file(s) differ - index.ts, _shared/supportSession.ts, _shared/newBusiness.ts, _shared/tz.ts, _shared/buildStartStamp.ts, _shared/previewSwitch.ts, _shared/tenant.ts, _shared/email.ts, _shared/emailTemplates.ts, _shared/emailKit.ts, _shared/strings/es.ts, _shared/reachedProvider.ts, _shared/permissions.ts (newest commit is 23.8d after the deploy)",
@@ -128,7 +128,7 @@
     "widest_gap_days": 23.8
   },
   "check_id": "deployed-inventory",
-  "started_at": "2026-11-06T09:06:46.965Z",
+  "started_at": "2026-11-13T17:42:36.203Z",
   "status": "fail",
   "expected_targets": 44,
   "discovered_targets": 44,
