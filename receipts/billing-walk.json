@@ -1,59 +1,32 @@
 {
-  "git_sha": "de72b29bf4eef351d5b8ed0acdb3c274d37328a7",
-  "git_sha_started": "de72b29bf4eef351d5b8ed0acdb3c274d37328a7",
+  "git_sha": "94c0af054a38712690d253ea2ae86fb6b6e49f48",
+  "git_sha_started": "94c0af054a38712690d253ea2ae86fb6b6e49f48",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-10T19:08:24.980Z",
+  "finished_at": "2026-11-13T23:34:42.816Z",
   "failures": [
-    "NOT MEASURED: 3 · renew — needs a sandbox STRIPE_SECRET_KEY in the shell, for a test clock",
-    "NOT MEASURED: 4 · failed payment retries — needs a sandbox STRIPE_SECRET_KEY in the shell, for a test clock",
-    "NOT MEASURED: 5 · page offline after the retries run out — needs a sandbox STRIPE_SECRET_KEY in the shell, for a test clock"
+    "2a · the deployed checkout hands back a card form — 404 {\"error\":\"No such customer: 'cus_VcjSs8Kd4blqb4'\"}",
+    "crashed: Stripe /subscriptions/null: No such subscription: 'null'"
   ],
-  "warnings": [
-    "step 6 started from a suspension this script WROTE (no test clock without a secret key); steps 6a onward are the deployed product"
-  ],
+  "warnings": [],
   "artifacts": [
-    "artifacts/billing-walk/0-canary-nobody.png",
-    "artifacts/billing-walk/2e-paid.png",
-    "artifacts/billing-walk/6a-staged-offline.png",
-    "artifacts/billing-walk/6e-paid-again.png"
+    "artifacts/billing-walk/0-canary-nobody.png"
   ],
   "dimensions": {
-    "stripe_secret_key": "absent",
+    "stripe_secret_key": "sandbox",
     "book_origin": "https://detailingplatform.com",
-    "slug": "billing-walk-z62gke"
+    "slug": "billing-walk-glfyvr"
   },
   "check_id": "billing-walk",
-  "started_at": "2026-10-10T19:07:45.715Z",
+  "started_at": "2026-11-13T23:34:33.293Z",
   "status": "fail",
-  "expected_targets": 3,
-  "discovered_targets": 3,
-  "attempted_targets": 3,
-  "completed_targets": 3,
-  "skipped_targets": 3,
-  "skip_allowlist": {
-    "reason": "renew, retries and the real suspension need a test clock, and a test clock needs the sandbox STRIPE_SECRET_KEY in the shell (FOR-ANDREW.md)",
-    "expires": "2026-10-20",
-    "skipped": [
-      {
-        "label": "3 · renew",
-        "reason": "needs a sandbox STRIPE_SECRET_KEY in the shell, for a test clock",
-        "evidence": "looked for STRIPE_SECRET_KEY in the environment before the first step that needs it and it was not set, so the surface could not be tried"
-      },
-      {
-        "label": "4 · failed payment retries",
-        "reason": "needs a sandbox STRIPE_SECRET_KEY in the shell, for a test clock",
-        "evidence": "looked for STRIPE_SECRET_KEY in the environment before the first step that needs it and it was not set, so the surface could not be tried"
-      },
-      {
-        "label": "5 · page offline after the retries run out",
-        "reason": "needs a sandbox STRIPE_SECRET_KEY in the shell, for a test clock",
-        "evidence": "looked for STRIPE_SECRET_KEY in the environment before the first step that needs it and it was not set, so the surface could not be tried"
-      }
-    ]
-  },
-  "assertions_executed": 18,
-  "min_assertions": 15,
+  "expected_targets": 6,
+  "discovered_targets": 6,
+  "attempted_targets": 6,
+  "completed_targets": 6,
+  "skipped_targets": 0,
+  "assertions_executed": 6,
+  "min_assertions": 26,
   "canary": {
     "id": "nonexistent-slug-reads-down",
     "observed_failure": true
