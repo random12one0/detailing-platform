@@ -1,9 +1,9 @@
 {
-  "git_sha": "2e6b6ca4481c5381fc8edda9f003f188bc27c96d",
-  "git_sha_started": "2e6b6ca4481c5381fc8edda9f003f188bc27c96d",
+  "git_sha": "5f855d5cb9c5afaac89338b852a725b78d79769c",
+  "git_sha_started": "5f855d5cb9c5afaac89338b852a725b78d79769c",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-11-03T03:45:38.069Z",
+  "finished_at": "2026-11-13T23:10:20.440Z",
   "failures": [],
   "warnings": [
     "Chromium only, against app/dist served with app/netlify.toml's headers by this script — not Netlify itself.",
@@ -100,10 +100,10 @@
     "header": "Content-Security-Policy",
     "declared": "Content-Security-Policy",
     "break": "",
-    "origin": "http://127.0.0.1:59427"
+    "origin": "http://127.0.0.1:57918"
   },
   "check_id": "csp-report-only",
-  "started_at": "2026-11-03T03:41:54.627Z",
+  "started_at": "2026-11-13T23:06:10.346Z",
   "status": "pass",
   "expected_targets": 54,
   "discovered_targets": 54,
@@ -638,11 +638,11 @@
       "Content-Security-Policy": "default-src 'self'; script-src 'self' https://js.stripe.com https://*.js.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://kguqylyzgyzfktkfnhjb.supabase.co https://media.detailingplatform.com https://*.r2.cloudflarestorage.com https://images.unsplash.com https://*.stripe.com; connect-src 'self' https://kguqylyzgyzfktkfnhjb.supabase.co https://media.detailingplatform.com https://*.r2.cloudflarestorage.com https://api.stripe.com; frame-src 'self' https://js.stripe.com https://*.js.stripe.com https://hooks.stripe.com https:; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self', default-src 'self'; script-src 'self' https://js.stripe.com https://*.js.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://kguqylyzgyzfktkfnhjb.supabase.co https://media.detailingplatform.com https://*.r2.cloudflarestorage.com https://images.unsplash.com https://*.stripe.com; connect-src 'self' https://kguqylyzgyzfktkfnhjb.supabase.co https://media.detailingplatform.com https://*.r2.cloudflarestorage.com https://api.stripe.com; frame-src 'self' https://js.stripe.com https://*.js.stripe.com https://hooks.stripe.com https:; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self' https://detailingplatform.com https://www.detailingplatform.com"
     },
     "dist": {
-      "html_files": 11,
+      "html_files": 12,
       "inline": []
     },
     "media": {
-      "url": "https://media.detailingplatform.com/62456821-65d7-40ae-8251-e162bf3f04b6/branding/8437adad-3a4e-4f93-89b1-2bd52118a0ea.png",
+      "url": "https://media.detailingplatform.com/62456821-65d7-40ae-8251-e162bf3f04b6/branding/eaa79374-9b3d-4955-8d36-d828c59e3acf.png",
       "putHost": "3ebc9f9dfd8b21c849e43fcd9e22887c.r2.cloudflarestorage.com",
       "browserPut": "threw: Failed to fetch",
       "stored": true,

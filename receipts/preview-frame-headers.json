@@ -1,9 +1,9 @@
 {
-  "git_sha": "2e6b6ca4481c5381fc8edda9f003f188bc27c96d",
-  "git_sha_started": "2e6b6ca4481c5381fc8edda9f003f188bc27c96d",
+  "git_sha": "5f855d5cb9c5afaac89338b852a725b78d79769c",
+  "git_sha_started": "5f855d5cb9c5afaac89338b852a725b78d79769c",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-11-03T03:37:38.583Z",
+  "finished_at": "2026-11-13T23:13:36.378Z",
   "failures": [],
   "warnings": [
     "Chromium only, against app/dist served with app/netlify.toml's headers by this script — not Netlify itself.",
@@ -26,7 +26,7 @@
     }
   },
   "check_id": "preview-frame-headers",
-  "started_at": "2026-11-03T03:36:46.026Z",
+  "started_at": "2026-11-13T23:12:42.481Z",
   "status": "pass",
   "expected_targets": 7,
   "discovered_targets": 7,
