@@ -25945,6 +25945,10 @@ their age is not Andrew's problem.
   **Nothing was left suspended:** every run deletes its business in `finally`
   and on SIGINT/SIGTERM, sweeps any `billing-walk-*` a killed run left, and
   after the runs no business in the database was `paused`.
+
+  **ANDREW, 2026-11-13:** Done
+  
+    The outside part of this is finished. It is no longer waiting on anybody.
 - [x] 12.2 Real in-person card payment. **DONE 2026-10-10 BY BRANCH TWO — THE
   PUBLISHED HOME PAGE NO LONGER PROMISES IT.** The publish the note at the
   bottom of this entry was waiting for has happened: `origin/main` is
