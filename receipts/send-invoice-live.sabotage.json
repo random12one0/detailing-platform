@@ -1,0 +1,65 @@
+{
+  "git_sha": "f2906875ee4137de6005a7b31b49a72ebb125376",
+  "git_sha_started": "f2906875ee4137de6005a7b31b49a72ebb125376",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-11-13T23:30:13.807Z",
+  "failures": [
+    "1440x900: a double tap left 4 email rows, not 2 (one invoice + one thank-you)",
+    "1440x900: the double tap's requests did not all carry the same key: [null,null]",
+    "1440x900: the live table should hold ONE sent row for the key, holds []",
+    "1440x900: \"Email it again\" should send ONE request with a NEW key: [null]",
+    "768x1024: a double tap left 4 email rows, not 2 (one invoice + one thank-you)",
+    "768x1024: the double tap's requests did not all carry the same key: [null,null]",
+    "768x1024: the live table should hold ONE sent row for the key, holds []",
+    "768x1024: \"Email it again\" should send ONE request with a NEW key: [null]",
+    "390x844: a double tap left 4 email rows, not 2 (one invoice + one thank-you)",
+    "390x844: the double tap's requests did not all carry the same key: [null,null]",
+    "390x844: the live table should hold ONE sent row for the key, holds []",
+    "390x844: \"Email it again\" should send ONE request with a NEW key: [null]"
+  ],
+  "warnings": [
+    "WRITES: its own invlive-<tag> business (is_demo), one owner, four finalized bookings, deleted at the end; email_sends gains rows for fixture.test addresses only (no provider call).",
+    "run with --break=no-key; this receipt is a sabotage, not a result"
+  ],
+  "artifacts": [
+    "artifacts/send-invoice-live/1440x900-double-tap-no-key.png",
+    "artifacts/send-invoice-live/768x1024-double-tap-no-key.png",
+    "artifacts/send-invoice-live/390x844-double-tap-no-key.png"
+  ],
+  "dimensions": {
+    "base": "http://localhost:5173",
+    "sizes": [
+      "1440x900",
+      "768x1024",
+      "390x844"
+    ],
+    "observed": [
+      "1440x900 double tap: 2 requests, keys [null], answers 200,200, 4 email rows, table []",
+      "1440x900 again: 1 request(s), new key null, 2 email rows",
+      "768x1024 double tap: 2 requests, keys [null], answers 200,200, 4 email rows, table []",
+      "768x1024 again: 1 request(s), new key null, 2 email rows",
+      "390x844 double tap: 2 requests, keys [null], answers 200,200, 4 email rows, table []",
+      "390x844 again: 1 request(s), new key null, 2 email rows",
+      "refusal 1 malformed key: 400 {\"error\":\"idempotency_key must be a UUID\"}",
+      "refusal 2 other tenant: 404 {\"error\":\"not_found\"}"
+    ],
+    "break": "no-key"
+  },
+  "check_id": "send-invoice-live",
+  "started_at": "2026-11-13T23:29:24.777Z",
+  "status": "fail",
+  "expected_targets": 5,
+  "discovered_targets": 5,
+  "attempted_targets": 5,
+  "completed_targets": 5,
+  "skipped_targets": 0,
+  "assertions_executed": 37,
+  "min_assertions": 37,
+  "assertion_floor": "11 per size (signature, rows, keys, table, unprotected, notice, error box, again button, again rows, again key, console), 3 for the refusals, 1 teardown. Fixed by the lists, never by what the run finds.",
+  "canary": {
+    "id": "email-rows-for-an-unpressed-booking",
+    "what": "rowsMoved(+2) — the assertion every double tap passed — run against a finalized booking this run never pressed; it must report no rows",
+    "observed_failure": true
+  }
+}

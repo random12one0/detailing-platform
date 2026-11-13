@@ -17332,7 +17332,7 @@ most corroborated finding in the set.
   `migration-drift` passes — 51 functions, 55 tables, 85 policies. `db-audit`
   is **clean**.
 
-- [ ] **6.4 — Weak signal and retry behavior is unknown.**
+- [x] **6.4 — Weak signal and retry behavior is unknown.**
   **ANDREW DECIDED 2026-10-09: finish this in the ordinary queue; do not raise
   its priority.** Nobody is using the site now, so the remaining retry and
   publish work must be completed before release but does not jump ahead of
@@ -17643,6 +17643,7 @@ going to earn anyway.”* A 409 resolves **when it resolves**; the exhausted one
   LIVE RUN NEEDED: `node scripts/send-invoice-live.mjs`, then `node scripts/send-invoice-live.mjs --break=no-key`, graded with `node scripts/receipt.mjs receipts/send-invoice-live.json` and `receipts/send-invoice-live.sabotage.json` — a double tap of "Email the receipt" on the live `send-invoice` sends one invoice and one thank-you at 1440, 768 and 390, a deliberate send again sends one more of each, the two refusals hold, and the keyless break reads two and two.
   **When both are green, 6.4 can be ticked**: (a) and (d) are built and measured above, (b) and (c) would then be proved live on the rows,
   and `send-invoice`'s repeat is the last duplicate action this entry names.
+  **TICKED 2026-11-13 (Claude, live runs in the main checkout at `f2906875`).** `RETRY_TARGET=deployed node --env-file=.env tests/retry-safety.test.mjs`: **32 passed, 0 failed (target deployed)** — one booking from a repeated and a concurrent submit, one customer email per status change pressed twice at once (2a-2f), Finalize 2 lines not 6, finalize x3 completed once at $255, 10 bulk jobs one row each, fixture business torn down. `--break=no-client-id`: **31 passed, 1 failed, exactly `3b · ROWS: two lines, not six` (6 lines)**. (This test writes no receipt; the numbers are its printed output.) `node scripts/send-invoice-live.mjs`: 5 of 5 targets, 37 assertions, 0 failed, canary caught; per width a double tap left 2 email rows with one key and one `sent` table row, "again" left 2 more with a new key; malformed key 400, other tenant 404; `receipt.mjs` grades it 1 valid. `--break=no-key`: 12 failed, 4 rows per double tap and an empty table at each width; graded failed, as it must. Mail went only to the `fixture.test` sink.
 
 - [x] **6.4a — Today is readable offline only while the screen that loaded it
   stays open. Reload it, or leave and come back, and it is blank.**

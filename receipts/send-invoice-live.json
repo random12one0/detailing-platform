@@ -1,0 +1,50 @@
+{
+  "git_sha": "f2906875ee4137de6005a7b31b49a72ebb125376",
+  "git_sha_started": "f2906875ee4137de6005a7b31b49a72ebb125376",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-11-13T23:29:19.253Z",
+  "failures": [],
+  "warnings": [
+    "WRITES: its own invlive-<tag> business (is_demo), one owner, four finalized bookings, deleted at the end; email_sends gains rows for fixture.test addresses only (no provider call)."
+  ],
+  "artifacts": [
+    "artifacts/send-invoice-live/1440x900-double-tap.png",
+    "artifacts/send-invoice-live/768x1024-double-tap.png",
+    "artifacts/send-invoice-live/390x844-double-tap.png"
+  ],
+  "dimensions": {
+    "base": "http://localhost:5173",
+    "sizes": [
+      "1440x900",
+      "768x1024",
+      "390x844"
+    ],
+    "observed": [
+      "1440x900 double tap: 4 requests, keys [\"af8c28c6\"], answers 409,409,200,200 duplicate, 2 email rows, table [{\"idempotency_key\":\"af8c28c6-e414-4be2-bcf7-f3ac0751de62\",\"state\":\"sent\"}]",
+      "1440x900 again: 1 request(s), new key true, 2 email rows",
+      "768x1024 double tap: 4 requests, keys [\"2a2b48b9\"], answers 409,200,409,200 duplicate, 2 email rows, table [{\"idempotency_key\":\"2a2b48b9-2da1-4c9c-9052-a0909d3eba06\",\"state\":\"sent\"}]",
+      "768x1024 again: 1 request(s), new key true, 2 email rows",
+      "390x844 double tap: 3 requests, keys [\"f784003b\"], answers 409,200,200 duplicate, 2 email rows, table [{\"idempotency_key\":\"f784003b-0098-4bbf-992e-3002f5975fe2\",\"state\":\"sent\"}]",
+      "390x844 again: 1 request(s), new key true, 2 email rows",
+      "refusal 1 malformed key: 400 {\"error\":\"idempotency_key must be a UUID\"}",
+      "refusal 2 other tenant: 404 {\"error\":\"not_found\"}"
+    ]
+  },
+  "check_id": "send-invoice-live",
+  "started_at": "2026-11-13T23:28:25.598Z",
+  "status": "pass",
+  "expected_targets": 5,
+  "discovered_targets": 5,
+  "attempted_targets": 5,
+  "completed_targets": 5,
+  "skipped_targets": 0,
+  "assertions_executed": 37,
+  "min_assertions": 37,
+  "assertion_floor": "11 per size (signature, rows, keys, table, unprotected, notice, error box, again button, again rows, again key, console), 3 for the refusals, 1 teardown. Fixed by the lists, never by what the run finds.",
+  "canary": {
+    "id": "email-rows-for-an-unpressed-booking",
+    "what": "rowsMoved(+2) — the assertion every double tap passed — run against a finalized booking this run never pressed; it must report no rows",
+    "observed_failure": true
+  }
+}
