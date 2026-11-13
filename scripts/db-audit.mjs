@@ -206,6 +206,12 @@ const NO_POLICY_BY_DESIGN = new Set([
   "action_log",             // 20261006050000: append-only audit history of job changes
   "platform_costs",         // 20261006020000: Andrew's hand-entered costs, platform-admin only
   "send_invoice_attempts",  // 20261006062000: send-invoice's repeat-press claim store
+  // **ADDED 2026-11-13 — the Studio's hosted preview links.** Server-only by design, like the three above: RLS on, no
+  // policy, `revoke all from anon, authenticated` in the migration. The public `site-preview` function (service role,
+  // `_shared/db.ts`) answers only for the link whose secret it is handed; the laptop Studio writes with the service
+  // key. Nothing in `app/src` names either table. A regrant voids the entry by itself.
+  "preview_links",          // 20261113120000: one row per preview link, keyed by the SHA-256 of its secret
+  "preview_events",         // 20261113120000: what detailers did on a link, for the Studio to pull back
 ]);
 
 // **THE FOREIGN KEYS DELIBERATELY LEFT UNINDEXED**, with the reason, so this
