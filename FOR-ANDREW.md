@@ -95,6 +95,8 @@ No hurry: nightly runs began 2026-09-08, so no 1st-of-month copy older than Octo
 
 ## DO · Run two checks on the new back office from your own session (ROADMAP 9.11e)
 
+**Not yours, re-marked 2026-11-13.** The main project folder already holds the key these checks need, so an AI session there runs both and ticks 9.11e. Nothing for you to do.
+
 Every screen with something pinned over the scroll now has a check that measures it, and the dashboard and website-preview bars were fixed along the way. The one thing left is a live run of the back-office check, which needs your database key and so cannot be done from the belt's copy.
 
 **The step, a few minutes in a terminal in the main folder:** run `node --env-file=.env scripts/admin-furniture-clearance.mjs`, then `node --env-file=.env scripts/admin-furniture-clearance.mjs --break=rect`. Do not wrap either in `timeout`. The first should report 0 failures with its built-in test defect caught; the second should go red on purpose. Each run keeps its own screenshots, so the second no longer erases the first's. (Before either, `node scripts/admin-furniture-clearance.mjs --self-test` needs no key and takes a second.) Then tick 9.11e. Recommendation: do it at your next sitting; nothing is live or at risk meanwhile.
@@ -224,6 +226,8 @@ they are today, until the four programs are published.
 
 ## DO · Unfinished receipt cleanup (ROADMAP 14.39)
 
+**Not yours, re-marked 2026-11-13.** The main project folder's `.env` holds the R2 keys, so an AI session there runs the real-R2 proof; applying the two database changes and publishing are AI release work since 2026-11-05.
+
 The fix is built and committed locally: a receipt upload remains recorded even
 if its reply is lost or the tab closes, so the nightly job can reclaim it.
 The local proof passes and catches a deliberately retained file. The required
@@ -244,6 +248,8 @@ The exact files, commands and limits are in
 No new public upload origin, account setup or allowance decision is requested.
 
 ## RELEASE STEP · Expense receipts use the new photo store (ROADMAP 0.11cc)
+
+**Not yours, re-marked 2026-11-13.** 0.11cc is ticked; what is left of 0.11c and 0.11d is live checks an AI session runs in the main project folder.
 
 The final upload switch is committed locally. Your cron, its timeout and the
 10 GB allowance were already live; they were checked again without changing
@@ -291,6 +297,8 @@ button's browser proof as well as the cache proof before calling gallery
 removal complete; the session can build it while this account setup waits.
 
 ## DO, AT YOUR NEXT RELEASE · Bring the server up to the saved code (ROADMAP 98.2)
+
+**Not yours, re-marked 2026-11-13.** The release ran on 2026-11-06, and releasing is AI work since 2026-11-05. Only `platform-admin` (after 4.3e and 4.3c) and `google-business` (after Google, 0.15) are still held.
 
 The red server inventory is a real release backlog, and was already red before 14.24 refreshed it.
 Recommendation: use your existing `0.6b-handoff` launch checklist in "YOURS, WHEN YOU LAUNCH" below.
@@ -577,6 +585,8 @@ The profit screen is finished and proven: a session typed four test bills into i
 
 ## DO · Publish the two 4.3 pieces and check them live (ROADMAP 4.3b + 4.3c, you said go 2026-10-13)
 
+**Not yours, re-marked 2026-11-13.** Publishing is AI work since 2026-11-05. The technical approval 4.3e was waiting on was made as a logged AI decision on 2026-11-13; an AI finishes 4.3e and 4.3c, publishes `platform-admin` and checks it live.
+
 You approved publishing both pieces and checking them live. Piece one (4.3b) puts orphaned history rows onto the live panel — publish `platform-admin`. Piece two (4.3c) is the support-session lock: the migration plus the functions sharing `_shared/tenant.ts`. **Known consequence, your call:** until 4.3c part (a) is built, the preview's "Let me make changes" button promises what the server refuses — pressing it shows *WORKING in … Anything you change is theirs* while every save is refused. If that is acceptable for now, publish in this order: migration first, then the functions, then check Coastline's detail (4.3b) and the preview banner (4.3c) live. A session ticks the boxes after.
 
 **Update 2026-10-13, about the "merge it" questions on 4.3c: please don't answer them yet.** Two separate jobs built the fix for that button, each in its own way, and the two versions can't both be kept. One also has the two-hour time limit. The other keeps your button working if the website goes live before the server half does. A follow-up job (ROADMAP 4.3e) combines them into one version and then asks you once. Nothing needs doing from you until then.
@@ -586,6 +596,8 @@ You approved publishing both pieces and checking them live. Piece one (4.3b) put
 **Recommendation:** publish, since you said go — but expect the unlock mismatch above until (a) lands, and do not demo the unlock button live before then.
 
 ## DO · Publish the booking-preview fix after it is prepared (ROADMAP 9.1b)
+
+**Not yours, re-marked 2026-11-13.** The fix went live with the 2026-11-06 website release; an AI session re-runs the live comparison and ticks 9.1b.
 
 You already said go, and the live comparison ran. The same demo business shows **9 of 12** on the dashboard and both back-office views at phone and laptop widths. However, the booking preview in Business is blank: the live site's protection header forbids loading that page inside the dashboard. That leaves the required browser check red, so 9.1b and 9.1 remain open. Nothing was published or changed in the live business records.
 

@@ -1201,8 +1201,9 @@ correctly waiting.** None of the five is forgotten; each says what it waits on
 and how the wait ends.
 
 - [ ] **0.11 — Move photo storage to Cloudflare R2.** Buckets already exist and
-  NEEDS ANDREW: the belt held this job's work instead of merging it — after one repair and strong-model help: the strong-model rescue was used and the job still fails.
-  The work is safe on branch `belt/0.11-20261021050058534`. Answer "merge it" to keep it, or say what to change.
+  ~~NEEDS ANDREW: the belt held this job's work instead of merging it — after one repair and strong-model help: the strong-model rescue was used and the job still fails.~~
+  ~~The work is safe on branch `belt/0.11-20261021050058534`. Answer "merge it" to keep it, or say what to change.~~
+  Belt hold of 2026-10-21 set aside 2026-11-13 (AI): a failed rescue on the umbrella, overtaken since by 0.11a, 0.11b, 0.11ca, 0.11cb and 0.11cc being ticked. Held for a builder, not for Andrew; the umbrella's real wait is the 0.11c and 0.11d line further down. Branch `belt/0.11-20261021050058534` is kept for reference only.
   ANDREW AUTHORIZED 2026-10-19 08:14: run the full check on the live system now. This authorizes the existing verification flows against project `kguqylyzgyzfktkfnhjb`; confirm the ref, announce fixture writes, read each script first and retain cleanup and refusal probes. It does not authorize publishing, spending, handling credentials, or changing live database structure. This supervision performed no live R2 run; continue the saved verifier and record its actual result. Do not ask this permission again.
   already match the code names. **The allowance goes from 1 GB to 10 GB IN THE
   SAME CHANGE as the upload switch, never a commit earlier**, so the screen
@@ -3368,7 +3369,8 @@ and how the wait ends.
       edge-function secrets) and that `note_heartbeat` writes the row in the live database (`stamp` is
       in-memory here). **So 0.11d3 stays open** — this is its buildable half, not the whole of it.
 
-  NEEDS ANDREW: perform `FOR-ANDREW.md` step 9 — the release itself. **0.11d2 and 0.11d3 cannot begin until
+  ~~NEEDS ANDREW: perform `FOR-ANDREW.md` step 9 — the release itself. **0.11d2 and 0.11d3 cannot begin until~~
+  LIVE RUN NEEDED (re-marked 2026-11-13): step 9 is done (0.11ca, 0.11cb, 0.11cc ticked) and Andrew authorized the live checks on 2026-10-19. What is left is 0.11d2's real upload and 0.11d3's cron-triggered reconcile, run by a session in the main checkout with its `.env`, plus the held builder findings at the top of this entry. Not Andrew's. The paragraph below is history.
   it is done**, and not for want of effort: they need a real upload through a presigned R2 URL and a real
   `photo-reconcile` run, and today `photo-door` and `photo-reconcile` are undeployed, both door flags are
   `false`, `photo_total_gb` is 1 and there is no cron entry. **`.env` holds no R2 credential either** — only
@@ -4766,7 +4768,7 @@ and how the wait ends.
   AWAITS PUBLISH (built and proved; no decision asked of Andrew): run the `0.6b-handoff` block in FOR-ANDREW.md
   ("YOURS, WHEN YOU LAUNCH"), steps 1-4 in order, whenever he chooses to launch; then a session re-runs the inventory,
   commits its receipt and ticks the criteria it meets. Nothing in this item is buildable by a session: every criterion
-  is his publish or its result, and sessions never publish.
+  is ~~his publish or its result, and sessions never publish~~ a publish or its result, and publishing is AI work since 2026-11-05 (re-marked 2026-11-13).
   Waits on: 4.3c (releases `platform-admin` from the hold) and 99.1 (`google-business`, never published). Who removes
   this line: whichever session ticks the later of the two. **Until then criterion 3 cannot be met by a perfect run of the
   handoff**, because the handoff holds `platform-admin` back on purpose and the inventory counts `google-business` as
@@ -5100,8 +5102,9 @@ Smallest wave, highest embarrassment cost, all of it confirmed in source.
   *A2 1.4*
 
 - [ ] **1.3 — Test accounts appear in production lists and counts.**
-  NEEDS ANDREW: the belt held this job's work instead of merging it — the full test suite found tests/mail-sink.test.mjs: 1 failing, the baseline had 0; 1 new failing test(s): tests/mail-sink.test.mjs :: tests/mail-sink.test.mjs.
-  The work is safe on branch `belt/1.3-20261024233606965`. Answer "merge it" to keep it, or say what to change.
+  ~~NEEDS ANDREW: the belt held this job's work instead of merging it — the full test suite found tests/mail-sink.test.mjs: 1 failing, the baseline had 0; 1 new failing test(s): tests/mail-sink.test.mjs :: tests/mail-sink.test.mjs.~~
+  ~~The work is safe on branch `belt/1.3-20261024233606965`. Answer "merge it" to keep it, or say what to change.~~
+  Belt hold of 2026-10-24 set aside 2026-11-13 (AI): its cause was `tests/mail-sink.test.mjs` failing in the belt's full suite, which is belt or test work, not Andrew's. Re-run on main at `e26f6e77` on 2026-11-13: `node --test tests/mail-sink.test.mjs` 1 passed, `tests/sweep-methods-are-pinned.test.mjs` 8 passed, `tests/skip-census.test.mjs` 5 passed, 0 failed each. The held work is on branch `belt/1.3-20261024233606965`; status: needs re-check by the belt before it merges.
   **ANDREW DECIDED 2026-10-09: KEEP THEM AS THEY ARE FOR NOW.** There are no
   real accounts and he still needs the demos. The built flag/filter remains the
   launch path, not a task for him today; revisit it when the product is nearly
@@ -5118,7 +5121,7 @@ Smallest wave, highest embarrassment cost, all of it confirmed in source.
 
   **AWAITS PUBLISH (built and proved; no decision asked of Andrew):** applying
   `supabase/migrations/20260924010000_a_fixture_is_not_a_customer.sql` is the
-  only step left, it is his schema change, and he ruled 2026-10-09 to hold it
+  only step left, it is ~~his schema change~~ a launch-week release step for an AI (re-marked 2026-11-13, see 0.3b), and he ruled 2026-10-09 to hold it
   until launch. Checked 2026-10-11 at `9c70c742`: nothing buildable remains
   inside this item — the Today-screen fixtures and the `create-booking` leak
   below are separate items (an edge-function deploy is also his). The check
@@ -5131,7 +5134,7 @@ Smallest wave, highest embarrassment cost, all of it confirmed in source.
   **BUILT AND PROVED 2026-09-24, COMMIT `3c24a1f`. ON DISK, SWITCHED OFF UNTIL
   LAUNCH — reframed 2026-09-24, and it is NOT a chore for Andrew.** The one
   command below is **the switch**, run whenever he launches; nothing is waiting
-  on him today. ~~NEEDS ANDREW: one command
+  on him today. ~~`NEEDS ANDREW`: one command
   — `node scripts/apply-migrations.mjs
   20260924010000_a_fixture_is_not_a_customer.sql` — because applying a
   migration is a schema change and that is his.** `FOR-ANDREW.md` § "Waiting
@@ -10291,7 +10294,8 @@ the wrong service, and never book a job we cannot reach.
 
 - [ ] **9.11e — Screens with fixed furniture are not all hit-tested by the checks that measure them.**
   **Hold reasons retired 2026-11-07 (belt, try 4).** The belt's hold (`sweep-methods-are-pinned` § 3b red) no longer reproduces: after merging main at `6d78d7f3`, `node --test tests/sweep-methods-are-pinned.test.mjs` reads 8 passed 0 failed. The 2026-10-25 review's two findings are fixed (next paragraph); the branch to continue is `belt/9.11e-20261107080501596`.
-  NEEDS ANDREW: the live run of the back-office check needs the database service key, which only Andrew's own session holds (this copy has no `.env`). Run `node --env-file=.env scripts/admin-furniture-clearance.mjs`, then `node --env-file=.env scripts/admin-furniture-clearance.mjs --break=rect` (the two LIVE RUN NEEDED lines at the foot of this entry say what each must show); do not wrap either in `timeout`. Everything buildable is built; whoever runs them ticks 9.11e.
+  ~~NEEDS ANDREW: the live run of the back-office check needs the database service key, which only Andrew's own session holds (this copy has no `.env`). Run `node --env-file=.env scripts/admin-furniture-clearance.mjs`, then `node --env-file=.env scripts/admin-furniture-clearance.mjs --break=rect` (the two LIVE RUN NEEDED lines at the foot of this entry say what each must show); do not wrap either in `timeout`. Everything buildable is built; whoever runs them ticks 9.11e.~~
+  LIVE RUN NEEDED (re-marked 2026-11-13; not Andrew's): the main checkout's `.env` holds the service key, so a coordinator session there runs `node --env-file=.env scripts/admin-furniture-clearance.mjs`, then `node --env-file=.env scripts/admin-furniture-clearance.mjs --break=rect` (the two lines at the foot of this entry say what each must show), merges `belt/9.11e-20261107080501596` and ticks 9.11e. Do not wrap either run in `timeout`.
   - 1. `scripts/state-furniture-clearance.mjs`: on `/website/preview`, `SiteIntake.jsx:1054` draws a red "Preview" strip (`.impbar`, sticky at the top). Neither new `html:has(.app-shell > …)` rule applies on that page, because the strip sits inside `.app-main`. But `intake()` only counts rows lost to `.livesite`. The run's own canary shows «Back» and «Close» parked at top 0 on that page, which is under that strip. So "`.livesite` IS CLEAN, and that is an answer" holds for the preview box only. The screen's other sticky strip was never asked about, while the meta-test now reports 12 of 12 hit-tested by name match alone. The script should also measure `.impbar` on that surface, or the gap should be recorded with a reason.
   - 2. `ROADMAP.md` (the new 9.11e table): it says the clean run was "at `af5fc32f`", but `receipts/state-furniture-clearance.json` records `git_sha` `bfcce0c8`. The figure's stated revision does not match its receipt, which this repo's figure rule (`docs/gotchas.md` 94) requires.
   **BOTH FINDINGS FIXED 2026-10-25 (finish, try 2).** (1) Real, and it was a product fault, not only a gap
@@ -11160,9 +11164,10 @@ requested.
   half-done, and they are genuinely independent of each other.
   **Take ONE slice per run and commit it. Do not take 3.1 whole.** The four
   are numbered **3.1a**, **3.1b**, **3.1c** and **3.1d** at the foot of this
-  entry, each its own citable box. **Queued behind 3.1a–3.1d:** this umbrella
+  entry, each its own citable box. **~~Queued behind 3.1a–3.1d:~~ (all four ticked; re-marked 2026-11-13, see the Waits line under this paragraph)** this umbrella
   box is deliberately not dispatchable, because sending it out whole is what
   produced two 50-minute kills and one commit.
+  Waits on: 4.3c, which releases `platform-admin` (chain 4.3e, then 4.3c, then the publish); the platform-wide mail list in `/admin` needs that program live. Re-marked 2026-11-13 from the triage of that date; 3.1a to 3.1e are ticked.
   **ANDREW DECIDED 2026-10-09: both audiences get the view.** Andrew gets the
   platform-wide list in `/admin`; each detailer gets a business-wide delivery
   list in their own dashboard, in addition to the customer-specific trail that
@@ -12120,11 +12125,12 @@ requested.
   that does not exist. Andrew has now settled the product question: texting is
   planned. `TEXTING.md` must be updated when this resumes so its old wording
   hold cannot be mistaken for a current owner decision.
-  NEEDS ANDREW: the texting phone number. Nothing in 3.3 can send until Telnyx has a number, and the number waits on the 10DLC campaign (ROADMAP 0.14), which Andrew parked on purpose on 2026-09-22 because it starts monthly charges ($15 once, then about $3 a month with the number) and he will not pay monthly before launch. What clears it: when he is ready to launch, submit the parked campaign and buy the number; then 0.13 builds the send pipe and 3.3 builds on it. Nothing to decide now - this is NOT a wording question (0.13 forbids asking one; the wording is settled inside 3.4's email-and-text redesign). Checked 2026-10-10, attempt 2: no texting code anywhere in `supabase/functions` or `app/src` (grep for telnyx: 0 files), and `TEXTING.md` already carries the 2026-10-09 ruling (commit a07a2dce), so the line above is done. Attempt 1 asked Andrew to pick the texts' wording; that contradicted 0.13 and was never written down, and is not repeated here.
+  Waits on: 0.14 (re-marked 2026-11-13). The texting phone number is Andrew's after-launch money call under 0.14, not a separate question here. ~~NEEDS ANDREW~~: the texting phone number. Nothing in 3.3 can send until Telnyx has a number, and the number waits on the 10DLC campaign (ROADMAP 0.14), which Andrew parked on purpose on 2026-09-22 because it starts monthly charges ($15 once, then about $3 a month with the number) and he will not pay monthly before launch. What clears it: when he is ready to launch, submit the parked campaign and buy the number; then 0.13 builds the send pipe and 3.3 builds on it. Nothing to decide now - this is NOT a wording question (0.13 forbids asking one; the wording is settled inside 3.4's email-and-text redesign). Checked 2026-10-10, attempt 2: no texting code anywhere in `supabase/functions` or `app/src` (grep for telnyx: 0 files), and `TEXTING.md` already carries the 2026-10-09 ruling (commit a07a2dce), so the line above is done. Attempt 1 asked Andrew to pick the texts' wording; that contradicted 0.13 and was never written down, and is not repeated here.
 
 - [ ] **3.4 — Review every email end to end. Nobody has ever done this.**
   **Supervisor 2026-10-25 — permission already given.** Andrew approved sending the test emails to ramdom12one0@gmail.com on 2026-10-23 at 18:33 (belt inbox). This supersedes the earlier no-send recommendation below. Reconcile his existing English approvals first; Spanish review and actual delivery still need evidence. A credentialed operator may perform the authorized test batch; this supervisor sent nothing and handled no credentials. The held suite-baseline mismatch is a checking repair, not another request to authorize sending.
-  NEEDS ANDREW: the belt held this job's work instead of merging it — the full test suite found the suite setup changed since baseline r1 (command, files pattern, Node or environment); it needs a reviewed new baseline.
+  ~~NEEDS ANDREW: the belt held this job's work instead of merging it — the full test suite found the suite setup changed since baseline r1 (command, files pattern, Node or environment); it needs a reviewed new baseline.~~
+  Belt hold of 2026-10-24 set aside 2026-11-13 (AI): its cause was the belt's own test baseline r1, which the belt re-took on 2026-11-03, which is belt or test work, not Andrew's. The held work is on branch `belt/3.4-20261024090159537`; status: needs re-check by the belt before it merges.
   The work is safe on branch `belt/3.4-20261024090159537`. Repair the checking baseline through the belt’s review process before integrating; the send permission does not waive a gate.
   ANDREW CLARIFIED 2026-10-19 08:15: he already reviewed many English recommendations in Planning and believes he approved them. Reconcile those Planning approvals before asking for another English review; do not send him every email again. He did not review Spanish and does not speak it. Spanish remains required for customer communications; do not ask Andrew to judge that language or record it approved. Delivery and Spanish coverage still need their own evidence; nothing here claims either is complete.
   **ANDREW DECIDED 2026-10-09: DEFER AND REDESIGN THE COMMUNICATION SYSTEM.**
@@ -12868,7 +12874,7 @@ requested.
   answer it, because the question is whether a real message arrives and reads
   correctly in a real client.
 
-  **`NEEDS ANDREW: open seven emails in his own inbox — confirmation, acceptance,
+  **`~~NEEDS ANDREW~~ (superseded by his 2026-10-19 clarification above: reconcile his Planning approvals, never re-ask): open seven emails in his own inbox — confirmation, acceptance,
   reminder, quote, receipt, cancellation, reschedule — and say whether each one
   reads right. It is the whole of 3.4's own Done-when and it cannot be done from a
   keyboard here.**
@@ -13069,7 +13075,7 @@ requested.
   already do. Either way the amendment is Andrew's or the manager's, and **this
   entry records both halves rather than quietly picking one.**
 
-  Waits on: 3.4b, 3.4e, 3.4f, 3.4g. How the wait ends: those pieces are ticked.
+  Waits on: 3.4g (3.4b, 3.4e and 3.4f are ticked; re-marked 2026-11-13). How the wait ends: 3.4g is ticked.
   Split on 2026-10-10 because this entry is 943 lines
   long and no single session was finishing it.
   **STATE 2026-10-10 (checked, nothing built under this number):** 3.4b and 3.4e
@@ -13088,7 +13094,8 @@ requested.
   (*"do not spend the shared allowance sending every template merely to tick this box"*),
   and `scripts/send-test-emails.mjs` mails a real inbox through the production relay, so a
   session did not run it. Nothing was sent.
-  **NEEDS ANDREW: say whether 3.4g's sandbox-send half should still happen at all, and if so
+  ANSWERED 2026-10-23 (re-marked 2026-11-13): he approved sending the test batch to the Gmail inbox named in the supervisor note at the top of 3.4, so the send half goes ahead as a live run.
+  **~~NEEDS ANDREW~~: say whether 3.4g's sandbox-send half should still happen at all, and if so
   name the inbox for `--to=`.** Recommendation: drop it. The rendering half already found the
   faults (the reschedule label, the English dates, the Spanish gaps), and the sends would only
   confirm one shared delivery pipe sixteen times. If dropped, 3.4g is amended to "rendered and
@@ -14783,7 +14790,7 @@ requested.
   (the Stripe-dashboard line, the `site` line, 15e). NOT proved: that a real orphaned
   row appears on Coastline's panel, because that needs the function published.
   AWAITS PUBLISH (built and proved; no decision asked of Andrew): publish `platform-admin` (already in FOR-ANDREW.md step 3 and step 5) so the orphaned rows can be seen on a live panel; after that a session can open Coastline's detail and tick this. This is an existing release step, not a question for Andrew.
-  **Andrew decided 2026-10-13: yes, publish both pieces (4.3b + 4.3c) and check them live.** Recorded by supervision 2026-10-13; publishing is his hand, FOR-ANDREW.md carries the row.
+  **Andrew decided 2026-10-13: yes, publish both pieces (4.3b + 4.3c) and check them live.** Recorded by supervision 2026-10-13; ~~publishing is his hand~~ publishing is AI work since 2026-11-05 (re-marked 2026-11-13), and FOR-ANDREW.md carries the row.
   Update the platform-admin detail history query so it finds events recorded by either business ID or business name, allowing older sensitive events with a null business_id to appear. This improves audit completeness but does not provide server-side mutation enforcement.
   Part 2 of 4 of item 4.3, split out so it can be
   finished and ticked on its own. The parent keeps the full write-up.
@@ -17327,7 +17334,7 @@ most corroborated finding in the set.
   show you.
 
   **(b) AND (c), SERVER HALF — BUILT AND MEASURED ON THE ROWS, 2026-10-06. NOT
-  LIVE: NEEDS ANDREW to publish six functions** (`FOR-ANDREW.md` § "Waiting on
+  LIVE: ~~NEEDS ANDREW to publish six functions~~ (all six published since; publishing is AI work, re-marked 2026-11-13)** (`FOR-ANDREW.md` § "Waiting on
   you"). `tests/retry-safety.test.mjs` fires every request twice CONCURRENTLY and
   then once more, against its own `retry-<tag>` business (`is_demo`, deleted at
   the end), and counts `bookings`, `booking_line_items` and `email_sends` (one row
@@ -22069,7 +22076,8 @@ the dashboard or back office at phone width at all.
   **Deployment context rechecked:** `node --env-file=.env scripts/deployed-inventory.mjs` at `b3b5a6fb` compared **41 of 41** functions and found **33 of 41** differ from the checkout, including platform-admin v63's unpublished 4.3 changes. That FAIL is preserved in `receipts/deployed-inventory.json`, not cleared by deploying. The live displayed-count comparison above is independent of checkout equality. The four credential-free suites, tracked-text credential scanner, and open-item citation check passed; no live structure change, push, or deploy.
   Document figures were also checked with `node --test tests/figures-carry-their-command.test.mjs`: PASS after adding the already-installed `C:\Program Files\Git\bin` to that process's PATH. Its first run could not launch bash and falsely classified real revisions as missing; native `git rev-parse --verify '9901b16^{commit}'` resolved the cited revision. No test or declared baseline was changed. That scanner excludes FOR-ANDREW's prose figures, so the new prose claims were checked directly against the live receipts above.
 
-  NEEDS ANDREW: after 9.1c (the booking-preview header fix, which Andrew said to fix now on 2026-10-12) is prepared and verified, publish it and rerun this live comparison; the counts already match, but the live dashboard console error prevents the required full browser pass. Recommendation: permit only the intended booking-preview embedding while retaining protection on the dashboard and back office. The action and its reason are in FOR-ANDREW.md.
+  ~~NEEDS ANDREW: after 9.1c (the booking-preview header fix, which Andrew said to fix now on 2026-10-12) is prepared and verified, publish it and rerun this live comparison; the counts already match, but the live dashboard console error prevents the required full browser pass. Recommendation: permit only the intended booking-preview embedding while retaining protection on the dashboard and back office. The action and its reason are in FOR-ANDREW.md.~~
+  LIVE RUN NEEDED (re-marked 2026-11-13; not Andrew's): 9.1c is ticked and the website went out on 2026-11-06 (`e5c6a8a1`). A session in the main checkout re-runs `node --env-file=.env scripts/live-setup-counts.mjs` and `--break=count`, and ticks 9.1b only if the counts match and the dashboard console is clean.
 
   **Earlier source-only assessment, superseded by Andrew's go and the measured comparison above:**
   **Measured 2026-10-10, credential-free:** `node scripts/setup-inputs-contract.mjs` → PASS, 17/17 targets, 18 assertions, canary caught — the checkout's `platform-admin` sends 12 of 12 steps' inputs. `receipts/deployed-inventory.json` (finished 08:10 Pacific, 2026-10-10) lists `platform-admin` as MATCHING the checkout of that moment, which already held the 9.1 widening (committed 2026-09-23) — so the live function very likely carries it. **But three commits touched `platform-admin` after that receipt (83a0a740, 8bd5d24b, 3e002b1d — 4.3b/4.3c, "not published"), so the live copy is no longer this checkout**; re-run `deployed-inventory` before relying on it. 9.1a is still unticked. **Superseded the same day: 9.1a is ticked — the live v63 carries the 9.1 widening (39 of 39 lines) and none of 4.3b/4.3c (42 of 42 absent); see 9.1a.** **Not measured: any displayed count on either screen. Nothing ticked.**
@@ -26879,7 +26887,8 @@ event id.
   - No live rate-limit loop is represented as proof in this piece
 
 - [ ] **14.9b — Observe live 429 refusals for all three booking writes**
-  Waits on: 14.9a (the functions have to be published before a live loop can see their refusal).
+  ~~Waits on: 14.9a (the functions have to be published before a live loop can see their refusal).~~
+  LIVE RUN NEEDED (re-marked 2026-11-13): 14.9a is ticked, so the three functions are published. A session runs the 429 loop against the deployed cancel, reschedule and accept-quote functions and records the refusals.
   After publishing, run the established loop against each deployed write endpoint and retain the results showing the public ceiling refuses requests. This closes only the outstanding live-observation condition, not the already completed source and local-handler evidence.
   Part 2 of 2 of item 14.9, split out so it can be
   finished and ticked on its own. The parent keeps the full write-up.
@@ -30397,10 +30406,11 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   **Real-R2 cleanup NOT RUN:** `node scripts/receipt-abandonment.mjs --real-r2` at `8e7c37de` recorded
   **0 of 24**, FAIL, because this runner lacks the existing R2 environment. The optional real mode,
   retained-object sabotage, durable fixture manifest and interrupted-run recovery are built in that script.
-  NEEDS ANDREW: arrange a proof runner with the existing R2 environment; those credentials are in Supabase
+  ~~NEEDS ANDREW: arrange a proof runner with the existing R2 environment; those credentials are in Supabase~~
+  LIVE RUN NEEDED (re-marked 2026-11-13; not Andrew's): the main checkout's `.env` holds the R2 keys (2026-11-13 triage), so a session there first checks that this item's two migrations and `photo-door` / `photo-reconcile` are live, then runs the committed real-R2 proof below. The two lines under this one are history.
   function secrets, absent here, and reading or copying secret values is prohibited. Without that runner
   the required real-R2 abandonment and deliberate leak proof cannot run.
-  Release step, not a decision: Andrew applies `20261013130000_receipt_upload_attempts.sql` and
+  Release step, not a decision: ~~Andrew applies~~ the release session applies (AI work since 2026-11-05) `20261013130000_receipt_upload_attempts.sql` and
   `20261013131000_receipt_attempts_late_put.sql`, then publishes `photo-door` and `photo-reconcile`.
   The live ledger and functions remain absent/old. Real storage cleanup and the published scheduled path
   remain unproved. Exact order, commands and proof limits: `docs/receipt-abandonment-release.md`;
@@ -30564,7 +30574,7 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   `/admin/job/<id>`, and there is no such route.** Found 2026-10-06 while
   resolving which screen 3.1's list belongs on — not by looking for it.
 
-  **DEFERRED ON PURPOSE — ANDREW DECIDED 2026-10-09:** hold the already-written
+  **~~DEFERRED ON PURPOSE~~ (overtaken: the seven went live 2026-10-10, below; re-marked 2026-11-13) — ANDREW DECIDED 2026-10-09:** hold the already-written
   source fix for the next regular update cycle. Do not publish these seven functions as a special
   release; include them in the next ordinary publish and perform the real-phone
   notification tap then.
@@ -31281,8 +31291,9 @@ explicitly warns against — git history is the archive. Revisit at step 7.
 ## Andrew asked for these
 
 - [ ] **99.1 — Let a detailer connect their Google Business profile**
-  NEEDS ANDREW: the belt held this job's work instead of merging it — after one repair and strong-model help: the strong-model rescue was used and the job still fails.
-  The work is safe on branch `belt/99.1-20261019051511572`. Answer "merge it" to keep it, or say what to change.
+  ~~NEEDS ANDREW: the belt held this job's work instead of merging it — after one repair and strong-model help: the strong-model rescue was used and the job still fails.~~
+  ~~The work is safe on branch `belt/99.1-20261019051511572`. Answer "merge it" to keep it, or say what to change.~~
+  Belt hold of 2026-10-19 set aside 2026-11-13 (AI): a failed rescue, which is builder work, not Andrew's. Held for a builder: continue branch `belt/99.1-20261019051511572` when 0.15 opens. The real wait is Google (0.15), below.
   A detailer links their Google Business account once, and from then on what they change in the back office keeps their Google listing in step - hours, services, photos, contact details - without them typing it twice. Andrew named this on 2026-10-09 as something that was always the plan and had never been written down anywhere.
   Acceptance criteria:
   - A detailer can connect their Google Business account from their own settings, and disconnect it again
@@ -31301,7 +31312,7 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   refused"* and *"the link broke"*, all against a stub behind a flag. That is
   the ending the task template already asks for. **A session taking this must
   not call a real Google endpoint, must not start a paid anything, and ticks
-  nothing on the sync half** — it writes `NEEDS ANDREW: the business.manage
+  nothing on the sync half** — it writes (re-marked 2026-11-13) `Waits on: 0.15, the business.manage
   scope is still gated (0.15)` under the item and stops there.
 
   **ANDREW DECIDED 2026-10-09: build the connection, disconnection and plain
@@ -31332,7 +31343,7 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   - **2026-10-10 — Andrew's look note answered: the Connect Google button was a solid blue slab; it now uses `btn oauth`, the outlined style the sign-in page already uses for Google (commit `135a5270`, one class in `GoogleBusiness.jsx`; "Connect again" is the same button).** `node scripts/google-business.mjs` re-run after the commit: 206 of 206, receipt PASS, 0 requests to Google, buttons still 44px. The look itself is UNJUDGEABLE here; screenshots `.manager-shots/99.1/none-392.png` and `refused-1440.png` show an outlined pill. Before/after pages are in the belt's shots folder for Andrew. If the outline is too faint he can say so; the border color is `--line-2`.
   - **2026-10-11 (supervisor) — Andrew rejected the Disconnect button: "the disconnect Google button needs to have some outline on it". It was `btn ghost`, bare text with a transparent border; it is now plain `btn`, a 1px `--line-2` outlined pill, matching Connect. Not `btn danger`: disconnecting is reversible and keeps the listing, and `--bad` is reserved for deletions (`docs/screen-rules.md`).** The not-synced sentence above it also gained a `--sp-3` gap, since the pill sat flush against it. `scripts/google-business.mjs` now asserts `disconnect-outlined` per width (210 assertions): **with the old `ghost` class restored it printed 4 FAIL, `border 1px rgba(0, 0, 0, 0)`, one per width; on the fix 210/0** (commit `4aae9af4`). Screenshots `.manager-shots/99.1/connected-392.png` and `connected-1440.png`.
   - [ ] **99.1b — the sync half (criteria 2 and 4): hours and services reach the listing; nothing written to a real listing until Andrew has seen a test account.** Not started, and cannot be.
-  **NEEDS ANDREW: the `business.manage` scope is still gated (0.15), so nothing can be written to a Google listing, and criterion 4 needs you to watch it work on a test account.** Two things also
+  **Waits on: 0.15 (Google's review of the `business.manage` scope; re-marked 2026-11-13). Until then nothing can be written to a Google listing; criterion 4's watch on a test account comes after that.** Two things also
   have to happen before this screen is published, in this order: apply the migration, then deploy `google-business`, then publish
   the app. **Published without the function, an owner opening the screen is told "Only the owner can connect Google" — wrong — because the missing function answers 404 exactly as it does to staff.**
 - [ ] **99.2 — Can we work? Can we work on the text and emails kind of plan out so I’m gonna use that lik**
@@ -31870,10 +31881,11 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   **Done when:** the file runs to the end with 0 failed, and the late-payment email's subject is whatever Andrew approved. **Done 2026-10-24:** the CHECK was stale, not the email. 99.2e put Andrew's approved subject "Your card didn't go through" on the late-payment email (no business name); the check still demanded one. Re-pinned to: offline subject leads with the business, late subject names none, late body names it. `node --test tests/platform-billing.test.mjs` pass 1 / fail 0 (was fail 1). No screen changed.
 
 - [ ] **99.10 — Clean up what the Muse trial left behind (code review 2026-10-12).**
-  NEEDS ANDREW: the belt held this job's work instead of merging it — it changed test(s) that grade it: scripts/sweep-booking-steps.mjs, scripts/sweep-tap-targets.mjs, tests/admin-insight.test.mjs, tests/admin-preconditions.test.mjs, tests/composition.test.mjs, tests/dead-mans-switch.test.mjs, tests/fixed-furniture-is-hit-tested.test.mjs, tests/growth-lines.test.mjs, tests/legal-promises.test.mjs, tests/name-length.test.mjs, tests/platform-admin.test.mjs, tests/platform-billing.test.mjs, tests/queue-rows-still-belong.test.mjs, tests/spanish.test.mjs (the review did not say the test changes are fair (no TESTS: fair line)).
-  The work is safe on branch `belt/99.10-20261104031936631`. Answer "merge it" to keep it, or say what to change.
-  NEEDS ANDREW: the belt held this job's work instead of merging it — the full test suite found tests/sweep-methods-are-pinned.test.mjs: 1 failing, the baseline had 0; 1 new failing test(s): tests/sweep-methods-are-pinned.test.mjs :: the two sweep methods are pinned, not described > 3b · every numbered open item is named by a commit, except the declared ones.
-  The work is safe on branch `belt/99.10-20261022134035300`. Answer "merge it" to keep it, or say what to change.
+  ~~NEEDS ANDREW: the belt held this job's work instead of merging it — it changed test(s) that grade it: scripts/sweep-booking-steps.mjs, scripts/sweep-tap-targets.mjs, tests/admin-insight.test.mjs, tests/admin-preconditions.test.mjs, tests/composition.test.mjs, tests/dead-mans-switch.test.mjs, tests/fixed-furniture-is-hit-tested.test.mjs, tests/growth-lines.test.mjs, tests/legal-promises.test.mjs, tests/name-length.test.mjs, tests/platform-admin.test.mjs, tests/platform-billing.test.mjs, tests/queue-rows-still-belong.test.mjs, tests/spanish.test.mjs (the review did not say the test changes are fair (no TESTS: fair line)).~~
+  ~~The work is safe on branch `belt/99.10-20261104031936631`. Answer "merge it" to keep it, or say what to change.~~
+  ~~NEEDS ANDREW: the belt held this job's work instead of merging it — the full test suite found tests/sweep-methods-are-pinned.test.mjs: 1 failing, the baseline had 0; 1 new failing test(s): tests/sweep-methods-are-pinned.test.mjs :: the two sweep methods are pinned, not described > 3b · every numbered open item is named by a commit, except the declared ones.~~
+  ~~The work is safe on branch `belt/99.10-20261022134035300`. Answer "merge it" to keep it, or say what to change.~~
+  Belt holds of 2026-11-04 and 2026-10-22 set aside 2026-11-13 (AI): the first asked whether its test changes are fair, which an AI reviewer judges, not Andrew; the second was `sweep-methods-are-pinned` § 3b. Re-run on main at `e26f6e77` on 2026-11-13: `node --test tests/mail-sink.test.mjs` 1 passed, `tests/sweep-methods-are-pinned.test.mjs` 8 passed, `tests/skip-census.test.mjs` 5 passed, 0 failed each. The held work is on branches `belt/99.10-20261104031936631` and `belt/99.10-20261022134035300`; status: needs re-check by the belt, with a reviewer's fairness line on the test changes, under his standing "fix the six" ruling below.
   ANDREW DECIDED AGAIN 2026-10-19 08:12: "Send it back to fix the six problems first." Resume the latest held branch `belt/99.10-20261017074944799`, retain its useful work and fix every DONE WHEN requirement below. No merge until the six repairs and their failure probes are proved.
   The work is safe on branch `belt/99.10-20261017074944799`. Continue the saved work; nothing further needs an owner answer.
   ANDREW RULED AGAIN 2026-10-17 05:14 and 07:14 (control room): "Send it back to fix the six listed problems first" — the same ruling as 2026-10-13 below; queued as NEXT. Resume from `belt/99.10-20261017052717140`. The `sweep-methods-are-pinned` red it was held on is fixed on main (100.9, supervisor); the `admin-preconditions` and `growth-lines` reds are its own. Held for: the full test suite found 1 new failing test(s): tests/admin-preconditions.test.mjs :: the office uses these, and the duplicate card is gone; 1 known failure(s) now fail differently: tests/growth-lines.test.mjs :: 6 · the screen: no second copy of the questions, headlines for every key, notes drawn, bookabilityOf handed in.
@@ -32061,7 +32073,8 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   - The route-contract check passes (`node --test tests/route-contract.test.mjs`).
   **Done 2026-10-11.** Nothing 9.12d committed broke it. The check reads `app/dist/_redirects`, a build OUTPUT, and at 21:16 (the minute 9.12d's first slice committed) a bare `vite build` rebuilt `app/dist` without `build-examples.mjs`, so the generated `/ex1…/ex5` and `/examples` rewrites were never prepended. Fixed by running the real build, `npm run build --prefix app` ("6 slashless rewrites prepended"), then `node --test tests/route-contract.test.mjs`: 34 passed, 0 failed. Red-first: on the bare-built dist the same check printed 32 passed / 2 failed. The check now names the cause when the generated block is missing entirely (commit before this one), so the next bare build costs nobody the trace. **Run `npm run build`, never bare `vite build`, if anything after you reads `app/dist`.**
 - [ ] **98.2 — Repair the receipt deployed-inventory.json says fail check (broken by 14.24)**
-  NEEDS ANDREW (2026-11-02): a new release is due. Since the 2026-10-23 release, 4 database changes and 34 programs have been saved but are not live (fresh drift and inventory receipts at 0da053dd; `node scripts/release-sheet.mjs` lists them in order). Recommendation: say "run the release" and a session runs docs/release-sheet.md as on 2026-10-23, with you double-clicking one push file at the website step.
+  ~~NEEDS ANDREW (2026-11-02): a new release is due. Since the 2026-10-23 release, 4 database changes and 34 programs have been saved but are not live (fresh drift and inventory receipts at 0da053dd; `node scripts/release-sheet.mjs` lists them in order). Recommendation: say "run the release" and a session runs docs/release-sheet.md as on 2026-10-23, with you double-clicking one push file at the website step.~~
+  (Re-marked 2026-11-13: that release ran on 2026-11-06, and releasing is AI work since 2026-11-05. What is left is the two held programs named in the Waits line below.)
   **Diagnosis 2026-10-13 — not a broken check; box stays open.** The premise that 14.24 turned a pass red does not
   match its receipt commit. Compare `git show 4b877265^:receipts/deployed-inventory.json` with
   `git show 4b877265:receipts/deployed-inventory.json`: both say `fail`, discover **42 of 42** functions, compare
@@ -32325,12 +32338,13 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   No publishing or live structural change belongs to this item.
 
 - [ ] **98.4 — Retarget the remaining platform-admin check to the current office.**
-  NEEDS ANDREW: the belt held this job's work instead of merging it — the belt's own files or the main repo's git refs changed while the builder ran (belt.config.json was changed, and not by a Settings save).
-  The work is safe on branch `belt/98.4-20261104184737386`. Answer "merge it" to keep it, or say what to change.
-  NEEDS ANDREW: the belt held this job's work instead of merging it — the full test suite found tests/skip-census.test.mjs: 1 failing, the baseline had 0; 1 new failing test(s): tests/skip-census.test.mjs :: the scripts whose skip count is an expression are exactly the declared ones.
-  The work is safe on branch `belt/98.4-20261104020953698`. Answer "merge it" to keep it, or say what to change.
-  NEEDS ANDREW: the belt held this job's work instead of merging it — the full test suite found tests/sweep-methods-are-pinned.test.mjs: 1 failing, the baseline had 0; 1 new failing test(s): tests/sweep-methods-are-pinned.test.mjs :: the two sweep methods are pinned, not described > 3b · every numbered open item is named by a commit, except the declared ones.
-  The work is safe on branch `belt/98.4-20261022084408433`. Answer "merge it" to keep it, or say what to change.
+  ~~NEEDS ANDREW: the belt held this job's work instead of merging it — the belt's own files or the main repo's git refs changed while the builder ran (belt.config.json was changed, and not by a Settings save).~~
+  ~~The work is safe on branch `belt/98.4-20261104184737386`. Answer "merge it" to keep it, or say what to change.~~
+  ~~NEEDS ANDREW: the belt held this job's work instead of merging it — the full test suite found tests/skip-census.test.mjs: 1 failing, the baseline had 0; 1 new failing test(s): tests/skip-census.test.mjs :: the scripts whose skip count is an expression are exactly the declared ones.~~
+  ~~The work is safe on branch `belt/98.4-20261104020953698`. Answer "merge it" to keep it, or say what to change.~~
+  ~~NEEDS ANDREW: the belt held this job's work instead of merging it — the full test suite found tests/sweep-methods-are-pinned.test.mjs: 1 failing, the baseline had 0; 1 new failing test(s): tests/sweep-methods-are-pinned.test.mjs :: the two sweep methods are pinned, not described > 3b · every numbered open item is named by a commit, except the declared ones.~~
+  ~~The work is safe on branch `belt/98.4-20261022084408433`. Answer "merge it" to keep it, or say what to change.~~
+  Belt holds of 2026-11-04 (twice) and 2026-10-22 set aside 2026-11-13 (AI): a config-change alarm on `belt.config.json`, then `skip-census` and `sweep-methods-are-pinned` § 3b failing in the full suite; all belt or test work, not Andrew's. Re-run on main at `e26f6e77` on 2026-11-13: `node --test tests/mail-sink.test.mjs` 1 passed, `tests/sweep-methods-are-pinned.test.mjs` 8 passed, `tests/skip-census.test.mjs` 5 passed, 0 failed each. The held work is on branches `belt/98.4-20261104184737386`, `belt/98.4-20261104020953698` and `belt/98.4-20261022084408433`; status: needs re-check by the belt, with a strong review of the whole tree, before it merges.
   SUPERVISION 2026-10-22: stays open. Read the held `9b62ce23..e5f66a3a` test diff, including the executable browser launch and replacement sign-out assertion. Retargeting the approved design is authorized; launching Chromium in a belt-run test and leaving subscription cleanup unguarded are real defects, not grounds to weaken the gate. The six concrete findings immediately below remain the builder's queue. The belt task brief now explains where executable browser/shell proofs belong. No held code was merged or executed as a trusted test in this pass.
   **Held for a builder, not for Andrew (belt 2026-10-22).** The finish review still found problems; they are work, not a question. Continue branch `belt/98.4-20261022025142523`: fix each finding that is real, re-run the item's proof, and say in this entry why any finding is wrong.
   - 1. **tests/platform-admin.test.mjs:1798–1820:** The added code starts browser programs, including executables outside the repository. This violates the explicit test-safety rule and caused the belt to refuse the checks. Removing only the system-browser fallback would still leave the added browser launch.
@@ -32520,15 +32534,17 @@ decisions, not build jobs.
   - If invite-only: `/pricing` buttons lead to the application form, the form's submissions reach Andrew, and `/app` signup without an invite is closed, checked at 390 and 1440
 
 - [ ] **97.95 — An account waiting for its first payment can still use owner programs on the server (P-3).**
-  NEEDS ANDREW: the belt held this job's work instead of merging it — main could not be moved to the checked result (Please commit your changes or stash them before you merge. Aborting); main is unchanged.
-  The work is safe on branch `belt/97.95-20261024204024278`. Answer "merge it" to keep it, or say what to change.
+  ~~NEEDS ANDREW: the belt held this job's work instead of merging it — main could not be moved to the checked result (Please commit your changes or stash them before you merge. Aborting); main is unchanged.~~
+  ~~The work is safe on branch `belt/97.95-20261024204024278`. Answer "merge it" to keep it, or say what to change.~~
+  Belt hold of 2026-10-24 set aside 2026-11-13 (AI): its cause was main being dirty when the belt tried to merge ("Please commit your changes or stash them"), an environment race, which is belt or test work, not Andrew's. The triage of 2026-11-13 also names tag `archive/held/97.95-092e30db`. The held work is on branch `belt/97.95-20261024204024278`; status: needs re-check by the belt before it merges.
   Found by 97.37. A self-serve signup is `paused` until it pays and the dashboard hides everything but setup, settings and Billing, but the server programs an owner calls (`send-campaign`, `invite-user`, `send-invoice` and the like) check membership, not the switch, so a signed-in owner calling them directly is not refused. Separately, the Billing screen throws when `platform-billing` answers without a summary (seen in the belt sandbox, which answers `{}`), instead of saying it could not load. Decide per program which a waiting account may use (setup and settings yes, anything that messages a customer or takes a booking no) and refuse the rest with one shared check; make Billing say it could not load rather than throw.
   Acceptance criteria:
   - A paused, never-paid account is refused by each program that messages customers or creates bookings, and still reaches settings and Billing
   - Billing given an empty answer shows a could-not-load line, console clean, at 390 and 1440
 - [ ] **97.38 — After a website-plan signup there is no "what happens next" (P-2).**
-  NEEDS ANDREW: the belt held this job's work instead of merging it — the full test suite found tests/mail-sink.test.mjs: 1 failing, the baseline had 0; 1 new failing test(s): tests/mail-sink.test.mjs :: tests/mail-sink.test.mjs.
-  The work is safe on branch `belt/97.38-20261024160548464`. Answer "merge it" to keep it, or say what to change.
+  ~~NEEDS ANDREW: the belt held this job's work instead of merging it — the full test suite found tests/mail-sink.test.mjs: 1 failing, the baseline had 0; 1 new failing test(s): tests/mail-sink.test.mjs :: tests/mail-sink.test.mjs.~~
+  ~~The work is safe on branch `belt/97.38-20261024160548464`. Answer "merge it" to keep it, or say what to change.~~
+  Belt hold of 2026-10-24 set aside 2026-11-13 (AI): its cause was `tests/mail-sink.test.mjs` failing in the belt's full suite, which is belt or test work, not Andrew's. Re-run on main at `e26f6e77` on 2026-11-13: `node --test tests/mail-sink.test.mjs` 1 passed, `tests/sweep-methods-are-pinned.test.mjs` 8 passed, `tests/skip-census.test.mjs` 5 passed, 0 failed each. The five review findings below are builder work. The held work is on branch `belt/97.38-20261024160548464`; status: needs re-check by the belt before it merges.
   **Held for a builder, not for Andrew (belt 2026-10-23).** The finish review still found problems; they are work, not a question. Continue branch `belt/97.38-20261023091053062`: fix each finding that is real, re-run the item's proof, and say in this entry why any finding is wrong.
   - 1. **app/src/App.jsx and tests/website-welcome.test.mjs — R1/R2 remain unproved.** The executed welcome flows still enter through `?welcome=1`. Testing `nextFirstRun` with `showWelcome: true` does not demonstrate automatic arrival after signup through the real screen, and no second tenant identity is exercised. The improved manual reopening and intake checks resolve only part of earlier finding 1.
   - 2. **app/src/lib/websiteWelcome.js and app/src/screens/WebsiteWelcome.jsx — setup changes can still be overwritten.** `withWelcomeSeen` spreads the supplied snapshot and the upsert still replaces the entire setup object; it does not merge against the current saved value. Another session’s changes made after that snapshot can be lost. Advancing after a failed refresh also permits the next setup screen to use stale values, so earlier finding 2 is only partly fixed.
@@ -32552,8 +32568,9 @@ decisions, not build jobs.
   - Checked at 390 and 1440, English and Spanish
 
 - [ ] **97.40 — Detailers cannot bring their existing customers in (P-3).**
-  NEEDS ANDREW: the belt held this job's work instead of merging it — the full test suite found the suite setup changed since baseline r1 (command, files pattern, Node or environment); it needs a reviewed new baseline.
-  The work is safe on branch `belt/97.40-20261024123430006`. Answer "merge it" to keep it, or say what to change.
+  ~~NEEDS ANDREW: the belt held this job's work instead of merging it — the full test suite found the suite setup changed since baseline r1 (command, files pattern, Node or environment); it needs a reviewed new baseline.~~
+  ~~The work is safe on branch `belt/97.40-20261024123430006`. Answer "merge it" to keep it, or say what to change.~~
+  Belt hold of 2026-10-24 set aside 2026-11-13 (AI): its cause was the belt's own test baseline r1, which the belt re-took on 2026-11-03, which is belt or test work, not Andrew's. The held work is on branch `belt/97.40-20261024123430006`; status: needs re-check by the belt before it merges.
   There is an export (`app/src/lib/customer-export.js`, `Clients.jsx:432`) but no import anywhere in `app/src` or `supabase/functions`. Build a CSV import through an edge function: name, phone, email, address, vehicle, notes; a preview before saving; duplicate matching on phone or email; and an undo for the whole batch. If this cannot finish in one job, cut it into numbered slices in this entry (preview first).
   Acceptance criteria:
   - A sample CSV with 20 rows, 2 duplicates and 1 bad row shows a preview naming each, and saving creates 17 customers
@@ -32787,8 +32804,9 @@ decisions, not build jobs.
   - Redundant `.gitignore` lines are removed and `git status` shows nothing newly unignored
 
 - [ ] **97.63 — About 3.0 GB of ignored screenshots and artifacts clutter the repo root (C-C4).**
-  NEEDS ANDREW: the belt held this job's work instead of merging it — the full test suite found tests/sweep-methods-are-pinned.test.mjs: 1 failing, the baseline had 0; 1 new failing test(s): tests/sweep-methods-are-pinned.test.mjs :: the two sweep methods are pinned, not described > 3b · every numbered open item is named by a commit, except the declared ones.
-  The work is safe on branch `belt/97.63-20261105031235722`. Answer "merge it" to keep it, or say what to change.
+  ~~NEEDS ANDREW: the belt held this job's work instead of merging it — the full test suite found tests/sweep-methods-are-pinned.test.mjs: 1 failing, the baseline had 0; 1 new failing test(s): tests/sweep-methods-are-pinned.test.mjs :: the two sweep methods are pinned, not described > 3b · every numbered open item is named by a commit, except the declared ones.~~
+  ~~The work is safe on branch `belt/97.63-20261105031235722`. Answer "merge it" to keep it, or say what to change.~~
+  Belt hold of 2026-11-05 set aside 2026-11-13 (AI): its cause was `sweep-methods-are-pinned` § 3b failing in the belt's full suite, which is belt or test work, not Andrew's. Re-run on main at `e26f6e77` on 2026-11-13: `node --test tests/mail-sink.test.mjs` 1 passed, `tests/sweep-methods-are-pinned.test.mjs` 8 passed, `tests/skip-census.test.mjs` 5 passed, 0 failed each. The held work is on branch `belt/97.63-20261105031235722`; status: needs re-check by the belt before it merges.
   **His answer, 2026-10-15 15:12 (NUDGE):** *"Keep everything for now - do not delete any of these files. Some of those screenshot folders are inspiration websites I took and want to keep. If space ever becomes a problem, list the folders for me first and I'll choose."* **He approved deleting nothing, so nothing was deleted** (R2). Measured in the main checkout at `409916f7` on 2026-10-24 with `du -sh` (read-only; before = after, because nothing was removed): `artifacts/` 2.4G, `.manager-shots/` 371M (174M on 2026-10-15), the 51 `shots-*` and 6 `email-preview*` folders 381M together (`du -shc shots-*/ email-preview*/`), the 5 `.tmp-*/` folders 44M (`du -shc .tmp-*/`; `.tmp-supervision-6.1b/` 44M, `.tmp-99.3/` 5.0K), the zip 6.0M, `lx.tmp.mjs` 4.0K. **If space ever matters, list the folders for him first; he chooses.**
   **Built 2026-10-24 (`2cb1a74e`, receipts `1246cb53`).** The 2026-10-15 attempt's work (`ca1f483f`, `1b0fab91`, branch `belt/97.63-20261015161211161`) never merged; it is carried here with its one conflict resolved (`render-emails.mjs` had since gained `email-preview-es`). Every committed script whose default screenshot or preview folder was relative now goes through `scripts/lib/outDir.mjs`, which puts it under `artifacts/` (already ignored, and where the graded checks write; `out/` was not used because about 100 committed receipts cite `artifacts/` paths). That is the eight from 2026-10-15 (`shoot-dashboard`, `shoot-manage`, `shoot-admin`, `final-pass`, `render-emails`, `auth-emails`, `snapshot-page`, `email-dates`), plus three found now: `accept-quote-page` and `privacy-backup-period` (`--shots` defaulted to root `.tmp-97.16/` and `.tmp-97.28/`) and `verify-backoffice-access` (wrote `receipts/screenshots/`). Proof: `node --test tests/screenshot-output-under-artifacts.test.mjs` 4 pass / 0 fail; `BREAK=bare` 2 fail, naming each planted writer (`shots-sabotage`, `.tmp-sabotage/png`, a `receipts/screenshots/` writer); its pattern also matches the pre-fix defaults of four real scripts at `409916f7` (`.tmp-97.16/png`, `.tmp-97.28/png`, `shots`, `shots-final`). A real `node scripts/render-emails.mjs` and `--lang=es` at `2cb1a74e`: 35/35 each (`node scripts/receipt.mjs`), written to `artifacts/email-preview/` and `artifacts/email-preview-es/`, and no `email-preview*` folder appeared in the root (top-level folder list compared before and after).
   **Review fix, 2026-10-24 (`86160cee`, receipts `2894e72b`).** The reviewer found two real faults, both fixed. (1) `outDir` moved ANY relative path, so a typed `--out=.manager-shots/3.4/html-en` (the email-review entry’s own instruction; a path example, not a dependency) landed in `artifacts/.manager-shots/3.4/html-en`, where no reviewer looks; reproduced by running the pre-fix helper on that path. `outDir` now passes `.manager-shots/…` and an empty value through unchanged; a real `node scripts/render-emails.mjs --out=.manager-shots/97.63-probe` wrote to `.manager-shots/97.63-probe/` (probe folder deleted afterwards). (2) A TYPED `--shots=<relative dir>` still made a root folder in scripts that never went through `outDir`, and the test only looked at defaults. Eleven such scripts now do (`calendar-feed-screen`, `campaign-double-press`, `email-review-sheet`, `link-refund`, `live-card-claim`, `money-refund`, `motion-off`, `pay-pill-card`, `payment-problem-late`, `payment-problem-shown`, `refund-totals`). The test now also scans every line that reads a typed `--shots` / `--out` (16 found, a discovery floor) and requires `outDir` on each, with `sweep-booking-steps.mjs` declared by equality as the only exception: 5 pass / 0 fail; `BREAK=bare` 3 fail naming every planted writer; the pre-fix `motion-off.mjs` and `live-card-claim.mjs` put back in the tree make it fail naming both. Re-run at `86160cee`: `render-emails` en and es 35/35 each, both under `artifacts/`, no new folder in the root. The reviewer's "61 `shots-*` folders" was recounted: 51 in the main checkout (`ls -d shots-*/ | wc -l`, 2026-10-24).
