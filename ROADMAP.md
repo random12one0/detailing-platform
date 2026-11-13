@@ -3306,7 +3306,7 @@ and how the wait ends.
     R2 URL with zero requests to `/storage/v1/object` on the job-photo path, and a client that LIES about its
     size (`claimed_bytes` 1 against a real body) still recorded at R2's `head` figure. **Blocked on the
     release**: there is no door to presign and no R2 credential here to measure against.
-  - [ ] **0.11d3 — The cron-triggered reconcile and its five drift numbers.** Criterion 4: a `photo-reconcile`
+  - [x] **0.11d3 — The cron-triggered reconcile and its five drift numbers.** Criterion 4: a `photo-reconcile`
     run stamping `job_heartbeats` with orphans, missing, mismatches, unknown sizes and tenant-prefix
     mismatches. The arithmetic is already pure and proved in memory (`tests/photo-reconcile.test.mjs`); what is
     unproved is that a CRON call reaches it and the row lands. **Blocked on the release**: the function is
@@ -3378,6 +3378,7 @@ and how the wait ends.
 
   ~~NEEDS ANDREW: perform `FOR-ANDREW.md` step 9 — the release itself. **0.11d2 and 0.11d3 cannot begin until~~
   LIVE RUN NEEDED (re-marked 2026-11-13): step 9 is done (0.11ca, 0.11cb, 0.11cc ticked) and Andrew authorized the live checks on 2026-10-19. What is left is 0.11d2's real upload and 0.11d3's cron-triggered reconcile, run by a session in the main checkout with its `.env`, plus the held builder findings at the top of this entry. Not Andrew's. The paragraph below is history.
+  LIVE RUN 2026-11-13 (Claude, main at `a8260546`). **0.11d3 TICKED:** `node --env-file=.env scripts/photo-cron-live.mjs` PASS, 5 assertions, 3 of 3 targets: one active daily `40 3 * * *` anonymous HTTP call with the 60s timeout, the 10 GB allowance row, and exactly one real recent `photo-reconcile` heartbeat (25-hour window) whose drift counters (orphans, missing, mismatched, misfiled, unknown sizes) are all numeric; they are all 0 because the R2 store holds 0 objects and 0 `job_photos` rows (`r2_objects: 0`, `db_rows: 0`). `--break=no-timeout` FAIL on exactly the cron line (receipts/photo-cron-live.sabotage.json). The script cannot see WHO called the function; the cron is the only scheduled caller. **0.11d2 NOT run: no committed script makes a real browser upload to R2** (`scripts/job-photo-wire.mjs` answers the door and the PUT itself and writes nothing, so it cannot prove criteria 1-2). Also seen today: `scripts/csp-report-only.mjs`'s real photo-door upload from the local build logged `browserPut: threw: Failed to fetch` (stored by its fallback), which suggests the R2 CORS rule refuses that local origin. Belt: build the real-upload verifier (lie about size, compare `job_photos.bytes` with R2 `head`, count `/storage/v1/object` requests), then 0.11d2 and the parent can close; the held builder findings at the top still stand.
   it is done**, and not for want of effort: they need a real upload through a presigned R2 URL and a real
   `photo-reconcile` run, and today `photo-door` and `photo-reconcile` are undeployed, both door flags are
   `false`, `photo_total_gb` is 1 and there is no cron entry. **`.env` holds no R2 credential either** — only

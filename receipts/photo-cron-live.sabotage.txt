@@ -40,12 +40,18 @@
           "mismatch_bytes": 0,
           "businesses_seen": 0,
           "named_truncated": false,
+          "receipt_cleanup": {
+            "failed": 0,
+            "claimed": 0,
+            "removed": 0,
+            "batch_full": false
+          },
           "unknown_size_rows": 0,
           "unattributed_bytes": 0,
           "businesses_drifting": 0,
           "unattributed_objects": 0
         },
-        "ran_at": "2026-10-13T03:40:06.380794+00:00",
+        "ran_at": "2026-11-13T03:40:03.76573+00:00",
         "stale_after_seconds": 90000
       }
     ],
