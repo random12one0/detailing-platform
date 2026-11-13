@@ -11,7 +11,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { supabase } from "../_shared/db.ts";
 import { ipOf, LIMITS, withinLimits } from "../_shared/rateLimit.ts";
-import { act, MAX_BODY, PATH, stateOf, TOKEN, WORDS } from "./act.js";
+import { act, MAX_BODY, PATH, stateOf, TOKEN, WORDS } from "../_shared/sitePreview.js";
 
 const ORIGINS = (Deno.env.get("PREVIEW_ORIGINS") || "https://detailingplatform.com,https://www.detailingplatform.com")
   .split(",").map((s) => s.trim()).filter(Boolean);
@@ -28,7 +28,8 @@ Deno.serve(async (req) => {
     status: code,
     headers: { ...cors, "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff", "X-Robots-Tag": "noindex, nofollow" },
   });
-  if (req.method === "OPTIONS") return send(204, {});
+  // a 204 must have no body (Deno refuses one), or the browser's preflight fails and every press is blocked
+  if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
   try {
     if (!await withinLimits(supabase, [{ ...LIMITS.publicCeiling, bucket: "site-preview", key: ipOf(req) }])) {
       return send(429, { ok: false, said: "Too many tries. Wait a minute and try again." });

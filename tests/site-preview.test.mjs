@@ -1,7 +1,7 @@
-// The hosted preview link's rules (supabase/functions/site-preview/act.js): the same module Deno serves.
+// The hosted preview link's rules (supabase/functions/_shared/sitePreview.js): the same module Deno serves.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { act, stateOf, PATH, TOKEN } from "../supabase/functions/site-preview/act.js";
+import { act, stateOf, PATH, TOKEN } from "../supabase/functions/_shared/sitePreview.js";
 
 const spec = { pages: [{ path: "/", sections: [{ id: "hero", type: "hero" }, { id: "prices", type: "catalog" }] }] };
 const review = { purpose: "review", expires_at: new Date(Date.now() + 86400000).toISOString(), revoked_at: null, view: { business: "A", spec, comments: [], thumbs: {}, from_website: [{ id: "A2", question: "About", value: "x", url: "https://a.test/" }] } };

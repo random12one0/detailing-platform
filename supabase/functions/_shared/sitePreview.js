@@ -1,5 +1,5 @@
 // The site-preview function's rules, with no IO, so Node tests run the same code Deno serves
-// (tests/site-preview.test.mjs). The Studio on Andrew's laptop applies every event again with its own rules
+// (tests/site-preview.test.mjs; the site-preview function). The Studio on Andrew's laptop applies every event again with its own rules
 // (studio.mjs linkAct); these only keep the hosted page honest until it does.
 
 export const WORDS = {
