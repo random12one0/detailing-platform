@@ -158,11 +158,12 @@ session sigh and move on, while the list answers the only question they have:
 *is the one I just edited in it?* It writes a receipt, so it is graded rather
 than read.
 
-**DO NOT DEPLOY TO MAKE IT GREEN.** Publishing is Andrew's, alongside pushing
-to GitHub — a function going live is publishing, and a session deciding that
-for him because it would fix something is exactly the call it does not get to
-make. Report what it says and leave it. The recommended shipping order lives in
-`FOR-ANDREW.md`.
+**DO NOT DEPLOY TO MAKE IT GREEN.** Publishing (pushing to GitHub, a function
+going live) happens only in a dedicated release session that checks the nightly
+backup and follows `docs/release-sheet.md` — Andrew's rule since 2026-11-05 is
+that this is AI work, not his to approve. A build job or fix session deploying
+because it would make a check pass is exactly the call it does not get to make.
+Report what it says and leave it for the release session.
 
 **Report what you observed, never "this should work."** A skipped check reads
 exactly like a passing one — this repo's single most repeated failure. A guard
