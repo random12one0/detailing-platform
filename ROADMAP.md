@@ -26922,6 +26922,7 @@ event id.
 - [ ] **14.9b — Observe live 429 refusals for all three booking writes**
   ~~Waits on: 14.9a (the functions have to be published before a live loop can see their refusal).~~
   LIVE RUN NEEDED (re-marked 2026-11-13): 14.9a is ticked, so the three functions are published. A session runs the 429 loop against the deployed cancel, reschedule and accept-quote functions and records the refusals.
+  BLOCKED 2026-11-13 (Claude, main at `038776b6`): there is no committed loop that calls the DEPLOYED functions. `tests/rate-limit-loops.test.mjs` runs this checkout's handlers in Node through `scripts/lib/edgeLocal.mjs` (local evidence, already recorded), `scripts/rate-limit-coverage.mjs` reads source only, and `scripts/address-429-repro.mjs` is address-suggest's. A deployed loop is 601+ public calls per function from this machine's real IP, which then sits refused for that window and leaves `rate_hits` rows keyed on it, so it was not improvised. Belt: add a `--deployed` mode (nonexistent booking ids, counts 200/404 vs 429, deletes its own `rate_hits` rows by exact bucket and key, records target=deployed) and run it once per function.
   After publishing, run the established loop against each deployed write endpoint and retain the results showing the public ceiling refuses requests. This closes only the outstanding live-observation condition, not the already completed source and local-handler evidence.
   Part 2 of 2 of item 14.9, split out so it can be
   finished and ticked on its own. The parent keeps the full write-up.
