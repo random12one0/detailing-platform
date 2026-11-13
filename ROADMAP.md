@@ -16656,6 +16656,10 @@ most corroborated finding in the set.
   ANSWERED, Andrew, 2026-11-13: no key held. He never saved the nightly-backup key and does not know it, so no copy taken so far can be opened by anyone. Rotation in progress (AI): another session is moving the nightly backups to a new key now. FOR-ANDREW.md records the answer; no key, token or secret is written here.
   Waits on: the backup-key rotation (AI, in progress 2026-11-13). How the wait ends: the rotating session records here that the new key exists and where it is kept (never its value); then this box can be judged against its three criteria. Not a question for Andrew.
 
+  **ANDREW, 2026-11-13:** Yes, it's there
+  
+    The outside part of this is finished. It is no longer waiting on anybody.
+
 - [ ] **6.1b — Prove a nightly backup restores outside production**
   **SUPERVISOR REVIEW 2026-10-13:** the added restore-date test is fair: it adds the nightly receipt type
   and refuses a fixture without weakening existing refusals. The held build is NOT ready to merge:
