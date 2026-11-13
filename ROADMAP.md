@@ -13238,6 +13238,7 @@ requested.
   both runs clean, canary caught; `emailTemplates.ts` exports 36 symbols, 21 of them
   email builders (the rest are helpers). A person still has to look at them.
   **AUTHORIZED 2026-10-23 at 18:33, recorded by supervision 2026-10-25:** Andrew approved the test batch to ramdom12one0@gmail.com. No further go-ahead or inbox choice is needed. `scripts/send-test-emails.mjs` needs the credentialed operator and the existing shared sending allowance; do not treat this authorization as evidence of delivery. This supervisor sent nothing.
+  BLOCKED 2026-11-13 (Claude, main at `a029c211`), nothing sent: `scripts/send-test-emails.mjs` cannot meet this item's criteria. Its `ALL` list holds 5 templates (confirmation, receipt, quote, owner, campaign) against the 18 exported builders / 35 variants this item reviewed, it writes no receipt and reads back no `email_sends` row, and it has no NOT SENT list. Running it would spend 5 sends of the shared Resend reputation the business uses and still could not tick. Belt: extend it (every sendable builder EN+ES to the approved inbox, read back one `email_sends` row per send into a receipt, name each unsendable template with its reason, count taken from `emailTemplates.ts` at run time), then a session with `.env` runs it once.
 
 - [x] **3.4a — DONE 2026-09-24. ~~`campaignEmail` is marketing, and marketing is
   forbidden.~~ THE RULE WAS REVERSED BY ITS AUTHOR ON 2026-09-21, SO THE
