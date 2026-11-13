@@ -1,14 +1,23 @@
 {
-  "git_sha": "9dec18cfa08defaa6d5c767d83a030c2175349b0",
-  "git_sha_started": "9dec18cfa08defaa6d5c767d83a030c2175349b0",
-  "head_moved": false,
+  "git_sha": "4762a8dd58615d72c6f9a51d23ef7438f5fb8bbb",
+  "git_sha_started": "e0f8f614e1f8ca632f2d6397829931e4a4908445",
+  "head_moved": true,
   "environment": "local",
-  "finished_at": "2026-10-07T03:49:29.572Z",
-  "failures": [],
-  "warnings": [],
-  "artifacts": [
-    "receipts/screenshots/sweep-tap-targets-admin/detailer-drawer-open.png"
+  "finished_at": "2026-11-13T23:50:19.460Z",
+  "failures": [
+    "1440/en/admin: no-doors — (the tab bar) — no .pa-tab back-office tabs were found — the sign-in did not take, or the handle moved",
+    "1440/es/admin: no-doors — (the tab bar) — no .pa-tab back-office tabs were found — the sign-in did not take, or the handle moved",
+    "768/en/admin: no-doors — (the tab bar) — no .pa-tab back-office tabs were found — the sign-in did not take, or the handle moved",
+    "768/es/admin: no-doors — (the tab bar) — no .pa-tab back-office tabs were found — the sign-in did not take, or the handle moved",
+    "392/en/admin: no-doors — (the tab bar) — no .pa-tab back-office tabs were found — the sign-in did not take, or the handle moved",
+    "392/es/admin: no-doors — (the tab bar) — no .pa-tab back-office tabs were found — the sign-in did not take, or the handle moved",
+    "320/en/admin: no-doors — (the tab bar) — no .pa-tab back-office tabs were found — the sign-in did not take, or the handle moved",
+    "320/es/admin: no-doors — (the tab bar) — no .pa-tab back-office tabs were found — the sign-in did not take, or the handle moved",
+    "1254/en/admin: no-doors — (the tab bar) — no .pa-tab back-office tabs were found — the sign-in did not take, or the handle moved",
+    "1254/es/admin: no-doors — (the tab bar) — no .pa-tab back-office tabs were found — the sign-in did not take, or the handle moved"
   ],
+  "warnings": [],
+  "artifacts": [],
   "dimensions": {
     "scope": "the /admin back office only — the dashboard, settings and landing/pricing sections are in receipts/sweep-tap-targets-dashboard.json",
     "admin_widths": [
@@ -27,24 +36,24 @@
     "canary_restored": true
   },
   "check_id": "sweep-tap-targets",
-  "started_at": "2026-10-07T03:40:38.826Z",
-  "status": "pass",
+  "started_at": "2026-11-13T23:35:59.306Z",
+  "status": "fail",
   "expected_targets": 60,
-  "discovered_targets": 60,
-  "attempted_targets": 60,
-  "completed_targets": 60,
-  "skipped_targets": 0,
-  "assertions_executed": 88830,
-  "min_assertions": 12000,
+  "discovered_targets": 0,
+  "attempted_targets": 0,
+  "completed_targets": 0,
+  "skipped_targets": 60,
+  "assertions_executed": 0,
+  "min_assertions": 200,
   "canary": {
     "id": ".pa-tab squeezed to 2px/4px padding and 10px type — a plausible spacing edit, not a syntax error",
     "observed_failure": true,
     "findings": [
-      "run 1/5: CAUGHT (8 finding(s) — 37px of reach across (rect 36px), floor 44)",
-      "run 2/5: CAUGHT (8 finding(s) — 37px of reach across (rect 36px), floor 44)",
-      "run 3/5: CAUGHT (8 finding(s) — 37px of reach across (rect 36px), floor 44)",
-      "run 4/5: CAUGHT (8 finding(s) — 37px of reach across (rect 36px), floor 44)",
-      "run 5/5: CAUGHT (8 finding(s) — 37px of reach across (rect 36px), floor 44)"
+      "run 1/5: CAUGHT (1 finding(s) — 41px of reach down (rect 17px), floor 44)",
+      "run 2/5: CAUGHT (1 finding(s) — 41px of reach down (rect 17px), floor 44)",
+      "run 3/5: CAUGHT (1 finding(s) — 41px of reach down (rect 17px), floor 44)",
+      "run 4/5: CAUGHT (1 finding(s) — 41px of reach down (rect 17px), floor 44)",
+      "run 5/5: CAUGHT (1 finding(s) — 41px of reach down (rect 17px), floor 44)"
     ]
   }
 }

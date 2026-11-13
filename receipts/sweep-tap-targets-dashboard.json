@@ -1,34 +1,100 @@
 {
-  "git_sha": "9dec18cfa08defaa6d5c767d83a030c2175349b0",
-  "git_sha_started": "9dec18cfa08defaa6d5c767d83a030c2175349b0",
-  "head_moved": false,
+  "git_sha": "491c0ed485aadca0fbb1bcef5abb35130aca8053",
+  "git_sha_started": "e0f8f614e1f8ca632f2d6397829931e4a4908445",
+  "head_moved": true,
   "environment": "local",
-  "finished_at": "2026-10-07T03:48:01.958Z",
-  "failures": [],
+  "finished_at": "2026-11-13T23:44:20.578Z",
+  "failures": [
+    "1440/en/business/Reviews2 reviews: door-shut - .nav-row #4 \"Reviews2 reviews\" - pressing this settings row changed nothing on screen (1019 characters before and after), so no screen was measured behind it",
+    "392/en/business: row-vanished - \"Photo gallery…\" - this row was in the business index when the walk started and was not there when its turn came, so the screen behind it was never measured",
+    "392/en/business: row-vanished - \"Reviews…\" - this row was in the business index when the walk started and was not there when its turn came, so the screen behind it was never measured",
+    "392/en/business: row-vanished - \"Services & add-ons…\" - this row was in the business index when the walk started and was not there when its turn came, so the screen behind it was never measured",
+    "392/en/business: row-vanished - \"Monthly plans…\" - this row was in the business index when the walk started and was not there when its turn came, so the screen behind it was never measured",
+    "392/en/business: row-vanished - \"Promo codes & sale…\" - this row was in the business index when the walk started and was not there when its turn came, so the screen behind it was never measured",
+    "392/en/business: row-vanished - \"Hours & days off…\" - this row was in the business index when the walk started and was not there when its turn came, so the screen behind it was never measured",
+    "392/en/business: row-vanished - \"Visits due…\" - this row was in the business index when the walk started and was not there when its turn came, so the screen behind it was never measured",
+    "392/en/business: row-vanished - \"Your web address…\" - this row was in the business index when the walk started and was not there when its turn came, so the screen behind it was never measured",
+    "392/en/business: row-vanished - \"Tracking links…\" - this row was in the business index when the walk started and was not there when its turn came, so the screen behind it was never measured",
+    "392/es/business: row-vanished - \"Galería de fotos…\" - this row was in the business index when the walk started and was not there when its turn came, so the screen behind it was never measured",
+    "392/es/business: row-vanished - \"Reseñas…\" - this row was in the business index when the walk started and was not there when its turn came, so the screen behind it was never measured",
+    "392/es/business: row-vanished - \"Servicios y extras…\" - this row was in the business index when the walk started and was not there when its turn came, so the screen behind it was never measured",
+    "392/es/business: row-vanished - \"Planes mensuales…\" - this row was in the business index when the walk started and was not there when its turn came, so the screen behind it was never measured",
+    "392/es/business: row-vanished - \"Códigos y descuentos…\" - this row was in the business index when the walk started and was not there when its turn came, so the screen behind it was never measured",
+    "392/es/business: row-vanished - \"Horario y días libres…\" - this row was in the business index when the walk started and was not there when its turn came, so the screen behind it was never measured",
+    "392/es/business: row-vanished - \"Visitas pendientes…\" - this row was in the business index when the walk started and was not there when its turn came, so the screen behind it was never measured",
+    "392/es/business: row-vanished - \"Tu dirección web…\" - this row was in the business index when the walk started and was not there when its turn came, so the screen behind it was never measured",
+    "392/es/business: row-vanished - \"Enlaces de seguimiento…\" - this row was in the business index when the walk started and was not there when its turn came, so the screen behind it was never measured",
+    "392/es/gear: row-vanished - \"Equipo—\" - this row was in the gear index when the walk started and was not there when its turn came, so the screen behind it was never measured",
+    "320/en/calendar: covered - button.chip.active \"Month\" - its own centre (56, 101) answers main.app-main \"MonthHistoryNovember 2026SunMonTueWedThu\" — the press never reaches it",
+    "320/en/calendar: covered - button.chip \"History\" - its own centre (140, 101) answers main.app-main \"MonthHistoryNovember 2026SunMonTueWedThu\" — the press never reaches it",
+    "320/en/calendar: covered - button.btn.sm.inline \"Previous month\" - its own centre (44, 173) answers main.app-main \"MonthHistoryNovember 2026SunMonTueWedThu\" — the press never reaches it",
+    "320/en/calendar: covered - button.btn.sm.inline \"Next month\" - its own centre (276, 173) answers main.app-main \"MonthHistoryNovember 2026SunMonTueWedThu\" — the press never reaches it",
+    "320/en/calendar: covered - button.cal-cell.past \"1\" - its own centre (36, 255) answers main.app-main \"MonthHistoryNovember 2026SunMonTueWedThu\" — the press never reaches it",
+    "320/en/calendar: covered - button.cal-cell.past \"2\" - its own centre (77, 255) answers main.app-main \"MonthHistoryNovember 2026SunMonTueWedThu\" — the press never reaches it",
+    "320/en/calendar: covered - button.cal-cell.past \"3\" - its own centre (119, 255) answers main.app-main \"MonthHistoryNovember 2026SunMonTueWedThu\" — the press never reaches it",
+    "320/en/calendar: covered - button.cal-cell.past \"4\" - its own centre (160, 255) answers main.app-main \"MonthHistoryNovember 2026SunMonTueWedThu\" — the press never reaches it",
+    "320/en/calendar: covered - button.cal-cell.past \"5\" - its own centre (201, 255) answers main.app-main \"MonthHistoryNovember 2026SunMonTueWedThu\" — the press never reaches it",
+    "320/en/calendar: covered - button.cal-cell.past \"6\" - its own centre (243, 255) answers main.app-main \"MonthHistoryNovember 2026SunMonTueWedThu\" — the press never reaches it",
+    "320/en/calendar: covered - button.cal-cell.past \"7\" - its own centre (284, 255) answers main.app-main \"MonthHistoryNovember 2026SunMonTueWedThu\" — the press never reaches it",
+    "320/en/calendar: covered - button.cal-cell.past \"8\" - its own centre (36, 316) answers main.app-main \"MonthHistoryNovember 2026SunMonTueWedThu\" — the press never reaches it",
+    "320/en/calendar: covered - button.cal-cell.past \"9\" - its own centre (77, 316) answers main.app-main \"MonthHistoryNovember 2026SunMonTueWedThu\" — the press never reaches it",
+    "320/en/calendar: covered - button.cal-cell.past \"10\" - its own centre (119, 316) answers main.app-main \"MonthHistoryNovember 2026SunMonTueWedThu\" — the press never reaches it",
+    "320/en/calendar: covered - button.cal-cell.past \"11\" - its own centre (160, 316) answers main.app-main \"MonthHistoryNovember 2026SunMonTueWedThu\" — the press never reaches it",
+    "320/en/calendar: covered - button.cal-cell.past \"12\" - its own centre (201, 316) answers main.app-main \"MonthHistoryNovember 2026SunMonTueWedThu\" — the press never reaches it",
+    "320/en/calendar: covered - button.cal-cell.today.selected \"13\" - its own centre (243, 316) answers main.app-main \"MonthHistoryNovember 2026SunMonTueWedThu\" — the press never reaches it",
+    "320/en/calendar: covered - button.cal-cell \"14\" - its own centre (284, 316) answers main.app-main \"MonthHistoryNovember 2026SunMonTueWedThu\" — the press never reaches it",
+    "320/en/calendar: covered - button.cal-cell \"15\" - its own centre (36, 377) answers main.app-main \"MonthHistoryNovember 2026SunMonTueWedThu\" — the press never reaches it",
+    "320/en/calendar: covered - button.cal-cell \"16\" - its own centre (77, 377) answers main.app-main \"MonthHistoryNovember 2026SunMonTueWedThu\" — the press never reaches it",
+    "320/en/calendar: covered - button.cal-cell \"17\" - its own centre (119, 377) answers main.app-main \"MonthHistoryNovember 2026SunMonTueWedThu\" — the press never reaches it",
+    "320/en/calendar: covered - button.cal-cell \"18\" - its own centre (160, 377) answers main.app-main \"MonthHistoryNovember 2026SunMonTueWedThu\" — the press never reaches it",
+    "320/en/calendar: covered - button.cal-cell \"19\" - its own centre (201, 377) answers main.app-main \"MonthHistoryNovember 2026SunMonTueWedThu\" — the press never reaches it",
+    "320/en/calendar: covered - button.cal-cell \"20\" - its own centre (243, 377) answers main.app-main \"MonthHistoryNovember 2026SunMonTueWedThu\" — the press never reaches it",
+    "320/en/calendar: covered - button.cal-cell \"21\" - its own centre (284, 377) answers main.app-main \"MonthHistoryNovember 2026SunMonTueWedThu\" — the press never reaches it",
+    "320/en/calendar: covered - button.cal-cell \"22\" - its own centre (36, 417) answers main.app-main \"MonthHistoryNovember 2026SunMonTueWedThu\" — the press never reaches it",
+    "320/en/calendar: covered - button.cal-cell \"23\" - its own centre (77, 417) answers main.app-main \"MonthHistoryNovember 2026SunMonTueWedThu\" — the press never reaches it",
+    "320/en/calendar: covered - button.cal-cell \"24\" - its own centre (119, 417) answers main.app-main \"MonthHistoryNovember 2026SunMonTueWedThu\" — the press never reaches it",
+    "320/en/calendar: covered - button.cal-cell \"25\" - its own centre (160, 417) answers main.app-main \"MonthHistoryNovember 2026SunMonTueWedThu\" — the press never reaches it",
+    "320/en/calendar: covered - button.cal-cell \"26\" - its own centre (201, 417) answers main.app-main \"MonthHistoryNovember 2026SunMonTueWedThu\" — the press never reaches it",
+    "320/en/calendar: covered - button.cal-cell \"27\" - its own centre (243, 417) answers main.app-main \"MonthHistoryNovember 2026SunMonTueWedThu\" — the press never reaches it",
+    "320/en/calendar: covered - button.cal-cell \"28\" - its own centre (284, 417) answers main.app-main \"MonthHistoryNovember 2026SunMonTueWedThu\" — the press never reaches it",
+    "320/en/calendar: covered - button.cal-cell \"29\" - its own centre (36, 417) answers main.app-main \"MonthHistoryNovember 2026SunMonTueWedThu\" — the press never reaches it",
+    "320/en/calendar: covered - button.cal-cell \"30\" - its own centre (77, 417) answers main.app-main \"MonthHistoryNovember 2026SunMonTueWedThu\" — the press never reaches it",
+    "320/en/calendar: covered - button.x \"Close the day\" - its own centre (284, 415) answers main.app-main \"MonthHistoryNovember 2026SunMonTueWedThu\" — the press never reaches it",
+    "320/en/calendar: covered - button.btn.sm.inline \"Add a job\" - its own centre (244, 454) answers main.app-main \"MonthHistoryNovember 2026SunMonTueWedThu\" — the press never reaches it",
+    "320/en/calendar: covered - div.card.tappable \"Block this day\" - its own centre (160, 559) answers main.app-main \"MonthHistoryNovember 2026SunMonTueWedThu\" — the press never reaches it",
+    "320/en/calendar: covered - input \"Block this day\" - its own centre (260, 559) answers main.app-main \"MonthHistoryNovember 2026SunMonTueWedThu\" — the press never reaches it",
+    "320/en/calendar: covered - div.card.tappable \"HoursSet\" - its own centre (160, 639) answers main.app-main \"MonthHistoryNovember 2026SunMonTueWedThu\" — the press never reaches it",
+    "320/en/calendar: covered - button.btn.sm.inline \"Set\" - its own centre (254, 639) answers main.app-main \"MonthHistoryNovember 2026SunMonTueWedThu\" — the press never reaches it",
+    "320/en/calendar: covered - div.card.tappable \"How this day worksSet\" - its own centre (160, 725) answers main.app-main \"MonthHistoryNovember 2026SunMonTueWedThu\" — the press never reaches it",
+    "320/en/calendar: covered - button.btn.sm.inline \"Set\" - its own centre (254, 725) answers main.app-main \"MonthHistoryNovember 2026SunMonTueWedThu\" — the press never reaches it",
+    "320/en/business: row-vanished - \"Photo gallery…\" - this row was in the business index when the walk started and was not there when its turn came, so the screen behind it was never measured",
+    "320/en/business: row-vanished - \"Reviews…\" - this row was in the business index when the walk started and was not there when its turn came, so the screen behind it was never measured",
+    "320/en/business: row-vanished - \"Services & add-ons…\" - this row was in the business index when the walk started and was not there when its turn came, so the screen behind it was never measured",
+    "320/en/business: row-vanished - \"Monthly plans…\" - this row was in the business index when the walk started and was not there when its turn came, so the screen behind it was never measured",
+    "320/en/business: row-vanished - \"Promo codes & sale…\" - this row was in the business index when the walk started and was not there when its turn came, so the screen behind it was never measured",
+    "320/en/business: row-vanished - \"Hours & days off…\" - this row was in the business index when the walk started and was not there when its turn came, so the screen behind it was never measured",
+    "320/en/business: row-vanished - \"Visits due…\" - this row was in the business index when the walk started and was not there when its turn came, so the screen behind it was never measured",
+    "320/en/business: row-vanished - \"Your web address…\" - this row was in the business index when the walk started and was not there when its turn came, so the screen behind it was never measured",
+    "320/en/business: row-vanished - \"Tracking links…\" - this row was in the business index when the walk started and was not there when its turn came, so the screen behind it was never measured",
+    "320/en/gear: row-vanished - \"Team—\" - this row was in the gear index when the walk started and was not there when its turn came, so the screen behind it was never measured",
+    "320/es/business: row-vanished - \"Galería de fotos…\" - this row was in the business index when the walk started and was not there when its turn came, so the screen behind it was never measured",
+    "320/es/business: row-vanished - \"Reseñas…\" - this row was in the business index when the walk started and was not there when its turn came, so the screen behind it was never measured",
+    "320/es/business: row-vanished - \"Servicios y extras…\" - this row was in the business index when the walk started and was not there when its turn came, so the screen behind it was never measured",
+    "320/es/business: row-vanished - \"Planes mensuales…\" - this row was in the business index when the walk started and was not there when its turn came, so the screen behind it was never measured",
+    "320/es/business: row-vanished - \"Códigos y descuentos…\" - this row was in the business index when the walk started and was not there when its turn came, so the screen behind it was never measured",
+    "320/es/business: row-vanished - \"Horario y días libres…\" - this row was in the business index when the walk started and was not there when its turn came, so the screen behind it was never measured",
+    "320/es/business: row-vanished - \"Visitas pendientes…\" - this row was in the business index when the walk started and was not there when its turn came, so the screen behind it was never measured",
+    "320/es/business: row-vanished - \"Tu dirección web…\" - this row was in the business index when the walk started and was not there when its turn came, so the screen behind it was never measured",
+    "320/es/business: row-vanished - \"Enlaces de seguimiento…\" - this row was in the business index when the walk started and was not there when its turn came, so the screen behind it was never measured"
+  ],
   "warnings": [
-    "1440/en/gear: 1 door that leaves the dashboard was NOT pressed (The website businessEvery detailer, and ); the place it leads is walked in its own section",
-    "1440/es/gear: 1 door that leaves the dashboard was NOT pressed (El negocio del sitio webCada detailer, y); the place it leads is walked in its own section",
-    "768/en/gear: 1 door that leaves the dashboard was NOT pressed (The website businessEvery detailer, and ); the place it leads is walked in its own section",
-    "768/es/gear: 1 door that leaves the dashboard was NOT pressed (El negocio del sitio webCada detailer, y); the place it leads is walked in its own section",
-    "392/en/gear: 1 door that leaves the dashboard was NOT pressed (The website businessEvery detailer, and ); the place it leads is walked in its own section",
-    "392/es/gear: 1 door that leaves the dashboard was NOT pressed (El negocio del sitio webCada detailer, y); the place it leads is walked in its own section",
-    "320/en/gear: 1 door that leaves the dashboard was NOT pressed (The website businessEvery detailer, and ); the place it leads is walked in its own section",
-    "320/es/gear: 1 door that leaves the dashboard was NOT pressed (El negocio del sitio webCada detailer, y); the place it leads is walked in its own section",
-    "UNEXPLAINED fold: 1440/en/gear/Show me aroundQuick tours. Stop any time has 1 closed <details> and opening them gained no control",
-    "UNEXPLAINED fold: 1440/es/gear/Muéstrame el lugarRecorridos rápidos. Pa has 1 closed <details> and opening them gained no control",
-    "UNEXPLAINED fold: 768/en/gear/Show me aroundQuick tours. Stop any time has 1 closed <details> and opening them gained no control",
-    "UNEXPLAINED fold: 768/es/gear/Muéstrame el lugarRecorridos rápidos. Pa has 1 closed <details> and opening them gained no control",
-    "UNEXPLAINED fold: 392/en/gear/Show me aroundQuick tours. Stop any time has 1 closed <details> and opening them gained no control",
-    "UNEXPLAINED fold: 392/es/gear/Muéstrame el lugarRecorridos rápidos. Pa has 1 closed <details> and opening them gained no control",
-    "UNEXPLAINED fold: 320/en/gear/Show me aroundQuick tours. Stop any time has 1 closed <details> and opening them gained no control",
-    "UNEXPLAINED fold: 320/es/gear/Muéstrame el lugarRecorridos rápidos. Pa has 1 closed <details> and opening them gained no control",
     "UNEXPLAINED fold: 1440/en/ has 6 closed <details> and opening them gained no control",
     "UNEXPLAINED fold: 768/en/ has 6 closed <details> and opening them gained no control",
     "UNEXPLAINED fold: 392/en/ has 6 closed <details> and opening them gained no control",
     "UNEXPLAINED fold: 320/en/ has 6 closed <details> and opening them gained no control"
   ],
   "artifacts": [
-    "receipts/screenshots/sweep-tap-targets-dashboard/today-1440-en.png"
+    "artifacts/sweep-tap-targets-dashboard/today-1440-en.png"
   ],
   "dimensions": {
     "scope": "the detailer dashboard (sign-in, five tabs, every settings door behind Business and the gear) and the landing and pricing pages; the /admin back office is in receipts/sweep-tap-targets.json",
@@ -43,132 +109,116 @@
       "es"
     ],
     "fixed_screens_per_combo": 6,
-    "settings_doors_read_from_the_product": 192,
+    "settings_doors_read_from_the_product": 196,
     "doors_that_leave_the_dashboard": {
-      "keys": [
-        "platform"
-      ],
-      "not_pressed": 8,
+      "keys": [],
+      "not_pressed": 0,
       "pressed": false
     },
     "fold_census": [
       {
         "where": "1440/en/today",
         "folds": 1,
-        "closed": 22,
-        "opened": 24,
+        "closed": 25,
+        "opened": 27,
         "gained": 2
       },
       {
         "where": "1440/en/business/Promo codes & sale2 active codes",
         "folds": 1,
-        "closed": 38,
-        "opened": 41,
+        "closed": 39,
+        "opened": 42,
         "gained": 3
       },
       {
         "where": "1440/en/business/Booking rulesMobile & drop-off · 2 hours",
         "folds": 2,
-        "closed": 67,
-        "opened": 99,
+        "closed": 68,
+        "opened": 100,
         "gained": 32
       },
       {
         "where": "1440/en/business/Tracking links1 link · not opened yet",
         "folds": 1,
-        "closed": 24,
-        "opened": 34,
+        "closed": 25,
+        "opened": 35,
         "gained": 10
       },
       {
         "where": "1440/en/gear/Notifications5 of 5 emails on",
         "folds": 2,
-        "closed": 33,
-        "opened": 56,
+        "closed": 36,
+        "opened": 59,
         "gained": 23
       },
       {
         "where": "1440/en/gear/Message templatesTexts you send from a j",
-        "folds": 5,
+        "folds": 6,
         "closed": 26,
-        "opened": 76,
-        "gained": 50
+        "opened": 86,
+        "gained": 60
       },
       {
         "where": "1440/en/gear/Weather warnings5 of 6 on",
         "folds": 1,
-        "closed": 38,
-        "opened": 44,
+        "closed": 37,
+        "opened": 43,
         "gained": 6
-      },
-      {
-        "where": "1440/en/gear/Show me aroundQuick tours. Stop any time",
-        "folds": 1,
-        "closed": 2,
-        "opened": 2,
-        "gained": 0
       },
       {
         "where": "1440/es/today",
         "folds": 1,
-        "closed": 22,
-        "opened": 24,
+        "closed": 25,
+        "opened": 27,
         "gained": 2
       },
       {
         "where": "1440/es/business/Códigos y descuentos2 códigos activos",
         "folds": 1,
-        "closed": 38,
-        "opened": 41,
+        "closed": 39,
+        "opened": 42,
         "gained": 3
       },
       {
         "where": "1440/es/business/Reglas de citasA domicilio y en el talle",
         "folds": 2,
-        "closed": 67,
-        "opened": 99,
+        "closed": 68,
+        "opened": 100,
         "gained": 32
       },
       {
         "where": "1440/es/business/Enlaces de seguimiento1 enlace · sin ape",
         "folds": 1,
-        "closed": 30,
-        "opened": 34,
-        "gained": 4
+        "closed": 25,
+        "opened": 35,
+        "gained": 10
       },
       {
         "where": "1440/es/gear/Avisos5 de 5 correos activos",
         "folds": 2,
-        "closed": 33,
-        "opened": 56,
+        "closed": 36,
+        "opened": 59,
         "gained": 23
       },
       {
         "where": "1440/es/gear/Mensajes guardadosMensajes que mandas de",
-        "folds": 5,
+        "folds": 6,
         "closed": 26,
-        "opened": 76,
-        "gained": 50
+        "opened": 86,
+        "gained": 60
       },
       {
         "where": "1440/es/gear/Avisos del clima5 de 6 activados",
         "folds": 1,
-        "closed": 38,
-        "opened": 44,
+        "closed": 37,
+        "opened": 43,
         "gained": 6
-      },
-      {
-        "where": "1440/es/gear/Muéstrame el lugarRecorridos rápidos. Pa",
-        "folds": 1,
-        "closed": 2,
-        "opened": 2,
-        "gained": 0
       },
       {
         "where": "768/en/today",
         "folds": 1,
-        "closed": 22,
-        "opened": 24,
+        "closed": 25,
+        "opened": 27,
         "gained": 2
       },
       {
@@ -195,16 +245,16 @@
       {
         "where": "768/en/gear/Notifications5 of 5 emails on",
         "folds": 2,
-        "closed": 20,
-        "opened": 43,
+        "closed": 24,
+        "opened": 47,
         "gained": 23
       },
       {
         "where": "768/en/gear/Message templatesTexts you send from a j",
-        "folds": 5,
-        "closed": 13,
-        "opened": 63,
-        "gained": 50
+        "folds": 6,
+        "closed": 14,
+        "opened": 74,
+        "gained": 60
       },
       {
         "where": "768/en/gear/Weather warnings5 of 6 on",
@@ -214,17 +264,10 @@
         "gained": 6
       },
       {
-        "where": "768/en/gear/Show me aroundQuick tours. Stop any time",
-        "folds": 1,
-        "closed": 2,
-        "opened": 2,
-        "gained": 0
-      },
-      {
         "where": "768/es/today",
         "folds": 1,
-        "closed": 22,
-        "opened": 24,
+        "closed": 25,
+        "opened": 27,
         "gained": 2
       },
       {
@@ -244,23 +287,23 @@
       {
         "where": "768/es/business/Enlaces de seguimiento1 enlace · sin ape",
         "folds": 1,
-        "closed": 15,
+        "closed": 9,
         "opened": 19,
-        "gained": 4
+        "gained": 10
       },
       {
         "where": "768/es/gear/Avisos5 de 5 correos activos",
         "folds": 2,
-        "closed": 20,
-        "opened": 43,
+        "closed": 24,
+        "opened": 47,
         "gained": 23
       },
       {
         "where": "768/es/gear/Mensajes guardadosMensajes que mandas de",
-        "folds": 5,
-        "closed": 13,
-        "opened": 63,
-        "gained": 50
+        "folds": 6,
+        "closed": 14,
+        "opened": 74,
+        "gained": 60
       },
       {
         "where": "768/es/gear/Avisos del clima5 de 6 activados",
@@ -270,25 +313,11 @@
         "gained": 6
       },
       {
-        "where": "768/es/gear/Muéstrame el lugarRecorridos rápidos. Pa",
-        "folds": 1,
-        "closed": 2,
-        "opened": 2,
-        "gained": 0
-      },
-      {
         "where": "392/en/today",
         "folds": 1,
-        "closed": 22,
-        "opened": 24,
+        "closed": 25,
+        "opened": 27,
         "gained": 2
-      },
-      {
-        "where": "392/en/business/Promo codes & sale2 active codes",
-        "folds": 1,
-        "closed": 23,
-        "opened": 26,
-        "gained": 3
       },
       {
         "where": "392/en/business/Booking rulesMobile & drop-off · 2 hours",
@@ -298,25 +327,18 @@
         "gained": 32
       },
       {
-        "where": "392/en/business/Tracking links1 link · not opened yet",
-        "folds": 1,
-        "closed": 15,
-        "opened": 19,
-        "gained": 4
-      },
-      {
         "where": "392/en/gear/Notifications5 of 5 emails on",
         "folds": 2,
-        "closed": 20,
-        "opened": 43,
+        "closed": 24,
+        "opened": 47,
         "gained": 23
       },
       {
         "where": "392/en/gear/Message templatesTexts you send from a j",
-        "folds": 5,
-        "closed": 13,
-        "opened": 63,
-        "gained": 50
+        "folds": 6,
+        "closed": 14,
+        "opened": 74,
+        "gained": 60
       },
       {
         "where": "392/en/gear/Weather warnings5 of 6 on",
@@ -326,25 +348,11 @@
         "gained": 6
       },
       {
-        "where": "392/en/gear/Show me aroundQuick tours. Stop any time",
-        "folds": 1,
-        "closed": 2,
-        "opened": 2,
-        "gained": 0
-      },
-      {
         "where": "392/es/today",
         "folds": 1,
-        "closed": 22,
-        "opened": 24,
+        "closed": 25,
+        "opened": 27,
         "gained": 2
-      },
-      {
-        "where": "392/es/business/Códigos y descuentos2 códigos activos",
-        "folds": 1,
-        "closed": 23,
-        "opened": 26,
-        "gained": 3
       },
       {
         "where": "392/es/business/Reglas de citasA domicilio y en el talle",
@@ -354,25 +362,18 @@
         "gained": 32
       },
       {
-        "where": "392/es/business/Enlaces de seguimiento1 enlace · sin ape",
-        "folds": 1,
-        "closed": 15,
-        "opened": 19,
-        "gained": 4
-      },
-      {
         "where": "392/es/gear/Avisos5 de 5 correos activos",
         "folds": 2,
-        "closed": 20,
-        "opened": 43,
+        "closed": 24,
+        "opened": 47,
         "gained": 23
       },
       {
         "where": "392/es/gear/Mensajes guardadosMensajes que mandas de",
-        "folds": 5,
-        "closed": 13,
-        "opened": 63,
-        "gained": 50
+        "folds": 6,
+        "closed": 14,
+        "opened": 74,
+        "gained": 60
       },
       {
         "where": "392/es/gear/Avisos del clima5 de 6 activados",
@@ -382,25 +383,11 @@
         "gained": 6
       },
       {
-        "where": "392/es/gear/Muéstrame el lugarRecorridos rápidos. Pa",
-        "folds": 1,
-        "closed": 2,
-        "opened": 2,
-        "gained": 0
-      },
-      {
         "where": "320/en/today",
         "folds": 1,
-        "closed": 22,
-        "opened": 24,
+        "closed": 25,
+        "opened": 27,
         "gained": 2
-      },
-      {
-        "where": "320/en/business/Promo codes & sale2 active codes",
-        "folds": 1,
-        "closed": 23,
-        "opened": 26,
-        "gained": 3
       },
       {
         "where": "320/en/business/Booking rulesMobile & drop-off · 2 hours",
@@ -410,25 +397,18 @@
         "gained": 32
       },
       {
-        "where": "320/en/business/Tracking links1 link · not opened yet",
-        "folds": 1,
-        "closed": 15,
-        "opened": 19,
-        "gained": 4
-      },
-      {
         "where": "320/en/gear/Notifications5 of 5 emails on",
         "folds": 2,
-        "closed": 20,
-        "opened": 43,
+        "closed": 24,
+        "opened": 47,
         "gained": 23
       },
       {
         "where": "320/en/gear/Message templatesTexts you send from a j",
-        "folds": 5,
-        "closed": 13,
-        "opened": 63,
-        "gained": 50
+        "folds": 6,
+        "closed": 14,
+        "opened": 74,
+        "gained": 60
       },
       {
         "where": "320/en/gear/Weather warnings5 of 6 on",
@@ -438,25 +418,11 @@
         "gained": 6
       },
       {
-        "where": "320/en/gear/Show me aroundQuick tours. Stop any time",
-        "folds": 1,
-        "closed": 2,
-        "opened": 2,
-        "gained": 0
-      },
-      {
         "where": "320/es/today",
         "folds": 1,
-        "closed": 22,
-        "opened": 24,
+        "closed": 25,
+        "opened": 27,
         "gained": 2
-      },
-      {
-        "where": "320/es/business/Códigos y descuentos2 códigos activos",
-        "folds": 1,
-        "closed": 23,
-        "opened": 26,
-        "gained": 3
       },
       {
         "where": "320/es/business/Reglas de citasA domicilio y en el talle",
@@ -466,25 +432,18 @@
         "gained": 32
       },
       {
-        "where": "320/es/business/Enlaces de seguimiento1 enlace · sin ape",
-        "folds": 1,
-        "closed": 15,
-        "opened": 19,
-        "gained": 4
-      },
-      {
         "where": "320/es/gear/Avisos5 de 5 correos activos",
         "folds": 2,
-        "closed": 20,
-        "opened": 43,
+        "closed": 24,
+        "opened": 47,
         "gained": 23
       },
       {
         "where": "320/es/gear/Mensajes guardadosMensajes que mandas de",
-        "folds": 5,
-        "closed": 13,
-        "opened": 63,
-        "gained": 50
+        "folds": 6,
+        "closed": 14,
+        "opened": 74,
+        "gained": 60
       },
       {
         "where": "320/es/gear/Avisos del clima5 de 6 activados",
@@ -492,13 +451,6 @@
         "closed": 25,
         "opened": 31,
         "gained": 6
-      },
-      {
-        "where": "320/es/gear/Muéstrame el lugarRecorridos rápidos. Pa",
-        "folds": 1,
-        "closed": 2,
-        "opened": 2,
-        "gained": 0
       },
       {
         "where": "1440/en/",
@@ -537,15 +489,15 @@
     "canary_restored": true
   },
   "check_id": "sweep-tap-targets-dashboard",
-  "started_at": "2026-10-07T03:40:38.826Z",
-  "status": "pass",
-  "expected_targets": 248,
-  "discovered_targets": 248,
-  "attempted_targets": 248,
-  "completed_targets": 248,
-  "skipped_targets": 0,
-  "assertions_executed": 809894,
-  "min_assertions": 248000,
+  "started_at": "2026-11-13T23:35:59.306Z",
+  "status": "fail",
+  "expected_targets": 252,
+  "discovered_targets": 213,
+  "attempted_targets": 213,
+  "completed_targets": 213,
+  "skipped_targets": 39,
+  "assertions_executed": 781906,
+  "min_assertions": 213000,
   "canary": {
     "id": "the five BREAKS in scripts/lib/tapProbe.mjs, each applied to the Clients tab at 392px and required to be reported by its own check",
     "observed_failure": true,
