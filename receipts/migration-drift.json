@@ -1,40 +1,40 @@
 {
-  "git_sha": "0e78df19c71c114a1c3cee188dfa1297333fc53a",
-  "git_sha_started": "0e78df19c71c114a1c3cee188dfa1297333fc53a",
+  "git_sha": "f47e6a8ff2da9f831a6a15cbd69938bd4279a4d6",
+  "git_sha_started": "f47e6a8ff2da9f831a6a15cbd69938bd4279a4d6",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-11-13T17:42:35.720Z",
+  "finished_at": "2026-11-13T23:04:39.348Z",
   "failures": [],
   "warnings": [
     "UNJUDGEABLE grant: signature `start_receipt_attempt(uuid, uuid, text), public.finish_receipt_attempt(uuid, uuid, text, bigint, integer, integer), public.claim_receipt_attempts(), public.ack_receipt_attempt(text, uuid, uuid)` — Postgres could not parse it as a function signature",
     "SEES functions (by body), tables (by existence), columns (by name and type family), policies (by existence, on public and storage schemas), GRANTS and REVOKES on public tables, columns and functions (what each named role can actually do, PUBLIC folded in) and INDEXES on public (by name, table and uniqueness). STILL CANNOT SEE: an index's column list, constraints, triggers, views, enum types, extensions, RLS enable/force state, a policy's own USING/WITH CHECK expression, a column's DEFAULT or NULLABILITY, default privileges (rules about future objects), grants on schemas or sequences or other schemas' objects, a grant inside a dollar-quoted block (named UNJUDGEABLE), or a migration whose whole content is an update/backfill with no schema trace. There is no applied-migrations ledger in this project to compare against: supabase_migrations.schema_migrations does not exist.",
-    "137 of 684 present column(s) had a declared type this check does not recognise and are UNJUDGED for type — counted, not guessed at. \"Columns by name and type family\" above means 547, not 684."
+    "137 of 696 present column(s) had a declared type this check does not recognise and are UNJUDGED for type — counted, not guessed at. \"Columns by name and type family\" above means 559, not 696."
   ],
   "artifacts": [
     "scripts/migration-drift.mjs"
   ],
   "dimensions": {
     "project": "kguqylyzgyzfktkfnhjb",
-    "migration_files": 143,
-    "tables_declared": 63,
+    "migration_files": 144,
+    "tables_declared": 65,
     "tables_absent": [],
     "columns_absent": [],
     "type_mismatch": [],
     "policies_declared": 86,
     "policies_absent": [],
     "policies_unjudgeable": 0,
-    "grant_claims_declared": 649,
-    "grant_targets": 112,
+    "grant_claims_declared": 677,
+    "grant_targets": 114,
     "grant_statements": {
-      "naive": 211,
-      "judged": 211,
+      "naive": 213,
+      "judged": 213,
       "unjudgeable": 0
     },
     "grants_absent": [],
-    "indexes_declared": 77,
+    "indexes_declared": 78,
     "index_statements": {
-      "naive": 79,
-      "judged": 79,
+      "naive": 80,
+      "judged": 80,
       "unjudgeable": 0
     },
     "indexes_absent": [],
@@ -43,14 +43,14 @@
     "drifted": []
   },
   "check_id": "migration-drift",
-  "started_at": "2026-11-13T17:41:52.567Z",
+  "started_at": "2026-11-13T23:03:57.117Z",
   "status": "pass",
-  "expected_targets": 405,
-  "discovered_targets": 405,
-  "attempted_targets": 405,
-  "completed_targets": 405,
+  "expected_targets": 410,
+  "discovered_targets": 410,
+  "attempted_targets": 410,
+  "completed_targets": 410,
   "skipped_targets": 0,
-  "assertions_executed": 2246,
+  "assertions_executed": 2301,
   "min_assertions": 1000,
   "canary": {
     "id": "a function name, a column and a policy name no migration could have created must each be reported ABSENT; a grant claim and an index claim the database contradicts must each be reported",
