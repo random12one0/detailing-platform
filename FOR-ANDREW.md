@@ -268,6 +268,8 @@ all of this job's temporary receipt files and expenses were removed.
 
 ## DO · Let deleted gallery images leave Cloudflare's cache (ROADMAP 0.11bd)
 
+**PARKED UNTIL LAUNCH, 2026-11-13, and not your task.** You said you do not know what this token is. At launch prep an AI creates it through Claude in Chrome, with your OK and you signed in, and saves the two secrets; nothing below is for you to do.
+
 The deletion fix is built locally. It needs a new Cloudflare **Cache Purge**
 permission for **detailingplatform.com**, separate from the R2 upload setup
 you already finished. Create a token restricted to that zone, then save it
@@ -429,6 +431,8 @@ as "awaits apply" and stays green, and the unapplied-change check (`migration-dr
 has not pushed, published, deployed or changed the database.
 
 ## DO, AT YOUR NEXT RELEASE · Let Stripe tell us about refunds (ROADMAP 97.68)
+
+**ANSWERED 2026-11-13, not yours any more beyond signing in.** You said the AIs should find every key and you do not know which Stripe key is meant. An AI fetches the Stripe TEST key through Claude in Chrome while you sign in to Stripe, puts it in `.env` without showing it in chat, and adds `charge.refunded` to the connected-account webhook in test mode. The steps below are now that AI's checklist.
 
 **Update 2026-11-07: this went out with the 23 October release. Two things are left. One is yours: the same key as the
 "Put the Stripe TEST secret key into `.env`" row (ROADMAP 12.1). The other is a session's: setting up a fresh practice
@@ -1960,6 +1964,7 @@ still knows them.
   unmeasurable".
 
 - [ ] **NEEDS ANDREW (ROUTINE CHECK, NO DECISION REQUESTED) · Confirm whether
+  **ANSWERED 2026-11-13: no.** You never saved the nightly-backup key and do not know it. Another AI session is rotating the backups to a new key now, so this row waits on nothing from you (ROADMAP 6.1a).
   the backup key is in your password manager. This is a thirty-second check,
   not a choice or approval request.**
 
@@ -2006,6 +2011,7 @@ still knows them.
 
 
 - [ ] **DO · Decide what happens to the demo logins before your first real
+  **ANSWERED 2026-11-13: keep them.** They are for testing, the site is still in development and nobody real has signed up. Nothing to do until launch prep (ROADMAP 12.4).
   detailer signs up. You chose to make them guessable. Nobody told you they
   are also published.**
 
@@ -2317,6 +2323,7 @@ still knows them.
 
 
 - [ ] **NEEDS ANDREW · Put the Stripe TEST secret key into `.env`, so the
+  **ANSWERED 2026-11-13: your only part is signing in to Stripe when an AI asks.** You said all keys are for the AIs to find and you do not know which Stripe key this is. An AI fetches the TEST key through Claude in Chrome while you are signed in, and saves it to `.env` without it ever appearing in chat (ROADMAP 12.1, 97.68). The steps below are kept as that AI's checklist.
   billing walk can run renewals and failed payments (ROADMAP 12.1).** Added
   2026-10-06.
 

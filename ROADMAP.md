@@ -396,8 +396,9 @@ of this file (97.29–97.63). Items marked `NEEDS ANDREW` are his, not build job
   Acceptance criteria:
   - [x] Once Andrew rules, a waived job with a kept wrong-figure note shows (or deliberately does not show) that payment, proved through `update-booking` and the job record at 390 and 1440
 - [ ] **97.68 — The "refund it" line on a job never goes away, even after the detailer refunds (found reviewing 97.11).**
-  NEEDS ANDREW (2026-11-07, replaces the 2026-10-24 and 2026-11-02 lines): the last check needs the Stripe TEST secret key in detailing-platform's `.env` (the same `STRIPE_SECRET_KEY=` line FOR-ANDREW.md's 12.1 row asks for; never in chat). **The key alone does not finish it:** it also needs a fresh test payment owed back on a LIVE demo-detail job, which nothing builds yet (97.68a below). **Do not refund the $195 test payment the earlier lines named (pi_3UTnNpJeoZ7g84se0AeDet4F): it can no longer prove anything.** Its job (eaa40f95, "LIVE 97.10 WRONG") was soft-deleted 12 seconds after the 2026-10-23 live run took it, and the webhook skips a deleted job on purpose (`chargeRefunded`'s `deleted_at` filter), so that refund would be logged as "a payment no job here took" and change nothing. (The job PAGE does not skip it: `fetchBooking` reads by id and still shows the red $195 line, measured 2026-11-07. This line's first version said both skipped it; corrected after review.) Un-deleting it is refused by the database (`bookings_no_overlap`: live job 04cb1a5d holds the same 7 July 9-11 slot); that attempt wrote nothing (read back). **The finishing command**, once both exist: `node scripts/refund-live.mjs --intent=<97.68a's payment> --cents=<its amount> --refund` (receipt `refund-live`; 97.68 ticks on that receipt and nothing else).
-  **Belt hold of 2026-11-07 09:04 cleared at `73ce16dd`:** the full suite held this work because `scripts/refund-live.mjs` read a typed `--shots` without `outDir`. It now goes through `outDir` (an absolute path, the default here, passes through unchanged, which that test's first case asserts). `node --test tests/screenshot-output-under-artifacts.test.mjs` 6 passed, 0 failed at `73ce16dd`; at `72c06305` (before) it failed naming exactly `refund-live.mjs`. No product code changed, so the receipts above stand. The NEEDS ANDREW line above is still the only blocker: `.env` still has no Stripe test secret key (checked 2026-11-07, presence only).
+  Waits on: the Stripe TEST key fetch (AI work, re-marked 2026-11-13) and 97.68a's fresh test payment. Andrew, 2026-11-13: he expects the AIs to find every key, and he does not know which Stripe key is meant. An AI fetches the Stripe TEST secret key (it starts `sk_test_`) through Claude in Chrome while he signs in to Stripe, and writes it to the main checkout's `.env` as `STRIPE_SECRET_KEY=` without ever showing the value in chat; his only part is signing in. The same AI session adds `charge.refunded` to the connected-account webhook in Stripe's test mode.
+  ~~NEEDS ANDREW~~ (2026-11-07, replaces the 2026-10-24 and 2026-11-02 lines): the last check needs the Stripe TEST secret key in detailing-platform's `.env` (the same `STRIPE_SECRET_KEY=` line FOR-ANDREW.md's 12.1 row asks for; never in chat). **The key alone does not finish it:** it also needs a fresh test payment owed back on a LIVE demo-detail job, which nothing builds yet (97.68a below). **Do not refund the $195 test payment the earlier lines named (pi_3UTnNpJeoZ7g84se0AeDet4F): it can no longer prove anything.** Its job (eaa40f95, "LIVE 97.10 WRONG") was soft-deleted 12 seconds after the 2026-10-23 live run took it, and the webhook skips a deleted job on purpose (`chargeRefunded`'s `deleted_at` filter), so that refund would be logged as "a payment no job here took" and change nothing. (The job PAGE does not skip it: `fetchBooking` reads by id and still shows the red $195 line, measured 2026-11-07. This line's first version said both skipped it; corrected after review.) Un-deleting it is refused by the database (`bookings_no_overlap`: live job 04cb1a5d holds the same 7 July 9-11 slot); that attempt wrote nothing (read back). **The finishing command**, once both exist: `node scripts/refund-live.mjs --intent=<97.68a's payment> --cents=<its amount> --refund` (receipt `refund-live`; 97.68 ticks on that receipt and nothing else).
+  **Belt hold of 2026-11-07 09:04 cleared at `73ce16dd`:** the full suite held this work because `scripts/refund-live.mjs` read a typed `--shots` without `outDir`. It now goes through `outDir` (an absolute path, the default here, passes through unchanged, which that test's first case asserts). `node --test tests/screenshot-output-under-artifacts.test.mjs` 6 passed, 0 failed at `73ce16dd`; at `72c06305` (before) it failed naming exactly `refund-live.mjs`. No product code changed, so the receipts above stand. The ~~NEEDS ANDREW~~ line above (a key fetch by an AI since 2026-11-13) is still the only blocker: `.env` still has no Stripe test secret key (checked 2026-11-07, presence only).
   **Review fixes, 2026-11-07 (`52b01340`, `31f34d2e`): the live check refuses before any request to Stripe unless every check passed** (one job, demo-detail's, on that account, that amount, not deleted), and `--refund` REQUIRES the webhook's record within two minutes instead of falling back to "the line is still there". Every view runs with the page's clock frozen in an Asia/Tokyo browser (read back), the line must be inside the screen, painted on top and fully opaque, console warnings count as well as errors, and a second account (another business's owner, final-owner@fixture.test) must get "Booking not found." with no line and no figure. Measured at `31f34d2e`, `--base=http://127.0.0.1:5180` with `scripts/lib/inject-app-env.mjs`: `refund-live-waiting` 55 passed, 0 failed, 4 of 4 widths (1440x900, 768x1024, 390x844, 320x700) on the real job, unfed, canary "$196 not found" caught; `--rehearse-refunded` (the after-refund judgement with a refund record FED into the real row, never a tick) 43 passed, 0 failed, 4 of 4, canary "refund record stripped shows the line" caught. Sabotages first, each red only where aimed: `--break=blind` 4 failed, `--break=one-account` 8 failed, `--rehearse-refunded --break=no-refund` 4 failed. `--refund` with a placeholder `sk_test_`-shaped value and a wrong `--account` stopped at "2 check(s) above failed. NOTHING WAS REFUNDED." with no Stripe answer printed; with the right account it stopped at the deleted job. Screenshots at 390 and 320 opened and read. Not exercised: a real refund, and the branch where a requested refund's record never arrives (both need the key and 97.68a's payment).
   - [ ] **97.68a — A fresh practice payment the live refund check can use.** Done when: a committed script takes a TEST-mode payment that a live (not deleted) demo-detail job owes back, an extra or wrong-figure payment on the connected test account acct_1UCMp1JeoZ7g84se, prints its payment id and amount, and leaves the job in place until `refund-live` has passed; and `node scripts/refund-live.mjs --intent=<it> --cents=<it>` then writes a passing `refund-live-waiting` for it at all four widths. Found 2026-11-07 by 97.68: the 2026-10-23 payment was taken by a one-off run whose script is not in this repo, and that run deleted its job. Not established: whether taking the payment needs the Stripe secret key, or only the hosted test checkout.
   **RELEASED 2026-10-23 by Claude, running docs/release-sheet.md end to end:** every migration applied (migration-drift.mjs PASS: 67 functions, 63 tables, 86 policies, 111 grants, 76 indexes match), every program published except the three held (deployed-inventory.mjs names only platform-admin, google-business and photo-door), the website pushed at 094c9b3e. LIVE RUN NEEDED: the after-release check, `node scripts/refund-live.mjs --intent=<97.68a's payment> --cents=<its amount> --refund` (receipt `refund-live`), by a session with the key, then tick.
@@ -2517,8 +2518,9 @@ and how the wait ends.
   photo-door differs, other release drift is recorded in its receipt. Nothing
   was deployed to clear that gate.
 
-  NEEDS ANDREW: create the zone-scoped Cloudflare Cache Purge token and save CF_CACHE_PURGE_TOKEN and CF_MEDIA_ZONE_ID as this platform's function secrets; account access and token handling are Andrew's.
-  Then Andrew publishes photo-door and a session repeats the real proof. This
+  ~~NEEDS ANDREW: create the zone-scoped Cloudflare Cache Purge token and save CF_CACHE_PURGE_TOKEN and CF_MEDIA_ZONE_ID as this platform's function secrets; account access and token handling are Andrew's.~~
+  Waits for launch: parked, Andrew, 2026-11-13. He does not know what the token is, and it is not his task. At launch prep an AI, with his OK and him signing in, creates the zone-scoped Cloudflare Cache Purge token through Claude in Chrome and saves `CF_CACHE_PURGE_TOKEN` and `CF_MEDIA_ZONE_ID` as this platform's function secrets (values never in chat or in this repo).
+  Then the release session publishes photo-door (publishing is AI work since 2026-11-05) and a session repeats the real proof. This
   is a new zone permission required by 0.11bd, not the R2 setup already settled
   on 2026-10-10.
   The live check now reaches the HIT path. After the account setup and
@@ -16409,7 +16411,8 @@ most corroborated finding in the set.
 ## Wave 6 — Recovery and monitoring
 
 - [ ] **6.1 — There is no proved recovery path for the business's records.**
-  NEEDS ANDREW (2026-11-02): search your password manager for "backup", "age" or "detailing backup" and answer only yes or no: is the nightly-backup key there? Never send the key itself.
+  ~~NEEDS ANDREW (2026-11-02): search your password manager for "backup", "age" or "detailing backup" and answer only yes or no: is the nightly-backup key there? Never send the key itself.~~
+  ANSWERED, Andrew, 2026-11-13: no. He never saved the nightly-backup key and does not know it. Another AI session is rotating the backups to a new key now (2026-11-13). Nothing on 6.1 waits on him; 6.1a below carries the rotation.
   **READ THIS FIRST — STATE ON 2026-10-10, AND THREE THINGS BELOW IT ARE NO LONGER TRUE.**
   * **"There are no backups" (the 2026-09-20 paragraphs) is out of date.** A nightly
     encrypted copy of the whole database has run since 2026-09-16 in GitHub's cloud
@@ -16458,7 +16461,8 @@ most corroborated finding in the set.
     check is reported, the nightly copies are unproved. `FOR-ANDREW.md`, "Confirm
     whether the backup key is in the password manager".
 
-  NEEDS ANDREW (ROUTINE CHECK, NO DECISION REQUESTED): confirm whether the backup key is in the password manager (search "backup", "age" or "detailing backup") and tell a session only whether it is there. Until somebody can unlock one nightly copy, the only restore proved is the 2026-10-06 drill, not the backups used on a bad day. Everything else on 6.1 that a session can build is built.
+  ~~NEEDS ANDREW (ROUTINE CHECK, NO DECISION REQUESTED): confirm whether the backup key is in the password manager (search "backup", "age" or "detailing backup") and tell a session only whether it is there. Until somebody can unlock one nightly copy, the only restore proved is the 2026-10-06 drill, not the backups used on a bad day. Everything else on 6.1 that a session can build is built.~~
+  (Answered 2026-11-13: no key held; the rotation to a new key is AI work in progress. See 6.1a.)
   No restore test, restore date, recovery target or outage history exists.
   Once Andrew runs his livelihood on this, losing a week of bookings is a
   business-stopping event.
@@ -16615,7 +16619,9 @@ most corroborated finding in the set.
   - Andrew reports whether the key can be found using the documented password-manager search terms
   - FOR-ANDREW.md is updated to reflect the reported result
   - No key, token, password, or secret is recorded in the repository
-  NEEDS ANDREW (ROUTINE CHECK, NO DECISION REQUESTED): a ten-second look, not a choice — only he can open his password manager. Search "backup", "age" or "detailing backup" and tell a session only whether the key is there, never the key itself. No session can do any part of this. Rechecked 2026-10-10 by the 6.1 session: the nightly backups are still green (`gh run list -R random12one0/detailing-platform-backups --limit 3`: 3 of 3 success, latest 2026-10-10 09:23 UTC), so the copies exist. Nobody has yet shown that the key which opens them exists.
+  ~~NEEDS ANDREW (ROUTINE CHECK, NO DECISION REQUESTED): a ten-second look, not a choice — only he can open his password manager. Search "backup", "age" or "detailing backup" and tell a session only whether the key is there, never the key itself. No session can do any part of this. Rechecked 2026-10-10 by the 6.1 session: the nightly backups are still green (`gh run list -R random12one0/detailing-platform-backups --limit 3`: 3 of 3 success, latest 2026-10-10 09:23 UTC), so the copies exist. Nobody has yet shown that the key which opens them exists.~~
+  ANSWERED, Andrew, 2026-11-13: no key held. He never saved the nightly-backup key and does not know it, so no copy taken so far can be opened by anyone. Rotation in progress (AI): another session is moving the nightly backups to a new key now. FOR-ANDREW.md records the answer; no key, token or secret is written here.
+  Waits on: the backup-key rotation (AI, in progress 2026-11-13). How the wait ends: the rotating session records here that the new key exists and where it is kept (never its value); then this box can be judged against its three criteria. Not a question for Andrew.
 
 - [ ] **6.1b — Prove a nightly backup restores outside production**
   **SUPERVISOR REVIEW 2026-10-13:** the added restore-date test is fair: it adds the nightly receipt type
@@ -16623,7 +16629,7 @@ most corroborated finding in the set.
   `--dump` stamps any supplied dump as this platform's nightly, including its own invented fixture.
   At `0cdab2bc`, a fixture passed back through `--dump` produced PASS and "restore PROVED"; only the
   deliberately absent environment prevented a heartbeat write. Raw proof: `receipts/supervisor-restore-untrusted-dump.txt`.
-  Waits on: 98.8, 6.1a. How the wait ends: repair and review the held build, then Andrew runs a real encrypted nightly.
+  Waits on: 6.1a (the new backup key from the 2026-11-13 rotation; ~~98.8~~ is ticked). How the wait ends: repair and review the held build, then whoever holds the rotated key's access restores one real encrypted nightly taken under the new key (copies taken under the old, lost key cannot be opened). Re-marked 2026-11-13.
   Branch `belt/6.1b-20261013103843` remains separate. No merge approval is being requested.
   Provide a safe, separate restore environment and use it to restore and inspect one encrypted nightly database copy. This covers the recovery path for the actual scheduled backups, not a rerun of the existing drill that creates and drops a schema in the live database.
   Part 2 of 3 of item 6.1, split out so it can be
@@ -25814,7 +25820,9 @@ their age is not Andrew's problem.
   payment retries → page offline → back when paid. Sandbox proves all of it.
   *A2 5.8*
 
-  NEEDS ANDREW: the Stripe TEST secret key (it starts `sk_test_`) on one line
+  Waits on: the Stripe TEST key fetch, which is AI work (re-marked 2026-11-13).
+  Andrew, 2026-11-13: he expects the AIs to find every key, and he does not know which Stripe key is meant. An AI fetches the Stripe TEST secret key (it starts `sk_test_`) through Claude in Chrome while he signs in to Stripe, and writes it to the main checkout's `.env` as `STRIPE_SECRET_KEY=` without ever showing the value in chat; his only part is signing in.
+  Was ~~NEEDS ANDREW~~: the Stripe TEST secret key (it starts `sk_test_`) on one line
   of `.env` as `STRIPE_SECRET_KEY=`. Renew, failed-payment retries and the real
   page-offline (walk steps 3–5) need a Stripe test clock, a test clock needs
   that key in the shell, and today it lives only as a Supabase function secret,
@@ -25878,12 +25886,12 @@ their age is not Andrew's problem.
     un-pauses a business when it finds `suspended_at` set. `tests/platform-
     billing.test.mjs` was *requiring* that line. **Fixed in this checkout** (the
     line removed, the test inverted and broken on purpose — red with the line
-    restored), **not yet live: NEEDS ANDREW to publish `platform-billing`.**
+    restored), **not yet live: ~~NEEDS ANDREW to publish `platform-billing`~~.**
     ***SUPERSEDED 2026-10-10: published (v62) and passing live; see the
     re-walk above.***
   * **Renew, failed-payment retries, the real suspension: NOT MEASURED.** They
     need a Stripe test clock, which needs the sandbox secret key in the shell.
-    **NEEDS ANDREW** — `FOR-ANDREW.md` § "Waiting on you", first row. The script
+    ~~**NEEDS ANDREW**~~ (2026-11-13: an AI fetches the key, Andrew only signs in) — `FOR-ANDREW.md` § "Waiting on you", first row. The script
     already walks them (steps 3–5) the moment the key is there.
   * **Broken on purpose:** `--break=page-stays-up` puts the business back to
     `active` behind the webhook's back while the row says suspended; the
@@ -26084,6 +26092,7 @@ their age is not Andrew's problem.
   the updated roster** so the table and the document still agree afterwards.
   Closes A2 1.1 and A2 4.11.
 
+  Andrew, 2026-11-13: keep both demo logins as they are. They are for testing, the site is still in development, and there are no real signups. Re-marked: waits for launch prep, owner-decided; nothing to do before then.
   Waits for launch — scheduled, not a decision. Andrew, 2026-10-10: removing or renaming both logins is required before launch, and the timing is already set: about a week before the first real detailer is invited. As of 2026-10-10 no real detailer has signed up (44 sign-ins, every one a test or demo address; `docs/platform-admins.md` at `f5515acf`). The buildable half is done and proven: `scripts/admin-refuses.mjs`, receipt at `bb43496`, 6 of 6 account-and-width targets, 21 assertions, 0 failed, and `--break=let-in` caught with 6 failed. At that time: Andrew sets a real password on `demo@demo.com` himself (no session ever touches a password), and a session removes the `demo@detailplatform.com` row, updates the roster in `docs/platform-admins.md`, and re-runs `admin-refuses` and `platform-admins-declared`. Until then the demo logins' back-office access is deliberate and must not be "fixed". Re-worded by the supervisor 2026-10-10 at his request: the old marker asked him for a decision, and it was never a choice.
 
 ---
@@ -32513,6 +32522,7 @@ decisions, not build jobs.
   - 3. **app/src/screens/WebsiteWelcome.jsx — viewing-mode controls still cannot navigate.** Synchronous write refusal is now caught and the controls become retryable, but Close, Continue, and Start all require that forbidden write to succeed. Repeated presses therefore keep showing a connection error instead of performing the requested navigation; earlier finding 3 remains partly open.
   - 4. **app/src/screens/WebsiteWelcome.jsx — cleanup misses navigation scheduled after unmount.** If someone leaves while the save or refresh is pending, cleanup runs before `timer.current` exists. The pending continuation then creates a fresh timer and calls the old `onClose`, replacing the screen they selected. Earlier finding 4 remains open.
   - 5. **tests/website-welcome.test.mjs — R1’s placeholder condition remains unverified.** Earlier finding 6 requested the relevant owner-document passages; this change supplies builder summaries and limited phrase checks instead. Those checks would miss wording such as “your website will be ready in two weeks,” so passing them does not establish that the placeholder delivery promise agrees with Andrew’s existing words.
+  Andrew, 2026-11-13: he has no kickoff-call link and no delivery promise yet. Build with placeholders: "Book a call" goes to the contact form, and the site delivery time reads "about 7 days"; both are editable settings. Nothing in this item waits on him and no FOR-ANDREW.md row is needed. This also answers finding 5: the placeholder is his stated wording, so the phrase check compares against "about 7 days".
   The home page sells a site "built for you", but nothing after signup books the kickoff call, starts the intake form (`docs/tenant-site-intake-form.md`) or says when the site arrives. Build a screen shown once after a website-plan signup with those three things. The kickoff booking link and the delivery promise are Andrew's words: use them from BUSINESS-RULES.md or PRODUCT.md if written there; if not, build with a clearly marked placeholder setting and add a `FOR-ANDREW.md` row.
   Acceptance criteria:
   - A website-plan signup lands on the screen once; a booking-only signup does not
