@@ -21511,6 +21511,7 @@ the dashboard or back office at phone width at all.
     `:5173` and needs credentials this copy lacks); the change adds live
     regions and a `tabIndex` and touches no heading or landmark.
     LIVE RUN NEEDED: `node scripts/screenreader-structure.mjs` (dev server on :5173 + seed + demo-owner credentials) — proves landmarks and heading order on all 11 screens are still clean after the booking-page and confirmation changes.
+    LIVE RUN 2026-11-13 (Claude, main at `29d216de`, dev server :5173): `node --env-file=.env scripts/screenreader-structure.mjs` measured all 11 screens, no page errors, and reports **2 findings**: `Manage booking: no <main> or role=main - nothing to skip to` and `Plan member: no <main> or role=main - nothing to skip to` (each shows main=0, 1 heading; the other 9 screens have main=1). Not yet judged whether those two screens really lack a landmark or the run reached a not-found state with one heading; belt should open both at 390/1440, fix or explain, and re-run. 8.5 stays open on this and on 8.5f.
   * **Review fixes, 2026-10-24 (`4729ecf6`).** (1) `tests/skip-census.test.mjs`
     went red because `booking-announces.mjs` writes `skipped_targets` as an
     expression and was unclassified; it is now in `COMPUTED` (no allowlist, so

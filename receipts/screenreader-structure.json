@@ -1,8 +1,13 @@
 {
-  "git_sha": "6097a7e1541511a9ce7f767c3d82cfa18f7a7747",
+  "git_sha": "29d216de3c93ee15095005d399493c5ab97ec5d9",
+  "git_sha_started": "29d216de3c93ee15095005d399493c5ab97ec5d9",
+  "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-09-20T23:10:20.340Z",
-  "failures": [],
+  "finished_at": "2026-11-13T23:42:15.141Z",
+  "failures": [
+    "Manage booking: no <main> or role=main - nothing to skip to",
+    "Plan member: no <main> or role=main - nothing to skip to"
+  ],
   "warnings": [
     "STRUCTURE ONLY. This check cannot tell whether a page makes sense read aloud, and 8.5b does not close on it."
   ],
@@ -27,14 +32,14 @@
     ]
   },
   "check_id": "screenreader-structure",
-  "started_at": "2026-09-20T23:09:53.621Z",
-  "status": "pass",
+  "started_at": "2026-11-13T23:41:03.263Z",
+  "status": "fail",
   "expected_targets": 11,
   "discovered_targets": 11,
   "attempted_targets": 11,
   "completed_targets": 11,
   "skipped_targets": 0,
-  "assertions_executed": 48,
+  "assertions_executed": 45,
   "min_assertions": 22,
   "canary": {
     "id": "two: a heading that skips a level, an image with no alt attribute",
