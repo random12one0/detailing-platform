@@ -528,6 +528,8 @@ You already chose to keep everything. Nothing was deleted and there is no new de
 
 ## DECIDE · One text message needs fewer words (ROADMAP 99.2g)
 
+**AFTER LAUNCH, re-marked 2026-11-13.** Texting is off at launch (it waits on the paid number, 0.14), so this can wait until you switch texting on. The email work it used to hold up now moves on without it.
+
 The exact approved “You're all set” booking text cannot also meet the required one-text limit: it is already too long when
 the bare `detailingplatform.com` link is added, before a usable booking path. Please approve a shorter version of that one message that keeps the
 appointment facts and “Reply STOP to opt out.” My recommendation is to shorten the sentence, not buy or configure a

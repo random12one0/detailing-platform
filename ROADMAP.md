@@ -31395,163 +31395,10 @@ explicitly warns against — git history is the archive. Revisit at step 7.
     Pictures: `.manager-shots/99.2b/whole-hours-*.png`, opened at 320 and 1440. The Before/After copies are in
     `belt/shots/99.2`. Dashboard screens share `time12` and were not opened (that needs a sign-in). `email-dates.mjs`
     still reads 70 of 70 with 0 failures. Goes live with Andrew's next ordinary publish; nothing here needs deciding.
-  - [ ] **99.2c — customer booking email wording.** Original plan step 2, including crossed-out old times and Spanish.
-    **BUILT AND PROVED LOCALLY 2026-10-11, product commit `6f681160`.** Booked / request received / accepted / declined /
-    price / time changed / cancelled now carry the approved subjects, headlines, first lines and buttons in English and
-    Spanish. "Keep this email" is replaced by "Need to change or cancel? Use the button above. No call needed." on every
-    email that had it. The upcoming day comes from 99.2b's `dayWords` through one helper, `upcoming()`, in the business's
-    own zone (`buildBrand` now passes `businesses.timezone`; a missing zone falls back to the column default
-    `America/Los_Angeles`). Spanish adds "el" before a weekday or date and nothing before "hoy"/"mañana". "Your today
-    appointment" is avoided by a second key ("Your appointment today is cancelled"). The cancelled email keeps its sentence
-    naming which appointment it was. Only the approved closing line and a Book again button replace the bare web address.
-    The struck-through old time already sat above the new one; it is now asserted. Owner halves are untouched (99.2e).
-    **PROVED:** `node scripts/booking-email-wording.mjs` at `8312c7a1` reached **128 of 128** targets: 7 emails × 2
-    languages × 4 days (today, tomorrow, +3, +9) × 2 zones (UTC+14 and UTC-11, so one always disagrees with UTC), plus the
-    four changed emails at 392 and 1440 in both languages. **768 assertions, 0 failures**, console silent, no sideways
-    scroll, buttons inside the screen. `receipt.mjs` grades it PASS. `--break=old` renders the pre-99.2c templates and
-    Spanish from git: **128 of 128, 360 failures**. `--break=utc` puts "today" on the server's clock: **128 of 128, 32
-    failures**. Both sabotage receipts grade FAIL. `render-emails.mjs` reaches **34 of 34** in English and in Spanish,
-    PASS. `tests/spanish.test.mjs` (database section skipped by blank credentials): 74 passed, 1 failed. The failure is
-    the existing 12c back-office word lists, which this change does not touch. Pictures: `.manager-shots/99.2c/`; 392 and 1440
-    were opened and look right. Before/After pairs are in `belt/shots/99.2`. `scripts/dashboard-notifies.mjs` (live,
-    credentialed, not run) now accepts old or new subjects.
-    **Not here:** "the reminder goes only to customers with no texting consent" is routing and belongs to 99.2i.
-    **Release step, not a decision:** these templates reach customers with the same email-function publish as 99.2a
-    (`FOR-ANDREW.md`, "DO, AT YOUR NEXT RELEASE"). Whoever checks the first live email after that ticks 99.2a and 99.2c
-    together. **The next buildable part was 99.2d (built, see below); now 99.2e.**
-  - [ ] **99.2d — after-job email wording and signature setting.** Original plan step 3; the receipt/invoice stay email.
-    **BUILT AND PROVED LOCALLY 2026-10-11, product commits `f857fa4a` and `b3b7c562`.** Receipt: subject "Your receipt from
-    {business}: $185", headline "Paid in full, thank you", "Thanks, Maria. Here's your receipt for Friday, October 2.", button
-    "View online". Invoice: "Invoice from {business}: $185 due", "Here's your invoice", "Hi Maria, here's the bill for ...",
-    "How to pay" and the card button kept. Thank-you: "Thanks from {business}", one short paragraph, the review buttons, then
-    the sign-off. All in English and Spanish; receipts and invoices keep the explicit weekday-month-day (no "today"). The
-    sign-off "Thanks again, <first name> · <business> · <site>" is on all twelve customer emails (booked, request received,
-    accepted, declined, price, time changed, cancelled, reminder, receipt, invoice, thank-you, plan link) and on no detailer
-    email. The first name is the owner's `business_users.first_name` (the Team screen); a new switch on Notifications,
-    "Sign emails with the business name", swaps it for the business (`business_settings.email_sign_as_business`, migration
-    `20261011010000_email_sign_as_business.sql` WRITTEN, NOT APPLIED). With no owner name set it signs as the business.
-    The dots in the line are bound to the word before them, so a phone line never begins with one.
-    **Found on the way:** the job record and `scripts/e2e-receipt-trail.mjs` recognise a receipt by its SUBJECT starting
-    "Receipt"; the new subject would have silently turned off "Email it again" and the receipt-trail check. Both now accept
-    old and new (receipts already sent keep the old subject).
-    **PROVED:** `node scripts/after-job-emails.mjs` at `b3b7c562` reached **116 of 116** targets, **408 assertions, 0
-    failures**: the wording by hand in both languages (10 emails), the sign-off on 12 customer emails x 2 languages x 3
-    modes (owner name / business / no name), 3 detailer emails unsigned, a name with markup escaped, `buildBrand` itself run
-    against a stand-in database client (owner read; the switch suppresses the read; blank/no name gives none; a failed read
-    throws; query scoped to this business's owners), both subject matchers lifted out of their source files, and three emails
-    opened in a browser at 392 and 1440 in both languages (no sideways scroll, buttons inside and 44px tall, sign-off below
-    the button, console silent). `--break=old`: 116 of 116, **143 failures** (the templates and buildBrand as of
-    `2538c5bc`). `--break=setting` (switch ignored): **2**. `--break=unsigned`: **107**. `--break=wrap` (the original
-    phone wrap, a dot starting a line, found by looking at the 392 picture): **3**. The four sabotage receipts grade FAIL as
-    required; the clean one grades PASS. Re-run at the same commit: `render-emails.mjs` 34 of 34 in English and Spanish,
-    `email-dates.mjs` 70 of 70 (1806 assertions), `booking-email-wording.mjs` 128 of 128 (768). `tests/spanish.test.mjs`
-    (credentials blanked): 74 passed, 1 failed, the same failure as before this change (12c word lists, back-office files).
-    `payments` 83/0, `reschedule-old-time` 8/0, `email-brand` 226. Pictures: `.manager-shots/99.2d/` (opened at 392 and 1440);
-    Before/After pairs `before|after-receipt|invoice|thanks.html` are in `belt/shots/99.2`.
-    **UNJUDGEABLE, named, not run:** the Notifications switch in a signed-in browser (needs the demo owner's login, which is
-    credentialed) and the migration applied to a database (applying is Andrew's). The screen saves the new field only when
-    it changed, so every other Notifications switch keeps saving before the migration is applied.
-    **Not here:** the promo and maintenance-due emails' sign-off belongs to 99.2e with their wording; "the thank-you goes only
-    to customers without texting consent" is routing, 99.2i.
-    **Release step, not a decision:** publish with the same email-function release as 99.2a and 99.2c (`send-invoice` is the
-    one that sends receipts, invoices and thank-yous), and apply the migration if the switch should work
-    (`FOR-ANDREW.md`, "DO, AT YOUR NEXT RELEASE"). Whoever checks the first live email ticks 99.2a, c and d together.
-    **2026-11-06:** every program carrying the shared email kit is now live (create-booking v90 was the last; deployed-inventory names only platform-admin and google-business). NOT ticked: `email_sends` holds no email in the last 10 days, so no live email exists to check, and a session does not book on purpose just to send one. LIVE RUN NEEDED: the next real booking confirmation's subject, body and plain-text copy, read from `email_sends.body_html`; then tick 99.2a, c and d.
-    **The next buildable part was 99.2e (built, see below); now 99.2f.**
-  - [ ] **99.2e — marketing and detailer email wording.** Original plan steps 4 and 5, with Spanish; preserve the mailing-address
-    refusal and the existing maintenance-due gate.
-    **BUILT AND PROVED LOCALLY 2026-10-11, product commit `89ced53d`.** Detailer subjects: "New booking: Maria Lopez, Friday at
-    6 PM ($185)", "Maria Lopez wants Friday at 6 PM", "Tomorrow at 6 PM: Maria Lopez, 1234 Oak St" (no street for a drop-off),
-    "Maria Lopez moved to Saturday at 10 AM" (old time still struck through), "Maria Lopez cancelled Friday at 6 PM" with "That
-    time is open again.", "Still waiting: Maria asked 12 hours ago" with "That time is held until you answer.", "Maria Lopez
-    left your Monthly plan", "Andrew added you to Andrew's Auto Detail" (the name of whoever pressed Invite, read in
-    `invite-user`; none -> "You've been added to ..."), "Your card didn't go through", "We've started building your site". The
-    day uses the same `upcoming()` helper as the customer emails, in the business's own zone. Spanish for every one.
-    **Fixed on the way:** the job-coming-up subject was typed in `send-owner-reminders` with the raw `2026-10-03` date (a
-    done-when breach); it now comes from `ownerReminderSubject` in the template file. Promo: the detailer's subject and words
-    untouched, the sign-off added above the address and unsubscribe. Maintenance-due: subject "Your car's about due, Maria",
-    "Want to get on the calendar?", button "Pick a time", sign-off. Its refusal without an address or unsubscribe link, the
-    sweep's `email_customer_maintenance_due` switch and `maintenanceVerdict` are unchanged and asserted.
-    **Two places the approved wording did not fit the code, decided here and written down, not parked:** (1) the
-    maintenance-due email is a WARRANTY DEADLINE the detailer set (any distance away), so the approved "It's been about two
-    months since your last detail" line would often be false; the sentence naming the real deadline stays instead. (2) The
-    request email's **Accept and Decline buttons are NOT BUILT**: nothing in the product can accept or decline from an email,
-    and two buttons with those words that only open a page would say something untrue. It keeps one "Answer this request"
-    button. Building them needs a signed one-tap link or a job-record deep link; that is the one remaining piece of 99.2e.
-    **Found, not fixed (out of scope):** the detailer's "Answer this request" / "Open the job" button goes to the customer's
-    own booking page (`/booking/<id>`), not the dashboard job record (`/job/<id>`, where the push notifications go).
-    **PROVED:** `node scripts/marketing-detailer-emails.mjs` at `89ced53d` reached **156 of 156** targets, **514 assertions,
-    0 failures**: six day-named detailer subjects x 2 languages x 4 days x 2 zones (UTC+14, UTC-11), eleven other emails x 2
-    languages written by hand, sign-off as owner and as business, the two refusals, the switch, both callers, and six emails
-    in a browser at 392 and 1440 (no sideways scroll, buttons inside and 44px tall, sign-off below the button, console
-    silent). `receipt.mjs` grades it PASS. Sabotages, all caught, all graded FAIL: `--break=old` (templates and Spanish at
-    `463a1ee5`) **157 failures**; `--break=utc` **24**; `--break=unsigned` **16**. Re-run at `89ced53d`: `after-job-emails`
-    116 of 116, `booking-email-wording` 128 of 128, `email-dates` 70 of 70, `render-emails` 34 of 34 in English and Spanish.
-    `tests/spanish.test.mjs` (credentials blanked): 74 passed, 1 failed, the same 12c back-office word lists as before; its
-    email section, which is where a reworded email string missing its Spanish would show (6c, 6c-ii), passes.
-    `scripts/i18n-survey.mjs` scans the dashboard, not the email functions, so it was not the instrument here.
-    Pictures: `.manager-shots/99.2e/` (392 opened: request and Spanish maintenance-due look right; the Spanish one's due date
-    is English only because the fixture typed it so). Before/After: `before|after-request`, `-maintenance`, `-promo` in
-    `belt/shots/99.2`. **UNJUDGEABLE, not run:** a real send, and `invite-user`'s read of the inviter's name against a database.
-    **Release step, not a decision:** these reach inboxes with the same email-function release as 99.2a, c and d (plus
-    `invite-user` and `send-owner-reminders`); `FOR-ANDREW.md`, "DO, AT YOUR NEXT RELEASE". **99.2f is built below; next buildable part: 99.2g.**
-  - [ ] **99.2f — consent checkbox, saved consent, and privacy paragraph.** Original plan steps 6 and 7.
-    **BUILT AND PROVED LOCALLY 2026-10-11; product commits `022b5823` through `3a002640`; final check at `ac1a074f`.**
-    Phone now has the filed consent sentence word for word, unticked on every fresh form, including a remembered customer.
-    The existing Phone/Email layout stays; consent sits directly with Phone, with separate 44px Privacy and Terms links
-    on the platform's own domain. Spanish is added in the same edit. Neither the step gate nor the price depends on it.
-    `core.js` sends one strict boolean, also on split bookings, and never remembers the choice on the device.
-    `create-booking` runs `saveBookingSmsConsent` only after a successful public booking, including both duplicate exits.
-    The server writes its own time and `booking_form` to the existing columns, scoped to this business and customer;
-    unchecked/absent/truthy nonbooleans and a member's claimed consent cannot write it. Existing evidence is preserved.
-    STOP is never cleared, including when a stopped customer ticks the box. No migration was added or applied.
-    A failed consent write preserves the booking and its confirmation email, returns a safe code rather than database
-    details, and shows a translated explanation that the booking is saved and the text choice can be retried. Retrying
-    saves consent on that same booking, without another booking or confirmation. A missing customer id is also refused.
-    Privacy's new Text messages paragraph explicitly says mobile information is not sold or shared with third parties
-    for marketing or promotional purposes. It explains optional consent and says automated texting is not switched on yet.
-    The shared policy date is October 11, 2026; Terms was opened too because it shares that date. Legal pages retain their
-    existing English-only presentation. The booking checkbox, links and new failure explanation are fully bilingual.
-    **PROVED:** `node scripts/booking-consent.mjs` at `ac1a074f`: **68 of 68**, **797 assertions, 0 failures**.
-    The declared targets are 36 booking walks (English/Spanish, unchecked/checked/check-then-uncheck at 390/1440/768/392/320
-    and 390 `?lite=1`), six Privacy views, six Terms views, sixteen server cases, and four core/isolation cases.
-    Browser submissions execute the real local `create-booking` and consent helper with an in-memory database. Pricing,
-    availability, business reads and email delivery are explicit stand-ins: NO live database or message service was used.
-    Includes an incomplete booking refused at each width, a saving failure then successful retry at 1440/392 in both
-    languages, a taken slot refused before any write, existing consent/STOP, forged timestamp/source, strict boolean
-    narrowing, both duplicate branches, another tenant's same phone untouched, and missing/foreign customer ids refused.
-    No sideways scroll; complete wording and links fit. Normal browser console is silent. Each injected save failure
-    logs exactly its one expected HTTP 500, named and retained in the receipt, with no other errors or warnings.
-    `node scripts/receipt.mjs receipts/booking-consent.json` grades PASS at the check revision. Actual production code is
-    broken with assertions unchanged: `--break=default` (68 of 68, 36 failures); `--break=privacy` (68 of 68, 6 failures);
-    `--server-only --break=strict` (20 of 20, 3 failures); `--server-only --break=save` (20 of 20, 4 failures).
-    The two browser rewrites are signed and their execution is asserted. The two server breaks alter the actual helper
-    source before it is run with the real handler. The always-run canary also executes a truthy-consent defect.
-    All four named sabotage receipts grade FAIL. The earlier privacy sabotage missed its 320 target on a remote-font
-    timeout; the final run above replaces it. Actual font responses are now reused across isolated browser contexts.
-    The browser receipts are at `ac1a074f`; the server-only receipts are at `045c4258`, which only adds their case artifacts
-    required by the receipt contract. Product source and assertions are unchanged between those two revisions.
-    Opened the saved JPEGs at 390/1440/768/320, the Spanish consent at 390/320, and the save failure at 392 in both languages;
-    the existing Archivo type, dark ground, ruled privacy list and complete consent paragraph were visible. Also opened
-    Privacy at 390/1440/768 and Terms at 390. Pictures: `.manager-shots/99.2f/`; Before/After HTML pairs for booking,
-    Privacy and the shared policy date are in `belt/shots/99.2` outside the repo; `differs()` confirms all three differ.
-    `npm run build --prefix app` passes (existing bundle-size warning). The required four credential-free suites, booking-core,
-    address-source, credential-text and citable-item suites pass. `tests/spanish.test.mjs`, run without even reading `.env`
-    via `belt/shots/99.2/run-spanish.mjs`, reports 74 passed/1 failed, the existing 12c back-office word-list issue; booking
-    keys and email keys pass. `i18n-survey.mjs` remains a dashboard heuristic. `label-guard.mjs` flags the existing fixture
-    email locator in `shots-99-4.mjs`; `figures-carry-their-command` flags old unresolved revisions and `docs/silences.md`.
-    These unrelated results are recorded, not repaired by changing this item's scope. This session's label receipt is committed.
-    **UNJUDGEABLE, not run:** a live consent readback, `deployed-inventory`, `migration-drift`, and the credentialed general
-    contrast/booking sweeps. They require the live credentials forbidden to this session. The browser proof here is scoped
-    to this change and does not claim those broader checks ran. No push, publication, deployment, paid send or live schema change.
-    **Release step, not a decision:** publish `create-booking` before publishing the app, in the next ordinary release
-    (`FOR-ANDREW.md`, DO, AT YOUR NEXT RELEASE). A session then checks one unchecked and one checked booking's stored consent
-    against the released function and ticks 99.2f. The checkbox and paragraph must be live before the registration filing.
-    **Order settled by 97.91 (2026-10-18):** the line above conflicts with 97.64 (site first, then `create-booking`). `docs/release-sheet.md` does the website first and `create-booking` straight after, in the same sitting, and says why.
-    **99.2f's local work is finished; the next worker starts at 99.2g. The parent stays open.**
+  99.2c, 99.2d, 99.2e and 99.2f, and further down 99.2i and 99.2j, were moved out on 2026-11-13 (AI, from that day's triage) as their own top-level boxes directly below this entry, so 99.2g's texting question no longer hides launch email work. Their text moved whole; nothing was deleted.
   - [ ] **99.2g — fixed booking text templates.** Original plan step 8; test realistic substitutions, own-domain links,
     plain characters and the full rendered length, not just the template with placeholders still in it.
-    **NEEDS ANDREW: choose which one of the conflicting Booked-text requirements changes.** The approved exact English
+    **NEEDS ANDREW, AFTER LAUNCH (re-marked 2026-11-13): texting is off at launch and parked with 0.14, so this wording call waits until texting is switched on. Choose which one of the conflicting Booked-text requirements changes.** The approved exact English
     words are already too long once even the bare `https://detailingplatform.com` link is added. Recommendation: approve a shorter Booked sentence while
     keeping the same meaning and STOP line; buying or configuring a separate short domain is a cost/account decision and
     still would not make a normal booking URL fit. A local template draft and full-substitution check found this before
@@ -31562,14 +31409,9 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   visual planner for every email so he can review and dictate or type changes. This reopens visual/email-planning work
   outside 99.2g. It is recorded here from `belt/NUDGE.md`; the next 99.2 planning pass scopes it before changing the
   already-proved email wording or the consent behaviour.
-  **SUPERVISION 2026-10-12: now two top-level items, 99.5 (consent box width) and 99.6 (email review sheet), at the end of this file.** This parent is held by its own text (BELT PARKED, and 99.2g's NEEDS ANDREW), so work left inside it is never picked.
+  **SUPERVISION 2026-10-12: now two top-level items, 99.5 (consent box width) and 99.6 (email review sheet), at the end of this file.** This parent is held by its own text (`BELT PARKED`, and 99.2g's `NEEDS ANDREW`), so work left inside it is never picked. **2026-11-13:** the email parts (99.2c, d, e, f, i, j) now sit below as their own boxes for that reason; what stays here is the plan, 99.2a, 99.2g and 99.2h, and texting waits for after launch.
   - [ ] **99.2h — texting relay and signed webhook, switched off.** Original plan step 9 and `TEXTING.md`; local disposable
     database for schema proof, provider stub, recorded skips/refusals, tenant isolation, STOP/START/HELP and spending guard.
-  - [ ] **99.2i — consent-aware routing and reminder/review timing.** Email fallback while texting is unavailable; invoice,
-    receipt and marketing remain email; review text next evening versus thank-you email without consent. No paid sends.
-  - [ ] **99.2j — full lifecycle proof and release handoff.** Update the matrix and its check, render every approved email,
-    run the bilingual and booking consent browser proof, then hand Andrew the registration/publication steps. No live text
-    service is enabled by a worker. Tick the parent only when every original done-when below is actually true.
   DECIDED: Email is the record and text is the nudge. Customers get short texts for anything about their booking, but only if they ticked one unticked consent box under the phone field; everyone else gets the email instead. Receipts, invoices and all marketing go by email only. Every message uses the plain, warm wording and readable dates approved in this conversation, and detailers can add a personal note but cannot rewrite our wording or the legal parts. PLAN: 1. **Dates and times everywhere (emails and texts).** - Show dates as "Friday, October 3" and drop ":00", so "6 PM" and "6 – 8 PM". - Use "today" or "tomorrow" when close. - In subject lines, use the weekday alone ("Friday at 6 PM") when the date is within 7 days, and the month and day ("October 14") beyond that. - Change the one formatter in `format.js` and its email-side twin, not each template. 2. **Customer booking emails (`emailTemplates.ts`).** Keep the existing layout. Change the subjects and opening lines: - **Booked:** subject *You're booked for Friday at 6 PM*, headline **You're all set**, first line "Thanks, Maria. Here's everything for Friday." - **Request received:** subject *Got your request for Friday at 6 PM*, headline **We're holding this time for you**, first line "Thanks, Maria. We're checking the schedule and will get back to you soon. Nothing is charged yet." - **Accepted:** subject *Confirmed: Friday at 6 PM*, headline **You're confirmed**. - **Declined:** subject *About your request for Friday*, line "Sorry, we can't make Friday at 6 PM work.", button **Pick another time**. - **Price:** subject *Your price is ready: $185*, headline **Here's your price**, button **Look it over**. - **Time changed:** subject *New time: Saturday at 10 AM*, line "Your appointment moved. Here's the new time." Show the old time crossed out above the new one. - **Cancelled:** subject *Your Friday appointment is cancelled*, line "This one's off the calendar. Whenever you're ready, booking again takes a minute.", button **Book again**. - Replace the "Keep this email" line with "Need to change or cancel? Use the button above. No call needed." - The reminder email goes only to customers with no texting consent. 3. **After-the-job emails.** - **Receipt:** subject *Your receipt from Andrew's Auto Detail: $185*, headline **Paid in full, thank you**, first line "Thanks, Maria. Here's your receipt for Friday, October 3." Button **View online**. - **Invoice:** subject *Invoice from Andrew's Auto Detail: $185 due*, headline **Here's your invoice**, first line "Hi Maria, here's the bill for Friday, October 3." Keep "How to pay" and the card button. - **Thank-you email:** sent only to customers with no texting consent. Subject *Thanks from Andrew's Auto Detail*, one short paragraph, the Google and Yelp buttons, then the signature. - **Signature on all customer emails:** "Thanks again, [first name] · [business] · [website]". Add a setting so the detailer can sign as the business name instead; default is first name. 4. **Marketing emails.** - **Maintenance-due:** subject *Your car's about due, Maria*, line "It's been about two months since your last detail with us. Want to get on the calendar?", button **Pick a time**. It stays switched off per the standing ruling. - **Detailer promo email:** the detailer writes the subject and message. The logo, signature, mailing address and unsubscribe are locked around it. - Keep the existing rule that refuses to send without a mailing address. 5. **Detailer emails.** Change the subjects: - New booking: *New booking: Maria Lopez, Friday at 6 PM ($185)* - Request: *Maria Lopez wants Friday at 6 PM*, with **Accept** and **Decline** buttons - Job coming up: *Tomorrow at 6 PM: Maria Lopez, 1234 Oak St* - Customer moved the job: *Maria Lopez moved to Saturday at 10 AM*, with the old time crossed out - Customer cancelled: *Maria Lopez cancelled Friday at 6 PM*, line "That time is open again." - Still waiting: *Still waiting: Maria asked 12 hours ago*, line "That time is held until you answer." - Customer left a plan: *Maria Lopez left your Monthly plan* - Staff invite: *Andrew added you to Andrew's Auto Detail* - From the platform to the detailer: *Your card didn't go through* and *We've started building your site* 6. **Consent box on the booking page.** - Put it under the phone field, unticked by default. The booking completes without it. - Use the filed wording exactly: "Text me about my appointment. Message frequency varies. Message and data rates may apply. Reply STOP to opt out, HELP for help." Links to the privacy and terms pages go beside it. - Write the existing `sms_consent_at` and `sms_consent_source` columns. 7. **Privacy page (`legal.js`).** Add one paragraph about texting in the page's existing voice. It must say mobile information is not sold or shared with third parties for marketing. 8. **Booking texts.** These are fixed templates that detailers cannot edit. Each is under 160 characters, with no emoji, no curly apostrophes, and links on our own domain only: - **Booked:** "Hi Maria, you're all set with Andrew's Auto Detail for Friday, October 3 at 6 PM. Your booking is here anytime: [link]. Reply STOP to opt out." - **Request received:** "Hi Maria, Andrew's Auto Detail got your request for Friday, October 3 at 6 PM. We'll text you once it's confirmed." - **Accepted:** "Good news, Maria. You're confirmed for Friday, October 3 at 6 PM. Details: [link]" - **Declined:** "Sorry Maria, Friday, October 3 at 6 PM doesn't work for Andrew's Auto Detail. Pick another time here: [link]" - **Price ready:** "Maria, your price from Andrew's Auto Detail is ready: $185. Look it over and accept here: [link]" - **Reminder (night before):** "Hi Maria, Andrew's Auto Detail is coming tomorrow at 6 PM to 1234 Oak St. Need to change it? [link]" - **Time changed:** "Your appointment with Andrew's Auto Detail is now Saturday, October 4 at 10 AM. Details: [link]" - **Cancelled:** "Your Friday, October 3 appointment with Andrew's Auto Detail is cancelled. Book again anytime: [link]" - **Review (the evening after the job, about 6 PM):** "Thanks again, Maria. If you have a minute, a quick review really helps: [link]" Never add a discount to it. - **HELP reply:** "Andrew's Auto Detail appointment texts. Questions? Call [phone]. Reply STOP to opt out." - **STOP reply:** "You won't get any more texts from Andrew's Auto Detail. Reply START to turn them back on." 9. **Sending texts.** Build the send path and webhook exactly as `TEXTING.md` describes. Sending stays switched off until the registration is approved and a number exists. 10. **Spanish.** Change every reworded English string's Spanish key in the same edit. DONE WHEN: - `node scripts/render-emails.mjs` shows every email above with the new subject, opening line, date style and signature. - No email or text shows ":00" or a date like "2026-10-03". - `node scripts/communication-lifecycle.mjs` passes and its matrix shows the new channel for each message. - `node scripts/i18n-survey.mjs` finds no reworded string missing its Spanish. - On the booking page, the consent box is visible, unticked, and has the filed wording word for word. A booking completes with it unticked, and the customer's consent is saved only when it is ticked. - The privacy page has the texting paragraph. - A test of each text template counts every one at 160 characters or fewer, using only plain characters. - With texting off, a booking still sends the right emails, and a text attempt leaves a "skipped" row instead of failing silently. - A customer with texting consent gets one email after a job (the receipt) and a review text the next evening. A customer without consent gets the receipt and the thank-you email. - Andrew can then submit the texting registration ($15), because the checkbox and privacy paragraph are live. NOT DOING: - Sales or marketing texts of any kind. Marketing goes by email only for now. - Signing customers up for texts automatically, or ticking the consent box by default. - Letting detailers edit the automatic texts or rewrite our email wording, dates, buttons or legal footer. They add a note instead, and personal texts come from their own phone. - The rewards and referral blurb from the old site's thank-you email. - Any discount or offer inside a booking text, a reminder or a receipt. - Switching on the maintenance-due email. - Replacing the free hand-sent texts ("On my way", "Running late" and the rest) with paid automatic ones. - Any change to andrewsdetail.com. - The Zoho/ZeptoMail switch. It's still stuck on Zoho support and isn't part of this work.
   Acceptance criteria:
   - - `node scripts/render-emails.mjs` shows every email above with the new subject, opening line, date style and signature.
@@ -31582,6 +31424,180 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   - - With texting off, a booking still sends the right emails, and a text attempt leaves a "skipped" row instead of failing silently.
   - - A customer with texting consent gets one email after a job (the receipt) and a review text the next evening. A customer without consent gets the receipt and the thank-you email.
   - - Andrew can then submit the texting registration ($15), because the checkbox and privacy paragraph are live.
+
+- [ ] **99.2c — customer booking email wording.** Original plan step 2, including crossed-out old times and Spanish.
+  **BUILT AND PROVED LOCALLY 2026-10-11, product commit `6f681160`.** Booked / request received / accepted / declined /
+  price / time changed / cancelled now carry the approved subjects, headlines, first lines and buttons in English and
+  Spanish. "Keep this email" is replaced by "Need to change or cancel? Use the button above. No call needed." on every
+  email that had it. The upcoming day comes from 99.2b's `dayWords` through one helper, `upcoming()`, in the business's
+  own zone (`buildBrand` now passes `businesses.timezone`; a missing zone falls back to the column default
+  `America/Los_Angeles`). Spanish adds "el" before a weekday or date and nothing before "hoy"/"mañana". "Your today
+  appointment" is avoided by a second key ("Your appointment today is cancelled"). The cancelled email keeps its sentence
+  naming which appointment it was. Only the approved closing line and a Book again button replace the bare web address.
+  The struck-through old time already sat above the new one; it is now asserted. Owner halves are untouched (99.2e).
+  **PROVED:** `node scripts/booking-email-wording.mjs` at `8312c7a1` reached **128 of 128** targets: 7 emails × 2
+  languages × 4 days (today, tomorrow, +3, +9) × 2 zones (UTC+14 and UTC-11, so one always disagrees with UTC), plus the
+  four changed emails at 392 and 1440 in both languages. **768 assertions, 0 failures**, console silent, no sideways
+  scroll, buttons inside the screen. `receipt.mjs` grades it PASS. `--break=old` renders the pre-99.2c templates and
+  Spanish from git: **128 of 128, 360 failures**. `--break=utc` puts "today" on the server's clock: **128 of 128, 32
+  failures**. Both sabotage receipts grade FAIL. `render-emails.mjs` reaches **34 of 34** in English and in Spanish,
+  PASS. `tests/spanish.test.mjs` (database section skipped by blank credentials): 74 passed, 1 failed. The failure is
+  the existing 12c back-office word lists, which this change does not touch. Pictures: `.manager-shots/99.2c/`; 392 and 1440
+  were opened and look right. Before/After pairs are in `belt/shots/99.2`. `scripts/dashboard-notifies.mjs` (live,
+  credentialed, not run) now accepts old or new subjects.
+  **Not here:** "the reminder goes only to customers with no texting consent" is routing and belongs to 99.2i.
+  **Release step, not a decision:** these templates reach customers with the same email-function publish as 99.2a
+  (`FOR-ANDREW.md`, "DO, AT YOUR NEXT RELEASE"). Whoever checks the first live email after that ticks 99.2a and 99.2c
+  together. **The next buildable part was 99.2d (built, see below); now 99.2e.**
+  (Moved out of 99.2 as its own box on 2026-11-13 by an AI, from that day's triage, so 99.2g's texting question no longer hides launch email work. Text moved whole; the parent keeps the plan and the original acceptance criteria.)
+  LIVE RUN NEEDED (2026-11-13): the same first live booking email check as 99.2d's 2026-11-06 line; whoever runs it ticks 99.2a (in the parent), 99.2c and 99.2d together.
+
+- [ ] **99.2d — after-job email wording and signature setting.** Original plan step 3; the receipt/invoice stay email.
+  **BUILT AND PROVED LOCALLY 2026-10-11, product commits `f857fa4a` and `b3b7c562`.** Receipt: subject "Your receipt from
+  {business}: $185", headline "Paid in full, thank you", "Thanks, Maria. Here's your receipt for Friday, October 2.", button
+  "View online". Invoice: "Invoice from {business}: $185 due", "Here's your invoice", "Hi Maria, here's the bill for ...",
+  "How to pay" and the card button kept. Thank-you: "Thanks from {business}", one short paragraph, the review buttons, then
+  the sign-off. All in English and Spanish; receipts and invoices keep the explicit weekday-month-day (no "today"). The
+  sign-off "Thanks again, <first name> · <business> · <site>" is on all twelve customer emails (booked, request received,
+  accepted, declined, price, time changed, cancelled, reminder, receipt, invoice, thank-you, plan link) and on no detailer
+  email. The first name is the owner's `business_users.first_name` (the Team screen); a new switch on Notifications,
+  "Sign emails with the business name", swaps it for the business (`business_settings.email_sign_as_business`, migration
+  `20261011010000_email_sign_as_business.sql` WRITTEN, NOT APPLIED). With no owner name set it signs as the business.
+  The dots in the line are bound to the word before them, so a phone line never begins with one.
+  **Found on the way:** the job record and `scripts/e2e-receipt-trail.mjs` recognise a receipt by its SUBJECT starting
+  "Receipt"; the new subject would have silently turned off "Email it again" and the receipt-trail check. Both now accept
+  old and new (receipts already sent keep the old subject).
+  **PROVED:** `node scripts/after-job-emails.mjs` at `b3b7c562` reached **116 of 116** targets, **408 assertions, 0
+  failures**: the wording by hand in both languages (10 emails), the sign-off on 12 customer emails x 2 languages x 3
+  modes (owner name / business / no name), 3 detailer emails unsigned, a name with markup escaped, `buildBrand` itself run
+  against a stand-in database client (owner read; the switch suppresses the read; blank/no name gives none; a failed read
+  throws; query scoped to this business's owners), both subject matchers lifted out of their source files, and three emails
+  opened in a browser at 392 and 1440 in both languages (no sideways scroll, buttons inside and 44px tall, sign-off below
+  the button, console silent). `--break=old`: 116 of 116, **143 failures** (the templates and buildBrand as of
+  `2538c5bc`). `--break=setting` (switch ignored): **2**. `--break=unsigned`: **107**. `--break=wrap` (the original
+  phone wrap, a dot starting a line, found by looking at the 392 picture): **3**. The four sabotage receipts grade FAIL as
+  required; the clean one grades PASS. Re-run at the same commit: `render-emails.mjs` 34 of 34 in English and Spanish,
+  `email-dates.mjs` 70 of 70 (1806 assertions), `booking-email-wording.mjs` 128 of 128 (768). `tests/spanish.test.mjs`
+  (credentials blanked): 74 passed, 1 failed, the same failure as before this change (12c word lists, back-office files).
+  `payments` 83/0, `reschedule-old-time` 8/0, `email-brand` 226. Pictures: `.manager-shots/99.2d/` (opened at 392 and 1440);
+  Before/After pairs `before|after-receipt|invoice|thanks.html` are in `belt/shots/99.2`.
+  **UNJUDGEABLE, named, not run:** the Notifications switch in a signed-in browser (needs the demo owner's login, which is
+  credentialed) and the migration applied to a database (applying is Andrew's). The screen saves the new field only when
+  it changed, so every other Notifications switch keeps saving before the migration is applied.
+  **Not here:** the promo and maintenance-due emails' sign-off belongs to 99.2e with their wording; "the thank-you goes only
+  to customers without texting consent" is routing, 99.2i.
+  **Release step, not a decision:** publish with the same email-function release as 99.2a and 99.2c (`send-invoice` is the
+  one that sends receipts, invoices and thank-yous), and apply the migration if the switch should work
+  (`FOR-ANDREW.md`, "DO, AT YOUR NEXT RELEASE"). Whoever checks the first live email ticks 99.2a, c and d together.
+  **2026-11-06:** every program carrying the shared email kit is now live (create-booking v90 was the last; deployed-inventory names only platform-admin and google-business). NOT ticked: `email_sends` holds no email in the last 10 days, so no live email exists to check, and a session does not book on purpose just to send one. LIVE RUN NEEDED: the next real booking confirmation's subject, body and plain-text copy, read from `email_sends.body_html`; then tick 99.2a, c and d.
+  **The next buildable part was 99.2e (built, see below); now 99.2f.**
+  (Moved out of 99.2 as its own box on 2026-11-13 by an AI, from that day's triage, so 99.2g's texting question no longer hides launch email work. Text moved whole; the parent keeps the plan and the original acceptance criteria.)
+
+- [ ] **99.2e — marketing and detailer email wording.** Original plan steps 4 and 5, with Spanish; preserve the mailing-address
+  refusal and the existing maintenance-due gate.
+  **BUILT AND PROVED LOCALLY 2026-10-11, product commit `89ced53d`.** Detailer subjects: "New booking: Maria Lopez, Friday at
+  6 PM ($185)", "Maria Lopez wants Friday at 6 PM", "Tomorrow at 6 PM: Maria Lopez, 1234 Oak St" (no street for a drop-off),
+  "Maria Lopez moved to Saturday at 10 AM" (old time still struck through), "Maria Lopez cancelled Friday at 6 PM" with "That
+  time is open again.", "Still waiting: Maria asked 12 hours ago" with "That time is held until you answer.", "Maria Lopez
+  left your Monthly plan", "Andrew added you to Andrew's Auto Detail" (the name of whoever pressed Invite, read in
+  `invite-user`; none -> "You've been added to ..."), "Your card didn't go through", "We've started building your site". The
+  day uses the same `upcoming()` helper as the customer emails, in the business's own zone. Spanish for every one.
+  **Fixed on the way:** the job-coming-up subject was typed in `send-owner-reminders` with the raw `2026-10-03` date (a
+  done-when breach); it now comes from `ownerReminderSubject` in the template file. Promo: the detailer's subject and words
+  untouched, the sign-off added above the address and unsubscribe. Maintenance-due: subject "Your car's about due, Maria",
+  "Want to get on the calendar?", button "Pick a time", sign-off. Its refusal without an address or unsubscribe link, the
+  sweep's `email_customer_maintenance_due` switch and `maintenanceVerdict` are unchanged and asserted.
+  **Two places the approved wording did not fit the code, decided here and written down, not parked:** (1) the
+  maintenance-due email is a WARRANTY DEADLINE the detailer set (any distance away), so the approved "It's been about two
+  months since your last detail" line would often be false; the sentence naming the real deadline stays instead. (2) The
+  request email's **Accept and Decline buttons are NOT BUILT**: nothing in the product can accept or decline from an email,
+  and two buttons with those words that only open a page would say something untrue. It keeps one "Answer this request"
+  button. Building them needs a signed one-tap link or a job-record deep link; that is the one remaining piece of 99.2e.
+  **Found, not fixed (out of scope):** the detailer's "Answer this request" / "Open the job" button goes to the customer's
+  own booking page (`/booking/<id>`), not the dashboard job record (`/job/<id>`, where the push notifications go).
+  **PROVED:** `node scripts/marketing-detailer-emails.mjs` at `89ced53d` reached **156 of 156** targets, **514 assertions,
+  0 failures**: six day-named detailer subjects x 2 languages x 4 days x 2 zones (UTC+14, UTC-11), eleven other emails x 2
+  languages written by hand, sign-off as owner and as business, the two refusals, the switch, both callers, and six emails
+  in a browser at 392 and 1440 (no sideways scroll, buttons inside and 44px tall, sign-off below the button, console
+  silent). `receipt.mjs` grades it PASS. Sabotages, all caught, all graded FAIL: `--break=old` (templates and Spanish at
+  `463a1ee5`) **157 failures**; `--break=utc` **24**; `--break=unsigned` **16**. Re-run at `89ced53d`: `after-job-emails`
+  116 of 116, `booking-email-wording` 128 of 128, `email-dates` 70 of 70, `render-emails` 34 of 34 in English and Spanish.
+  `tests/spanish.test.mjs` (credentials blanked): 74 passed, 1 failed, the same 12c back-office word lists as before; its
+  email section, which is where a reworded email string missing its Spanish would show (6c, 6c-ii), passes.
+  `scripts/i18n-survey.mjs` scans the dashboard, not the email functions, so it was not the instrument here.
+  Pictures: `.manager-shots/99.2e/` (392 opened: request and Spanish maintenance-due look right; the Spanish one's due date
+  is English only because the fixture typed it so). Before/After: `before|after-request`, `-maintenance`, `-promo` in
+  `belt/shots/99.2`. **UNJUDGEABLE, not run:** a real send, and `invite-user`'s read of the inviter's name against a database.
+  **Release step, not a decision:** these reach inboxes with the same email-function release as 99.2a, c and d (plus
+  `invite-user` and `send-owner-reminders`); `FOR-ANDREW.md`, "DO, AT YOUR NEXT RELEASE". **99.2f is built below; next buildable part: 99.2g.**
+  (Moved out of 99.2 as its own box on 2026-11-13 by an AI, from that day's triage, so 99.2g's texting question no longer hides launch email work. Text moved whole; the parent keeps the plan and the original acceptance criteria.)
+
+- [ ] **99.2f — consent checkbox, saved consent, and privacy paragraph.** Original plan steps 6 and 7.
+  **BUILT AND PROVED LOCALLY 2026-10-11; product commits `022b5823` through `3a002640`; final check at `ac1a074f`.**
+  Phone now has the filed consent sentence word for word, unticked on every fresh form, including a remembered customer.
+  The existing Phone/Email layout stays; consent sits directly with Phone, with separate 44px Privacy and Terms links
+  on the platform's own domain. Spanish is added in the same edit. Neither the step gate nor the price depends on it.
+  `core.js` sends one strict boolean, also on split bookings, and never remembers the choice on the device.
+  `create-booking` runs `saveBookingSmsConsent` only after a successful public booking, including both duplicate exits.
+  The server writes its own time and `booking_form` to the existing columns, scoped to this business and customer;
+  unchecked/absent/truthy nonbooleans and a member's claimed consent cannot write it. Existing evidence is preserved.
+  STOP is never cleared, including when a stopped customer ticks the box. No migration was added or applied.
+  A failed consent write preserves the booking and its confirmation email, returns a safe code rather than database
+  details, and shows a translated explanation that the booking is saved and the text choice can be retried. Retrying
+  saves consent on that same booking, without another booking or confirmation. A missing customer id is also refused.
+  Privacy's new Text messages paragraph explicitly says mobile information is not sold or shared with third parties
+  for marketing or promotional purposes. It explains optional consent and says automated texting is not switched on yet.
+  The shared policy date is October 11, 2026; Terms was opened too because it shares that date. Legal pages retain their
+  existing English-only presentation. The booking checkbox, links and new failure explanation are fully bilingual.
+  **PROVED:** `node scripts/booking-consent.mjs` at `ac1a074f`: **68 of 68**, **797 assertions, 0 failures**.
+  The declared targets are 36 booking walks (English/Spanish, unchecked/checked/check-then-uncheck at 390/1440/768/392/320
+  and 390 `?lite=1`), six Privacy views, six Terms views, sixteen server cases, and four core/isolation cases.
+  Browser submissions execute the real local `create-booking` and consent helper with an in-memory database. Pricing,
+  availability, business reads and email delivery are explicit stand-ins: NO live database or message service was used.
+  Includes an incomplete booking refused at each width, a saving failure then successful retry at 1440/392 in both
+  languages, a taken slot refused before any write, existing consent/STOP, forged timestamp/source, strict boolean
+  narrowing, both duplicate branches, another tenant's same phone untouched, and missing/foreign customer ids refused.
+  No sideways scroll; complete wording and links fit. Normal browser console is silent. Each injected save failure
+  logs exactly its one expected HTTP 500, named and retained in the receipt, with no other errors or warnings.
+  `node scripts/receipt.mjs receipts/booking-consent.json` grades PASS at the check revision. Actual production code is
+  broken with assertions unchanged: `--break=default` (68 of 68, 36 failures); `--break=privacy` (68 of 68, 6 failures);
+  `--server-only --break=strict` (20 of 20, 3 failures); `--server-only --break=save` (20 of 20, 4 failures).
+  The two browser rewrites are signed and their execution is asserted. The two server breaks alter the actual helper
+  source before it is run with the real handler. The always-run canary also executes a truthy-consent defect.
+  All four named sabotage receipts grade FAIL. The earlier privacy sabotage missed its 320 target on a remote-font
+  timeout; the final run above replaces it. Actual font responses are now reused across isolated browser contexts.
+  The browser receipts are at `ac1a074f`; the server-only receipts are at `045c4258`, which only adds their case artifacts
+  required by the receipt contract. Product source and assertions are unchanged between those two revisions.
+  Opened the saved JPEGs at 390/1440/768/320, the Spanish consent at 390/320, and the save failure at 392 in both languages;
+  the existing Archivo type, dark ground, ruled privacy list and complete consent paragraph were visible. Also opened
+  Privacy at 390/1440/768 and Terms at 390. Pictures: `.manager-shots/99.2f/`; Before/After HTML pairs for booking,
+  Privacy and the shared policy date are in `belt/shots/99.2` outside the repo; `differs()` confirms all three differ.
+  `npm run build --prefix app` passes (existing bundle-size warning). The required four credential-free suites, booking-core,
+  address-source, credential-text and citable-item suites pass. `tests/spanish.test.mjs`, run without even reading `.env`
+  via `belt/shots/99.2/run-spanish.mjs`, reports 74 passed/1 failed, the existing 12c back-office word-list issue; booking
+  keys and email keys pass. `i18n-survey.mjs` remains a dashboard heuristic. `label-guard.mjs` flags the existing fixture
+  email locator in `shots-99-4.mjs`; `figures-carry-their-command` flags old unresolved revisions and `docs/silences.md`.
+  These unrelated results are recorded, not repaired by changing this item's scope. This session's label receipt is committed.
+  **UNJUDGEABLE, not run:** a live consent readback, `deployed-inventory`, `migration-drift`, and the credentialed general
+  contrast/booking sweeps. They require the live credentials forbidden to this session. The browser proof here is scoped
+  to this change and does not claim those broader checks ran. No push, publication, deployment, paid send or live schema change.
+  **Release step, not a decision:** publish `create-booking` before publishing the app, in the next ordinary release
+  (`FOR-ANDREW.md`, DO, AT YOUR NEXT RELEASE). A session then checks one unchecked and one checked booking's stored consent
+  against the released function and ticks 99.2f. The checkbox and paragraph must be live before the registration filing.
+  **Order settled by 97.91 (2026-10-18):** the line above conflicts with 97.64 (site first, then `create-booking`). `docs/release-sheet.md` does the website first and `create-booking` straight after, in the same sitting, and says why.
+  **99.2f's local work is finished; the next worker starts at 99.2g. The parent stays open.**
+  (Moved out of 99.2 as its own box on 2026-11-13 by an AI, from that day's triage, so 99.2g's texting question no longer hides launch email work. Text moved whole; the parent keeps the plan and the original acceptance criteria.)
+  LIVE RUN NEEDED (2026-11-13): `create-booking` and the app have been live since the 2026-11-06 release (create-booking v90, website `e5c6a8a1`). A session checks one unchecked and one checked booking's stored consent against the released function, then ticks 99.2f.
+
+- [ ] **99.2i — consent-aware routing and reminder/review timing.** Email fallback while texting is unavailable; invoice,
+  receipt and marketing remain email; review text next evening versus thank-you email without consent. No paid sends.
+  (Moved out of 99.2 as its own box on 2026-11-13 by an AI, from that day's triage, so 99.2g's texting question no longer hides launch email work. Text moved whole; the parent keeps the plan and the original acceptance criteria.)
+
+- [ ] **99.2j — full lifecycle proof and release handoff.** Update the matrix and its check, render every approved email,
+  run the bilingual and booking consent browser proof, then hand Andrew the registration/publication steps. No live text
+  service is enabled by a worker. Tick the parent only when every original done-when below is actually true.
+  (Moved out of 99.2 as its own box on 2026-11-13 by an AI, from that day's triage, so 99.2g's texting question no longer hides launch email work. Text moved whole; the parent keeps the plan and the original acceptance criteria.)
+
 - [ ] **99.3 — Follow-up to 9.17: 9.17 — DONE 2026-10-10: one `platform-admin` call per first gear open,**
   DECIDED: The back office stays at `/admin` and keeps the name "back office." The new design replaces the old screen outright, with no temporary address and no waiting period, because there are no real detailers yet and the site isn't live. The "Back office" row comes out of the Settings gear, so Andrew reaches it only by going to `/admin` directly. PLAN: 1. Delete the old back office screen at `/admin`, and build the new one (Today, Detailers, Money, System, per the approved `back-office-mockup.html`) straight into that address. 2. Remove the temporary `/admin/office` address and its route. 3. Remove the "Back office" row from the Settings gear in `GearMenu.jsx`, along with the "is this person the platform owner?" question it asks and its cache (the 9.17 code). 4. Update every place in the app that points to the back office (such as the return link after viewing a detailer's account) so it uses `/admin`. 5. Update or retire any checks that depended on the old screen, including `scripts/admin-preconditions.mjs` and `scripts/gear-whoami.mjs`. Do not leave a check that fails only because the thing it tested was deleted. 6. Leave `docs/gotchas.md` line 120 ("the one red 404") in place only if the 404 can still happen. Otherwise remove it, because the line it explains no longer exists. 7. Keep the server's rule that a signed-in non-admin sees "Page not found" at `/admin`. This protection stays on the server. 8. Put the signed-in person's name and a sign-out button at the top of the new screen, as the roadmap already requires. DONE WHEN: - Opening `yourdomain.com/admin` as the platform owner shows the new back office, and no trace of the old one. - `/admin/office` shows "Page not found." - Opening the Settings gear as the owner and as an ordinary detailer shows no "Back office" row, and the browser console shows no `platform-admin` request or red 404 line on opening the gear. - A signed-in non-admin who types `/admin` sees "Page not found." - Detailers' `/app` works exactly as before. - Every remaining check script passes, and none points at a deleted screen. - Andrew has looked at the rebuilt back office and accepted it (the existing done-when for 9.12a). NOT DOING: - No `/office` or `/backoffice` address, and no separate address such as `admin.yourdomain.com`. - No forwarding from an old address, and no keeping the old screen alive alongside the new one. - No renaming "back office" to "admin page." - No change to `/app`, the detailers' dashboard. - No change to the server's secrecy rule (a non-admin gets "not found," never "you're not an admin"). ## Bottom line Done: the write-up is above, in the four sections you asked for. Nothing for you to do except press "Settled" so the workers receive it. It records that your back office stays at `/admin`, the new design replaces the old screen outright, the temporary `/admin/office` address is dropped, and the Back office row comes out of the Settings gear. I added the usual closing paragraph after the write-up, so the four sections themselves can be copied on their own. Nothing is built yet, because I can't change the project from here. Nothing is broken.
   Acceptance criteria:
