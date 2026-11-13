@@ -9,7 +9,9 @@ import { icsUrl } from "../lib/api.js";
 import { money, phone, time12 } from "../lib/format.js";
 import { useBookingBusiness } from "./BookingBusinessContext.jsx";
 
-export default function BookingConfirmed({ booking, form, notBooked }) {
+// `embedded` (Studio S1): drawn inside a site section, so no masthead, no second
+// h1 or main landmark, and the site's own colours rather than the inline brand ones.
+export default function BookingConfirmed({ booking, form, notBooked, embedded = false }) {
   useLocale();
   const { business, branding, brandVars } = useBookingBusiness();
   // ROADMAP 2.12 — THE SCREEN MAKES THE SAME PROMISE THE EMAIL JUST MADE, and
@@ -17,6 +19,7 @@ export default function BookingConfirmed({ booking, form, notBooked }) {
   // because those are two reads that can disagree. What does NOT change: the
   // time is held either way, so nothing about the appointment card moves.
   const isRequest = booking.status === "pending";
+  const Heading = embedded ? "h2" : "h1";
   const said = useRef(null);
   useEffect(() => { said.current?.focus(); }, []);
   const dateLabel = new Date(`${booking.booking_date}T12:00:00`).toLocaleDateString(intlLocale(), {
@@ -24,8 +27,8 @@ export default function BookingConfirmed({ booking, form, notBooked }) {
   });
 
   return (
-    <div className="bk" style={brandVars}>
-      <header className="bk-header">
+    <div className={embedded ? "bk bk-embedded" : "bk"} style={embedded ? undefined : brandVars}>
+      {!embedded && <header className="bk-header">
         <div className="inner">
           {branding?.logo_url && <img src={branding.logo_url} alt="" />}
           <div>
@@ -33,7 +36,7 @@ export default function BookingConfirmed({ booking, form, notBooked }) {
             <div className="tagline">{isRequest ? t("Request received") : t("Booking confirmed")}</div>
           </div>
         </div>
-      </header>
+      </header>}
 
       {/* ROADMAP 8.5b — the main landmark, the last of the booking surface to
           get one. **This screen had never been measured by anything**: it is
@@ -41,7 +44,7 @@ export default function BookingConfirmed({ booking, form, notBooked }) {
           see it was to make a booking. `app/fixture-confirmed.html` mounts it
           against a fixture instead, and the walk found exactly what the other
           public pages had — no landmark and a heading skip. */}
-      <div className="bk-wrap" role="main" style={{ paddingBottom: 40 }}>
+      <div className="bk-wrap" role={embedded ? undefined : "main"} style={{ paddingBottom: 40 }}>
         <div style={{ textAlign: "center", padding: "26px 0 18px" }}>
           <div style={{
             width: 56, height: 56, borderRadius: "50%", margin: "0 auto 12px",
@@ -60,9 +63,9 @@ export default function BookingConfirmed({ booking, form, notBooked }) {
               replaces the form, and a screen arriving with its own live region
               is not reliably read, so focus moves here and the heading is
               spoken — the ConfirmTap pattern. No ring: it is not a control. */}
-          <h1 ref={said} tabIndex={-1} style={{ outline: "none" }}>
+          <Heading ref={said} tabIndex={-1} style={{ outline: "none" }}>
             {isRequest ? t("We’re holding your time") : t("You’re booked")}
-          </h1>
+          </Heading>
           <p className="bk-muted" style={{ marginTop: 6 }}>
             {isRequest
               ? t("Nobody else can take it while we look at your request. We’ll email {email} as soon as it’s accepted.",

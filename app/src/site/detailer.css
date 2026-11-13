@@ -1,0 +1,65 @@
+/* The detailer's preview chrome (Detailer.jsx). Plain and quiet, so the site is what they look at: a white bar at the
+   top, a sheet for a comment, numbered pins. Phone first; 44 px targets; the site's own sticky bar sits under ours. */
+.dp { --dpbar: 56px; padding-top: var(--dpbar); }
+.dp .site-nav { top: var(--dpbar); }
+.dp-ui { font: 15px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; color: #111; box-sizing: border-box; }
+.dp-ui *, .dp-ui *::before, .dp-ui *::after { box-sizing: border-box; }
+.dp-bar {
+  position: fixed; inset: 0 0 auto 0; z-index: 2147483000; height: var(--dpbar);
+  display: flex; align-items: center; gap: 12px; padding: 0 12px; background: #fff; border-bottom: 1px solid #ddd;
+}
+.dp-title { flex: 1; min-width: 0; margin: 0; display: flex; flex-direction: column; line-height: 1.2; }
+.dp-title b { font-size: 15px; }
+.dp-title span { font-size: 13px; color: #555; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dp-seg { display: flex; gap: 4px; padding: 3px; border-radius: 10px; background: #f0f0f0; flex: none; }
+.dp-seg button { min-height: 44px; min-width: 44px; padding: 0 12px; border: 0; border-radius: 8px; background: transparent; font: 600 14px system-ui, sans-serif; color: #444; cursor: pointer; }
+.dp-seg button[aria-pressed="true"] { background: #111; color: #fff; }
+.dp-hint { position: fixed; left: 50%; top: calc(var(--dpbar) + 8px); transform: translateX(-50%); z-index: 2147483000; margin: 0; padding: 6px 12px; border-radius: 99px; background: #111; color: #fff; font-size: 13px; pointer-events: none; }
+.dp-example { margin: 0; padding: 10px 12px; background: #fff4d6; border-bottom: 1px solid #e6d29a; font-size: 14px; }
+.dp-comment [data-section] { cursor: crosshair; }
+.dp-comment [data-section]:hover { outline: 2px dashed rgba(17, 17, 17, .35); outline-offset: -2px; }
+.dp-pin {
+  position: absolute; z-index: 2147482000; width: 28px; height: 28px; margin: -14px 0 0 -14px; display: grid; place-items: center;
+  border-radius: 50%; background: #111; color: #fff; font: 700 13px system-ui, sans-serif; box-shadow: 0 0 0 3px #fff; pointer-events: none;
+}
+.dp-pin.new { background: #d33c1f; }
+.dp-sheet {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 2147483001; max-height: 45vh; overflow: auto;
+  padding: 16px 16px calc(16px + env(safe-area-inset-bottom)); background: #fff; border-radius: 16px 16px 0 0; box-shadow: 0 -8px 30px rgba(0, 0, 0, .25);
+}
+.dp-sheet h2 { margin: 0 0 8px; font-size: 17px; display: flex; align-items: center; gap: 8px; }
+.dp-n { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: #d33c1f; color: #fff; font-size: 13px; }
+.dp-sheet label { display: block; font-weight: 600; margin-bottom: 6px; }
+.dp-sheet textarea { width: 100%; font: 16px/1.4 system-ui, sans-serif; padding: 10px; border: 1px solid #bbb; border-radius: 10px; resize: vertical; }
+.dp-row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px; }
+.dp-ui button:not(.dp-seg button):not(.dp-votes button) { min-height: 44px; padding: 0 18px; border: 0; border-radius: 10px; background: #111; color: #fff; font: 600 15px system-ui, sans-serif; cursor: pointer; }
+.dp-ui button.dp-quiet { background: #eee; color: #111; }
+.dp-ui button:disabled { opacity: .5; cursor: default; }
+.dp-ui :focus-visible { outline: 3px solid #2457e6; outline-offset: 2px; }
+.dp-err { color: #b42318; margin: 8px 0 0; }
+.dp-end { padding: 32px 16px 120px; background: #f6f6f6; border-top: 1px solid #ddd; }
+.dp-end h2 { margin: 0 0 12px; font-size: 20px; }
+.dp-end ul { list-style: none; margin: 0 0 16px; padding: 0; max-width: 640px; }
+.dp-end li { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid #ddd; }
+.dp-votes { display: flex; gap: 8px; }
+.dp-votes button { min-height: 44px; padding: 0 12px; border: 1px solid #bbb; border-radius: 10px; background: #fff; font: 600 14px system-ui, sans-serif; color: #111; cursor: pointer; }
+.dp-votes button[aria-pressed="true"] { background: #111; color: #fff; border-color: #111; }
+.dp-note { color: #444; }
+.dp-happy { width: 100%; max-width: 640px; min-height: 52px !important; font-size: 17px !important; }
+.dp-done { font-weight: 600; color: #166534; }
+.dp-toast { position: fixed; left: 50%; bottom: calc(16px + env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 2147483001; margin: 0; padding: 10px 16px; border-radius: 10px; background: #111; color: #fff; max-width: calc(100% - 32px); }
+.dp-pickbar {
+  position: sticky; bottom: 0; z-index: 2147483000; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px;
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: #fff; border-top: 1px solid #ddd;
+}
+.dp-pickbar p { margin: 0; flex: 1 1 200px; }
+.dp-msg { max-width: 34rem; margin: 0 auto; padding: 18vh 20px; font: 17px/1.5 system-ui, sans-serif; color: #111; }
+.dp-msg h1 { font-size: 26px; margin: 0 0 12px; }
+@media (min-width: 768px) { .dp-sheet { left: 50%; right: auto; width: 560px; transform: translateX(-50%); } }
+/* What the Studio took from the detailer's current website, each with its page, for them to check */
+.dp-web { padding-bottom: 32px; background: #fffbea; }
+.dp-web li { align-items: flex-start; }
+.dp-web li > div { display: grid; gap: 2px; min-width: 0; }
+.dp-web .dp-val { overflow-wrap: anywhere; white-space: pre-line; }
+.dp-web a { color: #444; font-size: 14px; overflow-wrap: anywhere; }
+.dp-web button { flex: none; min-height: 44px; padding: 0 12px; border: 1px solid #bbb; border-radius: 10px; background: #fff; font: 600 14px system-ui, sans-serif; color: #111; cursor: pointer; }

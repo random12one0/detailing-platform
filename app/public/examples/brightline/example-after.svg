@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1200" viewBox="0 0 1600 1200" role="img" aria-label="Example image: an illustration of a freshly polished paint surface">
+  <!-- An illustration, not a photograph: a close-up of a glossy painted panel after a polish. The site labels it "Example image" in its caption (a label drawn in the picture would be cropped differently at every width). Drawn for the
+       fictional Brightline example; no real work is shown. -->
+  <defs>
+    <linearGradient id="paint" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b2e30"/><stop offset=".45" stop-color="#12474a"/><stop offset="1" stop-color="#061a1c"/>
+    </linearGradient>
+    <linearGradient id="band" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#e9fffb" stop-opacity=".55"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="band2" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#bff3ea" stop-opacity=".22"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="glow" cx=".72" cy=".28" r=".55">
+      <stop offset="0" stop-color="#3fb7a8" stop-opacity=".35"/><stop offset="1" stop-color="#3fb7a8" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="crease" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#000" stop-opacity="0"/><stop offset=".5" stop-color="#000" stop-opacity=".45"/><stop offset="1" stop-color="#000" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="1200" fill="url(#paint)"/>
+  <rect width="1600" height="1200" fill="url(#glow)"/>
+  <!-- the panel's crease line -->
+  <path d="M-40 760 C 420 640, 980 600, 1660 470 L1660 560 C 980 690, 420 730, -40 850 Z" fill="url(#crease)"/>
+  <path d="M-40 760 C 420 640, 980 600, 1660 470" fill="none" stroke="#7fe3d3" stroke-opacity=".35" stroke-width="3"/>
+  <!-- crisp reflections: what a polished surface does -->
+  <path d="M-60 330 C 420 230, 1000 170, 1680 60 L1680 140 C 1000 250, 420 300, -60 400 Z" fill="url(#band)"/>
+  <path d="M-60 470 C 420 380, 1000 330, 1680 230 L1680 262 C 1000 362, 420 410, -60 500 Z" fill="url(#band2)"/>
+  <path d="M-60 980 C 520 880, 1080 840, 1680 760 L1680 800 C 1080 880, 520 920, -60 1020 Z" fill="url(#band2)"/>
+  <circle cx="1180" cy="250" r="9" fill="#f4fffd" opacity=".9"/>
+  <circle cx="1180" cy="250" r="34" fill="#f4fffd" opacity=".12"/>
+</svg>

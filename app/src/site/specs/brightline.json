@@ -1,0 +1,84 @@
+{
+  "schema": 1,
+  "slug": "example_brightline",
+  "tokens": {
+    "font_display": "Newsreader",
+    "font_body": "Chivo",
+    "paper": "#0f2a2b",
+    "paper_2": "#16393a",
+    "ink": "#efece4",
+    "soft": "#a9bab6",
+    "accent": "#ef5a3c",
+    "on_accent": "#1a0703",
+    "radius": 6
+  },
+  "pages": [
+    {
+      "path": "/",
+      "sections": [
+        {
+          "id": "hero",
+          "type": "hero",
+          "variant": "poster",
+          "copy": {
+            "eyebrow": "Neighborhood auto care",
+            "headline": "Care you can see. Prices you can check.",
+            "sub": "Every price below comes straight from our booking system, so what you read is what you get quoted."
+          },
+          "photo": { "bind": "gallery:00000000-0000-4000-8000-000000000801" },
+          "prices": { "bind": "service_group:00000000-0000-4000-8000-000000000201" },
+          "cta": { "bind": "book" },
+          "call": { "bind": "contact.phone" },
+          "area": { "bind": "area" },
+          "sale": { "bind": "sale" }
+        },
+        {
+          "id": "menu",
+          "type": "catalog",
+          "variant": "ticket",
+          "copy": {
+            "title": "The menu, priced by vehicle size",
+            "intro": "Pick the care, then your vehicle. Where the size of your vehicle changes the price, the ticket shows by how much."
+          },
+          "group": { "bind": "service_group:00000000-0000-4000-8000-000000000201" },
+          "add_ons": { "bind": "add_ons" },
+          "plans": { "bind": "plans" }
+        },
+        {
+          "id": "work",
+          "type": "proof",
+          "variant": "wipe",
+          "copy": {
+            "title": "Drag across to see the difference",
+            "intro": "Example images: an illustration of a paint surface, before and after. This sample shop has no photos of its own."
+          },
+          "gallery": { "bind": "gallery.best(1)" },
+          "reviews": { "bind": "reviews.top(3)" }
+        },
+        {
+          "id": "visit",
+          "type": "visit",
+          "variant": "board",
+          "copy": {
+            "title": "Where we work, and when"
+          },
+          "hours": { "bind": "hours.week" },
+          "area": { "bind": "area" },
+          "contact": { "bind": "contact.phone" },
+          "pay": { "bind": "pay" },
+          "faq": { "bind": "faq" }
+        },
+        {
+          "id": "book",
+          "type": "booking",
+          "variant": "inline",
+          "copy": {
+            "title": "Request a time",
+            "intro": "Your price is worked out as you go, by the same system the shop uses. Nothing is charged on this page."
+          },
+          "book": { "bind": "book" }
+        }
+      ]
+    }
+  ]
+}

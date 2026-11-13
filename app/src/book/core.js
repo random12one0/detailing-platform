@@ -114,6 +114,24 @@ export function createBookingTransport({ supabaseUrl, anonKey }) {
       if (!res.ok) throw new Error(data?.message || `Request failed (${res.status})`);
       return data ?? null;
     },
+    // STUDIO S8 — THE PUBLISHED SITE FOR A VERIFIED HOST: { spec, release, revision } or null. Null for a host
+    // that is not verified, a business that is not active and paying, or a site with no live release; the caller
+    // then shows the booking page as before. The spec holds bindings only, never a price (STUDIO-SPEC.md §2c).
+    async publishedSite(host) {
+      const res = await fetch(`${supabaseUrl}/rest/v1/rpc/get_published_site_by_host`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          apikey: anonKey,
+          Authorization: `Bearer ${anonKey}`,
+        },
+        body: JSON.stringify({ p_host: host }),
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok) throw new Error(data?.message || `Request failed (${res.status})`);
+      return data && typeof data.spec === "object" ? data : null;
+    },
     // ROADMAP 8.17 / TRANSLATE-ON-SAVE — THE TENANT'S OWN WORDS IN ANOTHER
     // LANGUAGE. `{ english: spanish }`, which is exactly the shape
     // `localeStore.js`'s `t()` already looks things up in, so a string with no
@@ -289,6 +307,11 @@ export function normalizeSettings(raw) {
     // invisible: no count control, no extra vehicles, payloads identical to
     // what they were. The SERVER caps it too — this is the courteous half.
     max_vehicles_per_booking: Number(settings.max_vehicles_per_booking) || 1,
+    // STUDIO S1 — contract §2e: a site shows the site-wide sale while it runs.
+    // The QUOTE still applies it server-side; these only let a site say so.
+    site_discount_active: settings.site_discount_active === true,
+    site_discount_percent: Number(settings.site_discount_percent) || 0,
+    site_discount_label: settings.site_discount_label ?? null,
   };
 }
 

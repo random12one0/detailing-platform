@@ -1,5 +1,7 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import { fileURLToPath } from "node:url";
+import { decide, fetchPublished } from "./netlify/edge-functions/tenant-site.mjs";
 
 // SMOKE_PROXY_TARGET is test scaffolding only: the headless-browser smoke
 // test runs in a sandbox whose egress proxy Chromium can't use, so the built
@@ -28,8 +30,56 @@ const exampleIndex = {
   },
 };
 
-export default defineConfig({
-  plugins: [react(), exampleIndex],
+// STUDIO S1 — `/site/<slug>` is its own entry (site.html, app/src/site/). Dev and
+// `vite preview` both answer it here, before Vite's SPA fallback would hand it the
+// dashboard's index.html; production does the same with the `/site/*` rule at the
+// top of public/_redirects and netlify.toml.
+const siteEntry = () => (req, _res, next) => {
+  // S7: /site/p/<link> is the detailer's preview page; /p/<link> is the same page as production serves it
+  if (/^\/(site\/((example|p)\/)?[^/?]*|p\/[A-Za-z0-9_-]{1,100})\/?(\?.*)?$/.test(req.url || "")) req.url = "/site.html";
+  next();
+};
+// STUDIO S3 — the Studio starts its phone-preview dev server with STUDIO_PREVIEW_ID set to a random id, and asks for
+// it back here, so it never mistakes another dev server on the same port for its own. Dev server only.
+const previewId = (req, res, next) => {
+  if (req.url !== "/__studio/preview-id") return next();
+  const id = process.env.STUDIO_PREVIEW_ID;
+  res.statusCode = id ? 200 : 404;
+  res.setHeader("content-type", "text/plain; charset=utf-8");
+  res.setHeader("cache-control", "no-store");
+  res.end(id || "");
+};
+// STUDIO S8 — what the edge does for `/` on a detailer's verified address (netlify/edge-functions/tenant-site.mjs), the
+// same code, against the dev server's own data (VITE_SUPABASE_URL: the offline engine in the Studio and its tests).
+const publishedRoot = async (req, _res, next) => {
+  try {
+    if (!/^\/(\?.*)?$/.test(req.url || "") || !process.env.VITE_SUPABASE_URL) return next();
+    const to = await decide(`http://${req.headers.host || "localhost"}${req.url}`, (h) => fetchPublished(h, { base: process.env.VITE_SUPABASE_URL, key: process.env.VITE_SUPABASE_ANON_KEY || "demo-anon" }));
+    if (to) req.url = "/site.html" + to.search;
+  } catch {}
+  next();
+};
+const siteRoute = {
+  name: "studio-site-route",
+  configureServer(server) { server.middlewares.use(previewId); server.middlewares.use(publishedRoot); server.middlewares.use(siteEntry()); },
+  configurePreviewServer(server) { server.middlewares.use(siteEntry()); },
+};
+
+// THE SITE IS A SECOND BUILD, NOT A SECOND INPUT OF THIS ONE (S1 review B1).
+// Two inputs in one build make Rollup split the booking code both pages import
+// into a shared chunk, so the dashboard stops being the ONE `assets/index-*.js`
+// that live-bundle-switches, live-card-claim, live-setup-counts and
+// photo-release-order read off the published site. `vite build` is therefore
+// the dashboard exactly as before; `vite build --mode site` adds site.html and
+// its own assets to the same dist/ without emptying it (see package.json).
+export default defineConfig(({ mode }) => ({
+  plugins: [react(), exampleIndex, siteRoute],
+  // STUDIO S8: a test host mapping (the publish tests and nightly parity map e.g. brightline.example.test to this
+  // laptop) must reach the dev server; Vite refuses unknown Host headers otherwise. Dev server only.
+  server: process.env.STUDIO_TEST_HOSTS ? { allowedHosts: process.env.STUDIO_TEST_HOSTS.split(",").map((h) => h.trim()).filter(Boolean) } : undefined,
+  build: mode === "site"
+    ? { emptyOutDir: false, copyPublicDir: false, rollupOptions: { input: { site: fileURLToPath(new URL("./site.html", import.meta.url)) } } }
+    : undefined,
   preview: smokeTarget
     ? {
       proxy: {
@@ -41,4 +91,4 @@ export default defineConfig({
       },
     }
     : undefined,
-});
+}));
