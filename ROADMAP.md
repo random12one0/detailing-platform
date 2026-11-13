@@ -16678,6 +16678,10 @@ most corroborated finding in the set.
   - The restore result is recorded with a receipt that proves the copy came back and updates the restore-drill heartbeat date
   **Two halves, and only the second waits on Andrew (2026-10-10, 6.1 session).** (1) *Buildable now:* a local throwaway Postgres on this machine, which has none today, plus a restore harness that loads a plain `pg_dump` file into it and checks it against the backup's own contents. That lets `restore-drill.mjs` stop creating a schema inside the live database. (2) *Waits on 6.1a:* decrypting one nightly copy needs the private key, which no session may read. Andrew would have to run the decryption step himself at this machine.
 
+  **ANDREW, 2026-11-13:** Yes, it's there
+  
+    The outside part of this is finished. It is no longer waiting on anybody.
+
 - [x] ~~**6.1c — Publish and verify the visible restore-test status**~~ **CLOSED AS SUPERSEDED BY 9.12a, 2026-10-10 (supervision) — NOT DONE, AND NOT NEEDED.** Andrew, 2026-10-10 20:37, on this panel: *"this dont matter cuz we makeing new admin dashbord look but looks good."* The panel this piece would publish lives in the OLD back office, which 9.12a step 6 removes. The new back office already carries the same date: System's "Restore test" check reads the same `restore-drill` heartbeat (`app/src/lib/officeSystem.js`, `RESTORE_JOB`, warning past 90 days), so it publishes with 9.12a and is verified there. Nothing left here for anyone, Andrew included.
   Release the already-built Back office System health Backups status to production and verify it in the live interface. This piece only exposes and validates the recorded recovery result; it does not add jobs, alerts, tables, or database structure.
   Part 3 of 3 of item 6.1, split out so it can be
