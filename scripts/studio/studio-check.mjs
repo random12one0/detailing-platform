@@ -317,13 +317,17 @@ try {
   const empty = await page.evaluate(() => [...document.querySelectorAll('figure, [data-part="photo"], [data-part="gallery"], .compare, .work-grid')]
     .filter((e) => !e.querySelector('img[src]:not([src=""])') || [...e.querySelectorAll("img")].some((i) => i.complete && !i.naturalWidth))
     .map((e) => e.className || e.tagName.toLowerCase()));
-  line("photo", !!photo && !last.some((s) => s.from === `gallery:${photo.id}`) && !last.some((s) => photoUrls(photo).some((u) => s.imgs.includes(u))) && !refused && !empty.length,
-    !photo ? "the page shows no photo from the gallery" : refused ? "the page refused to draw without it" : empty.length ? `an empty picture frame is left: ${empty.slice(0, 3).join(", ")}` : "gone, and no empty frame is left");
+  // A real detailer may have no photos yet (2026-11-13): then there is nothing to remove, and the site must still leave
+  // no empty frame. With photos in the dashboard, the page must have shown one of them.
+  const noPhotos = !T().gallery_images.some((g) => g.business_id === biz.id && (g.is_active !== false || g === photo));
+  line("photo", (noPhotos || (!!photo && !last.some((s) => s.from === `gallery:${photo.id}`) && !last.some((s) => photoUrls(photo).some((u) => s.imgs.includes(u))))) && !refused && !empty.length,
+    refused ? "the page refused to draw without it" : empty.length ? `an empty picture frame is left: ${empty.slice(0, 3).join(", ")}` : noPhotos ? "the dashboard has no photos yet, and no empty frame is shown" : !photo ? "the page shows no photo from the gallery" : "gone, and no empty frame is left");
   line("review", text.includes(review.quote), text.includes(review.quote) ? "" : "the new review is not on the page");
   await verifyAll("stamps-after");
 
   // ---- 5. the practice booking, on a fresh copy
   await fetch(`${engine.url}/__demo/reset`, { method: "POST", body: "{}" });
+  const bookedBefore = T().bookings.length;   // a real dashboard's copy already holds its upcoming jobs (as busy times)
   if (BREAK === "same-price" && sameA) { const a = engine.db.tables.services.find((s) => s.id === sameA.id); if (a) a.price = sameA.price; }
   p = await profile();
   slotAnswers.length = 0;
@@ -347,7 +351,7 @@ try {
     line("quote", false, walk.error ? `${walk.error}${walk.why ? ` — the page says: ${walk.why}` : ""}` : "no booking was sent");
     line("slots", false, "no booking was sent");
   }
-  line("post", posts.length === 1 && T().bookings.length === 1, `${n(posts.length, "booking")} sent, ${n(T().bookings.length, "booking")} in the test copy`);
+  line("post", posts.length === 1 && T().bookings.length === bookedBefore + 1, `${n(posts.length, "booking")} sent, ${n(T().bookings.length - bookedBefore, "new booking")} in the test copy`);
   line("console", !problems.length, problems.slice(0, 3).join(" | "));
 } catch (e) {
   if (!e.quiet) line("run", false, e.message.split("\n")[0], { says: "The check ran to the end" });
