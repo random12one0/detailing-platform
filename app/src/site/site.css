@@ -73,7 +73,9 @@ html, body { margin: 0; background: #0f2a2b; }
 .site-name {
   flex: 1; min-width: 0; display: flex; align-items: center; min-height: 44px;
   font-family: var(--f-display); font-size: 21px; font-weight: 600; letter-spacing: -.01em;
-  text-decoration: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  /* wraps to a second line before it is ever cut off: as a flex box it could not show an ellipsis, so a long name
+     ("Coastline Auto Detailing" at 390) was simply clipped (2026-11-13) */
+  text-decoration: none; white-space: normal; overflow-wrap: anywhere; line-height: 1.05;
 }
 .site-nav nav { display: none; }
 .site-nav .site-btn { min-height: 44px; padding: 0 16px; font-size: 15px; }
