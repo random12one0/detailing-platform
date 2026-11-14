@@ -1014,6 +1014,14 @@ of this file (97.29–97.63). Items marked `NEEDS ANDREW` are his, not build job
   - **Found on the way, filed as 97.92:** ex3's reveal starts a delayed `show` timer that it does not cancel when the card leaves the screen again, so a quick scroll can leave a card shown while off screen. It is the same before and after the move (it flipped sides between two runs).
   PUBLISHED 2026-10-23 (built and proved; no decision asked of Andrew): everything buildable before a publish is done. After his next publish, the next session does steps (1)-(3) above: confirm both headers arrive on the live `/book/demo-detail`, confirm the live console shows no `[Report Only]` line on real photo and logo screens, then rename `/*` to `Content-Security-Policy`, re-run `node scripts/csp-report-only.mjs`, `node scripts/example-scripts-same-effect.mjs` and `node scripts/preview-frame-headers.mjs`, and after the publish that follows confirm the live booking page still carries frame-ancestors (if not, revert the rename).
   LIVE RUN 2026-11-13 (Claude, main at `5f855d5c`) — NOT ticked, one check red. Live: `curl -sI https://detailingplatform.com/book/demo-detail` shows the ENFORCING `Content-Security-Policy` ending `frame-ancestors 'self' https://detailingplatform.com https://www.detailingplatform.com` (plus `X-Frame-Options: DENY`, which frame-ancestors overrides). An uncommitted read-only Playwright probe (writes blocked in the browser) on live `/`, `/pricing`, `/book/demo-detail`, `/app` signed in as the demo owner and Business: 0 CSP console lines and 0 `securitypolicyviolation` events at 390/768/1440, the Business preview frame drew the booking page (581 chars), no other console error; canary (an image from example.com) caught 2 of 2 at each width. Local: `node --env-file=.env scripts/csp-report-only.mjs` PASS 250 assertions, 0 failed, 54 of 54 views (its photo-door step logged `browserPut: threw: Failed to fetch`, `stored: true`); `scripts/preview-frame-headers.mjs` PASS 16/0. **Red:** `node --env-file=.env scripts/example-scripts-same-effect.mjs` FAIL 117 assertions, 1 failed: `/ex3@1440 same-after-press: line 0: before «ROOT data-c=a lang=en» after «ROOT data-c=b lang=en»`; two re-runs crashed on `TimeoutError` taking a page screenshot (machine busy). Belt: decide whether ex3's paint switcher really differs after the press at 1440 or the check races it, fix, re-run, then tick.
+
+- [ ] **97.90a — `/ex3` reads differently after a press at 1440.**
+  Size: small. Found 2026-11-13 by 97.90's live run (main at `5f855d5c`): `node --env-file=.env scripts/example-scripts-same-effect.mjs` failed 1 of 117, `/ex3@1440 same-after-press: line 0: before «ROOT data-c=a lang=en» after «ROOT data-c=b lang=en»`; two re-runs crashed on a screenshot `TimeoutError` while the machine was busy. Not yet known whether ex3's paint switcher really changes state after the press at 1440 or the check reads it mid-change.
+  Done when:
+  - The cause is written under this box with the command that showed it (a real difference, or a race in the check).
+  - It is fixed in the right place: the example page if the press really changes `data-c`, the check if it reads too early (settling on the page's own state, not on a fixed wait).
+  - `node --env-file=.env scripts/example-scripts-same-effect.mjs` reports 0 failed on two runs in a row, and its screenshot step does not time out on a quiet machine.
+
 - [x] **97.93 — A shared booking link previews with the platform's picture, not the business's (found by 97.42 + 97.44).**
   Done 2026-10-23 (Claude lane): the /book/<slug> edge function now writes og:image, twitter:image and og:image:alt from the business in share.js's order (first https gallery photo, then logo, then https://detailingplatform.com/og-tenant.png) and drops the platform card's 1200x630 size tags; same profile fetch, no new field. Also restored index.html's og:image/summary_large_image lines, which 97.57's landing had silently reverted (tests/share-image.test.mjs was red on main). tests/booking-meta.test.mjs 20/20 (photo, logo, neither, parity with shareMetaFor, failed lookup byte-for-byte unchanged); the 4 new image cases fail on the unfixed function. Reaches link previews with the next deploy.
   97.42's edge function (`app/netlify/edge-functions/booking-meta.mjs`) puts the business's name and description into
@@ -3435,6 +3443,14 @@ and how the wait ends.
   - It deletes its own photo row and object afterwards and reads both back gone; the receipt records the object key, both sizes and the request count, never a key or token.
   - A `--break=trust-claim` sabotage (the recorded size taken from the client) makes the size check go red, and a canary proves the request counter can see a `/storage/v1/object` request.
   - A session with `.env` runs it once clean and once with the sabotage; both receipts are committed under 0.11d2.
+
+- [ ] **0.11d5 — Find out why the local photo upload is refused by R2 (`browserPut: Failed to fetch`).**
+  Size: small. Found 2026-11-13, twice: `scripts/csp-report-only.mjs`'s real photo-door upload from the local build logged `browserPut: threw: Failed to fetch` (its fallback then stored the photo), in both the 0.11d and the 97.90 live runs. That suggests the R2 CORS rule refuses the origin the browser was on. A lead, read and not measured: `scripts/csp-report-only.mjs` serves its page from `http://127.0.0.1:<random port>` (`server.listen(0, ...)`), while the CORS rule in FOR-ANDREW.md allows only `http://localhost:5173` and `http://127.0.0.1:5173` locally, so a random port would be refused by design. This box changes no bucket by itself.
+  Done when:
+  - The cause is measured and written under this box: the origin the browser sent and the bucket's answer to its preflight (`node --env-file=.env scripts/bucket-cors.mjs`, with that origin added as a probe if it is not one already).
+  - If the cause is the random port: the script serves its page on an origin the rule already allows, because a random port cannot be listed in a CORS rule.
+  - If the local dev origin itself (`http://localhost:5173` or `http://127.0.0.1:5173`) is refused: the origin is added to the rule `scripts/cors-rule.mjs` derives and to FOR-ANDREW.md's block, `node scripts/cors-rule.mjs` passes, and pasting the new rule into the buckets is written as a release step for a release session, not done by this box.
+  - A session with `.env` re-runs `node --env-file=.env scripts/csp-report-only.mjs` and its output has no `browserPut: threw` line.
 
 - [ ] **0.12 — Split transactional email onto ZeptoMail, keep Resend for
   campaigns. NEW ROW, 2026-09-22 — this decision had no roadmap item and lived
@@ -21944,6 +21960,13 @@ the dashboard or back office at phone width at all.
 
 ---
 
+- [ ] **8.5g — Give Manage booking and Plan member a `<main>` landmark.**
+  Size: small. Found 2026-11-13 by 8.5's screen-reader structure run (main at `29d216de`, dev server :5173): `scripts/screenreader-structure.mjs` reported `Manage booking: no <main> or role=main - nothing to skip to` and the same for Plan member (main=0, 1 heading each); the other 9 of 11 screens have one. Not yet judged whether the screens lack it or the run reached a not-found state.
+  Done when:
+  - Both screens are opened at 390 and 1440 with a real manage link and a real plan member, and the entry says which state the run had reached.
+  - Whatever state a visitor actually lands on (the screen itself and its not-found state) renders inside one `<main>` that the skip link reaches.
+  - `node --env-file=.env scripts/screenreader-structure.mjs` reports 0 findings on 11 of 11 screens, and each of the two screens shows its own heading, not a not-found message.
+
 ## Wave 9 — Dashboard and back office
 
 - [ ] **9.1 — Setup progress disagrees between the dashboard and the back office.**
@@ -30544,6 +30567,14 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   bytes and remains readable; cleanup respects tenant ownership. Prove the abandonment against
   real R2 and a sabotage that leaves the object behind. Do not rebuild the allowance or grant a
   client permission to remove another business's key.
+
+- [ ] **14.39a — `receipt-abandonment.mjs` finds or installs its own PGlite.**
+  Size: small. Found 2026-11-13 by 14.39's live run (main at `b0dd6c84`): `BASE=http://localhost:5173 node --env-file=.env scripts/receipt-abandonment.mjs --real-r2 --break=leave-object` crashed with `ERR_MODULE_NOT_FOUND` for `@electric-sql/pglite/dist/index.js`, because the default PGlite folder (`%TEMP%/pglite`) held only part of a temporary install. The script loads PGlite from that folder (`PGLITE_DIR`) and nothing checks it first. 22 scripts and tests load PGlite the same way.
+  Done when:
+  - Before anything else, the script checks that `PGLITE_DIR` holds `node_modules/@electric-sql/pglite/dist/index.js`. If not, it either installs a pinned version of `@electric-sql/pglite` into that folder itself, or stops with one line that names the exact setup command; the script's header documents which.
+  - A run against an empty or half-cleaned `PGLITE_DIR` no longer crashes with `ERR_MODULE_NOT_FOUND`: it installs and continues, or refuses with that line.
+  - The check lives in one helper that this script uses; moving the other 21 PGlite users onto it is allowed, not required.
+  - A session with `.env` then runs the `--real-r2 --break=leave-object` run and the clean `--real-r2` run; both receipts are 14.39's evidence.
 
 ### 14.38 — The job record scrolled sideways 16px at 320 in Spanish, and `1fr` is why — FIXED 2026-10-08
 
