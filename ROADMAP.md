@@ -3426,6 +3426,16 @@ and how the wait ends.
 
   **ANDREW, 2026-10-19:** Do step 9 of your own to-do list (FOR-ANDREW.md), which switches the new photo storage on, then delete the four 'parked' lines on item 0.11d so the belt can run the final live checks.
 
+- [ ] **0.11d2a — A real browser upload to R2, with a lying size, checked against R2's own figure.**
+  Size: medium. Found 2026-11-13 by 0.11d's live run (main at `a8260546`): 0.11d2 could not be run because no committed script makes a real browser upload to R2. `scripts/job-photo-wire.mjs` answers the door and the PUT itself and writes nothing, so it cannot prove 0.11d2's two criteria. This box builds the script; 0.11d2 ticks on its receipt.
+  Done when:
+  - A committed script (for example `scripts/r2-upload-live.mjs`) uploads one photo through the real job-photo flow in a browser on the local dev server (`http://localhost:5173`, an origin the bucket's CORS rule allows) against the live `photo-door`, as the demo owner.
+  - It counts requests to `/storage/v1/object` on the job-photo path and requires 0.
+  - The client claims `claimed_bytes` 1 for a real body; the script reads R2's `head` for that object and requires `job_photos.bytes` to equal the head figure, not 1.
+  - It deletes its own photo row and object afterwards and reads both back gone; the receipt records the object key, both sizes and the request count, never a key or token.
+  - A `--break=trust-claim` sabotage (the recorded size taken from the client) makes the size check go red, and a canary proves the request counter can see a `/storage/v1/object` request.
+  - A session with `.env` runs it once clean and once with the sabotage; both receipts are committed under 0.11d2.
+
 - [ ] **0.12 — Split transactional email onto ZeptoMail, keep Resend for
   campaigns. NEW ROW, 2026-09-22 — this decision had no roadmap item and lived
   only in `FOR-ANDREW.md`, which is exactly how a commitment evaporates.**
@@ -13252,6 +13262,15 @@ requested.
   email builders (the rest are helpers). A person still has to look at them.
   **AUTHORIZED 2026-10-23 at 18:33, recorded by supervision 2026-10-25:** Andrew approved the test batch to ramdom12one0@gmail.com. No further go-ahead or inbox choice is needed. `scripts/send-test-emails.mjs` needs the credentialed operator and the existing shared sending allowance; do not treat this authorization as evidence of delivery. This supervisor sent nothing.
   BLOCKED 2026-11-13 (Claude, main at `a029c211`), nothing sent: `scripts/send-test-emails.mjs` cannot meet this item's criteria. Its `ALL` list holds 5 templates (confirmation, receipt, quote, owner, campaign) against the 18 exported builders / 35 variants this item reviewed, it writes no receipt and reads back no `email_sends` row, and it has no NOT SENT list. Running it would spend 5 sends of the shared Resend reputation the business uses and still could not tick. Belt: extend it (every sendable builder EN+ES to the approved inbox, read back one `email_sends` row per send into a receipt, name each unsendable template with its reason, count taken from `emailTemplates.ts` at run time), then a session with `.env` runs it once.
+
+- [ ] **3.4ga — Make `send-test-emails.mjs` cover every template and record delivery rows.**
+  Size: medium. Found 2026-11-13 by 3.4g's blocked live run (main at `a029c211`): `scripts/send-test-emails.mjs` holds 5 templates (confirmation, receipt, quote, owner, campaign) against the 18 exported builders and 35 variants 3.4g reviewed, writes no receipt, reads back no `email_sends` row and has no NOT SENT list. Running it as it stands would spend 5 sends of the shared Resend allowance and still could not tick 3.4g.
+  Done when:
+  - The template list is taken from `supabase/functions/_shared/emailTemplates.ts` at run time, and the script prints the count it found.
+  - Every sendable builder is sent once in English and once in Spanish to the inbox Andrew approved on 2026-10-23 (named in 3.4g's AUTHORIZED line, not repeated here).
+  - One `email_sends` row is read back per send and written to a receipt; each unsendable template is listed as NOT SENT with its reason.
+  - `--dry-run` sends nothing and prints the plan, and a sabotage that drops one template from the list makes the count check go red.
+  - A session with `.env` runs it once; the receipt is 3.4g's delivery evidence.
 
 - [x] **3.4a — DONE 2026-09-24. ~~`campaignEmail` is marketing, and marketing is
   forbidden.~~ THE RULE WAS REVERSED BY ITS AUTHOR ON 2026-09-21, SO THE
@@ -25466,6 +25485,14 @@ the dashboard or back office at phone width at all.
   Cowork's; the line numbers and the seven-against-four count are this
   session's, read at the commit carrying this entry.*
 
+- [ ] **9.21a — A live press of a repeated receipt whose thank-you did not go out.**
+  Size: small. Found 2026-11-13 by 9.21's live run (main at `bb2a8a2e`): no committed script makes the press 9.21 needs, a real `duplicate` answer with `thank_you_sent` false. `scripts/send-invoice-live.mjs` presses real duplicates, but every one has the thank-you sent, so the screen correctly said "Receipt + thank-you sent." and the other branch was never reached. The seven-site press script lives in the Control Room lane folder, not this repo.
+  Done when:
+  - A committed script stages a finalized demo-detail job whose thank-you is already off (or recorded as failed), with a `fixture.test` customer email so no real inbox is written to.
+  - It presses "Email the receipt" twice on the job record at 1440 and 392, and asserts the server answers `duplicate` with `thank_you_sent` false and the screen reads "Receipt sent. The thank-you email did not go out."
+  - A sabotage that forces the old sentence goes red, and the job is deleted afterwards and read back gone.
+  - A session with `.env` runs it once; the receipt is 9.21's evidence.
+
 - [x] **9.22 — `bk-bar-clearance`'s ceiling question asks about five boxes and
   there are seven, and the two it misses are the first ones anybody types into.**
   Assigned to DP Cowork2 by the manager, 2026-10-08, off 2.15a's tick. **Filed
@@ -26957,6 +26984,15 @@ event id.
   - A loop against deployed `reschedule-booking` receives a 429 after the configured ceiling
   - A loop against deployed `accept-quote` receives a 429 after the configured ceiling
   - The recorded evidence distinguishes deployed live results from local-handler results
+
+- [ ] **14.9ba — A rate-limit loop that calls the deployed booking functions.**
+  Size: medium. Found 2026-11-13 by 14.9b's live run (main at `038776b6`): no committed loop calls the DEPLOYED functions. `tests/rate-limit-loops.test.mjs` runs this checkout's handlers in Node, `scripts/rate-limit-coverage.mjs` reads source only, and `scripts/address-429-repro.mjs` is address-suggest's. A deployed loop is 601 or more public calls per function from this machine's real IP, which then sits refused for that window and leaves `rate_hits` rows keyed on it, so it must clean up after itself.
+  Done when:
+  - The loop gains a `--deployed` mode (or a sibling script) that calls deployed `cancel-booking`, `reschedule-booking` and `accept-quote` with booking ids that do not exist, so nothing real is cancelled, moved or accepted.
+  - It counts answers per function (200 or 404 against 429), requires a 429 once the configured ceiling is passed, and records `target: deployed` in its receipt so local and deployed results cannot be confused.
+  - It deletes its own `rate_hits` rows by exact bucket and key afterwards and reads back zero.
+  - It refuses to start without an explicit `--deployed`, and the local mode's results are unchanged (`node --test tests/rate-limit-loops.test.mjs` still passes).
+  - A session with `.env` runs it once per function; the receipt is 14.9b's evidence.
 
 ### 14.10 — the sweep was measuring its own patience, and 1440 was mostly innocent
 
@@ -30096,6 +30132,13 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   walk** — human-only checks no script substitutes for.
   `docs/testing/phones-we-do-not-own.md` is where that family is written down.
 
+- [ ] **14.24a — `accessible-names.mjs` sets up its own confirmed demo job.**
+  Size: small. Found 2026-11-13 by 14.24's live run (main at `491c0ed4`): Part 3, `scripts/accessible-names.mjs`, failed 2 of 114 (`1440/job/found: no usable job row came back` and the same at 392) because the demo tenant held no `confirmed` job with a phone and email that day, so the pinned bar was never reached. A data gap, not a naming defect.
+  Done when:
+  - The script creates its own `confirmed` demo-detail booking with a phone and email before the job-record step, the way `scripts/late-flag-two-jobs.mjs` stages its rows, and deletes it afterwards.
+  - The demo tenant's booking count is the same before and after the run, and the script prints both counts.
+  - `node --env-file=.env scripts/accessible-names.mjs` reaches the pinned bar at 1440 and 392 whatever the tenant already holds, and its existing sabotage still goes red.
+
 ### 14.25 — The credential scanner's population is markdown only, so the file types that actually held a password were never in its net — BUILT 2026-10-06
 
 - [x] **Found 2026-10-03, by a password sitting in a `.mjs` comment that no check
@@ -32622,6 +32665,16 @@ decisions, not build jobs.
   Acceptance criteria:
   - His decision is written in BUSINESS-RULES.md
   - If invite-only: `/pricing` buttons lead to the application form, the form's submissions reach Andrew, and `/app` signup without an invite is closed, checked at 390 and 1440
+
+- [ ] **97.37a — A live signup check a script runs with a generated test account.**
+  Size: medium. Found 2026-11-13 by 97.37's blocked live run (main at `e0f8f614`): the tick needs a throwaway signup on the production site, no committed script does it (`scripts/awaiting-payment-gate.mjs` runs locally against fed rows), and a session does not type a password into production by hand. A script with a generated test account removes the need for a person.
+  Done when:
+  - A committed script creates an account through the real signup (`create-business`) with a generated `fixture.test` address and a generated password held only in memory (never printed, logged, written to a receipt or committed).
+  - Signed in as that account, it reads "Finish payment to go live", and it reads that business's public booking page as not found and `available-slots` as refused.
+  - The business is marked so it can be found and removed, without that mark exempting it from the payment wait (check which marks `create-business` and the paywall read before choosing one).
+  - It deletes the business and the auth user afterwards and reads both back gone, even when an earlier step failed.
+  - A sabotage that reads an already-paid demo business instead goes red on the waiting-screen check.
+  - A session with `.env` runs it once against https://detailingplatform.com; the receipt is 97.37's evidence.
 
 - [ ] **97.95 — An account waiting for its first payment can still use owner programs on the server (P-3).**
   ~~NEEDS ANDREW: the belt held this job's work instead of merging it — main could not be moved to the checked result (Please commit your changes or stash them before you merge. Aborting); main is unchanged.~~
