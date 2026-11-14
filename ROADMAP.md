@@ -3426,7 +3426,7 @@ and how the wait ends.
 
   **ANDREW, 2026-10-19:** Do step 9 of your own to-do list (FOR-ANDREW.md), which switches the new photo storage on, then delete the four 'parked' lines on item 0.11d so the belt can run the final live checks.
 
-- [ ] **0.11d2a — A real browser upload to R2, with a lying size, checked against R2's own figure.**
+- [ ] **0.11d4 — A real browser upload to R2, with a lying size, checked against R2's own figure.**
   Size: medium. Found 2026-11-13 by 0.11d's live run (main at `a8260546`): 0.11d2 could not be run because no committed script makes a real browser upload to R2. `scripts/job-photo-wire.mjs` answers the door and the PUT itself and writes nothing, so it cannot prove 0.11d2's two criteria. This box builds the script; 0.11d2 ticks on its receipt.
   Done when:
   - A committed script (for example `scripts/r2-upload-live.mjs`) uploads one photo through the real job-photo flow in a browser on the local dev server (`http://localhost:5173`, an origin the bucket's CORS rule allows) against the live `photo-door`, as the demo owner.
