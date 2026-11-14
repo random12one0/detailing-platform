@@ -157,3 +157,8 @@ test("hidden characters are refused, and look-alike letters and hyphenated count
   // and ordinary hyphenated words still pass
   for (const text of ["One-stop care", "Hassle-free and streak-free", "A care-free afternoon"]) assert.equal(typedFact(text), null, text);
 });
+
+test("a spec binds to an example's slug or a real business's own address name, nothing else (2026-11-13)", () => {
+  for (const slug of ["example_brightline", "shine-co", "demo-detail"]) assert.ok(!codes(validateSpec({ ...clone(), slug })).includes("bad_shape"), slug);
+  for (const slug of ["Shine-Co", "shine_co", "-shine", "a", "x".repeat(64), "", null]) assert.ok(codes(validateSpec({ ...clone(), slug })).includes("bad_shape"), String(slug));
+});

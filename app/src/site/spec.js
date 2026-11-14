@@ -244,8 +244,11 @@ export function validateSpec(spec, profile = null, { live = false } = {}) {
   if (!spec || typeof spec !== "object" || Array.isArray(spec)) return { ok: false, errors: [{ path: "", code: "bad_shape", message: "A spec is a JSON object" }] };
   keysOnly(spec, ["schema", "slug", "tokens", "pages"], "spec");
   if (spec.schema !== 1) err("spec.schema", "bad_shape", "schema must be 1");
-  // S1 specs are committed examples, bound to a slug no real business can hold (see site/main.jsx).
-  if (typeof spec.slug !== "string" || !/^example_[a-z0-9-]+$/.test(spec.slug)) err("spec.slug", "bad_shape", "an example spec's slug is example_<name>");
+  // A spec binds to ONE business by its address name: a committed example's `example_<name>` (a slug no real business
+  // can hold, see site/main.jsx), or, since the Studio builds real detailers' sites (2026-11-13), a real business's own
+  // slug under the database's rule (`slug ~ '^[a-z0-9][a-z0-9-]{1,62}$'`, 20260827000100_tenant_core.sql). Which
+  // business's data it draws is still decided by the profile it is validated against, never by the spec alone.
+  if (typeof spec.slug !== "string" || !/^(example_[a-z0-9-]+|[a-z0-9][a-z0-9-]{1,62})$/.test(spec.slug)) err("spec.slug", "bad_shape", "a spec's slug is example_<name> or a business's own address name");
 
   const tokens = spec.tokens;
   if (!tokens || typeof tokens !== "object" || Array.isArray(tokens)) err("spec.tokens", "bad_shape", "tokens are required");
