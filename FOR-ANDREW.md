@@ -55,7 +55,7 @@ Everything else in this file is done, or is AI work: publishing and releasing ha
 **Before launch**
 
 1. **One phone sitting, about 25 minutes, with a real iPhone and a real Android.** Do the booking walk (ROADMAP 2.15 and 8.2; the "Twenty minutes on your iPhone" row below has the steps), then subscribe the phone's calendar to your jobs (97.53), then tap one job notification and say what opened (14.34).
-2. **Sign in to Stripe when an AI asks**, so it can fetch the test key (12.1, 97.68). Nothing else.
+2. ~~**Sign in to Stripe when an AI asks**, so it can fetch the test key (12.1, 97.68). Nothing else.~~ **Not needed any more (2026-11-13):** the Stripe practice (sandbox) key is already in `.env` and is the same key the live programs use. A session can re-run 12.1 and 97.68 without you.
 3. **At launch prep:** sign in and say OK when an AI creates the Cloudflare cache-purge token (0.11bd), and set a real password on the demo owner login yourself when the demo logins come out (12.4); no AI handles passwords.
 
 **After launch: money and business calls, no rush**
@@ -461,6 +461,8 @@ as "awaits apply" and stays green, and the unapplied-change check (`migration-dr
 has not pushed, published, deployed or changed the database.
 
 ## DO, AT YOUR NEXT RELEASE · Let Stripe tell us about refunds (ROADMAP 97.68)
+
+**UPDATE 2026-11-13, later the same day: nothing here is yours, not even signing in.** The Stripe practice (sandbox) key is already in `.env` and matches the key the live programs use. `charge.refunded` was added today to the Connect webhook of the "Detailing platform sandbox" Stripe account, so the question below about whether it was ever added is answered. What is left is AI work: build the fresh practice payment (ROADMAP 97.68a, now its own box for the belt), then a session refunds it and watches the red line go. The paragraphs below are history.
 
 **ANSWERED 2026-11-13, not yours any more beyond signing in.** You said the AIs should find every key and you do not know which Stripe key is meant. An AI fetches the Stripe TEST key through Claude in Chrome while you sign in to Stripe, puts it in `.env` without showing it in chat, and adds `charge.refunded` to the connected-account webhook in test mode. The steps below are now that AI's checklist.
 
@@ -2363,6 +2365,7 @@ still knows them.
 
 
 - [ ] **NEEDS ANDREW · Put the Stripe TEST secret key into `.env`, so the
+  **DONE 2026-11-13, later the same day: you do not need to sign in to Stripe.** The Stripe practice (sandbox) key is already in `.env` and matches the key the live programs use, so a session can re-run the billing walk (ROADMAP 12.1) and the refund check (ROADMAP 97.68) without you. The rest of this row is history.
   **ANSWERED 2026-11-13: your only part is signing in to Stripe when an AI asks.** You said all keys are for the AIs to find and you do not know which Stripe key this is. An AI fetches the TEST key through Claude in Chrome while you are signed in, and saves it to `.env` without it ever appearing in chat (ROADMAP 12.1, 97.68). The steps below are kept as that AI's checklist.
   billing walk can run renewals and failed payments (ROADMAP 12.1).** Added
   2026-10-06.
