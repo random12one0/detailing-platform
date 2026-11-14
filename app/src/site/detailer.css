@@ -1,7 +1,10 @@
-/* The detailer's preview chrome (Detailer.jsx). Plain and quiet, so the site is what they look at: a white bar at the
+﻿/* The detailer's preview chrome (Detailer.jsx). Plain and quiet, so the site is what they look at: a white bar at the
    top, a sheet for a comment, numbered pins. Phone first; 44 px targets; the site's own sticky bar sits under ours. */
-.dp { --dpbar: 56px; padding-top: var(--dpbar); }
-.dp .site-nav { top: var(--dpbar); }
+/* --dptop is everything fixed at the top: the bar, plus in Comment the hint band under it. The page and the site's own
+   sticky nav start below it, so neither layer covers any text. */
+.dp { --dpbar: 56px; --dphint: 40px; --dptop: var(--dpbar); padding-top: var(--dptop); }
+.dp-comment { --dptop: calc(var(--dpbar) + var(--dphint)); }
+.dp .site-nav { top: var(--dptop); }
 .dp-ui { font: 15px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; color: #111; box-sizing: border-box; }
 .dp-ui *, .dp-ui *::before, .dp-ui *::after { box-sizing: border-box; }
 .dp-bar {
@@ -14,7 +17,8 @@
 .dp-seg { display: flex; gap: 4px; padding: 3px; border-radius: 10px; background: #f0f0f0; flex: none; }
 .dp-seg button { min-height: 44px; min-width: 44px; padding: 0 12px; border: 0; border-radius: 8px; background: transparent; font: 600 14px system-ui, sans-serif; color: #444; cursor: pointer; }
 .dp-seg button[aria-pressed="true"] { background: #111; color: #fff; }
-.dp-hint { position: fixed; left: 50%; top: calc(var(--dpbar) + 8px); transform: translateX(-50%); z-index: 2147483000; margin: 0; padding: 6px 12px; border-radius: 99px; background: #111; color: #fff; font-size: 13px; pointer-events: none; }
+.dp-hint { position: fixed; inset: var(--dpbar) 0 auto 0; z-index: 2147483000; height: var(--dphint); margin: 0; display: flex; align-items: center; justify-content: center; background: #fff; border-bottom: 1px solid #ddd; }
+.dp-hint span { padding: 6px 12px; border-radius: 99px; background: #111; color: #fff; font-size: 13px; white-space: nowrap; }
 .dp-example { margin: 0; padding: 10px 12px; background: #fff4d6; border-bottom: 1px solid #e6d29a; font-size: 14px; }
 .dp-comment [data-section] { cursor: crosshair; }
 .dp-comment [data-section]:hover { outline: 2px dashed rgba(17, 17, 17, .35); outline-offset: -2px; }

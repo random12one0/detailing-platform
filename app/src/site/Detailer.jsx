@@ -79,6 +79,8 @@ function Review({ token, data, reload }) {
   const comments = data.comments;
   const thumbs = data.thumbs || {};
   const sections = data.spec.pages[0].sections;
+  // the floating "Thank you." note goes after a few seconds, so it does not sit over the page while they scroll
+  useEffect(() => { if (!said || draft) return undefined; const t = setTimeout(() => setSaid(null), 4000); return () => clearTimeout(t); }, [said, draft]);
 
   // In Comment, a tap on the site does not follow links or press buttons: it marks the spot.
   useEffect(() => {
@@ -90,6 +92,8 @@ function Review({ token, data, reload }) {
       const r = sec.getBoundingClientRect();
       setDraft({ section: sec.dataset.section, part: e.target.closest("[data-part]")?.dataset.part || null, at: { x: Math.round(((e.clientX - r.left) / r.width) * 1000), y: Math.round(e.clientY - r.top) }, n: comments.length + 1 });
       setSaid(null);
+      // the comment sheet takes up to the bottom 45% of the screen: lift a low tap so its pin stays in sight above it
+      if (e.clientY > innerHeight * 0.5) scrollBy({ top: e.clientY - innerHeight * 0.3, behavior: "smooth" });
     };
     document.addEventListener("click", on, true);
     return () => document.removeEventListener("click", on, true);
@@ -119,7 +123,7 @@ function Review({ token, data, reload }) {
           <button type="button" aria-pressed={mode === "comment"} onClick={() => setMode("comment")}>Comment</button>
         </div>
       </div>
-      {mode === "comment" && <p className="dp-ui dp-hint" role="status">Tap anything you want changed.</p>}
+      {mode === "comment" && <p className="dp-ui dp-hint" role="status"><span>Tap anything you want changed.</span></p>}
       <Pins comments={comments} draft={draft} />
       {isExample(data.spec) && <ExampleNote />}
       <Site spec={data.spec} />
