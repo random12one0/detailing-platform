@@ -48,13 +48,16 @@ test("the picker takes a revision and reports taps only for the Studio's own ori
     { cwd: APP, windowsHide: true, stdio: "ignore",
       env: { ...process.env, VITE_SUPABASE_URL: engine.url, VITE_SUPABASE_ANON_KEY: "demo-anon", VITE_STUDIO_ORIGINS: `http://127.0.0.1:${okPort}` } });
   const parents = [okPort, otherPort].map((p) => createServer((q, s) => { const u = new URL(q.url, "http://x"); s.writeHead(200, { "content-type": "text/html" }); s.end(parentPage(SITE, Number(u.searchParams.get("w")) || 390, Number(u.searchParams.get("h")) || 844)); }).listen(p, "127.0.0.1"));
-  const browser = await chromium.launch();
+  // Clean-up is registered BEFORE the launch: when the launch throws (no browser installed, as in the belt's scrubbed
+  // copy), vite, the parent pages and the engine still stop. Otherwise they kept this file alive and the suite hung (2026-11-13).
+  let browser;
   t.after(async () => {
-    await browser.close().catch(() => {});
+    await browser?.close().catch(() => {});
     spawn("taskkill", ["/T", "/F", "/PID", String(vite.pid)], { windowsHide: true, stdio: "ignore" });
     for (const p of parents) p.close();
     await engine.close().catch(() => {});
   });
+  browser = await chromium.launch();
   assert.ok(await until(() => fetch(SITE).then((r) => r.ok)), "the preview's dev server did not start");
 
   // ---- the Studio's own origin

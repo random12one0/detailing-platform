@@ -47,8 +47,11 @@ test("the live site on its own address computes the same look as the preview, el
   const vite = spawn(process.execPath, [path.join(APP, "node_modules/vite/bin/vite.js"), "--port", String(port), "--strictPort", "--host", "127.0.0.1"],
     { cwd: APP, env: { ...process.env, VITE_SUPABASE_URL: engine.url, VITE_SUPABASE_ANON_KEY: "demo-anon", STUDIO_TEST_HOSTS: HOST }, windowsHide: true, stdio: "ignore" });
   const { chromium } = createRequire(path.join(APP, "package.json"))("playwright");
-  const browser = await chromium.launch({ args: [`--host-resolver-rules=MAP ${HOST} 127.0.0.1`] });
+  // Launched INSIDE the try: when it throws (no browser installed, as in the belt's scrubbed copy), the finally still
+  // stops vite and the engine. Outside it, they kept this file's process alive and the whole suite hung (2026-11-13).
+  let browser;
   try {
+    browser = await chromium.launch({ args: [`--host-resolver-rules=MAP ${HOST} 127.0.0.1`] });
     assert.ok(await until(() => fetch(`http://127.0.0.1:${port}/`).then((r) => r.ok)), "the renderer did not start");
     const take = async (url, init) => {
       const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
@@ -68,7 +71,7 @@ test("the live site on its own address computes the same look as the preview, el
     for (const k of keys) for (const [p, v] of Object.entries(preview[k])) if (live[k][p] !== v) diffs.push(`${k} ${p}: preview ${v} · live ${live[k][p]}`);
     assert.deepEqual(diffs.slice(0, 25), [], `${diffs.length} differences`);
   } finally {
-    await browser.close().catch(() => {});
+    await browser?.close().catch(() => {});
     try { spawn("taskkill", ["/T", "/F", "/PID", String(vite.pid)], { windowsHide: true, stdio: "ignore" }); } catch {}
     await engine.close().catch(() => {});
     delete process.env.STUDIO_PUBLISHED; delete process.env.STUDIO_EXAMPLE_PAYING;
