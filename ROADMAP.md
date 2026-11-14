@@ -16666,6 +16666,8 @@ most corroborated finding in the set.
     The outside part of this is finished. It is no longer waiting on anybody.
 
 - [ ] **6.1b — Prove a nightly backup restores outside production**
+  NEEDS ANDREW: the belt held this job's work instead of merging it — the full test suite found the full suite did not complete (timeout: stopped after 30 minutes).
+  The work is safe on branch `belt/6.1b-20261113231739637`. Answer "merge it" to keep it, or say what to change.
   **SUPERVISOR REVIEW 2026-10-13:** the added restore-date test is fair: it adds the nightly receipt type
   and refuses a fixture without weakening existing refusals. The held build is NOT ready to merge:
   `--dump` stamps any supplied dump as this platform's nightly, including its own invented fixture.
