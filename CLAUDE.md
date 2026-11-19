@@ -1,5 +1,7 @@
 # Detailing Platform
 
+**START HERE (2026-11-19): read `docs/WORKFLOW.md`.** The belt is frozen; the work queue is GitHub Issues, `launch` label first, one issue → one branch → one pull request. `ROADMAP.md` is an archive. Where anything below talks about the belt, release sessions or roadmap ticking, `docs/WORKFLOW.md` wins.
+
 A booking and business-management SaaS for car detailers. Each detailer (a
 "tenant") gets a dashboard, a public booking page, optionally their own website
 and their own domain. React + Vite front end, Supabase (Postgres + edge
