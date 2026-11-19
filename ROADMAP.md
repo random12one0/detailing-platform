@@ -1,5 +1,8 @@
 # Roadmap — the fix queue
 
+> **FROZEN 2026-11-19.** This file is now an archive. The work queue is GitHub Issues (label `launch` first). See `docs/WORKFLOW.md`.
+
+
 ---
 
 ## READ FIRST: owner rules that override older wording (2026-11-13)
