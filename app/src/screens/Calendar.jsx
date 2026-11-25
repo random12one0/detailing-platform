@@ -478,7 +478,7 @@ export default function Calendar({ refreshKey = 0 }) {
             <button className="btn sm inline ghost" onClick={() => moveMonth(-1)} aria-label={t("Previous month")}>
               <ChevronLeft strokeWidth={2} />
             </button>
-            <h2>{monthName(cursor)}</h2>
+            <h1 className="title">{monthName(cursor)}</h1>
             <button className="btn sm inline ghost" onClick={() => moveMonth(1)} aria-label={t("Next month")}>
               <ChevronRight strokeWidth={2} />
             </button>

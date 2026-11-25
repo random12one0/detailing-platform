@@ -223,11 +223,10 @@ export default function DaySheet({ date, bookings, inline = false, onClose, onOp
   const cardProps = (key) => {
     if (!openable(key)) return {};
     const toggle = () => setEditing(editing === key ? null : key);
-    return {
-      role: "button", tabIndex: 0, "aria-expanded": editing === key,
-      onClick: toggle,
-      onKeyDown: (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); } },
-    };
+    // Pointer only. The card holds a real switch (and, open, form fields), so
+    // `role="button"` made a button nest focusable controls. The keyboard
+    // path is the switch inside, which opens the same editor.
+    return { onClick: toggle };
   };
   const spanOf = (end) => datesFrom(date, end).length;
   const blockSpan = spanOf(block.end_date);
