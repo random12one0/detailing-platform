@@ -440,6 +440,8 @@ h2 {
   font-size: var(--t-title); letter-spacing: -0.022em; line-height: 1.08;
 }
 h3 { font-size: var(--t-strong); font-weight: 600; }
+/* A section heading under the page h1 is an h2 (no skipped level) that looks like an h3. */
+h2.strong { font-variation-settings: normal; letter-spacing: normal; }
 p { margin: 0; }
 a { color: var(--accent-text); text-decoration: none; }
 /* **A LINK INSIDE A SENTENCE, WITH A HIT AREA — 2026-09-13.** A bare `<a>` in a

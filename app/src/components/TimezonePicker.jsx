@@ -83,6 +83,7 @@ export default function TimezonePicker({ value, onChange }) {
           control with the current zone in it, which is also where the
           keyboard's own type-ahead already worked. */}
       <select
+        aria-label={t("Timezone")}
         value={zones.includes(value) ? value : ""}
         onChange={(e) => onChange(e.target.value)}
         size={query ? Math.min(8, Math.max(3, matches.length)) : undefined}

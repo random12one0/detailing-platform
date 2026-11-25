@@ -462,7 +462,7 @@ export default function Catalog() {
           shrinking — § THE 320 FLOOR's own answer for a row that no longer
           fits, and the two are the same size on both lines. */}
       <div className="row wrap between">
-        <h3>{t("Services")}</h3>
+        <h2 className="strong">{t("Services")}</h2>
         <div className="row wrap" style={{ gap: 6 }}>
           <button className="btn inline" onClick={() => setEditing({ kind: "group", form: { ...EMPTY_GROUP } })}>+ {t("Category")}</button>
           <button className="btn inline" onClick={() => openService(null)}>+ {t("Service")}</button>
@@ -574,7 +574,7 @@ export default function Catalog() {
       {loaded && services.length === 0 && !starterSkipped && (
         <div className="card starter" data-testid="starter-services">
           <div className="tight">
-            <h3>{t("Start with three services")}</h3>
+            <h2 className="strong">{t("Start with three services")}</h2>
             <p className="quiet">{t("Set the prices you charge. Nothing is added until you press the button.")}</p>
           </div>
           {STARTERS.map((x) => (
@@ -599,7 +599,7 @@ export default function Catalog() {
       {loaded && services.length === 0 && starterSkipped && <p className="muted">{t("No services yet. Customers can't book until you add one.")}</p>}
 
       <div className="row between" style={{ marginTop: "var(--sp-5)" }}>
-        <h3>{t("Add-ons")}</h3>
+        <h2 className="strong">{t("Add-ons")}</h2>
         <button className="btn inline" onClick={() => setEditing({ kind: "addon", form: { ...EMPTY_ADDON } })}>+ {t("Add")}</button>
       </div>
       <div className="tight">
@@ -630,7 +630,7 @@ export default function Catalog() {
           are a table, add-ons are a ruled list, and the sizes are a row of
           columns. Three sections, three skeletons, one ground. */}
       <div className="row wrap between" style={{ marginTop: "var(--sp-5)" }}>
-        <h3>{t("Vehicle sizes")}</h3>
+        <h2 className="strong">{t("Vehicle sizes")}</h2>
         <button className="btn inline" onClick={() => setEditing({ kind: "size", form: { label: "", examples: "", bodyTypes: [] } })}>+ {t("Add")}</button>
       </div>
       <p className="muted" style={{ marginBottom: "var(--sp-3)" }}>

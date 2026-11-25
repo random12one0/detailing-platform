@@ -4,7 +4,7 @@
 // do a conversion in their head. The storage units are unchanged — only what
 // you touch is different.
 
-import { useRef, useState } from "react";
+import { Children, cloneElement, isValidElement, useId, useRef, useState } from "react";
 import { Check, Eye, EyeOff, Minus, Plus, ChevronRight } from "lucide-react";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
 // the booking page's. `useAppLocale()` goes in every component that renders
@@ -17,13 +17,22 @@ import { useAppLocale } from "../hooks/useAppLocale.js";
 // sentence underneath saying what it does. The sentence is the point — a
 // label alone tells you the name of a setting, not its consequence.
 export function Setting({ label, help, children, stacked = false }) {
+  // A lone native field gets a real <label for>: without it the row's text sits
+  // beside the control and a screen reader says "edit text" with no name.
+  const uid = useId();
+  const only = Children.count(children) === 1 ? Children.toArray(children)[0] : null;
+  const native = isValidElement(only) && ["input", "textarea", "select"].includes(only.type)
+    && only.props.type !== "file" && !only.props["aria-label"];
+  const fieldId = native ? (only.props.id || uid) : null;
   return (
     <div className={`setting${stacked ? " stacked" : ""}`}>
       <div className="setting-text">
-        <div className="setting-label">{label}</div>
+        {native
+          ? <label className="setting-label" htmlFor={fieldId} style={{ display: "block" }}>{label}</label>
+          : <div className="setting-label">{label}</div>}
         {help && <p className="setting-help">{help}</p>}
       </div>
-      <div className="setting-control">{children}</div>
+      <div className="setting-control">{native ? cloneElement(only, { id: fieldId }) : children}</div>
     </div>
   );
 }
