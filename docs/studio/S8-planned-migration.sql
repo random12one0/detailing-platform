@@ -1,3 +1,4 @@
+-- SUPERSEDED 2026-11-25 by supabase/migrations/20261125120000_published_sites.sql (reviewed, trimmed, applied). Kept for history.
 -- STUDIO S8: publish. PLANNED, NOT APPLIED. Written 2026-11-07 beside the local version (studio-data/sites/<site>/
 -- releases, gates, parity, and studio-data/published.json), which keeps the same fields. Follows S3- and
 -- S7-planned-migration.sql. STUDIO-SPEC.md §1e, §2c layer 4, §6b (releases), §6d (serving published sites).

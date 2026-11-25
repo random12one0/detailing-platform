@@ -193,11 +193,17 @@
         : `<div class="scard pad empty"><h3>No sites yet</h3><p>The platform copy at <span class="mono">${esc(o.settings.platform)}</span> has no example site to add. Point Studio settings at the platform copy.</p>
            <button class="sbtn" data-act="go" data-to="settings">Open Studio settings</button></div>`;
     const alarms = (o.alarms || []).map((a) => `<div class="alarm" role="alert"><b>Alarm.</b> ${esc(a.what)} <button class="sbtn sm" data-act="open" data-site="${esc(a.site)}">Open the site</button></div>`).join("");
-    return `${head}${alarms}<div class="hgrid"><section aria-labelledby="stuSites"><h2 class="h" id="stuSites">Sites <span class="n">${sites.length}</span></h2>${list}${formsHtml()}</section>
+    return `${head}${alarms}<div class="hgrid"><section aria-labelledby="stuSites"><h2 class="h" id="stuSites">Sites <span class="n">${sites.length}</span></h2>${list}${bizHtml()}${formsHtml()}</section>
       <aside aria-labelledby="stuPrev"><h2 class="h" id="stuPrev">Phone preview</h2>${serverCard()}</aside></div>`;
   }
   // 2026-11-13: the website forms detailers sent (read only), and what the Studio read from their current website.
   // Every answer shows its page and the words it came from; a price found there is only listed, never written anywhere.
+  // START FROM A BUSINESS: an address name (a business's slug) becomes a site with a first draft from its brief + dashboard
+  function bizHtml() {
+    return `<div class="scard pad"><h3>Start from a business</h3><p class="sdim small">Type the business's address name (the part after detailingplatform.com/). The Studio reads its website brief and dashboard from the platform database and makes a first draft.</p>
+      <label class="fld"><span>Address name</span><input id="stuBiz" type="text" spellcheck="false" autocomplete="off" placeholder="demo-detail"></label>
+      <button class="sbtn pri" data-act="startbiz"${ST.busy.startbiz ? " disabled" : ""}>${ST.busy.startbiz ? "Reading…" : "Start from this business"}</button>${msg("startbiz")}</div>`;
+  }
   function formsHtml() {
     const f = ST.ov.forms;
     if (!f) return "";
@@ -924,6 +930,7 @@
     if (a === "closesheet") return closeSheet();
     if (a === "field") return openPick({ section: b.dataset.n, part: b.dataset.field, from: null });
     if (a === "example") return act("example", () => post("/api/studio/example"));
+    if (a === "startbiz") return act("startbiz", () => post("/api/studio/business", { slug: document.getElementById("stuBiz")?.value || "" }));
     if (a === "start") return act("start", () => post("/api/studio/preview/start")).then((r) => { if (r && !r.ok) ST.msg.server = ST.msg.start; delete ST.msg.start; ST.stageKey = null; paint(); });
     if (a === "stop") return act("stop", () => post("/api/studio/preview/stop")).then(() => { ST.msg.server = ST.msg.stop; delete ST.msg.stop; ST.stageKey = null; paint(); });
     if (a === "newrev") return act("newrev", () => post("/api/studio/revision", { site: ST.site })).then((r) => { if (r?.ok && r.n) { ST.rev = r.n; ST.shown = null; keep(); load(); } });

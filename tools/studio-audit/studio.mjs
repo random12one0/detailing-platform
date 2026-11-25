@@ -25,6 +25,7 @@ import { createHash, randomBytes, randomUUID } from "node:crypto";
 import { factRoute, loadPack, buildPrompt, readReply, runClaude } from "./studio-ai.mjs";
 import { LETTERS, TRIOS, lookSchema, buildLookPrompt, readLook, assembleLook, bindingSet, distinctness, gateRows, gatesPass, gateFixes, criticSummary, CRITIC_NOTE, runCodex, codexJs, heroOf, pairingOf } from "./studio-looks.mjs";
 import { runCritics } from "./site-critic.mjs";
+import { isSlug, loadBusiness, buildSpec, liveCheck, dbPublish, dbRollback, dbFacts } from "./studio-start.mjs";
 import { cloudConfig, rest, wanted, readSite, AUTOFILL_SCHEMA, AUTOFILL_SYSTEM, autofillPrompt, checkAutofill } from "./studio-cloud.mjs";
 import { clearExpiredSwaps, looksExhausted, usageWords, resetFromText } from "./lib.mjs";
 import path from "node:path";
@@ -493,6 +494,7 @@ export function createStudio({ HERE, json, body, log = () => {}, onExit = true, 
     if (running) return { ok: false, said: `A check is already running (${running.site}, revision ${running.rev}).` };
     const site = store.site(siteId), rev = store.revision(siteId, n);
     if (!site || !rev) return { ok: false, said: "There is no such revision." };
+    if (site.kind === "real") return startLiveCheck(site, rev);
     const st = S(), why = platformWhy(st);
     if (why) return { ok: false, said: `${why} Change it in Studio settings.` };
     const id = "c" + Date.now();
@@ -528,6 +530,33 @@ export function createStudio({ HERE, json, body, log = () => {}, onExit = true, 
     child.on("exit", finish);
     me.finish = finish;
     return { ok: true, id, said: "Checking…" };
+  }
+
+  // A real business has no offline copy to draw on: its spec is checked against its own LIVE dashboard (the platform
+  // database), the same validator the page uses (every binding points at something that exists, no typed fact).
+  function startLiveCheck(site, rev) {
+    const c = cloud();
+    if (!c) return { ok: false, said: "Turn on \"Detailer links and website forms\" (live) in Studio settings: the check reads the business's live dashboard." };
+    const id = "c" + Date.now(), t = Date.now(), at = new Date().toISOString();
+    loadBusiness(c, site.business).then(({ profile }) => liveCheck(rev.spec, profile), (e) => ({ ok: false, lines: [{ pass: false, says: "The live dashboard could not be read", detail: e.message }] }))
+      .then((r) => { try { store.addCheck(site.id, { id, site: site.id, rev: rev.n, spec_hash: rev.spec_hash, started_at: at, finished_at: new Date().toISOString(), ok: r.ok, passed: r.lines.filter((l) => l.pass).length,
+        failed: r.lines.filter((l) => !l.pass).length, skipped: 0, ms: Date.now() - t, error: null, lines: r.lines, shot: false }); } catch (e) { log(`studio: live check ${id}: ${e.message}`); } });
+    return { ok: true, id, said: "Checking against the live dashboard…" };
+  }
+  // START FROM A BUSINESS (issue #4): a real business, by its address name, becomes a site with a first draft built from
+  // its website brief and its dashboard. Nothing is written to the database until Publish.
+  async function startFromBusiness(slug) {
+    slug = String(slug || "").trim().toLowerCase();
+    if (!isSlug(slug)) return { ok: false, said: "Type the business's address name, for example demo-detail." };
+    if (store.site(slug)) return { ok: false, said: `${slug} is already in the Studio.` };
+    const c = cloud();
+    if (!c) return { ok: false, said: "Turn on \"Detailer links and website forms\" and choose live in Studio settings first: the Studio reads the business from the platform database." };
+    let x, spec;
+    try { x = await loadBusiness(c, slug); spec = buildSpec(x); } catch (e) { return { ok: false, said: e.message }; }
+    const now = new Date().toISOString();
+    store.addSite({ id: slug, name: x.business.name, town: x.business.service_area || "", business: slug, kind: "real", status: "drafting", created_at: now });
+    store.addRevision(slug, { n: 1, site: slug, created_at: now, author: "you", note: x.submitted_at ? "First draft from their website brief and dashboard" : "First draft from their dashboard (no brief sent yet)", source: "platform database", spec_hash: hash(spec), spec });
+    return { ok: true, said: `${x.business.name} is in the Studio with a first draft${x.submitted_at ? " built from their website brief" : " (they have not sent the brief, so the words are plain defaults)"}.`, id: slug };
   }
 
   // ---------------------------------------------------------------- what the page reads
@@ -1624,7 +1653,10 @@ export function createStudio({ HERE, json, body, log = () => {}, onExit = true, 
     const c = facts.get(site.id);
     if (!fresh && c && Date.now() - c.at < 60000) return c.biz;
     let biz = null;
-    try { biz = (await inPlatform(S().platform, {}, 30000, childEnv())).businesses?.find((b) => b.slug === site.business) || null; } catch {}
+    try {
+      if (site.kind === "real") { const c = cloud(); biz = c ? await dbFacts(c, site.business) : null; }   // a real business: the platform database
+      else biz = (await inPlatform(S().platform, {}, 30000, childEnv())).businesses?.find((b) => b.slug === site.business) || null;
+    } catch {}
     facts.set(site.id, { at: Date.now(), biz });
     return biz;
   }
@@ -1644,7 +1676,9 @@ export function createStudio({ HERE, json, body, log = () => {}, onExit = true, 
     const rows = [
       { key: "approved", ok: !!(link || over), says: link ? `${s.name} said “I'm happy with it” on revision ${n} (${longDate(link.approved_at)})` : over ? `You publish revision ${n} without their yes: ${over.why}` : `Waiting for ${s?.name || "the detailer"}'s “I'm happy with it” on revision ${n}` },
       { key: "connection", ok: !!(c?.ok && c.spec_hash === h), says: c?.ok && c.spec_hash === h ? `Connection check passed on revision ${n}` : c && !c.ok ? `The connection check failed on revision ${n}. Fix it, then run it again under Data` : `Revision ${n} needs a passed connection check (under Data)` },
-      { key: "gates", ok: !!(g?.ok && g.spec_hash === h), running: gating?.site === siteId, says: gating?.site === siteId ? `The gates are checking revision ${gating.rev}…` : g?.ok && g.spec_hash === h ? `Every gate passed on revision ${n}, at three widths` : g && !g.ok ? `Revision ${n} failed the gates: ${g.said}` : `Revision ${n} needs the gates run (layout, contrast, motion, at three widths)` },
+      s?.kind === "real"
+        ? { key: "gates", ok: true, says: "The three-width gates only run on the offline demo, so they are not required here. Look at the site on its own address after publishing" }
+        : { key: "gates", ok: !!(g?.ok && g.spec_hash === h), running: gating?.site === siteId, says: gating?.site === siteId ? `The gates are checking revision ${gating.rev}…` : g?.ok && g.spec_hash === h ? `Every gate passed on revision ${n}, at three widths` : g && !g.ok ? `Revision ${n} failed the gates: ${g.said}` : `Revision ${n} needs the gates run (layout, contrast, motion, at three widths)` },
       { key: "paying", ok: !!biz?.paying, says: biz === undefined ? "Reading the dashboard…" : biz?.paying ? `${s.name} pays for a website` : `${s?.name || "This business"} is not a paying website customer yet. Publishing waits until they are` },
       { key: "address", ok: !!host, says: biz === undefined ? "Reading the dashboard…" : host ? `Its address is verified: ${host}` : "It has no verified address yet (the dashboard's Business > Web address)" },
     ];
@@ -1709,8 +1743,17 @@ export function createStudio({ HERE, json, body, log = () => {}, onExit = true, 
     const n = p.rev, rev = store.revision(siteId, n), was = liveOf(siteId);
     const link = store.links(siteId).find((l) => l.purpose === "review" && l.revision === n && l.approved_at);
     const c = store.checks(siteId).find((x) => x.rev === n), g = store.gates(siteId).find((x) => x.rev === n);
-    const r = store.addRelease(siteId, { site: siteId, revision: n, spec_hash: rev.spec_hash, renderer_version: rendererVersion(), check: c.id, gates: g.n,
-      approval: link ? { by: "detailer", link: link.id, at: link.approved_at } : { by: "you", why: s.publish_override.why, at: s.publish_override.at },
+    const approval = link ? { by: "detailer", link: link.id, at: link.approved_at } : { by: "you", why: s.publish_override.why, at: s.publish_override.at };
+    // A real business: the release goes into the platform database FIRST. If that fails, nothing is recorded as live.
+    let db = null;
+    if (s.kind === "real") {
+      const cc = cloud();
+      if (!cc) return { ok: false, said: "Not published: the Studio cannot reach the platform database (Studio settings, live)." };
+      try { db = await dbPublish(cc, { businessId: biz.id, spec: rev.spec, note: rev.note, approval, hosts: [p.host], rendererVersion: rendererVersion() }); }
+      catch (e) { return { ok: false, said: `Not published: the database refused it (${e.message}).` }; }
+    }
+    const r = store.addRelease(siteId, { site: siteId, revision: n, spec_hash: rev.spec_hash, renderer_version: rendererVersion(), check: c?.id ?? null, gates: g?.n ?? null,
+      approval, db_release: db?.release ?? null,
       hosts: [p.host], published_at: new Date().toISOString(), published_by: "you", previous: was?.n ?? null, rolled_back_at: null });
     store.saveSite({ ...store.site(siteId), live_release: r.n, status: "live", live_at: r.published_at });
     writePublished();
@@ -1730,6 +1773,10 @@ export function createStudio({ HERE, json, body, log = () => {}, onExit = true, 
     if (b?.confirm !== true) return { ok: false, said: `Press again to go back to release ${prev.n} (revision ${prev.revision}).` };
     const rev = store.revision(siteId, prev.revision);
     if (!rev || rev.spec_hash !== prev.spec_hash) return { ok: false, said: `Release ${prev.n}'s revision no longer matches what went live, so it is not put back.` };
+    if (s.kind === "real") {
+      const cc = cloud(); if (!cc) return { ok: false, said: "The Studio cannot reach the platform database (Studio settings, live), so nothing was changed." };
+      try { const f = await dbFacts(cc, s.business); await dbRollback(cc, f.id); } catch (e) { return { ok: false, said: `Not rolled back: the database refused it (${e.message}).` }; }
+    }
     store.saveRelease(siteId, { ...cur, rolled_back_at: new Date().toISOString() });
     store.saveSite({ ...store.site(siteId), live_release: prev.n, live_at: new Date().toISOString() });
     writePublished();
@@ -1846,6 +1893,7 @@ export function createStudio({ HERE, json, body, log = () => {}, onExit = true, 
     if (req.method === "POST") {
       const post = (fn) => body(req, res, 20000, (b) => reply(res, fn(b || {})));
       if (p === "/api/studio/example") return post(() => addExample()), true;
+      if (p === "/api/studio/business") return post((b) => startFromBusiness(b.slug)), true;
       if (p === "/api/studio/revision") return post((b) => newRevision(String(b.site || ""))), true;
       if (p === "/api/studio/check") return post((b) => startCheck(String(b.site || ""), Number(b.rev))), true;
       if (p === "/api/studio/card") return post((b) => newCard(String(b.site || ""), b)), true;
