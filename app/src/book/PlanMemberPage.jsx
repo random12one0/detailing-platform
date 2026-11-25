@@ -53,12 +53,12 @@ export default function PlanMemberPage() {
   useEffect(() => { load(); }, [load]);
 
   if (state.status === "loading") {
-    return <div className="bk"><div className="bk-center"><div className="bk-spinner" /></div></div>;
+    return <div className="bk"><div className="bk-center" role="main"><div className="bk-spinner" /></div></div>;
   }
   if (state.status === "not_found") {
     return (
       <div className="bk">
-        <div className="bk-center">
+        <div className="bk-center" role="main">
           <h1>{t("Plan not found")}</h1>
           <p className="bk-muted">{t("This link may be out of date. Ask your detailer to send it again.")}</p>
         {/* **THE WAY BACK OUT OF A LANGUAGE — his review, 2026-09-11.**
@@ -129,7 +129,7 @@ function PlanInner({ data, onChanged }) {
   // the error boundary. Found by looking, not by reasoning: the sweep timed
   // out waiting for a card that was never going to appear.
   if (brandStatus !== "ready" || !business) {
-    return <div className="bk"><div className="bk-center"><div className="bk-spinner" /></div></div>;
+    return <div className="bk"><div className="bk-center" role="main"><div className="bk-spinner" /></div></div>;
   }
 
   return (
