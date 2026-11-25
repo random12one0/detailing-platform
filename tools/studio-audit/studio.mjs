@@ -22,7 +22,7 @@ import { REPO_ROOT } from "./paths.mjs";
 import { spawn, spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync, rmSync, renameSync, realpathSync } from "node:fs";
 import { createHash, randomBytes, randomUUID } from "node:crypto";
-import { factRoute, loadPack, buildPrompt, readReply, runClaude } from "./studio-ai.mjs";
+import { factRoute, loadPack, buildPrompt, readReply, runAI } from "./studio-ai.mjs";
 import { LETTERS, TRIOS, lookSchema, buildLookPrompt, readLook, assembleLook, bindingSet, distinctness, gateRows, gatesPass, gateFixes, criticSummary, CRITIC_NOTE, runCodex, codexJs, heroOf, pairingOf } from "./studio-looks.mjs";
 import { runCritics } from "./site-critic.mjs";
 import { cloudConfig, rest, wanted, readSite, AUTOFILL_SCHEMA, AUTOFILL_SYSTEM, autofillPrompt, checkAutofill } from "./studio-cloud.mjs";
@@ -46,6 +46,8 @@ export const STUDIO_SETTINGS = [
   { key: "startWaitSec", kind: "int", min: 5, max: 120, default: 40, label: "Phone preview start and stop wait (seconds)", why: "How long turning the phone preview on or off waits for both servers before it says they did not answer." },
   { key: "quickWidth", kind: "int", min: 320, max: 1440, default: 390, label: "Quick check screen width (pixels)", why: "Every change you apply is drawn at this width first and checked: it fits the dashboard, nothing spills sideways, no errors. Phones are about 390." },
   { key: "quickSeconds", kind: "int", min: 10, max: 300, default: 60, label: "Quick check time limit (seconds)", why: "A quick check still running after this is stopped, and the change is not applied." },
+  { key: "aiEngine", kind: "choice", default: "auto", label: "Which AI app runs the Studio's AI", choices: [["auto", "Automatic: Claude, or ChatGPT (Codex) when Claude is not available"], ["claude", "Claude Code only"], ["codex", "ChatGPT (Codex) only"]],
+    why: "Chat, “change this”, the looks and website reading all use this. ChatGPT (Codex) uses the ChatGPT model chosen below and your ChatGPT plan; the Claude model choices are then ignored." },
   // S5: the AI that turns what you say into change cards. Your own Claude plan, through the Claude Code CLI.
   { key: "aiModel", kind: "choice", default: "sonnet", label: "AI for chat and “change this”", choices: [["sonnet", "Claude Sonnet: quick to answer"], ["opus", "Claude Opus: the strongest, slower"], ["haiku", "Claude Haiku: the quickest, for simple changes"]],
     why: "Turns what you type or say into change cards. It only proposes cards; nothing on the site changes until you apply one. It uses your own Claude plan." },
@@ -769,6 +771,8 @@ export function createStudio({ HERE, json, body, log = () => {}, onExit = true, 
   // platform validator as a typed card. Nothing is applied. A request about a fact never reaches the AI.
   const PACK_DIR = path.join(HERE, "studio", "knowledge");
   const claudeCmd = process.env.STUDIO_CLAUDE_CMD || "claude";
+  // every AI call goes through the engine setting (Claude, Codex, or auto); see runAI in studio-ai.mjs
+  const runClaude = (o) => runAI({ ...o, engine: S().aiEngine, codexModel: S().chatgptModel });
   // TWO LANES (S6): the chat's requests and the looks' jobs (makers, gate checks, critics) each run one at a time, side
   // by side, so a set of looks taking ten minutes never makes a chat request wait. { id, pid, cancel } while one runs.
   const lanes = { chat: null, looks: null };

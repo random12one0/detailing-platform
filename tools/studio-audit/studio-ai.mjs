@@ -20,6 +20,7 @@ import { spawn } from "node:child_process";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { createHash } from "node:crypto";
 import path from "node:path";
+import { runCodex, codexJs } from "./studio-looks.mjs";
 import { claudeEnv, looksExhausted, looksAuthFailed, AUTH_SAY, usageWords, resetFromText } from "./lib.mjs";
 
 // The dashboard's own screen names (Business › …). The interpreter may name only these; the page shows them as is.
@@ -216,4 +217,29 @@ ${j ? "" : out.slice(-1000)}`)) return done({ ok: false, auth: true, said: AUTH_
     child.stdin.on("error", () => {});
     child.stdin.end(prompt);
   });
+}
+
+// ---------------------------------------------------------------- engine choice: Claude or Codex (ChatGPT)
+// engine "claude" | "codex" | "auto" (Codex only when Claude cannot run: command missing, sign-in expired, or out of usage).
+// Codex gets no system-prompt flag, so the pack goes in front of the request. `codex exec` is run --ephemeral with a
+// fresh prompt every call (as Claude is run with --no-session-persistence): nothing here ever resumes a session, so the
+// full context is sent each call and there is no resume semantics to lose. Claude model names (sonnet/opus) mean nothing
+// to Codex, so it uses `codexModel` (the Studio's "ChatGPT model" setting).
+export const codexAvailable = () => existsSync(codexJs());
+export function pickEngine(engine, cmd = "claude") {
+  if (engine === "codex") return "codex";
+  if (engine === "claude") return "claude";
+  return resolveClaude(cmd) ? "claude" : "codex";
+}
+function viaCodex({ codexModel, effort, systemFile, prompt, schema = REPLY_SCHEMA, ms, kill, onStart, session }) {
+  let sys = ""; try { sys = systemFile ? readFileSync(systemFile, "utf8") : ""; } catch {}
+  return runCodex({ tag: session, model: codexModel, effort, prompt: sys ? `${sys}\n\n---\n\n${prompt}` : prompt, schema, ms, kill, onStart });
+}
+export async function runAI({ engine = "auto", codexModel, ...o }) {
+  const pick = pickEngine(engine, o.cmd);
+  if (pick === "codex") return viaCodex({ codexModel, ...o });
+  const r = await runClaude(o);
+  // auto only: Claude missing, signed out or out of usage -> Codex, if it is installed
+  if (engine === "auto" && !r.ok && (r.auth || r.limited || /could not be found/.test(r.said || "")) && codexAvailable()) return viaCodex({ codexModel, ...o });
+  return r;
 }

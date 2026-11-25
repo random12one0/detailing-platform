@@ -326,3 +326,36 @@ const t = setInterval(() => { const j = S.store.job(r.job); if (j?.pid) { consol
     S.close();
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
+
+// ---------------------------------------------------------------- engine choice (Claude / Codex / auto), fake CLIs, no usage
+test("runAI: codex engine runs `codex exec` with the schema, pack in front of the prompt, Codex model; auto falls back from a missing Claude", async () => {
+  const dir = mkdtempSync(path.join(os.tmpdir(), "studio-engine-"));
+  const log = path.join(dir, "log.jsonl"), fakeCodex = path.join(dir, "codex.js"), sys = path.join(dir, "pack.md");
+  const reply = J({ say: "ok", cards: [], dashboard: [] });
+  writeFileSync(sys, "THE PACK");
+  // a stand-in for codex.js: records argv + stdin, writes the answer to --output-last-message
+  writeFileSync(fakeCodex, `import fs from "node:fs"; const a = process.argv.slice(2); const p = fs.readFileSync(0, "utf8");
+fs.appendFileSync(${J(log)}, JSON.stringify({ a, p, schema: fs.existsSync(a[a.indexOf("--output-schema") + 1]) }) + "\\n");
+fs.writeFileSync(a[a.indexOf("--output-last-message") + 1], ${J(reply)});`);
+  process.env.STUDIO_CODEX_CMD = fakeCodex;
+  try {
+    const { runAI, pickEngine } = await import("./studio-ai.mjs");
+    const o = { model: "sonnet", codexModel: "gpt-6.1-sol", effort: "low", systemFile: sys, session: "6f1c0b9e-2d7a-4c1e-9a77-1b2c3d4e5f60", prompt: "REQUEST: x", ms: 20000, kill() {} };
+    assert.equal(pickEngine("auto", FAKE), "claude"); assert.equal(pickEngine("auto", "C:/nowhere/claude.cmd"), "codex");
+    assert.equal(pickEngine("codex", FAKE), "codex"); assert.equal(pickEngine("claude", "C:/nowhere/claude.cmd"), "claude");
+    for (const [engine, cmd] of [["codex", FAKE], ["auto", "C:/nowhere/claude.cmd"]]) {
+      const r = await runAI({ ...o, engine, cmd });
+      assert.equal(r.ok, true, JSON.stringify(r)); assert.equal(readReply(r.text, SPEC, TYPES).ok, true);
+    }
+    const calls = readFileSync(log, "utf8").trim().split("\n").map((l) => JSON.parse(l));
+    assert.equal(calls.length, 2);
+    for (const c of calls) {
+      assert.equal(c.a[c.a.indexOf("-m") + 1], "gpt-6.1-sol", "the Codex model, not 'sonnet'");
+      assert.ok(c.a.includes("model_reasoning_effort=low") && c.a.includes("--ephemeral") && c.schema);
+      assert.equal(c.p, "THE PACK\n\n---\n\nREQUEST: x", "codex has no system-prompt flag: the pack goes first, every call");
+    }
+    // engine "claude" never touches codex
+    await runAI({ ...o, engine: "claude", cmd: FAKE });
+    assert.equal(readFileSync(log, "utf8").trim().split("\n").length, 2);
+  } finally { delete process.env.STUDIO_CODEX_CMD; rmSync(dir, { recursive: true, force: true }); }
+});
