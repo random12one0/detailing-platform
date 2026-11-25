@@ -55,6 +55,7 @@ export default function Auth() {
   // place to keep the Google branch and the layout in step.
   const [mode, setMode] = useState(params.has("plan") || params.has("offer") ? "up" : "in");
   const [sent, setSent] = useState(false);
+  const [confirmEmail, setConfirmEmail] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -79,9 +80,19 @@ export default function Auth() {
       setBusy(false);
       return;
     }
-    const { error: err } = creating
-      ? await supabase.auth.signUp({ email, password })
+    // THE CHOSEN PLAN RIDES THE CONFIRMATION LINK (issue #2). With email
+    // confirmation on, the session arrives in a different tab from this form
+    // and the address bar here is long gone; without this the plan picked on
+    // /pricing was lost at exactly that step.
+    const { data: made, error: err } = creating
+      ? await supabase.auth.signUp({
+        email, password,
+        options: { emailRedirectTo: `${window.location.origin}/app${window.location.search}` },
+      })
       : await supabase.auth.signInWithPassword({ email, password });
+    // No session back from a sign-up means the address still has to be
+    // confirmed; saying nothing here left a form that appeared to do nothing.
+    if (!err && creating && !made?.session) setConfirmEmail(true);
     // On success the session arrives through onAuthStateChange and App
     // moves on by itself — a brand new account has no business yet, so it
     // lands in business creation rather than an empty dashboard.
@@ -95,7 +106,7 @@ export default function Auth() {
     const { error: err } = await supabase.auth.signInWithOAuth({
       provider: "google",
       // Come back to the dashboard, not the marketing page.
-      options: { redirectTo: `${window.location.origin}/app` },
+      options: { redirectTo: `${window.location.origin}/app${window.location.search}` },
     });
     // On success the browser navigates away, so this only runs on failure.
     if (err) { setError(err.message); setBusy(false); }
@@ -157,6 +168,12 @@ export default function Auth() {
           )}
         </div>
         {error && <div className="error-box">{error}</div>}
+        {confirmEmail && (
+          <div className="ok-box" role="status">
+            <strong>{t("Check your email to confirm your account")}</strong>
+            <div>{t("We sent a link to {email}. Open it on this device and you will come straight back here to finish.", { email })}</div>
+          </div>
+        )}
         {sent && (
           <div className="ok-box">
             {t("If we have an account for {email}, the link is on its way. Check spam if it is not there in a minute.", { email })}

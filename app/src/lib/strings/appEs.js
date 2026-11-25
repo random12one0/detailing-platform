@@ -1537,6 +1537,14 @@ export const appEs = {
   "Check your booked jobs": "Revisa tus trabajos agendados",
   "Checking your link…": "Revisando tu enlace…",
   "Checking your subscription…": "Revisando tu suscripción…",
+  "Payment received": "Pago recibido",
+  "We are switching your dashboard on. This usually takes a few seconds, and this page updates by itself.":
+    "Estamos activando tu panel. Normalmente tarda unos segundos y esta página se actualiza sola.",
+  "This is taking longer than usual. Your payment is safe; nothing is charged twice.":
+    "Está tardando más de lo normal. Tu pago está seguro; no se cobra dos veces.",
+  "Check your email to confirm your account": "Revisa tu correo para confirmar tu cuenta",
+  "We sent a link to {email}. Open it on this device and you will come straight back here to finish.":
+    "Enviamos un enlace a {email}. Ábrelo en este dispositivo y volverás aquí para terminar.",
   "We could not load your subscription.": "No pudimos cargar tu suscripción.",
   "Choose a customer…": "Escoge un cliente…",
   "Choose a password": "Escoge una contraseña",

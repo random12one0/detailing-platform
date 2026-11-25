@@ -140,7 +140,7 @@ const RUNGS = [
 
 export default function Billing() {
   useAppLocale();
-  const { business } = useBusiness();
+  const { business, reload } = useBusiness();
   const [data, setData] = useState(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -178,6 +178,29 @@ export default function Billing() {
     }
   }, [business.id]);
   useEffect(() => { load(); }, [load]);
+
+  // COMING BACK FROM STRIPE (issue #2). The return URL ends `&checkout=done`,
+  // but Stripe redirects the moment the card is accepted, and the webhook that
+  // switches the subscription on and lifts the signup's pause lands a second or
+  // two later. Without this the detailer saw the plan ladder again, as if
+  // nothing had happened. So: say so, and re-read until the server agrees.
+  const [returned, setReturned] = useState(
+    () => new URLSearchParams(window.location.search).get("checkout") === "done");
+  const [slow, setSlow] = useState(false);
+  const stillPaused = business.status === "paused" && business.awaiting_first_payment === true;
+  const paidUp = !!data?.subscription && data.subscription.status !== "incomplete" && !data.restartable;
+  useEffect(() => {
+    if (!returned) return;
+    if (paidUp && !stillPaused) {
+      // Drop the one-shot params so a refresh does not re-enter the waiting state.
+      window.history.replaceState(null, "", "/app?settings=billing");
+      setReturned(false);
+      return;
+    }
+    const poll = setInterval(() => { load(); reload(); }, 3000);
+    const slowTimer = setTimeout(() => setSlow(true), 45000);
+    return () => { clearInterval(poll); clearTimeout(slowTimer); };
+  }, [returned, paidUp, stillPaused, load, reload]);
 
   // A SINGLE PLACE THAT TALKS TO THE SERVER, so every button gets the same
   // busy state, the same error box and the same reload. Four copies of
@@ -356,6 +379,23 @@ export default function Billing() {
     return (
       <div className="card" data-loading="">
         <p className="quiet" style={{ margin: 0 }}>{t("Checking your subscription…")}</p>
+      </div>
+    );
+  }
+
+  if (returned) {
+    return (
+      <div className="card" data-loading="" role="status" data-checkout-wait="">
+        <h2 style={{ marginTop: 0 }}>{t("Payment received")}</h2>
+        <p className="quiet">{t("We are switching your dashboard on. This usually takes a few seconds, and this page updates by itself.")}</p>
+        {slow && (
+          <>
+            <p className="quiet">{t("This is taking longer than usual. Your payment is safe; nothing is charged twice.")}</p>
+            <div className="btnrow">
+              <button className="btn" type="button" onClick={() => { load(); reload(); }}>{t("Check again")}</button>
+            </div>
+          </>
+        )}
       </div>
     );
   }
