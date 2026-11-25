@@ -281,7 +281,8 @@ const probed = [];
 const canary = { id: "owner-email-with-the-refund-note-stripped", observed_failure: false };
 
 // A business with NO contact_email, so cancelling sends nothing to anybody.
-const BIZ = "e25dd47a-2cc8-422a-95cc-cd85f51c0d5d";   // Phase1 Detailing A
+// By slug, not by id: the fixture business was recreated once and its id changed.
+let BIZ = null;
 
 if (!URL_ || !SERVICE) {
   console.log("  SKIPPED — needs SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in the root .env.");
@@ -309,6 +310,8 @@ if (!URL_ || !SERVICE) {
   // puts it back to `confirmed` instead of making a new one. Far-future dates
   // clear every cancellation window, and a day apart each so the database's
   // overlap constraint has nothing to complain about.
+  BIZ = (await svc("/rest/v1/businesses?slug=eq.phase1-a&select=id,contact_email")).body?.[0]?.id;
+  check("the fixture business (phase1-a, no contact email) exists", Boolean(BIZ));
   const fixtureName = (s) => `ROADMAP 14.4 CHECK - ${s}`;
   const live = [];
   for (const [i, s] of statuses.entries()) {
