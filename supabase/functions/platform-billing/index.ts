@@ -106,7 +106,7 @@ Deno.serve(async (req) => {
 
   try {
     const body = await req.json().catch(() => ({}));
-    const member = await requireMember(req, body.business_id ?? null);
+    const member = await requireMember(req, body.business_id ?? null, { allowUnpaid: true });
     if (!member) return json({ error: "Unauthorized" }, 401);
     if (member.role !== "owner") {
       return json({ error: "Only the owner can change the subscription." }, 403);

@@ -1546,6 +1546,7 @@ export const appEs = {
   "We sent a link to {email}. Open it on this device and you will come straight back here to finish.":
     "Enviamos un enlace a {email}. Ábrelo en este dispositivo y volverás aquí para terminar.",
   "We could not load your subscription.": "No pudimos cargar tu suscripción.",
+  "The answer came back empty.": "La respuesta llegó vacía.",
   "Choose a customer…": "Escoge un cliente…",
   "Choose a password": "Escoge una contraseña",
   "Choose a plan…": "Escoge un plan…",

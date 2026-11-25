@@ -224,7 +224,7 @@ export interface PhotoStore {
   del(bucket: string, key: string): Promise<void>;
 }
 export interface PhotoDeps {
-  requireMember(req: Request, businessId: string, opts?: { allowSupport?: boolean }): Promise<Member | null>;
+  requireMember(req: Request, businessId: string, opts?: { allowSupport?: boolean; allowUnpaid?: boolean }): Promise<Member | null>;
   can(member: Member, permission: string): boolean;
   /** True when the caller still has room under every limit. */
   withinLimits(limits: { bucket: string; key: string; windowSeconds: number; limit: number }[]): Promise<boolean>;
@@ -340,7 +340,7 @@ export async function handlePhotoDoor(req: Request, deps: PhotoDeps): Promise<Re
   const businessId = body.business_id;
   if (typeof businessId !== "string" || !UUID.test(businessId)) return bad("business_id is required");
   // ROADMAP 4.3c: a read-only support session may READ photos ("urls") and nothing else.
-  const member = await deps.requireMember(req, businessId, { allowSupport: action === "urls" });
+  const member = await deps.requireMember(req, businessId, { allowSupport: action === "urls", allowUnpaid: true });
   if (!member) return bad("Unauthorized", 401);
 
   // THE CEILING, per business. It sits BEFORE any database or R2 work so a

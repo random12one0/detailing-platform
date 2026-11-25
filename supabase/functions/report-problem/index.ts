@@ -60,7 +60,7 @@ Deno.serve(async (req) => {
       return json({ error: "business_id and message are required" }, 400);
     }
 
-    const member = await requireMember(req, businessId);
+    const member = await requireMember(req, businessId, { allowUnpaid: true });
     if (!member) return json({ error: "not_found" }, 404);
 
     // WHO AND WHAT, read here rather than trusted from the browser.

@@ -26,7 +26,7 @@ Deno.serve(async (req) => {
 
   try {
     const body = await req.json();
-    const member = await requireMember(req, body.business_id ?? null);
+    const member = await requireMember(req, body.business_id ?? null, { allowUnpaid: true });
     if (!member) return json({ error: "Unauthorized" }, 401);
 
     if (body.probe) {

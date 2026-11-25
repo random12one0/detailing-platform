@@ -68,7 +68,7 @@ const MUTATIONS = {
   "no-audit-lock": ["previewSwitch.ts", `const lockAudited = await deps.audit(by, "support_lock", biz, { as: actorEmail });`, "const lockAudited = true;"],
   "no-create-refusal": ["create-business.ts", `if (await markedPreview(token)) return json({ error: SUPPORT_READ_ONLY }, 403);`, ""],
   "unmarked-admin": ["supportSession.ts", "return !!data;", "return false;"],
-  "preview-support": ["preview-emails.ts", "requireMember(req, body.business_id ?? null)", "requireMember(req, body.business_id ?? null, { allowSupport: true })"],
+  "preview-support": ["preview-emails.ts", "requireMember(req, body.business_id ?? null, { allowUnpaid: true })", "requireMember(req, body.business_id ?? null, { allowUnpaid: true, allowSupport: true })"],
   "booking-fallback": ["create-booking.ts", "if (token && await supportSession(token)) return json({ error: SUPPORT_READ_ONLY }, 403);", "if (false) { }"],
 };
 
@@ -422,6 +422,18 @@ test("4.3c + 97.15 · the real requireMember and the real view-as hand-over, run
   fake({ markerError: { code: "08006", message: "connection" } });
   check("a failed marker read refuses by default (fails closed)", (await T.requireMember(req(token), "biz-1")) === null);
 
+  // Issue #9 / 97.95 - an account that has never paid is refused by default, once, in requireMember.
+  const unpaid = { "biz-1": { id: "biz-1", status: "paused", awaiting_first_payment: true } };
+  fake({ businesses: unpaid });
+  check("#9: a paused, never-paid account is refused by default", (await T.requireMember(req(token), "biz-1")) === null);
+  fake({ businesses: unpaid });
+  check("#9: ...but passes where it must (Billing, setup) with allowUnpaid", (await T.requireMember(req(token), "biz-1", { allowUnpaid: true }))?.role === "owner");
+  fake({ businesses: { "biz-1": { id: "biz-1", status: "paused", awaiting_first_payment: false } } });
+  check("#9: a business the back office suspended by hand is not caught by this rule", (await T.requireMember(req(token), "biz-1"))?.role === "owner");
+  fake({ businesses: { "biz-1": { id: "biz-1", status: "active", awaiting_first_payment: false } } });
+  check("#9: a paid, active account passes", (await T.requireMember(req(token), "biz-1"))?.role === "owner");
+
+
   // 3. The view-as hand-over, called with a session that HAS a refresh token.
   const REFRESH = "real-refresh-token-must-not-leave";
   const DEADLINE = new Date(Date.now() + 30 * 60e3).toISOString();
@@ -767,7 +779,7 @@ test("4.3c · LINT-STYLE GUARD over source: every user-authenticating function a
   const optedIn = userAuth.filter((u) => /opted in|urls only/.test(u.verdict)).map((u) => u.fn).sort();
   check("the functions that may serve a support session are exactly the recorded read-only list", JSON.stringify(optedIn) === JSON.stringify(Object.keys(READ_ONLY).sort()), JSON.stringify(optedIn));
   const door = stripComments(readFileSync(`${FN}/_shared/photoDoor.ts`, "utf8"));
-  check("photo-door lets a support session through for `urls` only", /requireMember\(req, businessId, \{ allowSupport: action === "urls" \}\)/.test(door));
+  check("photo-door lets a support session through for `urls` only", /requireMember\(req, businessId, \{ allowSupport: action === "urls", allowUnpaid: true \}\)/.test(door));
   // Wiring, which only Deno could run: platform-admin's view-as goes through the hand-over tested above.
   const pa = stripComments(readFileSync(`${FN}/platform-admin/index.ts`, "utf8"));
   const imp = pa.slice(pa.indexOf('action === "impersonate"'));

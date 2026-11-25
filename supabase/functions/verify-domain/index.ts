@@ -44,7 +44,7 @@ Deno.serve(async (req) => {
     const body = await req.json();
     // A caller who is not a member of `body.business_id` gets null here and
     // 401 below; a member of another business is never handed this one.
-    const member = await requireMember(req, body.business_id ?? null);
+    const member = await requireMember(req, body.business_id ?? null, { allowUnpaid: true });
     const reply = await handleDomainRequest(body, member, supabase);
     return json(reply.body, reply.status);
   } catch (error) {
