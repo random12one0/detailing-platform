@@ -62,8 +62,9 @@ node scripts/build-examples.mjs --dev     # example tenant sites at /ex1../ex5
 - Edge functions and migrations go through `scripts/deploy-functions.mjs` and
   `scripts/apply-migrations.mjs` as part of the same issue; afterwards
   `node scripts/deployed-inventory.mjs` must be green.
-- The belt / Control Room (`../control-room/`) is frozen. Do not run it or
-  `KEEP-IT-RUNNING.cmd`.
+- The belt / Control Room was deleted on 2026-11-25. Its code history is
+  `../archive/belt-final-2026-11-25/belt-staging-all.bundle`. Don't rebuild it.
+  The Website Studio and site audit live in `tools/studio-audit/`.
 
 ## Hard safety rules
 
