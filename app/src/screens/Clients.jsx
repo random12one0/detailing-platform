@@ -55,6 +55,9 @@ import { dateLong, localDate, money, phone, todayLocal } from "../lib/format.js"
 // `tests/customer-export.test.mjs` can assert what lands in the spreadsheet
 // without a browser. Same reason `accountant-export.js` is not inside Money.
 import { customersCsv, customersFilename } from "../lib/customer-export.js";
+// ROADMAP 97.40 - the CSV import's pure rules (parse + preview), no DOM, so
+// `tests/customer-import.test.mjs` pins the same rules the screen applies.
+import { nextBatchAfterSave, parseImportCsv, previewImport, toImportInput } from "../lib/customer-import.js";
 // THE ARITHMETIC IS IN ITS OWN FILE so `tests/client-list.test.mjs` can import
 // it with no browser — the same reason `accountant-export.js` is separate from
 // Money. Three of the four decide something a person acts on: what the screen
@@ -556,6 +559,93 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0,
     }
   };
 
+  // ROADMAP 97.40 - THE CSV IMPORT, THE MIRROR OF THE EXPORT ABOVE. A file is
+  // picked, previewed (what would be added, what is already here, what needs
+  // fixing - each named), and only then saved through the `import-customers`
+  // edge function, which re-checks duplicates server-side and flags every row
+  // imported under one batch id. The batch id stays so the whole save can be
+  // undone; anything added by hand or already here is never part of an undo.
+  const [importView, setImportView] = useState(null);
+  const [importBusy, setImportBusy] = useState(false);
+  const [importMsg, setImportMsg] = useState("");
+  const [lastBatch, setLastBatch] = useState(null);
+  const fileRef = useRef(null);
+  const onPickFile = async (e) => {
+    const f = e.target.files?.[0];
+    e.target.value = "";
+    if (!f) return;
+    setImportMsg("");
+    // The saved batch reference stays until it is undone or replaced by a new
+    // save: picking (or failing to read) another file must not remove Undo.
+    try {
+      const parsed = parseImportCsv(await f.text());
+      if (parsed.error) {
+        // The quote never closes, so no row boundary can be trusted: refuse
+        // the file outright rather than preview a guess. Nothing is saved.
+        setImportView(null);
+        setImportMsg(t("That file has a quote that never closes. Please fix it and try again."));
+        return;
+      }
+      // The server judges every row against EVERY existing customer; the
+      // screen holds only its first 200, so judging here would call a match
+      // outside that list new and then drop it, unnamed, at Save. Only a file
+      // with no Name or Phone column is answered locally - no row can be judged.
+      const input = toImportInput(parsed);
+      if (!input) {
+        setImportView({ ...previewImport({ rows: parsed.rows, header: parsed.header, existing: [] }), picked: f.name });
+        return;
+      }
+      setImportBusy(true);
+      try {
+        setImportView({ ...(await api.previewImport(business.id, input)), picked: f.name });
+      } finally {
+        setImportBusy(false);
+      }
+    } catch {
+      setImportView(null);
+      setImportMsg(t("We could not read that file. Please try again."));
+    }
+  };
+  const commitImport = async () => {
+    if (!importView || importView.valid.length === 0) return;
+    setImportBusy(true);
+    try {
+      const res = await api.importCustomers(business.id, importView.valid);
+      setImportView(null);
+      setLastBatch(nextBatchAfterSave(lastBatch, res));
+      setImportMsg(t("Saved {count} customers", { count: res.created }));
+      try {
+        await load();
+      } catch {
+        // The save itself succeeded (the server said so); only the re-read
+        // failed, and the list refreshes on the next visit. Reporting the
+        // confirmed save as a failure would be the stale-status lie.
+      }
+    } catch (e) {
+      setImportMsg(e.message || t("We could not save that import. Please try again."));
+    } finally {
+      setImportBusy(false);
+    }
+  };
+  const undoImport = async () => {
+    if (!lastBatch) return;
+    setImportBusy(true);
+    try {
+      const res = await api.undoImport(business.id, lastBatch);
+      setLastBatch(null);
+      setImportMsg(t("Import undone - {count} removed", { count: res.removed }));
+      try {
+        await load();
+      } catch {
+        // Same as the save above: the undo is confirmed, only the re-read failed.
+      }
+    } catch (e) {
+      setImportMsg(e.message || t("We could not undo that import. Please try again."));
+    } finally {
+      setImportBusy(false);
+    }
+  };
+
   const list = (
     <>
       {/* A masthead, like every other tab. This screen went straight into a
@@ -587,6 +677,60 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0,
             </button>
             {exporting && exporting !== "going" && (
               <span className="quiet" style={{ marginLeft: 10 }}>{exporting}</span>
+            )}
+          </p>
+        )}
+        {/* ROADMAP 97.40 - the import sits beside the export: one brings the
+            list in, the other takes it away. The preview below names every row
+            that would be added, every duplicate and every row needing a fix,
+            and nothing is saved until Save is pressed. */}
+        <p style={{ margin: "10px 0 0" }}>
+          <button className="btn sm" type="button" disabled={importBusy} onClick={() => fileRef.current?.click()}>
+            {t("Import customers")}
+          </button>
+          <span className="quiet" style={{ marginLeft: 10 }}>
+            <a href="/sample-customer-import.csv" download>{t("See the sample file")}</a>
+          </span>
+          <input ref={fileRef} type="file" accept=".csv,text/csv" hidden onChange={onPickFile} />
+        </p>
+        {importView && (
+          <div style={{ marginTop: 10 }}>
+            <p className="quiet" style={{ margin: "0 0 6px" }}>
+              {t("{picked}: {count} new, {dups} duplicates, {bad} need fixing", {
+                picked: importView.picked, count: importView.valid.length,
+                dups: importView.duplicates.length, bad: importView.bad.length })}
+            </p>
+            {importView.valid.map((v, i) => (
+              <p className="quiet" key={"new" + i} style={{ margin: "2px 0" }}>
+                {v.name} · {v.phone}
+              </p>
+            ))}
+            {[...importView.duplicates, ...importView.bad].map((d, i) => (
+              <p className="quiet" key={i} style={{ margin: "2px 0" }}>
+                {t("Row {row}: {name} - {reason}", { row: d.row, name: d.name || d.reason, reason: d.reason })}
+              </p>
+            ))}
+            <p style={{ margin: "8px 0 0" }}>
+              <button className="btn sm" type="button" disabled={importBusy || importView.valid.length === 0}
+                onClick={commitImport}>
+                {importBusy ? t("Saving…") : t("Save {count} customers", { count: importView.valid.length })}
+              </button>
+              <button className="btn sm" type="button" style={{ marginTop: 8 }}
+                onClick={() => setImportView(null)}>
+                {t("Cancel")}
+              </button>
+            </p>
+          </div>
+        )}
+        {(importMsg || lastBatch) && !importView && (
+          <p style={{ margin: "10px 0 0" }}>
+            {importMsg && (
+              <span className="quiet" style={{ marginRight: 10 }}>{importMsg}</span>
+            )}
+            {lastBatch && (
+              <button className="btn sm" type="button" disabled={importBusy} onClick={undoImport}>
+                {t("Undo this import")}
+              </button>
             )}
           </p>
         )}

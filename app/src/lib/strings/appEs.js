@@ -1508,6 +1508,21 @@ export const appEs = {
   "Building…": "Preparando…",
   "Saved {name} — {count} people": "Guardado {name} — {count} personas",
   "We could not build that file. Please try again.": "No pudimos crear ese archivo. Inténtalo de nuevo.",
+  // ROADMAP 97.40 - the customer import. Added in the same edit as the English,
+  // because this file is keyed on the English text and a missing key falls
+  // back to English with no error anywhere.
+  "Import customers": "Importar clientes",
+  "See the sample file": "Ver el archivo de ejemplo",
+  "{picked}: {count} new, {dups} duplicates, {bad} need fixing": "{picked}: {count} nuevos, {dups} duplicados, {bad} por corregir",
+  "Row {row}: {name} - {reason}": "Fila {row}: {name} - {reason}",
+  "Save {count} customers": "Guardar {count} clientes",
+  "Saved {count} customers": "Guardados {count} clientes",
+  "Undo this import": "Deshacer esta importación",
+  "Import undone - {count} removed": "Importación deshecha - {count} eliminados",
+  "We could not read that file. Please try again.": "No pudimos leer ese archivo. Inténtalo de nuevo.",
+  "We could not save that import. Please try again.": "No pudimos guardar esa importación. Inténtalo de nuevo.",
+  "We could not undo that import. Please try again.": "No pudimos deshacer esa importación. Inténtalo de nuevo.",
+  "That file has a quote that never closes. Please fix it and try again.": "Ese archivo tiene una comilla sin cerrar. Corrige el archivo e inténtalo de nuevo.",
   "Cancel the job": "Cancelar el trabajo",
   // **"It cannot be undone" WAS NOT TRUE AND THE SCREEN KNEW BETTER THAN THE SENTENCE** — the
   // server does a SOFT delete, so the job is hidden rather than destroyed. Andrew's manager,
