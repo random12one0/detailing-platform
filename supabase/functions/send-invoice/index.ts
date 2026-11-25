@@ -262,7 +262,7 @@ Deno.serve(async (req) => {
         to: booking.customer_email,
         subject: followup.subject,
         html: followup.html,
-        text: followup.text, text: followup.text,
+        text: followup.text,
       });
     } catch (e) {
       console.error("Error sending thank-you email:", e);
@@ -271,7 +271,7 @@ Deno.serve(async (req) => {
     try {
       if (settings.push_enabled) await sendOwnerPush(business.id, {
         title: "Payment finalized",
-        body: `${booking.customer_name} · ${money(totalPaid)} (invoice + thank-you sent)`,
+        body: `${booking.customer_name} · ${money(totalPaid)} (${thankYouSent ? "invoice + thank-you sent" : "invoice sent, thank-you not sent"})`,
         url: `/job/${booking.id}`,
         tag: `booking-${booking.id}`,
       });

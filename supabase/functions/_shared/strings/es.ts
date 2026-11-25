@@ -249,7 +249,7 @@ export const es: Record<string, string> = {
   "Reminder: {date} at {time}": "Recordatorio: {date} a las {time}",
 
   // ── 7 · Cancelled ──────────────────────────────────────────────────────
-  "Cancelled": "Cancelada",
+  "Canceled": "Cancelada",
   "Your booking is canceled": "Tu reserva quedó cancelada",
   "Hi {first}, your booking with {brand} for {date} at {time} has been canceled.":
     "Hola {first}, tu reserva con {brand} para el {date} a las {time} quedó cancelada.",
@@ -301,7 +301,7 @@ export const es: Record<string, string> = {
   // ── 13 · The one the detailer types themselves ─────────────────────────
   // ONLY THE CHROME. The subject, the headline and the body are the
   // detailer's own words, in whatever language they wrote them.
-  "Checking in": "Saludos",
+  "Checking in": "Te escribimos",
   "Hello {first},": "Hola {first},",
   "Book again": "Reservar otra vez",
 
@@ -351,7 +351,7 @@ export const es: Record<string, string> = {
   "{when}: {name}": "{when}: {name}",
   // ── 7 · A booking cancelled ────────────────────────────────────────────
   "{date} at {time} is canceled. That time is open again.": "La cita del {date} a las {time} se canceló. Ese horario quedó libre otra vez.",
-  "Was worth": "Valía",
+  "Booking value": "Valor de la reserva",
   "{name} canceled {when}": "{name} canceló {when}",
   // `refundInstruction` in `_shared/connect.ts`. Same Spanish as the job
   // screen's (appEs.js), so the email and the dashboard say it one way.
@@ -368,7 +368,6 @@ export const es: Record<string, string> = {
   "asked for {date} at {time}. That was {hours} hours ago, and it is still waiting for an answer.":
     "pidió el {date} a las {time}. Eso fue hace {hours} horas y todavía espera respuesta.",
   "That time is held until you answer.": "Ese horario queda apartado hasta que respondas.",
-  "Asking": "Pide",
   "Still waiting: {first} asked {hours} hour ago": "Todavía esperando: {first} pidió hace {hours} hora",
   "Still waiting: {first} asked {hours} hours ago": "Todavía esperando: {first} pidió hace {hours} horas",
   "{name} asked for {date} and has not heard back.":
