@@ -14,10 +14,10 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { createStudio } from "./studio.mjs";
-import * as WA from "./watcher.mjs";
+import { platformCopy } from "./test-fixtures/platform-copy.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const PLAT = (process.env.SITE_ACCEPTANCE_PLATFORM || "C:/studio-work/s1").replace(/\\/g, "/");
+const PLAT = platformCopy();
 const NEEDS = { skip: !existsSync(path.join(PLAT, "scripts/studio/studio-parity.mjs")) && `needs the platform copy with the S8 renderer at ${PLAT}`, timeout: 600000 };
 const HOST = "brightline.example.test";
 
@@ -156,23 +156,14 @@ test("nightly parity: the live site on its own address matches; an injected pric
     const alarms = (await S.call("GET", "/api/studio/overview")).alarms;
     assert.equal(alarms.length, 1); assert.match(alarms[0].what, /^Brightline Auto Care's live site does not match its dashboard\. .+'s price on the site: /);
     assert.equal(S.handle({ method: "GET" }, { done: () => {} }, new URL("http://x/api/studio/site?id=brightline")), true);
-    // the watcher tells Andrew once, never pauses the belt, never starts a repair
+    // the problem it hands the (retired) watcher is "tell", never a repair job
     const probs = S.watcherProblems();
     assert.deepEqual(probs.map((x) => [x.kind, x.act, x.source]), [["site-parity", "tell", "studio"]]);
-    const log = { said: [], pings: [], paused: [], repairs: [] };
-    const io = { now: Date.now, say: (l) => log.said.push(l), ping: async (t, b) => log.pings.push(`${t}: ${b}`), pause: async (w) => log.paused.push(w), resume: async () => {},
-      startRepair: async () => { log.repairs.push(1); return { ok: true, job: {} }; }, clean: async () => ({ ok: false }), restartJob: async () => ({ ok: false }) };
-    let mem = { fixer: (await WA.fixTick(io, WA.fixerSettings({}), {}, probs)).fixer };
-    mem = { fixer: (await WA.fixTick(io, WA.fixerSettings({}), mem, probs)).fixer };
-    assert.equal(log.pings.length, 1, "told once"); assert.match(log.pings[0], /^A live site needs you: Brightline Auto Care's live site does not match/);
-    assert.deepEqual(log.paused, []); assert.deepEqual(log.repairs, []);
-    // the next green check clears it (on the Studio and for the watcher, which forgets it)
+    // the next green check clears it (on the Studio and in what it hands a watcher)
     delete process.env.STUDIO_PARITY_BREAK;
     r = await S.call("POST", "/api/studio/publish/parity", { site: "brightline" });
     assert.equal(r.match, true);
     assert.deepEqual(S.watcherProblems(), []);
-    mem = { fixer: (await WA.fixTick(io, WA.fixerSettings({}), mem, [])).fixer };
-    assert.deepEqual(mem.fixer.problems, {});
     // what the address serves follows a publish and a rollback: release 2, then release 1 again
     newRevision(S, 2, "A second headline for the test.");
     checked(S, 2); gated(S, 2); approved(S, 2);

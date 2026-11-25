@@ -17,9 +17,10 @@ import { fileURLToPath } from "node:url";
 import { factRoute, readReply, loadPack, schemaArg, buildPrompt, PLACES, REPLY_SCHEMA, interpreterArgs, resolveClaude } from "./studio-ai.mjs";
 import { createStudio, waitPhrase } from "./studio.mjs";
 import { spawn } from "node:child_process";
+import { platformCopy } from "./test-fixtures/platform-copy.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const PLAT = (process.env.SITE_ACCEPTANCE_PLATFORM || "C:/studio-work/s1").replace(/\\/g, "/");
+const PLAT = platformCopy();
 const NEEDS = { skip: !(existsSync(path.join(PLAT, "scripts/studio/studio-check.mjs")) && existsSync(path.join(PLAT, "app/src/site/spec.js"))) && `needs the platform copy at ${PLAT}`, timeout: 240000 };
 const REQUESTS = JSON.parse(readFileSync(path.join(HERE, "test-fixtures/studio-ai-requests.json"), "utf8")).requests;
 const REPLIES = JSON.parse(readFileSync(path.join(HERE, "test-fixtures/studio-ai-replies.json"), "utf8")).replies;
