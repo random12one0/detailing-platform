@@ -94,7 +94,7 @@ const { chromium } = createRequire(import.meta.url)("./../app/node_modules/playw
 const started_at = new Date().toISOString();
 const HEADED = process.argv.includes("--headed");
 const BREAK = (process.argv.find((a) => a.startsWith("--break=")) || "").split("=")[1] || "";
-const BASE = process.env.BASE || "http://localhost:5173";
+const BASE = process.env.BASE || process.env.BASE_URL || "http://localhost:5173";
 const OWNER = demoOwner();
 
 // 320 FIRST — it is the narrowest supported width and where 2.32 was measured.
