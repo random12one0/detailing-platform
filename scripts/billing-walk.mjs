@@ -326,6 +326,8 @@ try {
     await clockTo(sub.current_period_end + 7200, "second renewal, on a card that fails");
     row = await waitFor("the row to read past_due", async () => { const r = await subRow(); return r?.status === "past_due" ? r : null; });
     check("4a · ROW: the failed renewal reads past_due", !!row, `status ${(await subRow())?.status}`);
+    // past_due arrives with customer.subscription.updated; the attempt count and bank reason arrive with invoice.payment_failed, a moment later. Wait for that one.
+    row = (await waitFor("the failure to be counted", async () => { const r = await subRow(); return r?.dunning_attempts >= 1 ? r : null; })) ?? row;
     check("4b · ROW: with one attempt counted and the bank's reason stored", row?.dunning_attempts >= 1 && !!row?.last_failure_reason,
       `attempts ${row?.dunning_attempts}, reason ${row?.last_failure_reason}`);
     check("4c · PAGE: still reachable while the card is being retried", pageIsUp(await readPage(SLUG, "4c-past-due")));

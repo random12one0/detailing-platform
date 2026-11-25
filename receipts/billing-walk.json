@@ -1,31 +1,33 @@
 {
-  "git_sha": "94c0af054a38712690d253ea2ae86fb6b6e49f48",
-  "git_sha_started": "94c0af054a38712690d253ea2ae86fb6b6e49f48",
+  "git_sha": "0fb2284cd55cc36d4aa6384747d4914bac63039f",
+  "git_sha_started": "0fb2284cd55cc36d4aa6384747d4914bac63039f",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-11-13T23:34:42.816Z",
-  "failures": [
-    "2a · the deployed checkout hands back a card form — 404 {\"error\":\"No such customer: 'cus_VcjSs8Kd4blqb4'\"}",
-    "crashed: Stripe /subscriptions/null: No such subscription: 'null'"
-  ],
+  "finished_at": "2026-11-25T18:37:54.960Z",
+  "failures": [],
   "warnings": [],
   "artifacts": [
-    "artifacts/billing-walk/0-canary-nobody.png"
+    "artifacts/billing-walk/0-canary-nobody.png",
+    "artifacts/billing-walk/2e-paid.png",
+    "artifacts/billing-walk/3c-renewed.png",
+    "artifacts/billing-walk/4c-past-due.png",
+    "artifacts/billing-walk/5d-offline.png",
+    "artifacts/billing-walk/6e-paid-again.png"
   ],
   "dimensions": {
     "stripe_secret_key": "sandbox",
     "book_origin": "https://detailingplatform.com",
-    "slug": "billing-walk-glfyvr"
+    "slug": "billing-walk-xoiwrz"
   },
   "check_id": "billing-walk",
-  "started_at": "2026-11-13T23:34:33.293Z",
-  "status": "fail",
+  "started_at": "2026-11-25T18:34:15.977Z",
+  "status": "pass",
   "expected_targets": 6,
   "discovered_targets": 6,
   "attempted_targets": 6,
   "completed_targets": 6,
   "skipped_targets": 0,
-  "assertions_executed": 6,
+  "assertions_executed": 24,
   "min_assertions": 26,
   "canary": {
     "id": "nonexistent-slug-reads-down",

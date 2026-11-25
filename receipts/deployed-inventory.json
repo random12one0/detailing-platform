@@ -1,14 +1,10 @@
 {
-  "git_sha": "f47e6a8ff2da9f831a6a15cbd69938bd4279a4d6",
-  "git_sha_started": "f47e6a8ff2da9f831a6a15cbd69938bd4279a4d6",
+  "git_sha": "1fc2b86925fe8b4dbfc3fa527a56f3d11a6d9fd0",
+  "git_sha_started": "1fc2b86925fe8b4dbfc3fa527a56f3d11a6d9fd0",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-11-13T23:03:44.601Z",
-  "failures": [
-    "1 function(s) are running something other than this checkout: platform-admin",
-    "platform-admin: 13 file(s) differ - index.ts, _shared/supportSession.ts, _shared/newBusiness.ts, _shared/tz.ts, _shared/buildStartStamp.ts, _shared/previewSwitch.ts, _shared/tenant.ts, _shared/email.ts, _shared/emailTemplates.ts, _shared/emailKit.ts, _shared/strings/es.ts, _shared/reachedProvider.ts, _shared/permissions.ts (newest commit is 23.8d after the deploy)",
-    "1 function(s) exist in this repo and are NOT DEPLOYED AT ALL: google-business"
-  ],
+  "finished_at": "2026-11-25T18:27:25.175Z",
+  "failures": [],
   "warnings": [],
   "artifacts": [
     "scripts/deployed-inventory.mjs"
@@ -32,6 +28,7 @@
       "delete-customer",
       "forecast",
       "get-booking-receipt",
+      "google-business",
       "invite-user",
       "owner-push-subscribe",
       "owner-push-unsubscribe",
@@ -39,6 +36,7 @@
       "photo-door",
       "photo-reconcile",
       "plan-link",
+      "platform-admin",
       "platform-billing",
       "preview-emails",
       "refresh-weather",
@@ -61,82 +59,21 @@
       "verify-domain",
       "watch-jobs"
     ],
-    "differing": [
-      "platform-admin"
-    ],
-    "not_deployed": [
-      "google-business"
-    ],
-    "causes": {
-      "platform-admin": {
-        "function_local": [
-          "index.ts"
-        ],
-        "shared_modules": [
-          "_shared/supportSession.ts",
-          "_shared/newBusiness.ts",
-          "_shared/tz.ts",
-          "_shared/buildStartStamp.ts",
-          "_shared/previewSwitch.ts",
-          "_shared/tenant.ts",
-          "_shared/email.ts",
-          "_shared/emailTemplates.ts",
-          "_shared/emailKit.ts",
-          "_shared/strings/es.ts",
-          "_shared/reachedProvider.ts",
-          "_shared/permissions.ts"
-        ]
-      }
-    },
-    "by_shared_module": {
-      "_shared/supportSession.ts": [
-        "platform-admin"
-      ],
-      "_shared/newBusiness.ts": [
-        "platform-admin"
-      ],
-      "_shared/tz.ts": [
-        "platform-admin"
-      ],
-      "_shared/buildStartStamp.ts": [
-        "platform-admin"
-      ],
-      "_shared/previewSwitch.ts": [
-        "platform-admin"
-      ],
-      "_shared/tenant.ts": [
-        "platform-admin"
-      ],
-      "_shared/email.ts": [
-        "platform-admin"
-      ],
-      "_shared/emailTemplates.ts": [
-        "platform-admin"
-      ],
-      "_shared/emailKit.ts": [
-        "platform-admin"
-      ],
-      "_shared/strings/es.ts": [
-        "platform-admin"
-      ],
-      "_shared/reachedProvider.ts": [
-        "platform-admin"
-      ],
-      "_shared/permissions.ts": [
-        "platform-admin"
-      ]
-    },
-    "widest_gap_days": 23.8
+    "differing": [],
+    "not_deployed": [],
+    "causes": {},
+    "by_shared_module": {},
+    "widest_gap_days": 0
   },
   "check_id": "deployed-inventory",
-  "started_at": "2026-11-13T23:02:28.552Z",
-  "status": "fail",
+  "started_at": "2026-11-25T18:25:26.227Z",
+  "status": "pass",
   "expected_targets": 45,
   "discovered_targets": 45,
   "attempted_targets": 45,
-  "completed_targets": 44,
+  "completed_targets": 45,
   "skipped_targets": 0,
-  "assertions_executed": 44,
+  "assertions_executed": 45,
   "min_assertions": 30,
   "canary": {
     "id": "the comparison must be shown to have run · at least one bundle read and compared",
@@ -145,7 +82,7 @@
       "compared"
     ],
     "findings": [
-      "[compared] 44 function bundle(s) were fetched and compared, so \"0 differ\" would be a real answer rather than a silent no-op"
+      "[compared] 45 function bundle(s) were fetched and compared, so \"0 differ\" would be a real answer rather than a silent no-op"
     ]
   }
 }
