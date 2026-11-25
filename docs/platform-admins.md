@@ -65,6 +65,22 @@ above.
 
 ---
 
+## THE LAUNCH STEP — `scripts/lock-demo-admins.mjs` (GitHub issue #10, ROADMAP 12.4)
+
+About a week before the first real detailer is invited, from the main checkout:
+
+1. `node --env-file=.env scripts/lock-demo-admins.mjs --owner-email=<the real owner address>` — dry run, changes nothing.
+2. The same with `--apply`: creates/keeps the real owner login in `platform_admins`, removes both demo rows, gives both
+   demo accounts new random passwords (`demo@demo.com` is also banned; `demo@detailplatform.com` stays a plain demo
+   detailer and its new password replaces `DEMO_OWNER_PW` in `.env`). Nothing is printed but emails and counts.
+3. Edit the `declared-platform-admins` block above to the real owner address only, then run
+   `node --test tests/platform-admins-declared.test.mjs` and `node scripts/admin-refuses.mjs`.
+
+**Not run yet** (Andrew, 2026-11-13: keep both demo logins until launch prep). The transient `sdw-41c-admin-*@fixture.test`
+and `shoot-admin@` rows are test leftovers; remove them with the same step's check in mind (the declared test names them).
+
+---
+
 ## WHAT IS TRUE TODAY — read, not assumed
 
 **Read from `kguqylyzgyzfktkfnhjb` on 2026-09-25, before this file was written:**
