@@ -33,7 +33,8 @@ import NoConnection from "./screens/NoConnection.jsx";
 // bare catch-all became a 404 page: without this list `/app/nonsense` would be
 // the one address left in the product that silently pretends to exist.
 // Derived from TABS rather than typed again, or a sixth tab would be a 404.
-export const TAB_PATHS = ["today", "calendar", "money", "clients", "business"];
+import { TAB_PATHS } from "./tabPaths.js";
+export { TAB_PATHS };
 
 const TABS = [
   { key: "today", label: "Today", Icon: Sun, el: Today },

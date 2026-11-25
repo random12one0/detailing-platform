@@ -16,6 +16,8 @@
 import { useEffect, useState } from "react";
 import { Ground, Foot } from "./LandingPage.jsx";
 import { initThread } from "./thread.js";
+import { useHead } from "../lib/useHead.js";
+import { legalHead } from "./head.js";
 import { TERMS, PRIVACY, NOT_YET_LAWYERED, SUPPORT_EMAIL, ENTITY, EFFECTIVE } from "./legal.js";
 import "./landing.css";
 
@@ -53,6 +55,7 @@ function inline(text) {
 
 export default function LegalPage({ which }) {
   const doc = which === "privacy" ? PRIVACY : TERMS;
+  useHead(legalHead[which === "privacy" ? "privacy" : "terms"]);
 
   // Every `.ld` page mounts the same motion system, guarded rather than
   // copied. It is a route in an SPA, so what it opens has to close again.
