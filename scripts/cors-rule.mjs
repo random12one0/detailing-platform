@@ -47,7 +47,7 @@
 //   origins  `app/src/lib/host.js` — `PLATFORM_HOSTS` and `PLATFORM_SUFFIXES`
 //            are the product's own answer to "is this browser on one of ours",
 //            so they are the origin list by construction. The dev port comes
-//            from `CLAUDE.md`'s own `dev server on :5173` line.
+//            from `AGENTS.md`'s own `dev server on :5173` line.
 //   methods  the three `fetch(…, { method: "PUT", headers: { "Content-Type" } })`
 //            call sites, and `photos.js`' `fetch(read)` of a signed GET url —
 //            `publishToGallery`, which reads a private job photo in the browser
@@ -181,7 +181,7 @@ export function stepText(forAndrew) {
 }
 
 export function observe() {
-  const host = originsFrom(read("app/src/lib/host.js"), read("CLAUDE.md"));
+  const host = originsFrom(read("app/src/lib/host.js"), read("AGENTS.md"));
   return {
     ...host,
     ...bucketsFrom({
@@ -212,7 +212,7 @@ export function judge(w) {
   if (!w.origins.length) {
     add("product-declares-origins", "fail", 1,
       "host.js yielded " + w.hosts.length + " hosts and " + w.suffixes.length + " suffixes, and "
-      + "CLAUDE.md's dev port read as " + w.port + " — the origin list cannot be derived, so nothing "
+      + "AGENTS.md's dev port read as " + w.port + " — the origin list cannot be derived, so nothing "
       + "below was really asked");
   } else {
     add("product-declares-origins", "pass", 1,
