@@ -730,11 +730,11 @@ export default function LandingPage() {
             <span className="lab" data-rv="">What gets built</span>
             <h2 className="disp" id="wallh" style={{ marginTop: 12 }}>
               <span className="mask"><span>Every one of these</span></span>
-              <span className="mask" style={{ "--i": 1 }}><span>was built for one person.</span></span>
+              <span className="mask" style={{ "--i": 1 }}><span>is an example site.</span></span>
             </h2>
             <p className="lede" data-rv="" style={{ "--i": 2 }}>
-              Yours will be too. A site designed around the work you actually
-              do, the booking page living inside it, and the screen you run
+              Made-up detailers, so you can see the range. Yours is built around
+              the work you actually do: a site designed around you, the booking page living inside it, and the screen you run
               the week from. Not a template with your name dropped into it.
             </p>
           </div>
