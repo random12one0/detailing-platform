@@ -142,7 +142,7 @@ const sql = (db, q) => run(PG("psql"), ["-X", "-q", "-At", "-v", "ON_ERROR_STOP=
 run(PG("initdb"), ["-D", DATA, "-U", "postgres", "-A", "trust", "-E", "UTF8", "--locale=C"]);
 // stdio ignored: the server inherits pg_ctl's pipes and keeps them open, so a
 // piped spawnSync never returns (measured: the first run hung here with the server up).
-const st = spawnSync(PG("pg_ctl"), ["-D", DATA, "-l", join(TMP, "server.log"), "-w", "-o", `-p ${port} -c listen_addresses=127.0.0.1`, "start"], { stdio: "ignore", windowsHide: true });
+const st = spawnSync(PG("pg_ctl"), ["-D", DATA, "-l", join(TMP, "server.log"), "-w", "-o", `-p ${port} -c listen_addresses=127.0.0.1 -c timezone=UTC`, "start"], { stdio: "ignore", windowsHide: true });
 started = true;
 if (st.status !== 0) throw new Error(`pg_ctl start exited ${st.status}; see ${join(TMP, "server.log")}`);
 console.log(`throwaway Postgres ${sql("postgres", "show server_version").trim()} on 127.0.0.1:${port}, folder ${TMP}`);
@@ -219,8 +219,12 @@ const inScope = [...expected.keys()].filter((t) => SCHEMAS.includes(t.split(".")
 // ---- what the backup itself says each object's privileges are (ROADMAP 97.25) --
 // Reads the `Type: ACL` blocks of a plain script. Key: "TABLE public.bookings".
 const unquote = (r) => r.replace(/^"(.*)"$/, "$1").replace(/""/g, '"');
-function aclStatements(text) {
-  const map = new Map(), grantees = new Set();
+// ownerOf: object key -> the owner the BACKUP names. The restore uses --no-owner, so the
+// restored copy is owned by postgres and Supabase gives the original owner (e.g.
+// supabase_storage_admin on storage.*) default grants on it; those are the owner's own
+// rights, left out on both sides like the owner's own statements (measured on a real dump).
+function aclStatements(text, ownerOf = new Map()) {
+  const map = new Map(), grantees = new Set(), owners = new Map();
   let key = null, owner = null, inScope = false, excluded = 0, outOfScope = 0;
   for (const line of text.split(/\r?\n/)) {
     const h = line.match(/^-- Name: (.+?); Type: (.+?); Schema: (.+?); Owner: (.*)$/);
@@ -242,12 +246,13 @@ function aclStatements(text) {
     if (who && who !== "PUBLIC") grantees.add(who);
     if (!inScope) { outOfScope++; continue; }
     // The owner's own rights: --no-owner makes `postgres` the owner of everything restored.
-    if (who === owner || who === "postgres") { excluded++; continue; }
+    owners.set(key, owner);
+    if (who === owner || who === "postgres" || who === ownerOf.get(key)) { excluded++; continue; }
     if (!map.has(key)) map.set(key, new Set());
     map.get(key).add(line.trim());
   }
   const statements = [...map.values()].reduce((n, s) => n + s.size, 0);
-  return { map, grantees, excluded, outOfScope, statements };
+  return { map, grantees, excluded, outOfScope, statements, owners };
 }
 const backupAcl = aclStatements(run(PG("pg_restore"), ["--schema-only", "-f", "-", dumpFile]).stdout);
 const missingRoles = [...backupAcl.grantees].filter((r) => !ROLES.includes(r) && r !== "postgres");
@@ -297,7 +302,7 @@ const others = [...expected.keys()].filter((t) => !SCHEMAS.includes(t.split(".")
 if (others.length) warnings.push(`${others.length} table(s) outside public/auth/storage (Supabase add-ons) not compared: ${others.join(", ")}`);
 
 // ---- compare the privileges (ROADMAP 97.25) --------------------------------------
-const copyAclNow = () => aclStatements(run(PG("pg_dump"), [...CONN, "-d", "restored", "--schema-only", "--no-owner"]).stdout);
+const copyAclNow = () => aclStatements(run(PG("pg_dump"), [...CONN, "-d", "restored", "--schema-only", "--no-owner"]).stdout, backupAcl.owners);
 function comparePrivileges(copy) {
   const diffs = [];
   for (const k of [...new Set([...backupAcl.map.keys(), ...copy.map.keys()])].sort()) {

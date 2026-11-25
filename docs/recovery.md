@@ -122,7 +122,7 @@ stay private. A GitHub Action, `.github/workflows/backup.yml`:
 | | Measured 2026-09-21, from the workflow file and the run list |
 |---|---|
 | Schedule | `10 9 * * *` — 02:10 America/Los_Angeles. Deliberately off the hour; GitHub's scheduler delays `:00` jobs. |
-| What it dumps | `pg_dump --no-owner --format=custom`, run inside the `postgres:17` image because the runner's client is older than Supabase's server. **Grants and revokes are kept** (ROADMAP 97.25), and `scripts/restore-nightly.mjs` compares them as well as the rows. Until Andrew installs the change (`FOR-ANDREW.md`), the private repo's workflow and its `scripts/restore.sh` still pass the flag that drops them, so the copies on hand hold no grants and that check names it |
+| What it dumps | `pg_dump --no-owner --format=custom`, run inside the `postgres:17` image because the runner's client is older than Supabase's server. **Grants and revokes are kept** (ROADMAP 97.25), and `scripts/restore-nightly.mjs` compares them as well as the rows. Installed in the private repo 2026-10-23 (commit b01b679); the workflow passes no `--no-privileges`. Copies from before that night hold no grants, and that check names it |
 | Which database | the connection string in the repo secret `SUPABASE_DB_URL` (project `kguqylyzgyzfktkfnhjb`) |
 | Empty-backup guard | **refuses to publish a dump under 51,200 bytes** and fails the run |
 | Encryption | `age -R backup-key.pub` — public key committed, **private key deliberately absent from CI** |
@@ -380,6 +380,59 @@ never had it. That is exactly the real worst day: the nightly backup loses up to
 24 hours, the drill folder loses everything since it last ran.
 
 ---
+
+## How Andrew does a real restore drill in 10 minutes with his own key
+
+**Status 2026-11-25.** The key was already replaced: on 2026-11-13 the backups
+repo got a new public key (commit 99e4c9a) and the nightly has been encrypting to
+it since. Backups from before that night cannot be opened by anyone. Grants and
+revokes have been kept in every nightly since 2026-10-23. The one thing nobody
+has seen is **a real nightly opened with the real key**, because that key lives
+only in Andrew's password manager. Everything else was proved with a throwaway
+key (last section of this part).
+
+**The one thing Andrew does.** Save the private key from his password manager
+into a file that nothing else reads (a text file whose last line begins
+`AGE-SECRET-KEY-`), then run one command from the repo, giving the file's path:
+
+```bash
+node scripts/backup-key-drill.mjs --key=C:\path\to\that\key.txt
+```
+
+It downloads the newest nightly, opens it with his key, rebuilds it in a
+temporary database on this computer (nothing on Supabase is touched), checks
+every table's rows **and every grant and revoke**, plants two deliberate
+mistakes to prove the check can fail, prints PASS or the names of what is wrong,
+and deletes the temporary database. If it passes it also writes the date shown
+in the back office under "Last restore test". Delete the key file afterwards.
+The script is handed the file's path only; Claude never reads or moves the key.
+
+If the key is not in the password manager, or the command says it cannot
+decrypt: that is a real finding, not a drill failure. Make a new key (next
+paragraph) and tell the session, because every nightly since 2026-11-13 would
+be unreadable.
+
+**Making a new key (rotation, only if the old one is lost or leaked).** Claude
+does not do this; it is one command and the private half must never leave
+Andrew's hands:
+
+```bash
+age-keygen -o new-key.txt
+```
+
+It prints one line, `Public key: age1...`. Put `new-key.txt` into the password
+manager and delete the file. Send Claude **only** the `age1...` line; it goes
+into `backup-key.pub` in the private `detailing-platform-backups` repo (a
+one-line commit). Backups made before that commit stay under the old key.
+
+**What the throwaway drill proves.** `node scripts/backup-key-drill.mjs
+--throwaway` makes a temporary key, dumps the platform database exactly as the
+nightly does (`pg_dump --no-owner --format=custom`), encrypts it, decrypts it
+with the temporary key, restores it into a throwaway Postgres, and compares to
+the live database: rows per table, row-level-security policies, grant and revoke
+statements. It needs `DATABASE_URL` in the env file and the tools folder
+described above, and it deletes the temporary key and database. The results of
+the 2026-11-25 run are in the pull request that added it.
 
 ## What would close 6.1 properly
 
