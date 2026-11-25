@@ -1,0 +1,31 @@
+{
+  "tier": "polished",
+  "weights": {"design":40,"usability":30,"creativity":20,"content":10},
+  "items": {
+    "design": ["focal_point","type","spacing","accent","imagery","section_variety"],
+    "usability": ["navigation","booking","readability","tappability","legibility","visible_content"],
+    "creativity": ["distinct_identity","describable_signature"],
+    "content": ["owner_voice","no_filler","no_invented_claims","bound_figures","story_headings"]
+  },
+  "gates": ["G0","G1","G2","G3","G4","G5"],
+  "critical": ["Q1","Q2","Q3","Q4","Q5","Q9"],
+  "payMinimum": 10,
+  "scoreMinimum": 80,
+  "payQuestions": [
+    "Clear what, where and how within five seconds?", "Obvious Book above fold?",
+    "Costs and inclusions visible?", "Work or before/after within two screens?",
+    "Sourced honest reviews?", "Area clear?", "This business's identity?",
+    "Proud to share?", "Anything cheap, broken, clipped, empty or placeholder?",
+    "Booking trustworthy?", "Matches town's best?", "Worth monthly payment versus a free builder?"
+  ],
+  "floors": {"performance":90,"accessibility":98,"bestPractices":95,"seo":98},
+  "ceilings": {"lcp":2300,"cls":0.05,"tbt":200,"gzipJs":174080,"transfer":1468006,"hero":225280,"fontFamilies":2,"fontWeights":4},
+  "gateRules": {
+    "G0":"schema, contract coverage, bound figures/no digits in prose, distinctness, tier limits",
+    "G1":"no overflow/overlap/clipping; gaps >=8px; phone targets >=44px; clean console",
+    "G2":"WCAG AA axe serious/critical zero; keyboard/focus/skip/landmarks/one h1",
+    "G3":"Book above phone fold; step one <=2 taps; tel/sms/prices; metadata/canonical/OG/LocalBusiness areaServed; image alt/dimensions",
+    "G4":"three sequential local mobile Lighthouse runs; median floors and all asset ceilings",
+    "G5":"reduced-motion visibility; transform/opacity/clip-path only; no transition-all/scroll hijacking"
+  }
+}

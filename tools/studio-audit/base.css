@@ -1,0 +1,105 @@
+/* Base look for the Studio and Audit pages: tokens and the few shared pieces lifted from the retired Control Room page. */
+:root{
+  color-scheme:dark;
+  --ink-0:#0B0D0E; --ink-1:#111417; --ink-2:#171B1E; --ink-3:#1E2327;
+  --line:#272D31;  --line-2:#333B40;
+  --fog:#A3ABAF;   --fog-2:#959EA3;   /* r1 UI L1: >=4.5:1 on --ink-3 and tinted cards */
+  --bone:#F2F1EC;  --bone-2:#CFD2CE;
+  --ac:#38E08B;    --ac-deep:#0E5C36;
+  --bad:#E2705F;
+  --bg:var(--ink-0); --surface:var(--ink-2); --surface-lit:var(--ink-3);
+  --surface-sunken:var(--ink-1); --hairline:var(--line); --border:var(--line-2);
+  --lift:0 12px 34px -14px rgba(0,0,0,.8);
+  --lift-sm:0 6px 18px -10px rgba(0,0,0,.7);
+  --f-body:"Archivo",ui-sans-serif,system-ui,-apple-system,sans-serif;
+  --f-num:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  --t-label:12px; --t-meta:13px; --t-body:15px;
+  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:18px; --sp-5:28px;
+  --r-panel:12px; --r-nav:16px; --r-inset:8px; --corner:squircle;
+  /* FOURTEEN RULES WERE ASKING FOR THESE AND THEY HAD NEVER BEEN DEFINED.
+     An undefined custom property does not fall back to anything sensible —
+     the whole declaration is thrown away, so every one of those rules was
+     rendering a square corner. Confirmed in the browser: the For-you option
+     buttons computed border-radius 0px while the card beside them was 12px.
+     Nothing errored and nothing logged; it just quietly looked wrong.
+     A check in --self-check now fails if a name is used without being set. */
+  --r-1:6px; --r-2:9px; --r-3:12px;
+  --tap:46px; --t-hover:180ms; --e-out:cubic-bezier(.16,.84,.34,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%}
+body{
+  background:var(--bg); color:var(--bone); font-family:var(--f-body);
+  font-size:var(--t-body); font-variation-settings:"wdth" 100,"wght" 400;
+  line-height:1.45;
+  background-image:
+    radial-gradient(1100px 500px at 82% -16%, rgba(56,224,139,.07), transparent 60%),
+    radial-gradient(760px 380px at -8% 112%, rgba(56,224,139,.045), transparent 62%),
+    radial-gradient(rgba(255,255,255,.028) .75px, transparent .75px);
+  background-size:auto,auto,24px 24px;
+}
+.num{font-family:var(--f-num);font-weight:500;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.eyebrow{font-size:var(--t-label);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--fog-2);font-weight:500;display:block}
+
+/* ═══ floating bars ═══ */
+.btn{font-family:var(--f-body);font-size:var(--t-meta);
+  font-variation-settings:"wdth" 100,"wght" 560;
+  background:var(--surface-lit);color:var(--bone-2);border:1px solid var(--border);
+  padding:0 var(--sp-4);min-height:36px;border-radius:999px;cursor:pointer;white-space:nowrap;
+  display:inline-flex;align-items:center;gap:7px;
+  transition:background var(--t-hover) var(--e-out),color var(--t-hover) var(--e-out),
+             border-color var(--t-hover) var(--e-out),transform var(--t-hover) var(--e-out),
+             box-shadow var(--t-hover) var(--e-out)}
+.btn:hover:not([disabled]){background:#242A2F;color:var(--bone);transform:translateY(-1px);box-shadow:var(--lift-sm)}
+.btn:active:not([disabled]){transform:translateY(0)}
+.btn:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+.btn.primary{background:linear-gradient(180deg,#4DE79A,var(--ac));color:#05251A;
+  border-color:#2FCB7C;font-variation-settings:"wdth" 100,"wght" 660;
+  box-shadow:var(--lift-sm)}
+.btn.primary:hover:not([disabled]){background:linear-gradient(180deg,#5FEDA7,#3FE692);color:#05251A;
+  box-shadow:var(--lift)}
+/* G3: Simple | All settings, and search hits with their group */
+.setmode{display:inline-flex;gap:2px;padding:3px;margin:0 0 var(--sp-3);border:1px solid var(--hairline);border-radius:999px;background:rgba(0,0,0,.25)}
+.setmode button{border:0;background:none;color:var(--fog);font:inherit;font-size:var(--t-meta);padding:8px 16px;border-radius:999px;cursor:pointer}
+.setmode button.on{background:var(--surface-lit);color:var(--bone)}
+.setsimple-note{margin:0;padding:var(--sp-3) var(--sp-4)}
+.sethit-g{display:block;font-size:12px;color:var(--fog-2);margin:0 0 2px}
+.linkbtn{display:inline;border:0;background:none;padding:0;color:var(--ac);font:inherit;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+/* G2: one filled main button per region (card, inbox card, task, alarm); the others keep the green as an outline */
+.btn.primary.alt{background:transparent;color:var(--ac);border-color:color-mix(in srgb,var(--ac) 55%,transparent);box-shadow:none}
+.btn.primary.alt:hover:not([disabled]){background:color-mix(in srgb,var(--ac) 12%,transparent);color:var(--ac)}
+.btn.danger{border-color:#5A322C;color:var(--bad);background:var(--surface-lit)}
+.btn.danger:hover:not([disabled]){background:rgba(226,112,95,.12);color:var(--bad)}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--fog)}
+.btn.ghost:hover:not([disabled]){background:var(--surface-lit);border-color:var(--border)}
+.btn[disabled]{opacity:.3;cursor:not-allowed;box-shadow:none}
+.btn.sm{min-height:28px;padding:0 var(--sp-3);font-size:var(--t-label);letter-spacing:.04em}
+.card{background:var(--surface-lit);border:1px solid var(--border);
+  border-radius:var(--r-panel);corner-shape:var(--corner);
+  display:flex;flex-direction:column;min-height:0;overflow:hidden}
+.card > h2{flex-wrap:wrap;row-gap:var(--sp-2);font-size:var(--t-label);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--fog-2);font-weight:500;padding:var(--sp-3) var(--sp-4);flex:none;
+  border-bottom:1px solid var(--hairline);display:flex;align-items:center;gap:var(--sp-2)}
+.card > h2 .tag{margin-left:auto;letter-spacing:0;text-transform:none;color:var(--fog)}
+.card .body{padding:var(--sp-3) var(--sp-4);overflow:auto;min-height:0;flex:1}
+.card .body.flush{padding:var(--sp-1) 0}
+.empty{color:var(--fog-2);font-size:var(--t-meta);padding:var(--sp-3) var(--sp-4);line-height:1.6}
+.fact{display:flex;justify-content:space-between;gap:var(--sp-3);
+  padding:7px 0;border-bottom:1px solid var(--hairline);font-size:var(--t-meta)}
+.fact:last-child{border-bottom:0}
+.fact > span:first-child{color:var(--fog)}
+.fact > span:last-child{text-align:right;color:var(--bone-2)}
+
+.chip{display:inline-flex;align-items:baseline;gap:4px;font-size:12px;padding:3px 9px;border:1px solid var(--hairline);border-radius:999px;
+  color:var(--fog);margin:0 5px 5px 0;background:var(--surface-sunken)}
+.chip b{font-family:var(--f-num);font-weight:500;color:var(--bone);letter-spacing:0}
+.nb{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 18px;border-radius:999px;border:1px solid var(--line-2);
+  background:none;font:600 14px var(--f-body);color:var(--bone);white-space:nowrap;cursor:pointer;text-decoration:none;
+  transition:transform .09s var(--e-out),background-color .18s,border-color .18s}
+.nb:hover{border-color:var(--fog-2)}.nb:active{transform:scale(.98)}
+.nb.pri{background:var(--ac);border-color:var(--ac);color:#04140b}.nb.pri:hover{background:#4ff09c}
+.nb.gh{border-color:transparent;color:var(--fog);padding:0 12px}.nb.gh:hover{color:var(--bone)}
+.nb.dng{color:var(--bad2);border-color:rgba(240,120,106,.45)}
+.nb:disabled{opacity:.45;pointer-events:none}
+.nb[hidden]{display:none}

@@ -1,0 +1,403 @@
+{
+ "_about": "CHUNK 5 (decide): real Inbox and Tasks lines read from the live Control Room on 2026-11-03 (/api/foryou, /api/outside), with the class and rule decide.mjs pre() must give. \"model\" = no rule settles it; the model sorts it.",
+ "rows": [
+  {
+   "src": "decide",
+   "item": "99.10",
+   "title": "99.10 — Clean up what the Muse trial left behind (code review 2026-10-12).",
+   "text": "NEEDS ANDREW: the belt held this job's work instead of merging it — the full test suite found tests/sweep-methods-are-pinned.test.mjs: 1 failing, the baseline had 0; 1 new failing test(s): tests/sweep-methods-are-pinned.test.mjs :: the two sweep methods are pinned, not described > 3b · every numbered open item is named by a commit, except the declared ones. The work is safe on branch `belt/99.10-20261022134035300`. Answer \"merge it\" to keep it, or say what to change.",
+   "expect": "C/R7"
+  },
+  {
+   "src": "decide",
+   "item": "98.4",
+   "title": "98.4 — Retarget the remaining platform-admin check to the current office.",
+   "text": "NEEDS ANDREW: the belt held this job's work instead of merging it — the full test suite found tests/sweep-methods-are-pinned.test.mjs: 1 failing, the baseline had 0; 1 new failing test(s): tests/sweep-methods-are-pinned.test.mjs :: the two sweep methods are pinned, not described > 3b · every numbered open item is named by a commit, except the declared ones. The work is safe on branch `belt/98.4-20261022084408433`. Answer \"merge it\" to keep it, or say what to change.",
+   "expect": "C/R7"
+  },
+  {
+   "src": "decide",
+   "item": "97.95",
+   "title": "97.95 — An account waiting for its first payment can still use owner programs on the server (P-3).",
+   "text": "NEEDS ANDREW: the belt held this job's work instead of merging it — main could not be moved to the checked result (Please commit your changes or stash them before you merge. Aborting); main is unchanged. The work is safe on branch `belt/97.95-20261024204024278`. Answer \"merge it\" to keep it, or say what to change. Found by 97.37. A self-serve signup is `paused` until it pays and the dashboard hides everything but setup, settings and Billing, but the server programs an owner calls (`send-campaign",
+   "expect": "C/R7"
+  },
+  {
+   "src": "decide",
+   "item": "97.38",
+   "title": "97.38 — After a website-plan signup there is no \"what happens next\" (P-2).",
+   "text": "NEEDS ANDREW: the belt held this job's work instead of merging it — the full test suite found tests/mail-sink.test.mjs: 1 failing, the baseline had 0; 1 new failing test(s): tests/mail-sink.test.mjs :: tests/mail-sink.test.mjs. The work is safe on branch `belt/97.38-20261024160548464`. Answer \"merge it\" to keep it, or say what to change.",
+   "expect": "A/R3"
+  },
+  {
+   "src": "decide",
+   "item": "97.40",
+   "title": "97.40 — Detailers cannot bring their existing customers in (P-3).",
+   "text": "NEEDS ANDREW: the belt held this job's work instead of merging it — the full test suite found the suite setup changed since baseline r1 (command, files pattern, Node or environment); it needs a reviewed new baseline. The work is safe on branch `belt/97.40-20261024123430006`. Answer \"merge it\" to keep it, or say what to change. There is an export (`app/src/lib/customer-export.js`, `Clients.jsx:432`) but no import anywhere in `app/src` or `supabase/functions`. Build a CSV import through an edge fu",
+   "expect": "C/R7"
+  },
+  {
+   "src": "decide",
+   "item": "97.52",
+   "title": "97.52 — Prospects cannot try the dashboard before buying (P-9).",
+   "text": "NEEDS ANDREW: the belt held this job's work instead of merging it — the full test suite found the suite setup changed since baseline r1 (command, files pattern, Node or environment); it needs a reviewed new baseline. The work is safe on branch `belt/97.52-20261024134312930`. Answer \"merge it\" to keep it, or say what to change. The only \"try it\" is the demo booking page; the product tours were removed (`App.jsx:47-51`).",
+   "expect": "A/R3"
+  },
+  {
+   "src": "decide",
+   "item": "97.56a",
+   "title": "97.56a — Gift cards, AFTER launch: Andrew's rules before any build (from 97.56, Andrew 2026-10-15).",
+   "text": "NEEDS ANDREW: the five gift card rules above (expiry, amounts, refunds, cash back for small leftovers, deposit or final bill or both) are his business and legal choices, and 97.56b–97.56f cannot start until they are written here.",
+   "expect": "A/R1/parked"
+  },
+  {
+   "src": "held",
+   "item": "97.63",
+   "title": "97.63 is on hold: the final review found problems",
+   "text": "The work is saved on branch belt/97.63-20261024193753891 and has NOT been merged. Look at it, then say whether to keep it, change something, or drop it.",
+   "files": [
+    "FOR-ANDREW.md",
+    "ROADMAP.md",
+    "receipts/render-emails-es.json",
+    "receipts/render-emails.json",
+    "scripts/accept-quote-page.mjs",
+    "scripts/auth-emails.mjs",
+    "scripts/calendar-feed-screen.mjs",
+    "scripts/campaign-double-press.mjs",
+    "scripts/email-dates.mjs",
+    "scripts/email-review-sheet.mjs",
+    "scripts/final-pass.mjs",
+    "scripts/lib/outDir.mjs",
+    "scripts/link-refund.mjs",
+    "scripts/live-card-claim.mjs",
+    "scripts/money-refund.mjs",
+    "scripts/motion-off.mjs",
+    "scripts/pay-pill-card.mjs",
+    "scripts/payment-problem-late.mjs",
+    "scripts/payment-problem-shown.mjs",
+    "scripts/privacy-backup-period.mjs"
+   ],
+   "held": true,
+   "expect": "C/R7"
+  },
+  {
+   "src": "held",
+   "item": "98.17",
+   "title": "98.17 is on hold: the final review found problems",
+   "text": "The work is saved on branch belt/98.17-20261024231818687 and has NOT been merged. Look at it, then say whether to keep it, change something, or drop it.",
+   "files": [
+    "ROADMAP.md",
+    "scripts/release-sheet.mjs"
+   ],
+   "held": true,
+   "expect": "C/R7"
+  },
+  {
+   "src": "held",
+   "item": "98.18",
+   "title": "98.18 is on hold: the final review found problems",
+   "text": "The work is saved on branch belt/98.18-20261025004434648 and has NOT been merged. Look at it, then say whether to keep it, change something, or drop it.",
+   "files": [
+    "ROADMAP.md",
+    "scripts/release-sheet-standin.mjs",
+    "scripts/release-sheet.mjs"
+   ],
+   "held": true,
+   "expect": "C/R7"
+  },
+  {
+   "src": "held",
+   "item": "9.11e",
+   "title": "9.11e is on hold: the final review found problems",
+   "text": "The work is saved on branch belt/9.11e-20261025015206869 and has NOT been merged. Look at it, then say whether to keep it, change something, or drop it.",
+   "files": [
+    "ROADMAP.md",
+    "app/src/theme.css",
+    "receipts/label-guard.json",
+    "receipts/state-furniture-clearance.json",
+    "receipts/state-furniture-clearance.sabotage.json",
+    "scripts/state-furniture-clearance.mjs",
+    "tests/fixed-furniture-is-hit-tested.test.mjs"
+   ],
+   "held": true,
+   "expect": "C/R7"
+  },
+  {
+   "src": "held",
+   "item": "9.27",
+   "title": "9.27 is on hold: the final review found problems",
+   "text": "The work is saved on branch belt/9.27-20261025024802329 and has NOT been merged. Look at it, then say whether to keep it, change something, or drop it.",
+   "files": [
+    "ROADMAP.md",
+    "app/src/theme.css",
+    "scripts/impbar-hit.mjs"
+   ],
+   "held": true,
+   "expect": "C/R7"
+  },
+  {
+   "src": "review",
+   "item": "97.37",
+   "title": "97.37 changed 4 things you can see",
+   "text": "It changed part of the app you can see, wording shown to customers and how something looks.",
+   "files": [
+    "app/src/App.jsx",
+    "app/src/admin/office/DetailerPanel.jsx",
+    "app/src/lib/strings/appEs.js",
+    "app/src/theme.css"
+   ],
+   "review": true,
+   "expect": "A/R3"
+  },
+  {
+   "src": "review",
+   "item": "97.95",
+   "title": "97.95 changed 2 things you can see",
+   "text": "It changed wording shown to customers and a screen in the app.",
+   "files": [
+    "app/src/lib/strings/appEs.js",
+    "app/src/screens/more/Billing.jsx"
+   ],
+   "review": true,
+   "expect": "model"
+  },
+  {
+   "src": "review",
+   "item": "9.12a",
+   "title": "9.12a changed 2 things you can see",
+   "text": "It changed how something looks and part of the app you can see.",
+   "files": [
+    "app/src/admin/office/office.css",
+    "app/src/admin/office/places/money/Bills.jsx"
+   ],
+   "review": true,
+   "expect": "C/R15"
+  },
+  {
+   "src": "review",
+   "item": "4.3e",
+   "title": "4.3e changed 4 things you can see",
+   "text": "It changed part of the app you can see and wording shown to customers.",
+   "files": [
+    "app/src/App.jsx",
+    "app/src/admin/PreviewEntry.jsx",
+    "app/src/admin/office/DetailerPanel.jsx",
+    "app/src/lib/strings/appEs.js"
+   ],
+   "review": true,
+   "expect": "model"
+  },
+  {
+   "src": "review",
+   "item": "9.11e",
+   "title": "9.11e changed 1 thing you can see",
+   "text": "It changed how something looks.",
+   "files": [
+    "app/src/theme.css"
+   ],
+   "review": true,
+   "expect": "model"
+  },
+  {
+   "src": "review",
+   "item": "9.11e",
+   "title": "9.11e changed 1 thing you can see",
+   "text": "It changed how something looks.",
+   "files": [
+    "app/src/theme.css"
+   ],
+   "review": true,
+   "expect": "model"
+  },
+  {
+   "src": "review",
+   "item": "9.27",
+   "title": "9.27 changed 1 thing you can see",
+   "text": "It changed how something looks.",
+   "files": [
+    "app/src/theme.css"
+   ],
+   "review": true,
+   "expect": "model"
+  },
+  {
+   "src": "review",
+   "item": "8.5",
+   "title": "8.5 changed 3 things you can see",
+   "text": "It changed the booking flow.",
+   "files": [
+    "app/src/book/BookingConfirmed.jsx",
+    "app/src/book/BookingPage.jsx",
+    "app/src/book/steps/StepReview.jsx"
+   ],
+   "review": true,
+   "expect": "A/R3"
+  },
+  {
+   "src": "review",
+   "item": "99.3",
+   "title": "99.3 changed 2 things you can see",
+   "text": "It changed part of the app you can see and how something looks.",
+   "files": [
+    "app/src/admin/office/OfficePage.jsx",
+    "app/src/admin/office/office.css"
+   ],
+   "review": true,
+   "expect": "C/R15"
+  },
+  {
+   "src": "review",
+   "item": "99.3",
+   "title": "99.3 changed 2 things you can see",
+   "text": "It changed part of the app you can see and how something looks.",
+   "files": [
+    "app/src/admin/office/OfficePage.jsx",
+    "app/src/admin/office/office.css"
+   ],
+   "review": true,
+   "expect": "C/R15"
+  },
+  {
+   "src": "review",
+   "item": "99.16",
+   "title": "99.16 changed 2 things you can see",
+   "text": "It changed part of the app you can see and how something looks.",
+   "files": [
+    "app/src/admin/office/DetailerPanel.jsx",
+    "app/src/admin/office/office.css"
+   ],
+   "review": true,
+   "expect": "C/R15"
+  },
+  {
+   "src": "stuck",
+   "item": "0.11",
+   "title": "0.11 — The photo move is stuck at release and live checks, but the reported stops are not all the same problem.",
+   "text": "NEEDS ANDREW (2026-11-02): R5 says the allowance, the photo door and the website went out in the \"same release\"; in fact the allowance and the door went first and the website followed. Recommendation: reword R5 to \"the allowance and the door came first, the website followed\", which is what happened and was proved live (0.11cc, 2e6b6ca4).",
+   "stuck": true,
+   "action": false,
+   "expect": "A/R14"
+  },
+  {
+   "src": "stuck",
+   "item": "4.3",
+   "title": "4.3 — 4.3 is waiting on conflicting saved versions and publication; its latest automatic hold has a separate cause.",
+   "text": "NEEDS ANDREW: the belt held this job's work instead of merging it — the belt's own files or the main repo's git refs changed while the builder ran (main on GitHub moved during the job (to 094c9b3e)). The work is safe on branch `belt/4.3c-20261023174426862`. Answer \"merge it\" to keep it, or say what to change.",
+   "stuck": true,
+   "action": false,
+   "expect": "A/R14"
+  },
+  {
+   "src": "decide",
+   "item": "97.68",
+   "title": "97.68 — The \"refund it\" line on a job never goes away, even after the detailer refunds (found reviewing 97.11).",
+   "text": "NEEDS ANDREW (2026-11-02): the last check needs one refund on a fake test payment ($195, pi_3UTnNpJeoZ7g84se0AeDet4F) inside the detailer's own Stripe TEST account (acct_1UCMp1JeoZ7g84se); the platform dashboard cannot open that account. Recommendation: put a Stripe test-mode secret key in detailing-platform's .env (never in chat) so a session can make the refund itself, or make it from that account's dashboard.",
+   "expect": "C/R8/keyed"
+  },
+  {
+   "src": "decide",
+   "item": "8.2",
+   "title": "8.2 — Real-device pass on a real iPhone and a real Android.",
+   "text": "NEEDS ANDREW: the walk itself. Only a person holding a real iPhone and a real Android can answer the 18 steps of § 5 of `docs/testing/phones-we-do-not-own.md`; no session here can. Nothing buildable is left. His row is in FOR-ANDREW.md (\"Twenty minutes on your iPhone with the keyboard up\"); it was corrected 2026-10-24 because it had asked for only steps 4, 5, 7 and 8, iPhone only, and said that closed 8.2. Those four steps close 2.15 only; 8.2 needs all 18 on the iPhone and all 18 on a named And",
+   "expect": "B/R11"
+  },
+  {
+   "src": "decide",
+   "item": "8.5",
+   "title": "8.5 — Keyboard, screen reader, zoom, large text and reduced motion.",
+   "text": "LIVE RUN NEEDED: `node scripts/screenreader-structure.mjs` (dev server on :5173 + seed + demo-owner credentials) — proves landmarks and heading order on all 11 screens are still clean after the booking-page and confirmation changes.",
+   "expect": "C/R8/keyed"
+  },
+  {
+   "src": "decide",
+   "item": "14.39",
+   "title": "14.39 — Reclaim a receipt upload that never reaches finish.",
+   "text": "NEEDS ANDREW: arrange a proof runner with the existing R2 environment; those credentials are in Supabase function secrets, absent here, and reading or copying secret values is prohibited. Without that runner the required real-R2 abandonment and deliberate leak proof cannot run. Release step, not a decision: Andrew applies `20261013130000_receipt_upload_attempts.sql` and",
+   "expect": "model"
+  },
+  {
+   "src": "decide",
+   "item": "99.3",
+   "title": "99.3 — Follow-up to 9.17: 9.17 — DONE 2026-10-10: one `platform-admin` call per first gear open,",
+   "text": "'s answer to the amendment below. Tests re-homed (`cab7ea7e`), each run alone: admin-insight 1/0, admin-preconditions 9/0, growth-lines 8 passed, 0 failed, 1 todo (SUPERSEDED the same day: the todo was hiding a lost behavior, so 99.14 was built instead; now 9/0, see the review answer below) — § 6 now RUNS the office's `issueOf` on one account stuck on each of the five old questions instead of reading the deleted scre",
+   "expect": "model"
+  },
+  {
+   "src": "decide",
+   "item": "98.2",
+   "title": "98.2 — Repair the receipt deployed-inventory.json says fail check (broken by 14.24)",
+   "text": "NEEDS ANDREW (2026-11-02): a new release is due. Since the 2026-10-23 release, 4 database changes and 34 programs have been saved but are not live (fresh drift and inventory receipts at 0da053dd; `node scripts/release-sheet.mjs` lists them in order). Recommendation: say \"run the release\" and a session runs docs/release-sheet.md as on 2026-10-23, with you double-clicking one push file at the website step.",
+   "expect": "B/R11"
+  },
+  {
+   "src": "decide",
+   "item": "97.54p",
+   "title": "97.54p — Per-worker scheduling, AFTER launch (from 97.54, Andrew 2026-10-15).",
+   "text": "NEEDS ANDREW: two things only he can say. (1) Has the product launched? He ruled 2026-10-15 \"launch first, add per-van scheduling afterward\", and the site is still not public (his own words in BUSINESS-RULES.md r-9, 2026-10-16), so building now would overrule him. (2) The question this entry says to ask: what is the biggest team a detailer on the platform should be able to schedule, and does each van need its own named worker with its own hours, or is \"I have N vans, take up to N jobs at once\" e",
+   "expect": "A/R3/parked"
+  },
+  {
+   "src": "stuck",
+   "item": "6.1",
+   "title": "6.1 — The pieces aren't failing. They're waiting on two different things only Andrew can do, and nothing has asked him y",
+   "text": "NEEDS ANDREW (ROUTINE CHECK, NO DECISION REQUESTED): a ten-second look, not a choice — only he can open his password manager. Search \"backup\", \"age\" or \"detailing backup\" and tell a session only whether the key is there, never the key itself. No session can do any part of this. Rechecked 2026-10-10 by the 6.1 session: the nightly backups are still green (`gh run list -R random12one0/detailing-platform-backups --limit 3`: 3 of 3 success, latest 2026-10-10 09:23 UTC), so the copies exist. Nobody h",
+   "stuck": true,
+   "action": true,
+   "expect": "B/R11"
+  },
+  {
+   "src": "stuck",
+   "item": "0.3",
+   "title": "0.3 — Both pieces wait on one database change only Andrew may make, and no session is allowed to make it.",
+   "text": "The real blocker is one waiting change to the live database. It adds a 'test row' tick box to customer records and ticks 31 fake customers, and the repo's rules say only Andrew may make that kind of change. The building work is already done: the screen is proven, a delete guard was added as 0.3c, and the one command he needs is ready. But neither piece can be ticked until that tick box really exists. 0.3b's last attempt failed for a separate reason: the worker was logged out. That login was fixe",
+   "stuck": true,
+   "action": true,
+   "expect": "B/R11"
+  },
+  {
+   "src": "stuck",
+   "item": "3.1",
+   "title": "3.1 — The email-preview piece is built, but it needs Andrew to switch on two server changes before anyone can finish it",
+   "text": "The one real cause is that the last piece of work, letting a row in the mail log open the email as it was sent, needs two steps that only Andrew is allowed to take. First he has to add one empty column to the live database to hold each email's text. Then he has to publish the updated email-sending code to the live server. Sessions are forbidden to do either, so 3.1d stopped at a finished, tested build that cannot be proven against a real stored email. The umbrella item 3.1 can't close while 3.1d",
+   "stuck": true,
+   "action": true,
+   "expect": "B/R11"
+  },
+  {
+   "src": "stuck",
+   "item": "4.1",
+   "title": "4.1 — Two actions still have no permanent record, and only Andrew can switch one on: suspending a business and inviting ",
+   "text": "Piece 4.1b promised a permanent, uneditable history for seven actions. Five of them are proven. The other two, suspending a business and inviting an owner, were handed to the later pieces, so 4.1b can't finish until they are done. The owner-invite record is built and tested, but it only goes live when Andrew changes the database and publishes one program, and sessions aren't allowed to do either. Suspend is the hidden part: piece 4.1c was ticked after checking only that suspend leaves a record p",
+   "stuck": true,
+   "action": true,
+   "expect": "B/R11"
+  },
+  {
+   "src": "stuck",
+   "item": "0.4",
+   "title": "0.4 — Nothing is broken: both pieces are finished and wait on Andrew to publish one server piece, platform-admin.",
+   "text": "Both pieces were built and tested against the real database, and both passed. The 'wall' is a rule, not a fault: putting new server code live ('publishing') is Andrew's job alone, and no coding session may do it for him. Both fixes live in the same server piece, called platform-admin, so neither can be checked off until that piece goes live. Until then, the live version still records the build-start date even when the notice email never went out, and two presses at the same moment can both recor",
+   "stuck": true,
+   "action": true,
+   "expect": "B/R11"
+  },
+  {
+   "src": "stuck",
+   "item": "97.20",
+   "title": "97.20 — Nothing is broken: both pieces are finished and waiting for Andrew to apply two database changes to the live sit",
+   "text": "Both pieces stopped for the same reason, and it was not a failure. Each one adds a change to the database, a new set of instructions for what \"Delete for good\" does, and only Andrew is allowed to apply database changes to the live site. 97.20 makes deleting a customer wipe their emails, and 97.20a builds on it so the deletion also clears their street address. Both were built and tested on a practice copy, so each one correctly stopped at \"waiting to be published\" instead of ticking its box.\n\nWha",
+   "stuck": true,
+   "action": true,
+   "expect": "B/R11"
+  },
+  {
+   "src": "stuck",
+   "item": "3.4",
+   "title": "3.4 — Email review is waiting on conflicting send requirements, while saved work has a separate test-comparison hold.",
+   "text": "The records do not establish one shared cause. Item 3.4's saved changes were held because the tests were run under different conditions from the accepted reference run, so the comparison could not be trusted. Item 3.4g stopped because it requires real emails through the business's sending service, while Andrew had instructed sessions not to send every template just to complete the checklist. Spanish review and delivery evidence also remain unfinished.\n\nWhat fixes it: A coding session must compar",
+   "stuck": true,
+   "action": true,
+   "expect": "B/R11"
+  }
+ ]
+}

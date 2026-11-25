@@ -1,0 +1,212 @@
+{
+  "replies": {
+    "Make the headline shorter.": {
+      "text": "{\"say\":\"I cut the headline down to four words. It keeps the idea that prices are easy to check.\",\"cards\":[{\"section\":\"hero\",\"field\":\"headline\",\"to\":\"Care you can see.\",\"why\":\"Fewer words than the current eight; keeps the first half.\"}],\"dashboard\":[]}",
+      "recorded": {
+        "model": "sonnet",
+        "effort": "medium",
+        "pack": "49114fe3374a",
+        "at": "2026-11-06T15:27:53.869Z",
+        "ms": 8080,
+        "usd": 0.029884800000000003
+      }
+    },
+    "Make the whole site sound friendlier.": {
+      "text": "{\"say\":\"I warmed up the first screen, the menu intro, the photos intro and the booking intro. The eyebrow and the section titles already sound friendly, so I left them alone.\",\"cards\":[{\"section\":\"hero\",\"field\":\"headline\",\"to\":\"Friendly care for your car. Prices you can check.\",\"why\":\"Adds a warm, personal note and keeps the promise.\"},{\"section\":\"hero\",\"field\":\"sub\",\"to\":\"Every price below comes straight from our booking system, so you always know what to expect.\",\"why\":\"Speaks to the customer directly and sounds easier.\"},{\"section\":\"menu\",\"field\":\"intro\",\"to\":\"Pick the care you like, then your vehicle. If size changes the price, the ticket shows by how much.\",\"why\":\"Softer and more direct, same meaning.\"},{\"section\":\"work\",\"field\":\"intro\",\"to\":\"Example images only: a paint surface before and after a polish. This sample shop has no photos of its own yet.\",\"why\":\"Gentler wording, still honest about the pictures.\"},{\"section\":\"book\",\"field\":\"intro\",\"to\":\"Tell us what you need and your price updates as you go. Nothing is charged on this page.\",\"why\":\"Invites the customer in, keeps the booking promise.\"}],\"dashboard\":[]}",
+      "recorded": {
+        "model": "sonnet",
+        "effort": "medium",
+        "pack": "49114fe3374a",
+        "at": "2026-11-06T15:28:04.252Z",
+        "ms": 10381,
+        "usd": 0.0167282
+      }
+    },
+    "Make the headline say: Clean cars, no fuss.": {
+      "text": "{\"say\":\"The headline now says \\\"Clean cars, no fuss.\\\" I used your words as you gave them.\",\"cards\":[{\"section\":\"hero\",\"field\":\"headline\",\"to\":\"Clean cars, no fuss.\",\"why\":\"Your own words, as you dictated them.\"}],\"dashboard\":[]}",
+      "recorded": {
+        "model": "sonnet",
+        "effort": "medium",
+        "pack": "49114fe3374a",
+        "at": "2026-11-06T15:28:09.525Z",
+        "ms": 5241,
+        "usd": 0.0086067
+      }
+    },
+    "The small line above the headline should say we come to you": {
+      "text": "{\"say\":\"I changed the small line above the headline to say we come to you. It's still a few words, with no numbers.\",\"cards\":[{\"section\":\"hero\",\"field\":\"eyebrow\",\"to\":\"We come to you\",\"why\":\"Says up front that the service is mobile.\"}],\"dashboard\":[]}",
+      "recorded": {
+        "model": "sonnet",
+        "effort": "medium",
+        "pack": "49114fe3374a",
+        "at": "2026-11-06T15:28:13.745Z",
+        "ms": 4219,
+        "usd": 0.0085887
+      }
+    },
+    "The booking title should make clear that a booking is a request we confirm": {
+      "text": "{\"say\":\"I changed the booking title so it says you send a request and the shop confirms it. I left the intro alone.\",\"cards\":[{\"section\":\"book\",\"field\":\"title\",\"to\":\"Request a time, we confirm it\",\"why\":\"Makes clear this is a request the shop confirms.\"}],\"dashboard\":[]}",
+      "recorded": {
+        "model": "sonnet",
+        "effort": "medium",
+        "pack": "49114fe3374a",
+        "at": "2026-11-06T15:28:23.348Z",
+        "ms": 9602,
+        "usd": 0.0106628
+      }
+    },
+    "Rewrite the intro to the prices so it is easier to read": {
+      "text": "{\"say\":\"I rewrote the prices intro in shorter sentences. It has fewer words than before.\",\"cards\":[{\"section\":\"menu\",\"field\":\"intro\",\"to\":\"Pick the care you want, then your vehicle. If size changes the price, the ticket shows it.\",\"why\":\"Shorter sentences, plainer words, fewer words than now.\"}],\"dashboard\":[]}",
+      "recorded": {
+        "model": "sonnet",
+        "effort": "medium",
+        "pack": "49114fe3374a",
+        "at": "2026-11-06T15:28:28.329Z",
+        "ms": 4980,
+        "usd": 0.0089113
+      }
+    },
+    "Less salesy everywhere, please": {
+      "text": "{\"say\":\"I toned down the first screen and the booking intro, which had the most selling and reassurance in them. The menu, photos and hours wording already reads plain, so I left it alone.\",\"cards\":[{\"section\":\"hero\",\"field\":\"headline\",\"to\":\"Car care. Prices in plain view.\",\"why\":\"Plainer and less clever, still says what they get.\"},{\"section\":\"hero\",\"field\":\"sub\",\"to\":\"Every price below comes straight from our booking system.\",\"why\":\"Drops the reassurance; shorter than now.\"},{\"section\":\"book\",\"field\":\"intro\",\"to\":\"The price updates as you fill this in. Nothing is charged on this page.\",\"why\":\"Shorter and more matter-of-fact.\"}],\"dashboard\":[]}",
+      "recorded": {
+        "model": "sonnet",
+        "effort": "medium",
+        "pack": "49114fe3374a",
+        "at": "2026-11-06T15:28:38.869Z",
+        "ms": 10540,
+        "usd": 0.0147385
+      }
+    },
+    "Make the hours section title plainer": {
+      "text": "{\"say\":\"I made the hours section title plainer. It now says what the section holds, with no extra phrasing.\",\"cards\":[{\"section\":\"visit\",\"field\":\"title\",\"to\":\"Hours and where we work\",\"why\":\"Plainer words, says what the section shows.\"}],\"dashboard\":[]}",
+      "recorded": {
+        "model": "sonnet",
+        "effort": "medium",
+        "pack": "49114fe3374a",
+        "at": "2026-11-06T15:28:44.165Z",
+        "ms": 5295,
+        "usd": 0.008560400000000001
+      }
+    },
+    "Shorter": {
+      "text": "{\"say\":\"I shortened the menu intro and kept the point that size can change the price.\",\"cards\":[{\"section\":\"menu\",\"field\":\"intro\",\"to\":\"Pick the care, then your vehicle. The ticket shows where size changes the price.\",\"why\":\"Fewer words, same meaning.\"}],\"dashboard\":[]}",
+      "recorded": {
+        "model": "sonnet",
+        "effort": "medium",
+        "pack": "49114fe3374a",
+        "at": "2026-11-06T15:28:53.456Z",
+        "ms": 9291,
+        "usd": 0.014688900000000001
+      }
+    },
+    "Friendlier": {
+      "text": "{\"say\":\"I made the booking intro warmer and plainer. It still says nothing is charged here, and it has no numbers.\",\"cards\":[{\"section\":\"book\",\"field\":\"intro\",\"to\":\"Pick what you need and we'll work out your price as you go. Nothing is charged here, and we'll get back to you to confirm.\",\"why\":\"Warmer, first-person voice; keeps the request wording honest.\"}],\"dashboard\":[]}",
+      "recorded": {
+        "model": "sonnet",
+        "effort": "medium",
+        "pack": "49114fe3374a",
+        "at": "2026-11-06T15:29:01.598Z",
+        "ms": 8141,
+        "usd": 0.0090315
+      }
+    },
+    "Make the line under the headline say the same thing in fewer words": {
+      "text": "{\"say\":\"I shortened the line under the headline from 18 words to 10, keeping the same idea. It still points to the booking system and has no numbers.\",\"cards\":[{\"section\":\"hero\",\"field\":\"sub\",\"to\":\"Every price comes straight from our booking system, so quotes match.\",\"why\":\"Same idea, fewer words than the current 18.\"}],\"dashboard\":[]}",
+      "recorded": {
+        "model": "sonnet",
+        "effort": "medium",
+        "pack": "49114fe3374a",
+        "at": "2026-11-06T15:29:08.171Z",
+        "ms": 6572,
+        "usd": 0.0089092
+      }
+    },
+    "Move the reviews above the prices": {
+      "text": "{\"say\":\"Cards can't move sections around yet, because order is a later step of the Studio. I've made no change.\",\"cards\":[],\"dashboard\":[]}",
+      "recorded": {
+        "model": "sonnet",
+        "effort": "medium",
+        "pack": "49114fe3374a",
+        "at": "2026-11-06T15:29:14.026Z",
+        "ms": 5855,
+        "usd": 0.0078909
+      }
+    },
+    "Make the book button bigger and green": {
+      "text": "{\"say\":\"Cards can only change wording, not button size or colour, so I made no card. That is a later step of the Studio.\",\"cards\":[],\"dashboard\":[]}",
+      "recorded": {
+        "model": "sonnet",
+        "effort": "medium",
+        "pack": "49114fe3374a",
+        "at": "2026-11-06T15:29:19.020Z",
+        "ms": 4993,
+        "usd": 0.0079209
+      }
+    },
+    "Put our prices in the headline, like from 85 dollars": {
+      "text": "{\"say\":\"Prices and numbers can't go into the wording because the validator refuses them, and the real prices already show live from your dashboard. I've made the headline point straight to them instead.\",\"cards\":[{\"section\":\"hero\",\"field\":\"headline\",\"to\":\"Every price is on the menu below.\",\"why\":\"Points to the live prices without typing a number.\"}],\"dashboard\":[]}",
+      "recorded": {
+        "model": "sonnet",
+        "effort": "medium",
+        "pack": "49114fe3374a",
+        "at": "2026-11-06T15:29:25.718Z",
+        "ms": 6698,
+        "usd": 0.010970200000000001
+      }
+    },
+    "Test: the answer is not the shape": {
+      "text": "Sure! I would make the headline shorter, something like 'Care you can see.'",
+      "hand": true
+    },
+    "Test: two answers in one": {
+      "text": "{\"say\":\"a\",\"cards\":[],\"dashboard\":[]}\n\nActually:\n{\"say\":\"b\",\"cards\":[],\"dashboard\":[]}",
+      "hand": true
+    },
+    "Test: the answer changes the photo": {
+      "text": "{\"say\":\"I swapped the photo.\",\"cards\":[{\"section\":\"hero\",\"field\":\"photo\",\"to\":\"a nicer one\",\"why\":\"\"}],\"dashboard\":[]}",
+      "hand": true
+    },
+    "Test: the answer writes a dashboard link into the words": {
+      "text": "{\"say\":\"Done.\",\"cards\":[{\"section\":\"hero\",\"field\":\"headline\",\"to\":\"From service:00000000-0000-4000-8000-000000000302.price only\",\"why\":\"\"}],\"dashboard\":[]}",
+      "hand": true
+    },
+    "Test: the answer adds a key a card does not have": {
+      "text": "{\"say\":\"Done.\",\"cards\":[{\"section\":\"hero\",\"field\":\"headline\",\"to\":\"Clean cars.\",\"why\":\"\",\"bind\":\"book\"}],\"dashboard\":[]}",
+      "hand": true
+    },
+    "Test: the headline with a typed price": {
+      "text": "{\"say\":\"I put the price in the headline.\",\"cards\":[{\"section\":\"hero\",\"field\":\"headline\",\"to\":\"Full detail from $185.\",\"why\":\"You asked for the price\"},{\"section\":\"menu\",\"field\":\"title\",\"to\":\"The menu, by vehicle size\",\"why\":\"Plainer\"}],\"dashboard\":[]}",
+      "hand": true
+    },
+    "Test: a slow answer for the booking title": {
+      "delayMs": 7000,
+      "text": "{\"say\":\"I made the booking title plainer.\",\"cards\":[{\"section\":\"book\",\"field\":\"title\",\"to\":\"Ask for a time\",\"why\":\"Plainer, and it is a request\"}],\"dashboard\":[]}",
+      "hand": true
+    },
+    "Test: Claude is out of usage": {
+      "limited": "You’ve hit your limit · resets 11:40pm",
+      "hand": true
+    },
+    "Test: the CLI crashes": {
+      "crash": "Error: something broke inside the CLI",
+      "hand": true
+    },
+    "Test: a very slow answer": {
+      "delayMs": 60000,
+      "text": "{\"say\":\"late\",\"cards\":[],\"dashboard\":[]}",
+      "hand": true
+    },
+    "mention our 3-step process in the intro": {
+      "text": "{\"say\":\"I put it in the booking intro, since that's where the steps happen. Numbers can't go into the wording because the validator refuses them, so it says \\\"step-by-step\\\" instead. Tell me if you meant a different intro.\",\"cards\":[{\"section\":\"book\",\"field\":\"intro\",\"to\":\"Follow our step-by-step process and your price is worked out as you go. Nothing is charged on this page.\",\"why\":\"Mentions the process without a number.\"}],\"dashboard\":[]}",
+      "recorded": {
+        "model": "sonnet",
+        "effort": "medium",
+        "pack": "49114fe3374a",
+        "at": "2026-11-06T15:29:33.178Z",
+        "ms": 7460,
+        "usd": 0.012339099999999999
+      }
+    }
+  },
+  "about": "Real replies from the Studio interpreter (tools/studio-ai-record.mjs), replayed by test-fixtures/studio-fake-claude.mjs. Entries marked hand-made are not recordings: they are the shapes a reply must be refused in."
+}

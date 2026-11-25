@@ -13,7 +13,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import path from "node:path";
 
 export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
-export const BELT = process.env.STUDIO_BELT || "C:/Users/rando/Downloads/claude/control-room/belt-staging";
+export const BELT = process.env.STUDIO_BELT || path.join(ROOT, "tools/studio-audit");
 export const EXAMPLE_SLUG = "example_brightline";
 
 export function exampleSeed() {

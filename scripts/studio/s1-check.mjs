@@ -33,7 +33,7 @@ import net from "node:net";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const APP = path.join(ROOT, "app");
-const BELT = process.env.STUDIO_BELT || "C:/Users/rando/Downloads/claude/control-room/belt-staging";
+const BELT = process.env.STUDIO_BELT || path.join(ROOT, "tools/studio-audit");
 const OUT = path.join(ROOT, "artifacts/studio-s1");
 const BUILT = !process.argv.includes("--no-built");
 const { chromium } = createRequire(path.join(APP, "package.json"))("playwright");
