@@ -126,12 +126,19 @@ try {
   const consent = page.locator("[data-billing-consent]");
   await consent.waitFor({ timeout: 30000 });
   await shot(page, "billing-preselected");
+  // What the customer is shown before agreeing (issue #27): the consent sentence's first two dollar figures.
+  const consentText = await page.locator("label", { has: consent }).first().innerText();
+  const shownCents = (consentText.match(/\$[\d,]+(?:\.\d\d)?/g) || []).slice(0, 2).map((d) => Math.round(parseFloat(d.replace(/[$,]/g, "")) * 100));
   await consent.check();
   await page.getByRole("button", { name: /Continue to payment/ }).click();
   const card = page.locator("[data-billing-card] iframe").first();
   await card.waitFor({ timeout: 30000 });
   await sleep(3000);
   step("4 · Stripe's card form appears in the page", true);
+
+  const payBtn = await page.locator("button.btn.primary", { hasText: /^Pay / }).first().innerText();
+  const payCents = Math.round(parseFloat(payBtn.replace(/[^0-9.]/g, "")) * 100);
+  step("4b · the Pay button equals the consent figures (build + first charge)", shownCents.length === 2 && payCents === shownCents[0] + shownCents[1], `consent ${shownCents} · button ${payBtn}`);
 
   const f = page.frameLocator("[data-billing-card] iframe").first();
   await f.getByText("Card", { exact: true }).first().click().catch(() => {}); await sleep(1500);
@@ -187,6 +194,10 @@ try {
 
   const biz = (await rest(`businesses?slug=eq.${SLUG}&select=status,awaiting_first_payment`))?.[0];
   step("8 · business is no longer paused", biz?.status === "active" && !biz?.awaiting_first_payment, JSON.stringify(biz));
+  const bizId = (await rest(`businesses?slug=eq.${SLUG}&select=id`))?.[0]?.id;
+  const subRow = (await rest(`platform_subscriptions?business_id=eq.${bizId}&select=setup_cents,recurring_cents`))?.[0];
+  const chargedCents = subRow ? [subRow.setup_cents, subRow.recurring_cents] : [];
+  step("8b · the amounts in the consent box are the amounts charged", chargedCents.length === 2 && JSON.stringify(chargedCents) === JSON.stringify(shownCents), `shown ${shownCents} · charged ${chargedCents}`);
   const paused = await page.getByText(/paused|awaiting/i).count();
   await page.goto(`${ORIGIN}/app`, { waitUntil: "domcontentloaded" });
   await sleep(1500);
