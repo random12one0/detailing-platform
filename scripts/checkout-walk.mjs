@@ -200,9 +200,9 @@ try {
   step("8b · the amounts in the consent box are the amounts charged", chargedCents.length === 2 && JSON.stringify(chargedCents) === JSON.stringify(shownCents), `shown ${shownCents} · charged ${chargedCents}`);
   const paused = await page.getByText(/paused|awaiting/i).count();
   await page.goto(`${ORIGIN}/app`, { waitUntil: "domcontentloaded" });
-  await sleep(1500);
+  // The dashboard is lazy-loaded (PR #53), so wait for its navigation rather than a fixed pause.
+  const usable = await page.locator("nav, [role=tablist], .tabbar, .tabs").first().waitFor({ state: "visible", timeout: 20000 }).then(() => true, () => false);
   await shot(page, "dashboard");
-  const usable = await page.locator("nav, [role=tablist], .tabbar, .tabs").first().isVisible().catch(() => false);
   step("9 · dashboard opens and is usable (navigation visible)", usable, `paused-text matches before navigating: ${paused}`);
 
   step("10 · no browser console errors", consoleErrors.length === 0, consoleErrors.slice(0, 3).join(" | "));
