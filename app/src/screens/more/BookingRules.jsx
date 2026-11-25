@@ -583,7 +583,7 @@ export default function BookingRules() {
             : t("Going away? Pick the day you're back and the page says so instead of taking bookings.")}
           stacked>
           <div className="row" style={{ gap: 8, alignItems: "center" }}>
-            <input type="date" value={form.closed_until}
+            <input type="date" aria-label={t("Closed until")} value={form.closed_until}
               min={todayLocal(business.timezone)}
               onChange={(e) => set("closed_until", e.target.value)} />
             {form.closed_until && (

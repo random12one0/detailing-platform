@@ -339,7 +339,7 @@ export default function Payments() {
                   <span className="nm">{t("Stripe account ending {last4}", { last4: card.accountHint })}</span>
                 </span>
                 {card.chargesEnabled
-                  ? <span className="pill completed" aria-label={t("Ready")}><Check size={14} strokeWidth={2.5} /></span>
+                  ? <span className="pill completed" role="img" aria-label={t("Ready")}><Check size={14} strokeWidth={2.5} /></span>
                   : (
                     <button className="btn sm inline ghost" disabled={cardBusy === "refresh"}
                       onClick={() => cardAction("refresh", {}, t("Could not reach Stripe. Try again in a minute."))}>
