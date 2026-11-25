@@ -447,8 +447,12 @@ if (!TOKEN || !REF) {
 
   const g0 = before.find((r) => r.provider === "google");
   const up = (await sql(`select public.translation_spend('google', 7) as u`)).body?.[0]?.u;
+  // A counter left from an earlier month rolls to 0 on the first spend (5d proves that on purpose),
+  // so what 5c should see is 7 on top of THIS month's count, not last month's.
+  const nowPeriod = new Date().toISOString().slice(0, 7);
+  const base = g0.period === nowPeriod ? g0.chars_used : 0;
   ok("5c · spending adds characters and reports what is left",
-    up?.used === g0.chars_used + 7 && up?.remaining === 500000 - (g0.chars_used + 7), JSON.stringify(up));
+    up?.used === base + 7 && up?.remaining === 500000 - (base + 7), JSON.stringify(up));
 
   // A stale month must not be spendable. Forced, then checked, then restored.
   await sql(`update translation_usage set period = '2000-01', chars_used = 999 where provider = 'google'`);

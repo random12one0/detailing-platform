@@ -204,8 +204,10 @@ test("a $ in the business name is written literally", () => {
   assert.ok(out.includes("<title>Shine $&amp; $' Co</title>"));
 });
 
-test("the edge-functions folder holds only this function (Netlify deploys every file there)", async () => {
-  assert.deepEqual(await readdir("app/netlify/edge-functions"), ["booking-meta.mjs"]);
+test("the edge-functions folder holds only the two entry points (Netlify deploys every file there)", async () => {
+  // tenant-site.mjs (published sites on a detailer's own address) joined booking-meta.mjs in 2026-11. A
+  // helper file dropped here would deploy as a third function, so the list stays exact.
+  assert.deepEqual((await readdir("app/netlify/edge-functions")).sort(), ["booking-meta.mjs", "tenant-site.mjs"]);
 });
 
 // ---------------------------------------------------------------------------
