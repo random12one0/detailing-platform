@@ -1,0 +1,21 @@
+Name,Phone,Email,Address,Vehicle,Notes
+Marcus Webb,555-0100,marcus@example.com,12 Ash St,Honda Civic,Prefers mornings
+Priya Nair,555-0101,priya@example.com,48 Birch Ave,Toyota RAV4,
+Tom Becker,555-0102,tom@example.com,7 Cedar Ln,Ford F-150,Big truck
+Ana Ruiz,555-0103,ana@example.com,90 Date Dr,Tesla Model 3,
+Sam Okafor,555-0104,sam@example.com,15 Elm Ct,Jeep Wrangler,Muddy often
+June Park,555-0105,june@example.com,22 Fir Way,Subaru Outback,Dog owner
+Leo Marsh,555-0106,leo@example.com,31 Grove St,BMW 3 Series,
+Nina Fox,555-0107,nina@example.com,64 Hill Rd,Audi Q5,
+Omar Haddad,555-0108,omar@example.com,8 Ivy Ln,Hyundai Elantra,
+Kate Lin,555-0109,kate@example.com,51 Jade Ave,Kia Sportage,
+Ben Cole,555-0110,ben@example.com,19 King St,Chevy Silverado,Work truck
+Mia Tran,555-0111,mia@example.com,73 Lake View,Nissan Altima,
+Alex Reed,555-0112,alex@example.com,26 Maple Dr,Mazda CX-5,
+Zoe Allen,555-0113,zoe@example.com,84 North St,Volvo XC60,
+Dan Kim,555-0114,dan@example.com,37 Oak Ave,Toyota Camry,
+Eve Shaw,555-0115,eve@example.com,59 Palm Ct,Honda Accord,No phone calls
+Gil Hahn,555-0116,gil@example.com,62 River Rd,Audi A4,
+No Phone,,regular@example.com,100 Quiet Ln,Minivan,Missing phone on purpose
+Tom Twin,555-0102,tom.twin@example.com,7 Cedar Ln,Ford F-150,Same phone as Tom Becker
+Zoe Copy,555-0199,zoe@example.com,84 North St,Volvo XC60,Same email as Zoe Allen

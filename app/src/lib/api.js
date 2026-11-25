@@ -201,6 +201,17 @@ export const api = {
   // place, so every figure on every money screen is unchanged to the cent.
   deleteCustomer: (businessId, customerId) =>
     callFn("delete-customer", { business_id: businessId, customer_id: customerId }),
+  // ROADMAP 97.40 - the customer CSV import, the mirror of the export. Writes
+  // go through the edge function so duplicate matching and the imported flag
+  // are enforced server-side, not just in the preview.
+  // The preview is the server's too: it checks EVERY existing customer, where
+  // the screen holds only its first 200, so no duplicate is called new.
+  previewImport: (businessId, rows) =>
+    callFn("import-customers", { action: "preview", business_id: businessId, rows }),
+  importCustomers: (businessId, rows) =>
+    callFn("import-customers", { action: "commit", business_id: businessId, rows }),
+  undoImport: (businessId, batchId) =>
+    callFn("import-customers", { action: "undo", business_id: businessId, batch_id: batchId }),
 
   // A DETAILER TELLS US SOMETHING IS WRONG. Everything except the words is
   // read on the server — who, which business, which role — so this carries

@@ -48,7 +48,7 @@ const READ_ONLY = {
 };
 // measured 2026-10-10 at 21; 22 since google-business (99.1, d64bc41f) — a requireMember caller
 // refused by default, re-counted 2026-10-17 by 97.15, which found this line red on HEAD.
-const EXPECTED_USER_AUTH = 22;
+const EXPECTED_USER_AUTH = 23;
 
 // The handlers under test (Deno.serve) are captured, never served.
 const captured = {};
