@@ -914,7 +914,7 @@ const usd = (c) => `$${(c / 100).toFixed(2)}`;
   // nobody is getting.
   check("both figures come from one table",
     fn.includes("const table = await priceTable();")
-      && fn.includes('planFor("website", term, founding, table)')
+      && fn.includes('planFor("website", term, quoteFounding, table)')
       && /planFor\(plan, term, founding, await priceTable\(\)\)/.test(fn));
 
   const billing = read("app/src/screens/more/Billing.jsx");
@@ -1579,6 +1579,44 @@ console.log("\n21. the founding spot is taken at payment (roadmap 8.5)");
   // live subscription silently reprices its renewal.
   check("21i-iii · the release cannot touch a live subscription",
     /not exists \([\s\S]{0,200}platform_subscriptions[\s\S]{0,200}status not in \('incomplete', 'canceled'\)/.test(claim2));
+}
+
+// ─── 22. WHAT THE CONSENT BOX SHOWS IS WHAT THE CARD IS CHARGED (issue #27) ─
+//
+// The Billing screen printed $1,074 / $75 for plan=website while `subscribe`
+// claimed a founding spot and charged $549 / $50: `summary` quoted against the
+// account's CURRENT tier, `subscribe` against the tier it was about to grant.
+{
+  console.log("\n22. shown == charged, every plan and term");
+  const sub = read("supabase/functions/platform-billing/index.ts");
+  const summaryFn = sub.slice(sub.indexOf("async function summary("), sub.indexOf("async function quotePromo("));
+  const dollars = (c) => `$${(c / 100).toLocaleString("en-US", { minimumFractionDigits: c % 100 ? 2 : 0 })}`;
+  for (const founding of [false, true]) {
+    for (const [plan, term] of [["website", "annual-upfront"], ["website", "annual-monthly"], ["website", "monthly"], ["booking", "monthly"]]) {
+      const snap = planFor(plan, term, founding);
+      const text = consentSentence(snap);
+      const chargedTotal = linesFor(snap).reduce((a, l) => a + l.cents, 0);
+      const tag = `${plan}/${term}/${founding ? "founding" : "list"}`;
+      check(`22a · ${tag}: consent names the recurring figure charged`,
+        text.includes(dollars(snap.recurring_cents)), text);
+      check(`22b · ${tag}: consent names the build fee charged (or none)`,
+        snap.setup_cents > 0 ? text.includes(dollars(snap.setup_cents)) : !/build/.test(text), text);
+      check(`22c · ${tag}: first charge = every line charged`,
+        firstChargeCents(snap) === chargedTotal);
+    }
+  }
+  const fm = consentSentence(planFor("website", "monthly", true));
+  check("22d · founding consent (month to month) = the pricing page's founding figures",
+    fm.includes(dollars(PRICING.founding.monthToMonth * 100)) && fm.includes(dollars(PRICING.founding.setup * 100)), fm);
+  // The root cause, pinned: summary and quotePromo predict founding the same
+  // way subscribe will, through one helper, never from plan_tier alone.
+  check("22e · summary quotes with the predicted founding, via the shared helper",
+    /const quoteFounding = await wouldBeFounding\("website", founding\)/.test(summaryFn)
+      && !/planFor\("website", term, founding,/.test(summaryFn));
+  check("22f · quotePromo uses the same helper",
+    /willBeFounding = await wouldBeFounding\(plan,/.test(sub));
+  check("22g · the helper asks founding_offer() and never founds the booking plan",
+    /async function wouldBeFounding[\s\S]{0,400}booking[\s\S]{0,200}founding_offer/.test(sub));
 }
 
 // § 22 (the Stripe lookup keys) was removed with `_shared/stripePrices.ts` on

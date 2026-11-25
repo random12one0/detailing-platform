@@ -166,6 +166,20 @@ async function priceTable(): Promise<PriceTable> {
   return pricesFrom(data?.prices);
 }
 
+// WHAT PRESSING SUBSCRIBE WOULD CHARGE, FOUNDING-WISE. `subscribe` claims a
+// founding spot at intent to pay, so a business that is not founding yet is
+// founding half a second later. The quotes the screen prints (and the consent
+// sentence beside the tick) must come from this same prediction, or the
+// customer is shown list prices and charged founding ones (issue #27). Read-only:
+// it claims nothing. The till (`subscribe`) stays the authority.
+async function wouldBeFounding(plan: string, current: boolean): Promise<boolean> {
+  if (current) return true;
+  if (plan === "booking") return false;
+  const { data: offer } = await supabase.rpc("founding_offer");
+  const left = (offer as { left?: number } | null)?.left;
+  return typeof left === "number" && left > 0;
+}
+
 async function summary(businessId: string, sub: Record<string, unknown> | null) {
   const { data: business } = await supabase
     .from("businesses")
@@ -219,8 +233,9 @@ async function summary(businessId: string, sub: Record<string, unknown> | null) 
   // `LandingPage.jsx` and it applies here.
   const table = await priceTable();
   const quotes: Record<string, unknown> = {};
+  const quoteFounding = await wouldBeFounding("website", founding);
   for (const term of TERMS) {
-    const snap = planFor("website", term, founding, table);
+    const snap = planFor("website", term, quoteFounding, table);
     const list = planFor("website", term, false, table);
     quotes[term] = {
       ...snap,
@@ -366,12 +381,7 @@ async function quotePromo(businessId: string, body: Record<string, unknown>) {
   // applied and changed nothing. Found by the test comparing the quote against
   // the charge rather than by reading. A missing RPC is a silent `false` here,
   // which is exactly the shape this repo keeps re-finding.
-  let willBeFounding = business?.plan_tier === "founding";
-  if (!willBeFounding && plan !== "booking") {
-    const { data: offer } = await supabase.rpc("founding_offer");
-    const left = (offer as { left?: number } | null)?.left;
-    willBeFounding = typeof left === "number" && left > 0;
-  }
+  const willBeFounding = await wouldBeFounding(plan, business?.plan_tier === "founding");
   const snapshot = planFor(plan, term, willBeFounding, await priceTable());
 
   const promo = await promoRow(typed);
