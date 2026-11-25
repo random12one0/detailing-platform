@@ -293,12 +293,16 @@ console.log("\n2. RLS on, and something to enforce");
   say("no other table is locked with nothing to unlock it", unexpected, (r) => r.table);
 }
 
-console.log("\n3. every security-definer function pins its search_path");
+console.log("\n3. every function we own pins its search_path");
+// Not only security definer: Supabase's advisor flags any function without one, and a
+// plain trigger function resolves names through the caller's path too. Extension
+// functions (btree_gist, pg_net) are not ours to alter and are skipped.
 say("none is left open to a caller's own schema", await q(`
   select p.proname as fn
     from pg_proc p
     join pg_namespace n on n.oid = p.pronamespace
-   where n.nspname = 'public' and p.prosecdef
+   where n.nspname = 'public'
+     and not exists (select 1 from pg_depend d where d.objid = p.oid and d.deptype = 'e')
      and (p.proconfig is null
           or not exists (select 1 from unnest(p.proconfig) c where c like 'search_path=%'))
    order by 1`), (r) => r.fn);
