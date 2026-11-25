@@ -78,6 +78,8 @@ const ALLOWED = {
     "anon+auth: returns a PUBLIC hostname for a business. Nothing private in it.",
   platform_prices:
     "anon+auth: the platform price table the marketing pages print. Public by design.",
+  get_published_site_by_host:
+    "anon+auth: what a detailer's own address serves at /. Answers only for a VERIFIED host of an active business with an active website plan, and returns the site spec only: words and bindings, never a price, hour, phone or review (20261125120000).",
   founding_offer:
     "anon+auth: how many founding spots are left. Printed on the pricing page.",
 

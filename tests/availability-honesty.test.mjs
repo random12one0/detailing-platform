@@ -125,8 +125,8 @@ const read = (p) => readFileSync(new URL(p, import.meta.url), "utf8");
   ];
 
   const files = [
-    // 5: getSettings, businessBySlug, businessById, auth.getUser, requireMember.
-    ["_shared/tenant.ts", "../supabase/functions/_shared/tenant.ts", 5],
+    // 6: getSettings, businessBySlug, businessById, auth.getUser, requireMember, awaitingFirstPayment.
+    ["_shared/tenant.ts", "../supabase/functions/_shared/tenant.ts", 6],
     ["available-slots/index.ts", "../supabase/functions/available-slots/index.ts", 1],
   ];
   let exemptSeen = 0;

@@ -393,6 +393,7 @@ const HOSTS = {
   "paypal.me": { why: "as venmo.com" },
   "esm.sh": { why: "named only inside a comment recording that it is NO LONGER used — `_shared/db.ts` imports from `npm:` since 2026-09-07" },
   "detailingplatform.com": { why: "this product's own site" },
+  "www.detailingplatform.com": { why: "this product's own site, the www spelling" },
   "book.example.com": { why: "a documentation example" },
   "WWW.Example.com": { why: "a documentation example, in a test of host normalisation" },
 };
