@@ -27,7 +27,9 @@ pw.chromium.launch = async (...a) => {
       // killed the whole run mid-teardown (98.11: suspend-delete-waive, shots-99-4).
       const res = await route.fetch().catch(() => null);
       if (!res) return route.abort().catch(() => {});
-      const body = (await res.text())
+      const text = await res.text().catch(() => null);
+      if (text === null) return route.abort().catch(() => {});
+      const body = text
         .replaceAll("import.meta.env.VITE_SUPABASE_URL", JSON.stringify(url))
         .replaceAll("import.meta.env.VITE_SUPABASE_ANON_KEY", JSON.stringify(key));
       await route.fulfill({ response: res, body }).catch(() => {});

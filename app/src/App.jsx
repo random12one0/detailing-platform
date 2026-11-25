@@ -348,9 +348,9 @@ export default function App() {
 
   if (loading) {
     return (
-      <div className="center">
+      <main className="center" aria-busy="true" aria-label={t("Loading")}>
         <div className="spinner" />
-      </div>
+      </main>
     );
   }
   // ROADMAP 6.4a — started with no signal: neither the sign-in form nor *Create

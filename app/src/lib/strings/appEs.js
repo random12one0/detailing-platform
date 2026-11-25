@@ -1827,6 +1827,7 @@ export const appEs = {
     "Ligero, moderado, pesado o extremo. Nunca cambia el precio.",
   "Links": "Enlaces",
   "Loading…": "Cargando…",
+  "Loading": "Cargando",
   "Locked for as long as you stay": "Fijo mientras te quedes",
   "Log a member": "Registrar un miembro",
   "Logo": "Logo",
