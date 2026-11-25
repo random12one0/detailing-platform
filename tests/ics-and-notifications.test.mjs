@@ -151,7 +151,12 @@ console.log("\ntest 2: the customer copy differs, and Phoenix gets no DST");
     phx.includes("TZOFFSETTO:-0700") && phx.includes("BEGIN:STANDARD"), phx.match(/TZOFFSETTO[^\r\n]*/)?.[0]);
   const ny = await (await fetch(`${URL_}/functions/v1/booking-ics?id=${bookingA.id}&audience=owner`,
     { headers: { apikey: ANON, Authorization: `Bearer ${owner.jwt}` } })).text();
-  check("New York in September is marked DAYLIGHT", ny.includes("BEGIN:DAYLIGHT"), ny.match(/BEGIN:(STANDARD|DAYLIGHT)/)?.[0]);
+  // The booking is 25 days out from whenever this runs, so whether New York is on
+  // daylight time that day depends on the date. Ask the platform's own tz data.
+  const nyDst = /D/.test(new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", timeZoneName: "short" })
+    .formatToParts(new Date(`${day}T17:00:00Z`)).find((x) => x.type === "timeZoneName").value);
+  const want = nyDst ? "BEGIN:DAYLIGHT" : "BEGIN:STANDARD";
+  check(`New York on ${day} is marked ${nyDst ? "DAYLIGHT" : "STANDARD"}`, ny.includes(want), ny.match(/BEGIN:(STANDARD|DAYLIGHT)/)?.[0]);
 }
 
 console.log("\ntest 3: a cancelled booking has no calendar file");
