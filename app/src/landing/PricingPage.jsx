@@ -215,9 +215,10 @@ export default function PricingPage() {
     p.monthly * (P.term.months / 2) * P.term.exitFeeShare;
 
   // Where a chosen option goes TODAY: the signup form, carrying the choice.
-  // There is no checkout yet (roadmap 2.20 stage 2's second half, which
-  // cannot go live before 2 December anyway) and no Stripe key is needed for
-  // any of this page. `term` SURVIVES THE WHOLE WAY NOW — Auth.jsx switches to
+  // The checkout is the dashboard's own Billing screen (issue #2): this link
+  // goes to sign-up, then business creation, then Billing with the rung
+  // already chosen, then Stripe's payment form; the first payment lifts the
+  // account's pause. No Stripe key is needed for any of this page. `term` SURVIVES THE WHOLE WAY NOW — Auth.jsx switches to
   // "create an account" on the presence of `plan`, CreateBusiness carries the
   // term into `/app?settings=billing&term=`, and Billing.jsx opens with that
   // rung already chosen. (This comment said "read by nothing yet" until
