@@ -16,9 +16,13 @@ works end to end. The database part is live; steps 1 to 7 below are the order to
 1. **The detailer fills in the Website brief** after signing up (their dashboard, `site_intake` table). It counts as
    sent when it has a "sent" time. Prices, hours, photos and reviews are not in the brief: the site reads them live from
    their dashboard.
-2. **The business must be ready.** Three things, all in the database (no screen for them yet, see "Still manual"):
-   it is active, it has an **active website subscription** (paid), and it has a **verified web address**
-   (Business > Web address in their dashboard). Publishing refuses until all three are true.
+2. **The business must be ready.** Three things, all set by the detailer through the product, never by hand: it is
+   active, it has an **active website subscription** (they pay in Billing: `platform-billing` starts checkout,
+   `stripe-webhook` writes the `platform_subscriptions` row, plan `website`), and it has a **verified web address**
+   (Business > Web address: `verify-domain` adds the row and sets `verified_at` only when the host serves
+   `/platform-host.txt` and carries the row's own DNS token). The `sites` row is made by the Studio's first
+   publish. Publishing refuses until all three are true. Only a fake demo business needs its subscription and address
+   rows written by hand; remove them afterwards.
 3. **Studio tab > "Start from a business".** Type the business's address name (the `slug`, for example `demo-detail`)
    and press the button. The Studio reads their brief and dashboard and makes **revision 1**: their own words from the
    brief where those words are allowed (no numbers, no claims like "insured"; the Studio refuses those), plain defaults
@@ -51,12 +55,24 @@ the site for the test address, with live prices ($65 Express Wash from the dashb
 host fell through to the normal page. Rollback and a second release also tested. Not yet proven: the same on a real
 domain through Netlify itself (needs a real domain pointing at Netlify, see below).
 
-## Still manual
+## Still manual: DNS and Netlify, once per address (checked 2026-11-25)
 
-- A real address must **point at Netlify** (DNS) and be **added to the Netlify site as a domain** before customers
-  can open it. Nothing here does that.
-- Adding the website subscription and verifying the address are database/dashboard steps (Stripe checkout sets the
-  subscription; the verified address has no Studio screen).
+- `detailingplatform.com` DNS is on **Cloudflare**, not Netlify (nameservers `joselyn.ns.cloudflare.com`,
+  `yew.ns.cloudflare.com`; see `docs/services-and-secrets.md` 3a). There is **no wildcard record**: an unknown
+  subdomain does not resolve. No DNS-edit token for Cloudflare exists in this repo's `.env`, and an agent cannot
+  sign in to the Cloudflare dashboard, so a new DNS record needs Andrew (or a DNS-edit token he saves).
+- Per address, for example `demo-site.detailingplatform.com`: (1) Cloudflare: `CNAME demo-site ->
+  detailplatform-admin-test.netlify.app`, **DNS only (grey cloud)**. (2) Netlify, site project id
+  `12ee8817-34bc-4791-b68d-85c920739052`: Domain management > add domain alias, wait for its certificate.
+  (3) Business > Web address: add and verify it. (4) Studio: publish with that host. A customer's own domain is the
+  same, with the CNAME and verification TXT at their registrar.
+- **Wildcard `<slug>.detailingplatform.com`: deliberately not set up.** The edge function would serve it (any host
+  outside its platform list is a tenant host), but each host still needs its own verified `business_domains` row and
+  DNS token, so a wildcard removes no step. Revisit with many detailers and no domains of their own; it needs a
+  Cloudflare wildcard CNAME, a Netlify wildcard alias and a change to `verify-domain`.
+- **Still to prove (why #4 stays open):** one real host over HTTPS. After the DNS step: give `demo-detail` a
+  temporary website subscription and verified host, publish, `curl -sI https://<host>/` is 200 with the published
+  site (not the booking page), screenshots at 390 and 1440, console clean; then delete the temporary rows and unpublish.
 - AI rewriting of the brief's words is not built: the first draft uses the detailer's own sentence where allowed.
 - Hours, services and photos must already be in their dashboard; a business with no active service is refused.
 - The nightly "does the live site match the dashboard" check and the three-width gates still only work on the
