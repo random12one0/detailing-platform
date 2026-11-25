@@ -77,9 +77,10 @@ export default function JobPage() {
             never took over. `jobRecordProps` is the one place that string is
             composed, so all three containers title a job the same way. */}
         <h1 className="title">{jobRecordProps(booking).title}</h1>
-        <p className="quiet" style={{ marginTop: 2, marginBottom: "var(--sp-4)" }}>
+        {/* An h2 and not a p: the record’s section titles are h3, and h1 straight to h3 is a skipped level (axe heading-order, Refs #17). */}
+        <h2 className="quiet" style={{ font: "inherit", marginTop: 2, marginBottom: "var(--sp-4)" }}>
           {jobRecordProps(booking).subtitle}
-        </p>
+        </h2>
         <BookingDetail
           booking={booking}
           onClose={() => navigate("/app")}
