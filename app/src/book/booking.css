@@ -1335,6 +1335,12 @@ html:has(.bk > .bk-bar) { scroll-padding-bottom: calc(var(--bk-bar-h) + 12px + v
   cursor: pointer; user-select: none;
   transition: background var(--bk-t-hover) var(--bk-e), box-shadow var(--bk-t-hover) var(--bk-e);
 }
+/* At 320 seven squares are 37px. Seven columns cannot all be 44 wide inside
+   the gutters, so the height gives the missing 7px and the width is 40. */
+@media (max-width: 359px) {
+  .bk-cal { gap: 3px; }
+  .bk-cal .cell { aspect-ratio: auto; min-height: 44px; }
+}
 .bk-cal .cell:hover:not(.closed):not(.empty):not(.selected) { box-shadow: inset 0 0 0 1px var(--bk-border); }
 .bk-cal .cell.empty { background: transparent; box-shadow: none; cursor: default; }
 .bk-cal .cell.closed {

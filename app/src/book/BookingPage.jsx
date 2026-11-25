@@ -658,13 +658,13 @@ export function BookingFlow({ notFound = null, embedded = false }) {
   const shell = embedded ? { className: "bk bk-embedded" } : { className: "bk", style: brandVars };
   const H1 = embedded ? "h2" : "h1";
   if (status === "loading") {
-    return <div {...shell}><div className="bk-center"><div className="bk-spinner" /></div></div>;
+    return <div {...shell}><div className="bk-center" role={embedded ? undefined : "main"}><div className="bk-spinner" /></div></div>;
   }
   if (status === "not_found") {
     if (notFound) return notFound;
     return (
       <div {...shell}>
-        <div className="bk-center">
+        <div className="bk-center" role={embedded ? undefined : "main"}>
           <H1>{t("Page not found")}</H1>
           <p className="bk-muted">{t("This booking link doesn’t match a business.")}</p>
         </div>
@@ -674,7 +674,7 @@ export function BookingFlow({ notFound = null, embedded = false }) {
   if (status === "error") {
     return (
       <div {...shell}>
-        <div className="bk-center">
+        <div className="bk-center" role={embedded ? undefined : "main"}>
           <H1>{t("Something went wrong")}</H1>
           <p className="bk-muted">{t("Please refresh and try again.")}</p>
         </div>
