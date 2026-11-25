@@ -33,7 +33,7 @@ import { createRequire } from "node:module";
 import { demoOwner } from "./lib/demoOwner.mjs";
 const { chromium } = createRequire(import.meta.url)("../app/node_modules/playwright/index.js");
 
-const BASE = "http://localhost:5173";
+const BASE = (process.env.BASE_URL || "http://localhost:5173").replace(/[/]$/, "");
 // Real rows on the demo tenant: the booking this session created while
 // measuring ROADMAP 2.8, and a seeded plan member. Both are READ only.
 const MANAGE_BOOKING_ID = "c4c1f0c8-b2d1-41d6-ad93-e01d89500593";

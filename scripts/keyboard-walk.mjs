@@ -56,7 +56,7 @@ const { chromium } = req("./../app/node_modules/playwright/index.js");
 import { writeReceipt } from "./receipt.mjs";
 import { demoOwner } from "./lib/demoOwner.mjs";
 
-const BASE = "http://localhost:5173";
+const BASE = (process.env.BASE_URL || "http://localhost:5173").replace(/[/]$/, "");
 const started_at = new Date().toISOString();
 
 // TWO CANARIES, PLANTED ON EVERY SCREEN, because these are the two ways this
