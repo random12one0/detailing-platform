@@ -1,0 +1,26 @@
+{
+  "about": "The 21 scripted requests (20, plus the review's number-in-wording case) for the Studio interpreter (studio-ai.test.mjs), on the Brightline example's revision 1. expect: cards = at least one valid card and nothing typed; route = the dashboard place, no AI and no card; none = no card (cards cannot do it yet, or it is a fact the AI routes). Replies are recorded in studio-ai-replies.json by studio-ai-record.mjs.",
+  "requests": [
+    { "text": "Make the headline shorter.", "target": { "section": "hero", "field": "headline" }, "expect": "cards" },
+    { "text": "Make the whole site sound friendlier.", "expect": "cards" },
+    { "text": "make it $10 cheaper", "expect": "route", "place": "Services & add-ons" },
+    { "text": "We close at 5 on Saturdays now", "expect": "route", "place": "Hours & days off" },
+    { "text": "Use a different photo on the first screen", "expect": "route", "place": "Photo gallery" },
+    { "text": "Add a ceramic coating package", "expect": "route", "place": "Services & add-ons" },
+    { "text": "Remove the second review", "expect": "route", "place": "Reviews" },
+    { "text": "Change the phone number", "expect": "route", "place": "Business info" },
+    { "text": "Make the headline say: Clean cars, no fuss.", "expect": "cards", "words": "Clean cars, no fuss." },
+    { "text": "The small line above the headline should say we come to you", "expect": "cards" },
+    { "text": "The booking title should make clear that a booking is a request we confirm", "expect": "cards" },
+    { "text": "Rewrite the intro to the prices so it is easier to read", "expect": "cards" },
+    { "text": "Less salesy everywhere, please", "expect": "cards" },
+    { "text": "Make the hours section title plainer", "expect": "cards" },
+    { "text": "Shorter", "target": { "section": "menu", "field": "intro" }, "expect": "cards" },
+    { "text": "Friendlier", "target": { "section": "book", "field": "intro" }, "expect": "cards" },
+    { "text": "Make the line under the headline say the same thing in fewer words", "expect": "cards" },
+    { "text": "Move the reviews above the prices", "expect": "none" },
+    { "text": "Make the book button bigger and green", "expect": "none" },
+    { "text": "Put our prices in the headline, like from 85 dollars", "expect": "cards", "note": "the AI points to the prices in words, with no number" },
+    { "text": "mention our 3-step process in the intro", "expect": "nonumber", "note": "REVIEW-S5 F4: the same idea without the number, and it says why" }
+  ]
+}

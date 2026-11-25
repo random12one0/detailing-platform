@@ -1,0 +1,896 @@
+{
+ "about": "Real answers from tools/studio-looks-run.mjs, replayed by the tests' stand-in CLIs. Do not edit by hand.",
+ "recorded": "2026-11-07T22:04:57.310Z",
+ "replies": {
+  "Make look A in the showroom family (round 1)": {
+   "text": "{\n  \"why\": [\n    \"The headline tells customers the detailer can come to their home.\",\n    \"Photos sit near the top so customers can see the kind of finish shown.\",\n    \"The menu comes before booking so customers can compare prices before requesting a visit.\"\n  ],\n  \"order\": [\"hero\", \"proof\", \"catalog\", \"visit\", \"booking\"],\n  \"copy\": {\n    \"hero\": {\n      \"eyebrow\": \"At your place\",\n      \"headline\": \"Clean car. Stay put.\",\n      \"sub\": \"\"\n    },\n    \"catalog\": {\n      \"title\": \"The menu\",\n      \"intro\": \"\"\n    },\n    \"proof\": {\n      \"title\": \"A closer look\",\n      \"intro\": \"This example shop uses illustrations for its images and samples for its reviews.\"\n    },\n    \"visit\": {\n      \"title\": \"Where we work, and when\",\n      \"intro\": \"\"\n    },\n    \"booking\": {\n      \"title\": \"Request a time\",\n      \"intro\": \"Send your request. We'll confirm the time.\"\n    }\n  }\n}",
+   "maker": "chatgpt:gpt-6.1-sol"
+  },
+  "Make look A in the showroom family (round 2)": {
+   "text": "{\n  \"why\": [\n    \"The opening says care happens at home, so customers can see how a visit fits their day.\",\n    \"The menu follows the images, so customers can compare care and vehicle pricing without a long scroll.\",\n    \"Hours and contact come before booking, so customers can check the details before requesting a time.\"\n  ],\n  \"order\": [\"hero\", \"proof\", \"catalog\", \"visit\", \"booking\"],\n  \"copy\": {\n    \"hero\": {\n      \"eyebrow\": \"Brightline auto care\",\n      \"headline\": \"Your car, done at home.\",\n      \"sub\": \"Choose the care and your vehicle to see the price.\"\n    },\n    \"catalog\": {\n      \"title\": \"The menu, by vehicle size\",\n      \"intro\": \"\"\n    },\n    \"proof\": {\n      \"title\": \"Before and after\",\n      \"intro\": \"The photos are illustrations. The reviews are samples.\"\n    },\n    \"visit\": {\n      \"title\": \"Where we work, and when\",\n      \"intro\": \"\"\n    },\n    \"booking\": {\n      \"title\": \"Request a time\",\n      \"intro\": \"Send your request. We’ll confirm the time.\"\n    }\n  }\n}",
+   "maker": "chatgpt:gpt-6.1-sol"
+  },
+  "Make look B in the neighbourhood family (round 1)": {
+   "text": "{\n  \"why\": [\n    \"The opening words say we come to you, so customers can see how a visit fits their day.\",\n    \"Photos sit near the top, so customers can look before choosing care for their car.\",\n    \"Booking follows the prices, so customers can request a time while their choice is fresh.\"\n  ],\n  \"order\": [\"hero\", \"proof\", \"catalog\", \"booking\", \"visit\"],\n  \"copy\": {\n    \"hero\": {\n      \"eyebrow\": \"Care close to home\",\n      \"headline\": \"We take care of your car at home.\",\n      \"sub\": \"Choose what suits your car, then send us a time request.\"\n    },\n    \"catalog\": {\n      \"title\": \"Choose the care for your car\",\n      \"intro\": \"Where vehicle size affects the price, we show the difference.\"\n    },\n    \"proof\": {\n      \"title\": \"Before and after\",\n      \"intro\": \"The images are illustrations, and the reviews are samples.\"\n    },\n    \"visit\": {\n      \"title\": \"Where we work, and when\",\n      \"intro\": \"\"\n    },\n    \"booking\": {\n      \"title\": \"Request a time\",\n      \"intro\": \"Tell us what works for you. We’ll confirm your request.\"\n    }\n  }\n}",
+   "maker": "chatgpt:gpt-6.1-sol"
+  },
+  "Make look B in the neighbourhood family (round 2)": {
+   "text": "{\n  \"why\": [\n    \"The headline tells customers we come to them, so they can plan around having their car at home.\",\n    \"The menu comes before the request form, so customers can compare prices and check what is included.\",\n    \"The booking words explain that we confirm requests, so customers know to wait for a reply.\"\n  ],\n  \"order\": [\"hero\", \"proof\", \"catalog\", \"booking\", \"visit\"],\n  \"copy\": {\n    \"hero\": {\n      \"eyebrow\": \"Neighbourhood auto care\",\n      \"headline\": \"We come to you. You carry on.\",\n      \"sub\": \"Choose the care your car needs, then request a time.\"\n    },\n    \"catalog\": {\n      \"title\": \"The menu, priced by vehicle size\",\n      \"intro\": \"Open “What's included” to check what each visit covers.\"\n    },\n    \"proof\": {\n      \"title\": \"Before and after\",\n      \"intro\": \"This is an example shop: the images are illustrations, the reviews are samples, and the seasonal offer is a sample.\"\n    },\n    \"visit\": {\n      \"title\": \"Where we work, and when\",\n      \"intro\": \"\"\n    },\n    \"booking\": {\n      \"title\": \"Request a time\",\n      \"intro\": \"Send us your preferred time. We’ll reply to confirm.\"\n    }\n  }\n}",
+   "maker": "chatgpt:gpt-6.1-sol"
+  },
+  "Make look C in the workshop family (round 1)": {
+   "text": "{\n  \"why\": [\n    \"Prices appear on the first screen, so customers can check the cost for their vehicle straight away.\",\n    \"Mobile care is stated up front, so customers know the detailer can visit their address.\",\n    \"The request form follows the photos, so customers ready to arrange a visit can act before reading further.\"\n  ],\n  \"order\": [\"hero\", \"proof\", \"booking\", \"catalog\", \"visit\"],\n  \"copy\": {\n    \"hero\": {\n      \"eyebrow\": \"Mobile vehicle care\",\n      \"headline\": \"Care at your address. Prices listed.\",\n      \"sub\": \"Choose the care and your vehicle to see the price.\"\n    },\n    \"catalog\": {\n      \"title\": \"The menu, priced by vehicle size\",\n      \"intro\": \"Pick the care, then your vehicle.\"\n    },\n    \"proof\": {\n      \"title\": \"Before and after\",\n      \"intro\": \"The images are illustrations, and the reviews are samples.\"\n    },\n    \"visit\": {\n      \"title\": \"Where we work, and when\",\n      \"intro\": \"\"\n    },\n    \"booking\": {\n      \"title\": \"Request a time\",\n      \"intro\": \"Send your preferred time for us to confirm.\"\n    }\n  }\n}",
+   "maker": "chatgpt:gpt-6.1-sol"
+  },
+  "Make look C in the workshop family (round 2)": {
+   "text": "{\n  \"why\": [\n    \"Prices sit on the first screen, so customers can compare costs for their vehicle.\",\n    \"The menu tells customers how to check included work before choosing a package.\",\n    \"The request form follows the photos, so customers can ask for a time without searching.\"\n  ],\n  \"order\": [\"hero\", \"proof\", \"booking\", \"catalog\", \"visit\"],\n  \"copy\": {\n    \"hero\": {\n      \"eyebrow\": \"Mobile car care\",\n      \"headline\": \"Care you can see. Prices you can check.\",\n      \"sub\": \"Compare the work and prices for your vehicle.\"\n    },\n    \"catalog\": {\n      \"title\": \"The menu, priced by vehicle size\",\n      \"intro\": \"Select “What's included” under each package to check the work covered.\"\n    },\n    \"proof\": {\n      \"title\": \"Drag across to see the difference\",\n      \"intro\": \"Images are illustrations. Reviews are samples.\"\n    },\n    \"visit\": {\n      \"title\": \"Where we work, and when\",\n      \"intro\": \"\"\n    },\n    \"booking\": {\n      \"title\": \"Request a time\",\n      \"intro\": \"Choose the work and send a time request. We confirm the appointment.\"\n    }\n  }\n}",
+   "maker": "chatgpt:gpt-6.1-sol"
+  }
+ },
+ "critics": [
+  {
+   "letter": "A",
+   "v": 1,
+   "model": "gpt-6.1-sol",
+   "answer": {
+    "items": {
+     "design": {
+      "focal_point": {
+       "answer": "yes",
+       "evidence": "The oversized “CLEAN CAR. STAY PUT.” headline dominates the hero at every supplied width."
+      },
+      "type": {
+       "answer": "yes",
+       "evidence": "Condensed display lettering and restrained body text create a clear, consistent hierarchy."
+      },
+      "spacing": {
+       "answer": "no",
+       "evidence": "The desktop hero leaves a large illustrated area above the headline; the phone reviews have a substantial gap before “THE MENU.”"
+      },
+      "accent": {
+       "answer": "yes",
+       "evidence": "Orange consistently highlights booking buttons, prices-section rules, stars and the second headline line."
+      },
+      "imagery": {
+       "answer": "no",
+       "evidence": "The abstract teal illustration supplies atmosphere but shows little recognizable vehicle detail or cleaning craft."
+      },
+      "section_variety": {
+       "answer": "yes",
+       "evidence": "The screenshots show a graphic hero, comparison slider, bordered quotations, service menu and structured booking form."
+      }
+     },
+     "usability": {
+      "navigation": {
+       "answer": "yes",
+       "evidence": "Desktop and tablet headers show Work, Prices and Visit; phone headers retain prominent Call and Book actions."
+      },
+      "booking": {
+       "answer": "yes",
+       "evidence": "Book appears above the phone fold, and the form clearly states that requests require confirmation."
+      },
+      "readability": {
+       "answer": "yes",
+       "evidence": "Phone paragraphs and service descriptions remain comfortably readable with short lines."
+      },
+      "tappability": {
+       "answer": "yes",
+       "evidence": "Phone Book, Call, Text, language controls and service cards present generously sized visible targets."
+      },
+      "legibility": {
+       "answer": "yes",
+       "evidence": "Cream text contrasts clearly with dark backgrounds, while orange emphasis remains distinct."
+      },
+      "visible_content": {
+       "answer": "yes",
+       "evidence": "The phone first screen shows the offer, booking and contact actions, service area and initial prices without horizontal clipping."
+      }
+     },
+     "creativity": {
+      "distinct_identity": {
+       "answer": "yes",
+       "evidence": "Tall compressed lettering, near-black surfaces, teal bodywork-like stripes and orange controls form a coherent identity."
+      },
+      "describable_signature": {
+       "answer": "yes",
+       "evidence": "The signature is an oversized two-line cream-and-orange slogan against diagonal teal automotive illustration."
+      }
+     },
+     "content": {
+      "owner_voice": {
+       "answer": "no",
+       "evidence": "The copy is direct but largely generic; no owner perspective or particular detailing approach appears."
+      },
+      "no_filler": {
+       "answer": "no",
+       "evidence": "The sample review about inclusions and the request process adds little useful service information."
+      },
+      "no_invented_claims": {
+       "answer": "yes",
+       "evidence": "Illustrations, sample reviews and the seasonal offer are explicitly labeled as examples."
+      },
+      "bound_figures": {
+       "answer": "yes",
+       "evidence": "Visible prices and durations are attached to named packages; the discount is identified as a sample seasonal offer."
+      },
+      "story_headings": {
+       "answer": "yes",
+       "evidence": "“CLEAN CAR. STAY PUT.” communicates the mobile-service benefit, followed by “A CLOSER LOOK” and “THE MENU.”"
+      }
+     }
+    },
+    "pay": {
+     "Q1": {
+      "answer": "yes",
+      "evidence": "Auto care branding, “AT YOUR PLACE,” Long Beach and Seal Beach coverage, and booking/contact actions establish what, where and how."
+     },
+     "Q2": {
+      "answer": "yes",
+      "evidence": "The orange header Book button and full-width phone “BOOK A TIME” button are above the fold."
+     },
+     "Q3": {
+      "answer": "yes",
+      "evidence": "Package prices appear in the hero and form; the menu visibly lists hand wash and dry, wheels and glass."
+     },
+     "Q4": {
+      "answer": "yes",
+      "evidence": "The supplied second phone screen contains a clearly labeled illustrative Before/After comparison."
+     },
+     "Q5": {
+      "answer": "no",
+      "evidence": "Reviews are honestly labeled samples, but no sourced customer reviews are shown; they provide no real customer proof."
+     },
+     "Q6": {
+      "answer": "yes",
+      "evidence": "Long Beach and Seal Beach are named below the hero actions and within the booking form."
+     },
+     "Q7": {
+      "answer": "yes",
+      "evidence": "Brightline Auto Care branding and a consistent condensed-type, teal-and-orange visual system are visible throughout."
+     },
+     "Q8": {
+      "answer": "yes",
+      "evidence": "The responsive compositions, strong typography and coordinated booking screen look considered and presentable."
+     },
+     "Q9": {
+      "answer": "yes",
+      "evidence": "The desktop hero contains a conspicuously large, low-information illustrated expanse above the headline."
+     },
+     "Q10": {
+      "answer": "yes",
+      "evidence": "The form explains confirmation, shows package prices and durations, indicates progress, and explains the disabled Continue state."
+     },
+     "Q11": {
+      "answer": "no",
+      "evidence": "The screenshots show polished styling but limited visual detail about the actual detailing experience to establish a town-best standard."
+     },
+     "Q12": {
+      "answer": "no",
+      "evidence": "The visual identity is strong, but the sparse hero imagery and generic sample copy do not yet demonstrate enough bespoke value for recurring payment."
+     }
+    },
+    "model": "codex"
+   }
+  },
+  {
+   "letter": "A",
+   "v": 2,
+   "model": "gpt-6.1-sol",
+   "answer": {
+    "items": {
+     "design": {
+      "focal_point": {
+       "answer": "yes",
+       "evidence": "Oversized cream headline clearly dominates the hero across desktop, tablet and phone."
+      },
+      "type": {
+       "answer": "yes",
+       "evidence": "Condensed display headings and simple body text create a consistent, strong hierarchy."
+      },
+      "spacing": {
+       "answer": "no",
+       "evidence": "Desktop hero has a large empty upper region; mobile reviews leave a substantial gap before the menu."
+      },
+      "accent": {
+       "answer": "yes",
+       "evidence": "Orange consistently highlights booking buttons, prices-section rules and review stars."
+      },
+      "imagery": {
+       "answer": "no",
+       "evidence": "The abstract teal illustration and its before/after variant communicate little about car detailing or finish quality."
+      },
+      "section_variety": {
+       "answer": "yes",
+       "evidence": "Hero, comparison slider, bordered testimonials, service menu and booking cards have distinct structures."
+      }
+     },
+     "usability": {
+      "navigation": {
+       "answer": "yes",
+       "evidence": "Desktop and tablet show Work, Prices and Visit; phone retains prominent Call and Book controls."
+      },
+      "booking": {
+       "answer": "yes",
+       "evidence": "Book is visible in every header, and the form clearly presents service selection and progress."
+      },
+      "readability": {
+       "answer": "yes",
+       "evidence": "Phone body copy wraps cleanly, with readable service names, descriptions and booking instructions."
+      },
+      "tappability": {
+       "answer": "yes",
+       "evidence": "Phone booking and contact buttons are large and separated; service options occupy broad cards."
+      },
+      "legibility": {
+       "answer": "yes",
+       "evidence": "Cream text and orange accents remain clear against the dark backgrounds."
+      },
+      "visible_content": {
+       "answer": "yes",
+       "evidence": "Supplied views show intact headings, service prices and booking controls without apparent horizontal clipping."
+      }
+     },
+     "creativity": {
+      "distinct_identity": {
+       "answer": "yes",
+       "evidence": "Condensed cream lettering, near-black surfaces, teal bands and orange accents establish a cohesive identity."
+      },
+      "describable_signature": {
+       "answer": "yes",
+       "evidence": "The signature is oversized condensed typography over diagonal teal bands with orange utility controls."
+      }
+     },
+     "content": {
+      "owner_voice": {
+       "answer": "no",
+       "evidence": "Copy explains the service plainly but offers little personal perspective or distinctive shop voice."
+      },
+      "no_filler": {
+       "answer": "yes",
+       "evidence": "Visible copy covers service choices, location, prices and requesting a time; sample content is clearly identified."
+      },
+      "no_invented_claims": {
+       "answer": "yes",
+       "evidence": "Illustrations, reviews and seasonal offer are explicitly marked as examples or samples."
+      },
+      "bound_figures": {
+       "answer": "yes",
+       "evidence": "Prices and approximate durations are attached to named services; the discount is labeled a sample seasonal offer."
+      },
+      "story_headings": {
+       "answer": "yes",
+       "evidence": "“Your car, done at home” communicates the proposition, while “The menu, by vehicle size” explains the pricing structure."
+      }
+     }
+    },
+    "pay": {
+     "Q1": {
+      "answer": "yes",
+      "evidence": "The hero states at-home car care, names Long Beach and Seal Beach, and presents booking and contact buttons."
+     },
+     "Q2": {
+      "answer": "yes",
+      "evidence": "Orange Book appears above the fold on phone, alongside a large Book a Time button."
+     },
+     "Q3": {
+      "answer": "yes",
+      "evidence": "Service cards display prices and durations; the menu shows inclusions and booking cards offer “What's included” controls."
+     },
+     "Q4": {
+      "answer": "yes",
+      "evidence": "The supplied second phone screen shows a clearly labeled before/after comparison."
+     },
+     "Q5": {
+      "answer": "yes",
+      "evidence": "Reviews explicitly identify sample reviewers and sample feedback, honestly presenting the example shop's testimonials."
+     },
+     "Q6": {
+      "answer": "yes",
+      "evidence": "Long Beach and Seal Beach appear beneath hero actions and within the booking introduction."
+     },
+     "Q7": {
+      "answer": "yes",
+      "evidence": "Brightline Auto Care branding and the same distinctive palette and typography persist across screens."
+     },
+     "Q8": {
+      "answer": "yes",
+      "evidence": "Consistent typography, aligned controls and responsive layouts create a presentable example-shop design."
+     },
+     "Q9": {
+      "answer": "yes",
+      "evidence": "The desktop hero has a conspicuously empty upper area, and illustration and review placeholders remain visibly labeled."
+     },
+     "Q10": {
+      "answer": "yes",
+      "evidence": "The form explains that requests require confirmation, shows service costs and durations, and disables Continue until selection."
+     },
+     "Q11": {
+      "answer": "no",
+      "evidence": "The screenshots show competent styling, but abstract imagery and limited personal shop character do not establish a standout local standard."
+     },
+     "Q12": {
+      "answer": "no",
+      "evidence": "The visible design is cohesive, but the abstract imagery and conventional service cards do not demonstrate compelling ongoing value over a polished builder template."
+     }
+    },
+    "model": "codex"
+   }
+  },
+  {
+   "letter": "B",
+   "v": 1,
+   "model": "gpt-6.1-sol",
+   "answer": {
+    "items": {
+     "design": {
+      "focal_point": {
+       "answer": "yes",
+       "evidence": "The oversized navy headline dominates the desktop and phone hero."
+      },
+      "type": {
+       "answer": "yes",
+       "evidence": "Heavy, rounded display headings contrast clearly with lighter body text."
+      },
+      "spacing": {
+       "answer": "yes",
+       "evidence": "Consistent margins and generous gaps separate hero actions, pricing, reviews and booking cards."
+      },
+      "accent": {
+       "answer": "yes",
+       "evidence": "Yellow consistently highlights Book buttons, the comparison handle and booking progress."
+      },
+      "imagery": {
+       "answer": "no",
+       "evidence": "Abstract teal stripes provide little visual information about cars or detailing results."
+      },
+      "section_variety": {
+       "answer": "yes",
+       "evidence": "The layout alternates a split hero, price list, comparison slider, review cards and booking form."
+      }
+     },
+     "usability": {
+      "navigation": {
+       "answer": "yes",
+       "evidence": "Desktop navigation names Work, Prices and Visit; phone headers retain Call and Book."
+      },
+      "booking": {
+       "answer": "yes",
+       "evidence": "Book is prominent above the phone fold, and the form clearly identifies service selection as the first step."
+      },
+      "readability": {
+       "answer": "yes",
+       "evidence": "Body copy uses readable sizes, short lines and comfortable line spacing on phones."
+      },
+      "tappability": {
+       "answer": "yes",
+       "evidence": "Phone booking and contact buttons are large, with visible gaps between adjacent controls."
+      },
+      "legibility": {
+       "answer": "yes",
+       "evidence": "Dark navy text contrasts strongly with pale blue and white surfaces."
+      },
+      "visible_content": {
+       "answer": "yes",
+       "evidence": "Supplied views show readable headings, complete service cards and booking controls without horizontal clipping."
+      }
+     },
+     "creativity": {
+      "distinct_identity": {
+       "answer": "no",
+       "evidence": "The business name and palette are consistent, but generic service copy and abstract imagery provide limited shop-specific identity."
+      },
+      "describable_signature": {
+       "answer": "yes",
+       "evidence": "Chunky navy typography, pale blue backgrounds and yellow offset shadows form a recognizable visual motif."
+      }
+     },
+     "content": {
+      "owner_voice": {
+       "answer": "no",
+       "evidence": "Copy such as 'Choose what suits your car' communicates clearly but reveals little personal perspective or detailing expertise."
+      },
+      "no_filler": {
+       "answer": "no",
+       "evidence": "Two substantial review cards contain sample-review explanations rather than useful customer experiences."
+      },
+      "no_invented_claims": {
+       "answer": "yes",
+       "evidence": "Illustrations, sample reviews and the sample seasonal offer are explicitly disclosed."
+      },
+      "bound_figures": {
+       "answer": "yes",
+       "evidence": "Prices and durations are attached to named services; the discount is labeled as a sample seasonal offer."
+      },
+      "story_headings": {
+       "answer": "yes",
+       "evidence": "'We take care of your car at home' and 'Choose the care for your car' communicate the service and visitor's next decision."
+      }
+     }
+    },
+    "pay": {
+     "Q1": {
+      "answer": "yes",
+      "evidence": "The hero states at-home car care, names Long Beach and Seal Beach, and offers booking, calling and texting."
+     },
+     "Q2": {
+      "answer": "yes",
+      "evidence": "Both the header Book button and large Book a time button appear above the phone fold."
+     },
+     "Q3": {
+      "answer": "no",
+      "evidence": "Prices are visible, but service inclusions remain hidden behind collapsed 'What's included' controls."
+     },
+     "Q4": {
+      "answer": "yes",
+      "evidence": "The second phone view contains a clearly labeled before-and-after comparison, disclosed as illustrative."
+     },
+     "Q5": {
+      "answer": "no",
+      "evidence": "Review cards honestly identify themselves as samples; they provide no sourced customer testimony."
+     },
+     "Q6": {
+      "answer": "yes",
+      "evidence": "The hero badge and booking introduction explicitly name Long Beach and Seal Beach."
+     },
+     "Q7": {
+      "answer": "no",
+      "evidence": "Beyond the Brightline name and service area, the visible content offers little distinctive business personality."
+     },
+     "Q8": {
+      "answer": "yes",
+      "evidence": "Coordinated typography, colors, spacing and responsive layouts create a presentable example-shop design."
+     },
+     "Q9": {
+      "answer": "yes",
+      "evidence": "The supplied design visibly contains an example illustration, sample reviews and a sample seasonal offer."
+     },
+     "Q10": {
+      "answer": "yes",
+      "evidence": "Booking explains that requests need confirmation, shows prices and durations, and disables Continue until a service is chosen."
+     },
+     "Q11": {
+      "answer": "no",
+      "evidence": "The polished layout lacks informative detailing imagery and distinctive business content expected of a leading local presentation."
+     },
+     "Q12": {
+      "answer": "no",
+      "evidence": "The screenshots show tidy styling and a structured booking form, but limited original content or demonstrated value beyond a builder template."
+     }
+    },
+    "model": "codex"
+   }
+  },
+  {
+   "letter": "B",
+   "v": 2,
+   "model": "gpt-6.1-sol",
+   "answer": {
+    "items": {
+     "design": {
+      "focal_point": {
+       "answer": "yes",
+       "evidence": "The oversized navy headline dominates the hero, with yellow highlighting drawing attention to its closing phrase."
+      },
+      "type": {
+       "answer": "yes",
+       "evidence": "Heavy, rounded display lettering contrasts clearly with lighter body text and service details."
+      },
+      "spacing": {
+       "answer": "yes",
+       "evidence": "Hero content, calls to action, price rows, and booking cards have clear separation across the supplied sizes."
+      },
+      "accent": {
+       "answer": "yes",
+       "evidence": "Yellow consistently marks booking buttons, headline highlights, progress, and image borders."
+      },
+      "imagery": {
+       "answer": "no",
+       "evidence": "The teal diagonal illustration provides atmosphere but does not visually communicate a car or detailing result."
+      },
+      "section_variety": {
+       "answer": "yes",
+       "evidence": "The screenshots combine an open hero, compact price list, comparison slider, review cards, and service-selection form."
+      }
+     },
+     "usability": {
+      "navigation": {
+       "answer": "yes",
+       "evidence": "Desktop navigation offers Work, Prices, Visit, Call, and Book; phone headers retain Call and Book."
+      },
+      "booking": {
+       "answer": "yes",
+       "evidence": "Booking buttons are prominent, and the form explains that a preferred time requires confirmation."
+      },
+      "readability": {
+       "answer": "yes",
+       "evidence": "Phone body text wraps into manageable lines, with clear headings and separated service prices."
+      },
+      "tappability": {
+       "answer": "yes",
+       "evidence": "Phone booking and contact buttons are large, and service choices occupy broad cards."
+      },
+      "legibility": {
+       "answer": "yes",
+       "evidence": "Dark navy text remains clearly visible against the pale blue and white surfaces."
+      },
+      "visible_content": {
+       "answer": "yes",
+       "evidence": "The supplied screens show intact headings, buttons, prices, and booking controls without apparent horizontal clipping."
+      }
+     },
+     "creativity": {
+      "distinct_identity": {
+       "answer": "no",
+       "evidence": "The brand name and palette are consistent, but the abstract artwork and rounded cards offer little detailer-specific identity."
+      },
+      "describable_signature": {
+       "answer": "yes",
+       "evidence": "Chunky navy lettering with yellow marker highlights and offset yellow image borders forms a recognizable visual motif."
+      }
+     },
+     "content": {
+      "owner_voice": {
+       "answer": "no",
+       "evidence": "The copy explains the service plainly but offers no personal perspective or distinctive shop philosophy."
+      },
+      "no_filler": {
+       "answer": "no",
+       "evidence": "The sample review about inclusions and the request process adds little useful information about the detailing service."
+      },
+      "no_invented_claims": {
+       "answer": "yes",
+       "evidence": "Illustrations, reviews, and the seasonal offer are explicitly identified as examples or samples."
+      },
+      "bound_figures": {
+       "answer": "yes",
+       "evidence": "Prices are attached to named services, durations accompany booking choices, and the discount is labeled as a sample offer."
+      },
+      "story_headings": {
+       "answer": "yes",
+       "evidence": "“We come to you. You carry on.” communicates convenience, while the menu heading explains vehicle-size pricing."
+      }
+     }
+    },
+    "pay": {
+     "Q1": {
+      "answer": "yes",
+      "evidence": "Auto Care branding, mobile-service copy, the service menu, and the Long Beach and Seal Beach badge establish what, where, and how."
+     },
+     "Q2": {
+      "answer": "yes",
+      "evidence": "Both the header Book button and the large Book a time button appear in the first phone screen."
+     },
+     "Q3": {
+      "answer": "yes",
+      "evidence": "Service prices are displayed, and each booking card exposes a clearly labeled What's included control."
+     },
+     "Q4": {
+      "answer": "yes",
+      "evidence": "The second phone screen includes a labeled before-and-after comparison."
+     },
+     "Q5": {
+      "answer": "yes",
+      "evidence": "Both reviews explicitly identify themselves as samples, honestly presenting example content rather than customer proof."
+     },
+     "Q6": {
+      "answer": "yes",
+      "evidence": "The hero badge explicitly names Long Beach and Seal Beach."
+     },
+     "Q7": {
+      "answer": "no",
+      "evidence": "Beyond the business name and area, the screenshots show no owner, recognizable vehicle work, or distinctive local detail."
+     },
+     "Q8": {
+      "answer": "yes",
+      "evidence": "Consistent typography, controlled colors, and coherent phone layouts make the example presentable."
+     },
+     "Q9": {
+      "answer": "yes",
+      "evidence": "The hero and comparison use visibly abstract example illustrations, and the review cards visibly contain sample content."
+     },
+     "Q10": {
+      "answer": "yes",
+      "evidence": "The booking screen shows prices, approximate durations, progress, and an explicit promise to reply to confirm."
+     },
+     "Q11": {
+      "answer": "no",
+      "evidence": "The screenshots show orderly presentation but insufficient business-specific craft or imagery to establish a best-in-town standard."
+     },
+     "Q12": {
+      "answer": "no",
+      "evidence": "The consistent styling and booking layout are useful, but the visible example lacks enough bespoke business content to demonstrate recurring premium value."
+     }
+    },
+    "model": "codex"
+   }
+  },
+  {
+   "letter": "C",
+   "v": 1,
+   "model": "gpt-6.1-sol",
+   "answer": {
+    "items": {
+     "design": {
+      "focal_point": {
+       "answer": "yes",
+       "evidence": "Oversized 'Care at your address. Prices listed.' headline dominates the desktop and phone hero."
+      },
+      "type": {
+       "answer": "yes",
+       "evidence": "Condensed bold headings pair consistently with readable body text and compact labels."
+      },
+      "spacing": {
+       "answer": "yes",
+       "evidence": "Hero, price rows, buttons and service cards have clear separation across all three widths."
+      },
+      "accent": {
+       "answer": "yes",
+       "evidence": "Cobalt blue consistently highlights booking buttons, prices messaging and progress indicators."
+      },
+      "imagery": {
+       "answer": "no",
+       "evidence": "The teal illustration is mostly abstract diagonal bands; even the before/after does little to communicate detailing quality."
+      },
+      "section_variety": {
+       "answer": "yes",
+       "evidence": "The split hero, comparison slider, review cards and stepped booking form provide distinct section formats."
+      }
+     },
+     "usability": {
+      "navigation": {
+       "answer": "yes",
+       "evidence": "Desktop navigation has Work, Prices and Visit; phone headers retain prominent Call and Book actions."
+      },
+      "booking": {
+       "answer": "yes",
+       "evidence": "Book appears above the phone fold, and the form shows service prices, durations and a clear continuation instruction."
+      },
+      "readability": {
+       "answer": "yes",
+       "evidence": "Short paragraphs, strong heading hierarchy and separated price rows make the content easy to scan."
+      },
+      "tappability": {
+       "answer": "yes",
+       "evidence": "Phone Book, Call, Text and language buttons are large, with visible gaps between adjacent controls."
+      },
+      "legibility": {
+       "answer": "yes",
+       "evidence": "Dark text on pale backgrounds and white text on blue buttons remain clear at phone size."
+      },
+      "visible_content": {
+       "answer": "no",
+       "evidence": "The phone view in image six shows the booking progress and footer but no service choices in the available space."
+      }
+     },
+     "creativity": {
+      "distinct_identity": {
+       "answer": "no",
+       "evidence": "The business name is visible, but the abstract imagery and generic service copy offer little identity specific to this detailer."
+      },
+      "describable_signature": {
+       "answer": "yes",
+       "evidence": "Condensed uppercase typography, cobalt accents and a fine square grid create a consistent workshop-like visual signature."
+      }
+     },
+     "content": {
+      "owner_voice": {
+       "answer": "no",
+       "evidence": "Copy explains the service clearly but offers no personal perspective or distinctive voice from the operator."
+      },
+      "no_filler": {
+       "answer": "no",
+       "evidence": "Two sample testimonial cards occupy substantial phone space while providing little useful service information."
+      },
+      "no_invented_claims": {
+       "answer": "yes",
+       "evidence": "Illustrations, sample reviews and the seasonal offer are explicitly labeled as examples."
+      },
+      "bound_figures": {
+       "answer": "yes",
+       "evidence": "Prices are tied to named packages, durations to services, and the discount to every booking."
+      },
+      "story_headings": {
+       "answer": "no",
+       "evidence": "'Before and after' and 'Request a time' are functional labels rather than headings that develop a business story."
+      }
+     }
+    },
+    "pay": {
+     "Q1": {
+      "answer": "yes",
+      "evidence": "The hero identifies mobile vehicle care, service at the customer's address, and Long Beach and Seal Beach."
+     },
+     "Q2": {
+      "answer": "yes",
+      "evidence": "A blue Book button is visible in the phone header and a full-width Book a Time button appears within the first screen."
+     },
+     "Q3": {
+      "answer": "no",
+      "evidence": "Package costs are visible, but inclusions remain hidden behind 'What's included' controls."
+     },
+     "Q4": {
+      "answer": "yes",
+      "evidence": "The phone's second-screen capture includes a clearly labeled before/after comparison illustration."
+     },
+     "Q5": {
+      "answer": "no",
+      "evidence": "Reviews are honestly labeled samples; they are not sourced customer reviews."
+     },
+     "Q6": {
+      "answer": "yes",
+      "evidence": "'Serving Long Beach and Seal Beach' appears beneath the hero actions and in the booking introduction."
+     },
+     "Q7": {
+      "answer": "no",
+      "evidence": "The name distinguishes the shop, but no owner details, local imagery or specific working approach deepen its identity."
+     },
+     "Q8": {
+      "answer": "no",
+      "evidence": "The typography and layout are tidy, but abstract work imagery and prominent sample testimonials leave the presentation feeling unfinished."
+     },
+     "Q9": {
+      "answer": "yes",
+      "evidence": "The hero illustration, before/after imagery, reviews and seasonal offer are visibly labeled example or sample content."
+     },
+     "Q10": {
+      "answer": "yes",
+      "evidence": "The form explains that preferred times require confirmation and shows package prices, estimated durations and progress."
+     },
+     "Q11": {
+      "answer": "no",
+      "evidence": "The screenshots lack the specific work imagery and business character needed to demonstrate a town-leading presentation."
+     },
+     "Q12": {
+      "answer": "no",
+      "evidence": "The coherent styling and booking form help, but generic copy and extensive sample content do not establish clear premium value."
+     }
+    },
+    "model": "codex"
+   }
+  },
+  {
+   "letter": "C",
+   "v": 2,
+   "model": "gpt-6.1-sol",
+   "answer": {
+    "items": {
+     "design": {
+      "focal_point": {
+       "answer": "yes",
+       "evidence": "Large condensed hero headline dominates both desktop and phone, with blue pricing language drawing attention."
+      },
+      "type": {
+       "answer": "yes",
+       "evidence": "Condensed uppercase headings contrast clearly with lighter, readable body text."
+      },
+      "spacing": {
+       "answer": "yes",
+       "evidence": "Consistent margins separate price rows, service cards, buttons and section headings across widths."
+      },
+      "accent": {
+       "answer": "yes",
+       "evidence": "Cobalt blue consistently marks booking actions, headline emphasis, progress and comparison control."
+      },
+      "imagery": {
+       "answer": "no",
+       "evidence": "The abstract teal illustration does not convey a vehicle, detailing craftsmanship or a meaningful before-and-after result."
+      },
+      "section_variety": {
+       "answer": "yes",
+       "evidence": "Hero pricing, comparison slider, review cards and stepped booking provide visibly different section structures."
+      }
+     },
+     "usability": {
+      "navigation": {
+       "answer": "yes",
+       "evidence": "Desktop offers Work, Prices and Visit; the phone header prioritizes Call and Book."
+      },
+      "booking": {
+       "answer": "yes",
+       "evidence": "Book is visible in every header, and the form explains that requests require appointment confirmation."
+      },
+      "readability": {
+       "answer": "yes",
+       "evidence": "Short paragraphs, clear service names and separated prices make the displayed content easy to scan."
+      },
+      "tappability": {
+       "answer": "yes",
+       "evidence": "Phone Call, Book and primary booking buttons have generous visible touch areas."
+      },
+      "legibility": {
+       "answer": "yes",
+       "evidence": "Dark text on pale surfaces and white text on blue buttons remain clearly legible."
+      },
+      "visible_content": {
+       "answer": "no",
+       "evidence": "In the reviews-to-booking phone capture, the fixed Continue bar obscures the progress area at the bottom."
+      }
+     },
+     "creativity": {
+      "distinct_identity": {
+       "answer": "no",
+       "evidence": "The name is prominent, but the stock service labels, abstract imagery and sample copy provide little business-specific character."
+      },
+      "describable_signature": {
+       "answer": "yes",
+       "evidence": "Oversized condensed black-and-cobalt typography over a fine technical grid creates a recognizable visual motif."
+      }
+     },
+     "content": {
+      "owner_voice": {
+       "answer": "no",
+       "evidence": "Copy explains comparison and requests but offers no personal perspective or distinctive detailing philosophy."
+      },
+      "no_filler": {
+       "answer": "no",
+       "evidence": "Sample reviews discuss the request process and fictional feedback rather than adding useful service information."
+      },
+      "no_invented_claims": {
+       "answer": "yes",
+       "evidence": "Illustrations, sample reviews and the sample seasonal offer are explicitly disclosed as examples."
+      },
+      "bound_figures": {
+       "answer": "yes",
+       "evidence": "Prices are attached to named services, durations sit beside their packages, and the discount is labeled a sample offer."
+      },
+      "story_headings": {
+       "answer": "yes",
+       "evidence": "“Care you can see. Prices you can check” and “Drag across to see the difference” communicate a clear visitor journey."
+      }
+     }
+    },
+    "pay": {
+     "Q1": {
+      "answer": "yes",
+      "evidence": "Mobile car care, Long Beach and Seal Beach, and Book/Call/Text actions are visible in the opening content."
+     },
+     "Q2": {
+      "answer": "yes",
+      "evidence": "A blue Book button is visible above the phone fold in the header."
+     },
+     "Q3": {
+      "answer": "no",
+      "evidence": "Package costs are visible, but inclusions remain hidden behind “What's included” controls."
+     },
+     "Q4": {
+      "answer": "yes",
+      "evidence": "A labeled before-and-after comparison appears in the second phone screen; its imagery is honestly identified as illustrative."
+     },
+     "Q5": {
+      "answer": "yes",
+      "evidence": "Reviews are explicitly labeled as samples, including a statement that fictional feedback is not a real customer endorsement."
+     },
+     "Q6": {
+      "answer": "yes",
+      "evidence": "The opening content and booking introduction both name Long Beach and Seal Beach."
+     },
+     "Q7": {
+      "answer": "no",
+      "evidence": "Brightline Auto Care is named, but no distinctive owner story, actual work or local visual character identifies this particular shop."
+     },
+     "Q8": {
+      "answer": "no",
+      "evidence": "The typography is confident, but abstract demonstration imagery and repetitive sample reviews leave the presentation feeling unfinished."
+     },
+     "Q9": {
+      "answer": "yes",
+      "evidence": "Explicit example imagery and sample reviews remain visible placeholders; the fixed booking bar also obscures progress content in one phone capture."
+     },
+     "Q10": {
+      "answer": "yes",
+      "evidence": "The booking form shows service prices, estimated durations, progress, language controls and an explicit confirmation policy."
+     },
+     "Q11": {
+      "answer": "no",
+      "evidence": "The supplied presentation lacks persuasive detailing imagery and business-specific content expected of a polished leading shop."
+     },
+     "Q12": {
+      "answer": "no",
+      "evidence": "Responsive layout and clear booking provide value, but the visible example content and limited individual identity do not establish a compelling monthly premium."
+     }
+    },
+    "model": "codex"
+   }
+  }
+ ]
+}

@@ -1,0 +1,277 @@
+/* AUDIT TAB — styles. Uses the Control Room's own tokens from ui.html
+   (--ink-*, --line*, --fog*, --bone*, --ac, --bad, --f-body, --f-num, --sp-*).
+   Everything is scoped under #viewAudit so nothing leaks into the other tabs.
+   Phones first (Andrew, 2026-10-10): designed at 390, then widened. */
+
+/* G1 (2026-11-03): the Audit tab shows the same top strip as every other tab. */
+
+/* A "view one" like Settings: on a laptop the page is fixed and this column scrolls; at 1060 and under the page scrolls. */
+#viewAudit{--warn:#E5B454;--sev:var(--fog-2);min-width:0}
+#viewAudit .aud{display:flex;flex-direction:column;gap:var(--sp-4);min-width:0;min-height:0;overflow-y:auto;padding-bottom:var(--sp-5)}
+#viewAudit .num{font-family:var(--f-num);font-weight:500;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+#viewAudit td.num{white-space:nowrap}   /* R5-P2-5: "$0.00" split into "$0.0" / "0" at 390 px; the title wraps instead */
+#viewAudit h3{font-size:16px;font-variation-settings:"wdth" 92,"wght" 640;margin:0}
+#viewAudit .meta{color:var(--fog);font-size:13px}
+#viewAudit .acard{background:var(--ink-3);border:1px solid var(--line-2);border-radius:12px;padding:var(--sp-4);min-width:0}
+#viewAudit .sh{display:flex;align-items:baseline;justify-content:space-between;gap:var(--sp-3);margin:0 0 var(--sp-3);flex-wrap:wrap}
+#viewAudit .empty{color:var(--fog);font-size:14px;padding:var(--sp-3) 0}
+
+/* sub-navigation: one row on a laptop, a 3-by-2 grid on a phone (no sideways scrolling) */
+#viewAudit .anav{display:flex;gap:6px;flex-wrap:wrap}
+#viewAudit .anav button{min-height:40px;padding:0 14px;border-radius:10px;border:1px solid var(--line-2);
+  background:var(--ink-2);color:var(--fog);font-size:14px;cursor:pointer}
+#viewAudit .anav button[aria-selected="true"]{background:var(--bone);color:var(--ink-0);border-color:var(--bone)}
+#viewAudit .anav .pip[hidden]{display:none}
+#viewAudit .anav .pip{display:inline-block;min-width:18px;height:18px;line-height:18px;padding:0 5px;margin-left:6px;
+  border-radius:9px;background:var(--bad);color:#2A0E09;font-size:12px;font-weight:700;font-style:normal;text-align:center}
+
+/* run strip */
+#viewAudit .strip{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:var(--sp-4);align-items:center;
+  background:var(--ink-1);border:1px solid var(--line-2);border-radius:16px;padding:var(--sp-4);
+  box-shadow:0 12px 34px -14px rgba(0,0,0,.8)}
+#viewAudit .strip h2{font-size:21px;font-variation-settings:"wdth" 88,"wght" 680;letter-spacing:-.01em;margin:2px 0 4px;
+  overflow-wrap:anywhere}
+#viewAudit .lamp{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--fog)}
+#viewAudit .lamp i{width:8px;height:8px;border-radius:50%;background:var(--fog-2)}
+#viewAudit .lamp.on{color:var(--ac)}
+#viewAudit .lamp.on i{background:var(--ac);animation:aud-pulse 1.6s infinite}
+@keyframes aud-pulse{0%,100%{box-shadow:0 0 0 0 rgba(56,224,139,.5)}50%{box-shadow:0 0 0 6px rgba(56,224,139,0)}}
+#viewAudit .ctl{display:flex;gap:var(--sp-2);flex-wrap:wrap}
+#viewAudit .abtn{min-height:44px;padding:0 16px;border-radius:10px;border:1px solid var(--line-2);background:var(--ink-3);
+  color:var(--bone);font-size:14px;cursor:pointer}
+#viewAudit .abtn.go{background:var(--ac);color:#06210F;border-color:var(--ac);font-weight:600}
+#viewAudit .abtn.sm{min-height:40px;padding:0 12px;font-size:13px}
+#viewAudit .abtn:disabled{opacity:.45;cursor:default}
+#viewAudit .loop{grid-column:1/-1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);
+  border-radius:8px;overflow:hidden}
+#viewAudit .loop div{background:var(--ink-2);padding:10px 12px;min-width:0}
+#viewAudit .loop .num{font-size:22px;display:block}
+#viewAudit .loop small{color:var(--fog);font-size:12px;display:block}
+#viewAudit .budget{grid-column:1/-1;height:6px;background:var(--ink-3);border-radius:4px;overflow:hidden}
+#viewAudit .budget i{display:block;height:100%;width:100%;transform-origin:left;background:linear-gradient(90deg,var(--ac-deep),var(--ac));transition:transform .6s var(--e-out)}
+#viewAudit .budget.hot i{background:linear-gradient(90deg,#7a3a2f,var(--bad))}
+#viewAudit .strip .row{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px;color:var(--fog)}
+#viewAudit .pub{grid-column:1/-1;display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:8px;
+  background:var(--ink-2);border:1px solid var(--line);font-size:14px}
+#viewAudit .pub b{font-variation-settings:"wght" 640}
+#viewAudit .pub.ok{border-color:rgba(56,224,139,.4)}
+#viewAudit .pub.no{border-color:rgba(226,112,95,.45)}
+
+/* quality bar */
+#viewAudit .qual{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--sp-3)}
+#viewAudit .qual div{background:var(--ink-2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-width:0}
+#viewAudit .qual .num{font-size:18px;display:block}
+#viewAudit .qual small{font-size:12px;color:var(--fog);display:block}
+
+#viewAudit .two{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:var(--sp-4);align-items:start}
+
+/* coverage map */
+#viewAudit .map{display:grid;grid-template-columns:minmax(76px,auto) repeat(6,minmax(0,1fr));gap:5px;align-items:center}
+#viewAudit .map .ch{font-size:12px;color:var(--fog-2);text-align:center}
+#viewAudit .map .rh{font-size:13px;color:var(--bone-2);white-space:nowrap;padding-right:4px}
+#viewAudit .cell{height:38px;min-width:0;border-radius:7px;background:var(--ink-1);border:1px solid var(--line);
+  display:grid;place-items:center;font-family:var(--f-num);font-size:12px;color:var(--bone-2);cursor:pointer;padding:0;
+  transition:background .35s,border-color .35s,transform .18s var(--e-out)}
+#viewAudit .cell:hover{transform:scale(1.06)}
+#viewAudit .cell[aria-pressed="true"]{outline:2px solid var(--bone);outline-offset:1px}
+#viewAudit .cell.running{border-color:var(--ac);animation:aud-scan 1.4s infinite}
+@keyframes aud-scan{0%,100%{background:var(--ink-1)}50%{background:rgba(56,224,139,.16)}}
+#viewAudit .cell.clean{background:rgba(56,224,139,.22);border-color:rgba(56,224,139,.35)}
+#viewAudit .cell.findings{background:rgba(229,180,84,.28);border-color:rgba(229,180,84,.5);color:#F4D899}
+#viewAudit .cell.blocker{background:rgba(226,112,95,.35);border-color:rgba(226,112,95,.6);color:#FFD2C9}
+#viewAudit .cell.failed,#viewAudit .cell.shelved{background:repeating-linear-gradient(45deg,var(--ink-1) 0 5px,var(--ink-2) 5px 10px);border-color:var(--bad)}
+#viewAudit .legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:var(--sp-3);font-size:12px;color:var(--fog)}
+#viewAudit .legend span{display:inline-flex;align-items:center;gap:6px}
+#viewAudit .legend b{width:12px;height:12px;border-radius:3px;display:inline-block;border:1px solid var(--line-2)}
+#viewAudit .celldet{margin-top:var(--sp-3);padding-top:var(--sp-3);border-top:1px solid var(--line);font-size:14px;color:var(--bone-2)}
+
+/* auditors working + recent steps */
+#viewAudit .agent{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:4px 12px;padding:12px 0;border-top:1px solid var(--line)}
+#viewAudit .agent:first-child{border-top:0;padding-top:0}
+#viewAudit .av{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;background:var(--ink-1);
+  border:1px solid var(--line-2);font-size:12px;font-weight:600;grid-row:span 2}
+#viewAudit .agent b{font-size:14px;font-variation-settings:"wght" 600}
+#viewAudit .agent .on{font-size:12px;color:var(--fog);overflow-wrap:anywhere}
+#viewAudit .step{grid-column:2/4;font-family:var(--f-num);font-size:12px;color:var(--bone-2);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+#viewAudit .step::before{content:"› ";color:var(--ac)}
+#viewAudit .feed{list-style:none;margin:0;padding:0;font-size:13px}
+#viewAudit .feed li{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;padding:6px 0;border-top:1px solid var(--line);color:var(--bone-2)}
+#viewAudit .feed li:first-child{border-top:0}
+#viewAudit .feed time{font-family:var(--f-num);font-size:12px;color:var(--fog-2)}
+
+/* findings */
+#viewAudit .chips{display:flex;flex-wrap:wrap;gap:6px}
+#viewAudit .achip{min-height:36px;border:1px solid var(--line-2);background:var(--ink-2);border-radius:999px;padding:0 12px;
+  font-size:13px;color:var(--fog);cursor:pointer}
+#viewAudit .achip[aria-pressed="true"]{background:var(--bone);color:var(--ink-0);border-color:var(--bone)}
+#viewAudit .find{background:var(--ink-3);border:1px solid var(--line-2);border-radius:12px;
+  padding:var(--sp-4);animation:aud-rise .45s var(--e-out) both}
+#viewAudit .find + .find{margin-top:var(--sp-3)}
+@keyframes aud-rise{from{opacity:0;transform:translateY(8px)}}
+#viewAudit .find.sev-blocker{--sev:var(--bad)}
+#viewAudit .find.sev-before{--sev:var(--warn)}
+#viewAudit .find.sev-after{--sev:var(--fog-2)}
+#viewAudit .find.sev-idea{--sev:var(--ac)}
+#viewAudit .find h4{font-size:15px;font-variation-settings:"wght" 620;margin:8px 0 6px;overflow-wrap:anywhere}
+#viewAudit .find p{color:var(--bone-2);font-size:14px;margin:0;overflow-wrap:anywhere}
+#viewAudit .tags{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12px}
+#viewAudit .tag{padding:3px 8px;border-radius:6px;background:var(--ink-1);border:1px solid var(--line);color:var(--fog)}
+#viewAudit .tag.sev{color:var(--sev);border-color:var(--sev)}
+#viewAudit .tag.good{color:var(--ac)}
+#viewAudit .tag.bad{color:var(--bad)}
+#viewAudit .ev{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 2px}
+#viewAudit .ev span,#viewAudit .ev a{font-family:var(--f-num);font-size:12px;padding:4px 8px;border-radius:6px;background:var(--ink-1);
+  border:1px dashed var(--line-2);color:var(--bone-2);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-decoration:none}
+#viewAudit .acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+#viewAudit .said{font-size:13px;color:var(--fog);margin-top:8px;min-height:0}
+#viewAudit .said:empty{display:none}
+
+/* sent to the roadmap */
+#viewAudit .sent{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px 14px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}
+#viewAudit .sent:first-child{border-top:0;padding-top:0}
+#viewAudit .sent .t{font-size:14px;min-width:0;overflow-wrap:anywhere}
+#viewAudit .sent .s{font-size:12px;color:var(--fog)}
+#viewAudit .pipe{display:flex;gap:4px}
+#viewAudit .pipe i{width:20px;height:6px;border-radius:3px;background:var(--line-2)}
+#viewAudit .pipe i.d{background:var(--ac)}
+#viewAudit .pipe i.w{background:var(--warn);animation:aud-blink 1.4s infinite}
+@keyframes aud-blink{50%{opacity:.4}}
+
+/* evidence */
+#viewAudit .shots{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:var(--sp-3)}
+#viewAudit .shot{background:var(--ink-1);border:1px solid var(--line);border-radius:10px;overflow:hidden;min-width:0;cursor:pointer;padding:0;text-align:left;color:inherit}
+#viewAudit .shot img{display:block;width:100%;aspect-ratio:9/16;object-fit:cover;object-position:top;background:var(--ink-2)}
+#viewAudit .shot .ph{aspect-ratio:9/16;display:grid;place-items:center;color:var(--fog-2);font-size:12px;background:var(--ink-2);padding:8px;text-align:center}
+#viewAudit .shot span{display:block;font-size:12px;color:var(--fog);padding:6px 8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#viewAudit .jrow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;padding:12px 0;border-top:1px solid var(--line);align-items:center}
+#viewAudit .jrow:first-child{border-top:0;padding-top:0}
+#viewAudit .jrow b{font-size:14px;font-variation-settings:"wght" 600;overflow-wrap:anywhere}
+
+/* readiness */
+#viewAudit .launch{font-size:17px;font-variation-settings:"wght" 620;padding:var(--sp-4);border-radius:12px;background:var(--ink-1);
+  border:1px solid var(--line-2);overflow-wrap:anywhere}
+#viewAudit .launch.no{border-color:rgba(226,112,95,.5)}
+#viewAudit .launch.yes{border-color:rgba(56,224,139,.5)}
+#viewAudit .dim{display:grid;grid-template-columns:minmax(0,10em) minmax(0,1fr) auto;gap:6px 12px;align-items:center;padding:8px 0;border-top:1px solid var(--line);font-size:14px}
+#viewAudit .dim:first-child{border-top:0}
+#viewAudit .dim .bar{height:8px;border-radius:4px;background:var(--ink-1);overflow:hidden;display:flex;min-width:0}
+#viewAudit .dim .bar i{display:block;height:100%}
+#viewAudit .dim .p{background:var(--ac)} #viewAudit .dim .f{background:var(--bad)} #viewAudit .dim .u{background:var(--line-2)}
+#viewAudit .dim small{font-size:12px;color:var(--fog);white-space:nowrap}
+#viewAudit .integ{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:4px 12px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+#viewAudit .integ:first-child{border-top:0}
+#viewAudit .integ .dot{width:10px;height:10px;border-radius:50%;background:var(--fog-2)}
+#viewAudit .integ .dot.ok{background:var(--ac)} #viewAudit .integ .dot.bad{background:var(--bad)}
+#viewAudit .integ b{font-size:14px;font-variation-settings:"wght" 600}
+#viewAudit .integ small{display:block;font-size:12px;color:var(--fog);overflow-wrap:anywhere}
+
+/* tables */
+#viewAudit table{width:100%;border-collapse:collapse;font-size:13px}
+#viewAudit th{text-align:left;font-weight:500;color:var(--fog-2);font-size:12px;padding:0 8px 8px 0}
+#viewAudit td{padding:9px 8px 9px 0;border-top:1px solid var(--line);color:var(--bone-2);vertical-align:top;overflow-wrap:anywhere}
+#viewAudit .ok{color:var(--ac)} #viewAudit .no{color:var(--bad)}
+
+@media (max-width:900px){ #viewAudit .two{grid-template-columns:minmax(0,1fr)} }
+@media (max-width:640px){
+  #viewAudit .anav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+  #viewAudit .anav button{padding:0 6px}
+  #viewAudit .strip{grid-template-columns:minmax(0,1fr)}
+  #viewAudit .ctl .abtn{flex:1}
+  #viewAudit .loop{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #viewAudit .qual{grid-template-columns:minmax(0,1fr)}
+  /* 44px squares on a 390 phone (ui-check small-target): thinner card padding, names may wrap */
+  #viewAudit .acard.mapcard{padding:var(--sp-3) 10px}
+  #viewAudit .map{grid-template-columns:minmax(0,1fr) repeat(6,44px);gap:3px}
+  #viewAudit .cell{height:44px}
+  #viewAudit .map .rh{font-size:12px;white-space:normal;line-height:1.15;overflow-wrap:anywhere}
+  #viewAudit .anav button,#viewAudit .abtn,#viewAudit .abtn.sm,#viewAudit .achip{min-height:46px}
+  #viewAudit .map .ch{font-size:12px}
+  #viewAudit .dim{grid-template-columns:minmax(0,1fr) auto}
+  #viewAudit .dim .bar{grid-column:1/-1;grid-row:2}
+  #viewAudit .hide-sm{display:none}
+}
+@media (prefers-reduced-motion:reduce){ #viewAudit *{animation:none!important;transition:none!important} }
+/* each view stacks its blocks with one even gap (the strip and the quality row were touching on a phone) */
+#viewAudit section{display:flex;flex-direction:column;gap:var(--sp-4);min-width:0}
+#viewAudit section[hidden]{display:none}
+#viewAudit section > *{margin-top:0!important}
+
+/* ── 2026-10-20 review: what needs Andrew comes first ───────────────── */
+#viewAudit .callout{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:56px;
+  padding:12px var(--sp-4);border-radius:12px;border:1px solid var(--line-2);background:var(--ink-3);color:var(--bone);
+  font:inherit;font-size:16px;text-align:left;cursor:pointer}
+#viewAudit .callout.warn{border-color:rgba(229,180,84,.55)}
+#viewAudit .callout.bad{border-color:rgba(226,112,95,.65)}
+#viewAudit .callout b{font-size:20px}
+#viewAudit .launchline{font-size:15px;color:var(--bone-2);padding:0 2px}
+#viewAudit .trust{margin:0;padding:0 2px}
+#viewAudit .abtn.wide{width:100%;min-height:50px;font-size:15px}
+#viewAudit .estimate{margin:14px 0 4px;font-size:14px;color:var(--bone-2)}
+#viewAudit .estimate.no b{color:var(--bad)}
+#viewAudit .cell.out{background:repeating-linear-gradient(45deg,transparent 0 4px,var(--ink-2) 4px 8px);border-style:dashed;opacity:.55;cursor:default}
+#viewAudit .legend .outkey{background:repeating-linear-gradient(45deg,transparent 0 3px,var(--line-2) 3px 6px)}
+#viewAudit .shotgroup + .shotgroup{margin-top:var(--sp-4);padding-top:var(--sp-3);border-top:1px solid var(--line)}
+#viewAudit .shotgroup .meta{margin-bottom:8px;overflow-wrap:anywhere}
+#viewAudit .shotgroup .shots{grid-template-columns:repeat(3,minmax(0,1fr))}
+#viewAudit .shots.mini{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:8px;max-width:420px}
+#viewAudit .tag.warnt{color:var(--warn);border-color:var(--warn)}
+#viewAudit tr.rowlink{cursor:pointer}
+#viewAudit tr.rowlink:hover td,#viewAudit tr.rowlink:focus td{background:var(--ink-2)}
+#viewAudit .feed li.no span{color:var(--bad)}
+@media (max-width:640px){
+  /* review: the evidence link was a 27px tap target on a phone */
+  #viewAudit .ev a,#viewAudit .ev span{min-height:44px;display:inline-flex;align-items:center}
+  #viewAudit .callout{font-size:15px}
+}
+
+/* ── 2026-10-22: AI & limits view, depth, waiting for usage ───────────── */
+#viewAudit .anav button:last-child:nth-child(3n+1){grid-column:1/-1}
+#viewAudit .waitnote{margin:0;color:var(--warn);font-size:14px}
+#viewAudit .linkbtn{background:none;border:0;padding:0 2px;min-height:44px;color:var(--bone);text-decoration:underline;font:inherit;cursor:pointer}
+#viewAudit .prov{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 12px;padding:12px 0;border-top:1px solid var(--line)}
+#viewAudit .prov:first-of-type{border-top:0;padding-top:0}
+#viewAudit .prov .dot{width:10px;height:10px;border-radius:50%;background:var(--fog-2);margin-top:6px}
+#viewAudit .prov .dot.ok{background:var(--ac)} #viewAudit .prov .dot.bad{background:var(--bad)}
+#viewAudit .prov b{font-size:15px;font-variation-settings:"wght" 620}
+#viewAudit .prov small{display:block;color:var(--bone-2);font-size:13px;margin:2px 0 6px;overflow-wrap:anywhere}
+#viewAudit .ug{display:grid;grid-template-columns:auto minmax(60px,1fr) auto auto;gap:6px 8px;align-items:center;margin-bottom:6px}
+#viewAudit .ubar{position:relative;height:8px;border-radius:4px;background:var(--ink-1);overflow:visible;border:1px solid var(--line-2)}
+#viewAudit .ubar i{position:absolute;inset:0;transform-origin:left;background:var(--ac);border-radius:4px}
+#viewAudit .ubar.hot i{background:var(--bad)}
+#viewAudit .ubar b{position:absolute;top:-4px;bottom:-4px;width:2px;margin-left:-1px;background:var(--bone)}
+#viewAudit .sgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--sp-4) var(--sp-5)}
+#viewAudit .srow{display:flex;flex-direction:column;gap:6px;min-width:0}
+#viewAudit .srow.wide{grid-column:1/-1}
+#viewAudit .slab{font-size:14px;color:var(--bone)}
+#viewAudit .shelp{margin:0;font-size:12.5px;line-height:1.45}
+#viewAudit .srow select,#viewAudit .srow input,#viewAudit .srow textarea{min-height:44px;border-radius:10px;border:1px solid var(--line-2);
+  background:var(--ink-1);color:var(--bone);font:inherit;font-size:15px;padding:0 12px;max-width:100%;box-sizing:border-box}
+#viewAudit .srow textarea{padding:10px 12px;font-family:var(--f-num);font-size:13px;line-height:1.5;width:100%;resize:vertical}
+#viewAudit .srow select:focus-visible,#viewAudit .srow input:focus-visible,#viewAudit .srow textarea:focus-visible,#viewAudit .seg2 button:focus-visible{outline:2px solid var(--ac);outline-offset:1px}
+#viewAudit .numin{display:inline-flex;align-items:center;gap:6px;flex-direction:row-reverse;justify-content:flex-end}
+#viewAudit .numin input{width:120px}
+#viewAudit .seg2{display:inline-flex;border:1px solid var(--line-2);border-radius:10px;overflow:hidden;align-self:flex-start}
+#viewAudit .seg2 button{min-height:44px;min-width:64px;border:0;background:var(--ink-1);color:var(--fog);font:inherit;font-size:14px;cursor:pointer}
+#viewAudit .seg2 button[aria-pressed="true"]{background:var(--bone);color:var(--ink-0)}
+#viewAudit .aiform{display:flex;flex-direction:column;gap:var(--sp-4)}
+#viewAudit .savebar.dirty{position:sticky;bottom:0;box-shadow:0 -8px 24px rgba(0,0,0,.35)}
+#viewAudit .savebar{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:10px;
+  padding:12px var(--sp-4);background:var(--ink-2);border:1px solid var(--line-2);border-radius:12px;z-index:2}
+#viewAudit .savebar .meta{margin-right:auto}
+#viewAudit .abtn[disabled]{opacity:.5;cursor:default}
+@media (max-width:640px){
+  #viewAudit .sgrid{grid-template-columns:minmax(0,1fr)}
+  #viewAudit .ug{grid-template-columns:auto minmax(0,1fr) auto}
+  #viewAudit .ug > span.meta:nth-child(4n){grid-column:2/-1;margin-top:-4px}
+  #viewAudit .savebar .abtn{flex:1}
+}
+#viewAudit .ubar.off{border-style:dashed;background:transparent}
+
+/* the new Control Room (body.nx): the summary first, then three pills and More, in one row on a phone too */
+body.nx #viewAudit .anx > [data-apanel="now"]{margin-bottom:var(--sp-4)}
+body.nx #viewAudit .anx .anav{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:var(--sp-3)}
+body.nx #viewAudit .anx .anav button{min-height:44px;flex:1 1 auto;border-radius:999px;font-family:var(--f-body)}
+body.nx #viewAudit .anx .anav [data-amore][aria-expanded="true"]{border-color:var(--fog-2);color:var(--bone)}
+body.nx #viewAudit .aempty h3{margin:0 0 6px;font-size:17px;font-weight:600}
+body.nx #viewAudit .anx .anav[hidden]{display:none}

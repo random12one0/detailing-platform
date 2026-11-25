@@ -1,0 +1,6 @@
+{
+  "calculate-booking": {"status":200,"body":{"success":true,"weather":null,"quote":{"base_price":95,"vehicle_size_fee":0,"add_ons_total":0,"travel_fee":0,"adjustments":[],"subtotal_before_discounts":95,"site_discount":10,"site_discount_percent":10,"subtotal":85,"promo_discount":0,"total":85,"total_duration":60,"buffer_minutes":30,"vehicle_count":1,"per_vehicle":null,"plan_id":null,"plan_name":null,"single_vehicle_duration":60}}},
+  "available-slots": {"status":200,"body":{"success":true,"slots":["09:00","10:30","13:00"],"dropoff_slots":[],"mobile_slots":[],"dropoff_only":false,"mobile_only":false,"hours":{"start":"09:00","end":"17:00"}}},
+  "create-booking": {"status":200,"body":{"success":true,"booking":{"id":"00000000-0000-4000-8000-000000000901","booking_date":"2026-11-12","start_time":"09:00","end_time":"10:00","total_price":85,"status":"pending","receipt_url":"/booking/00000000-0000-4000-8000-000000000901"}}},
+  "refusals": {"slot_taken":{"status":409,"body":{"success":false,"error":"slot_taken"}},"price_changed":{"status":409,"body":{"success":false,"error":"price_changed"}},"validation":{"status":400,"body":{"success":false,"error":"customer_and_time_required"}},"rate_limit":{"status":429,"body":{"success":false,"error":"too_many_requests"}},"unavailable":{"status":503,"body":{"success":false,"error":"service_unavailable"}}}
+}

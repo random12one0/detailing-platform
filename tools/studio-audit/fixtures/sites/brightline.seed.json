@@ -1,0 +1,82 @@
+{
+  "fictional": true,
+  "seeded_on": "2026-11-04",
+  "users": [{"id":"00000000-0000-4000-8000-000000000001","email":"owner@brightline.example.test"}],
+  "tables": {
+    "businesses": [
+      {"id":"00000000-0000-4000-8000-0000000000b1","slug":"brightline","name":"Brightline Auto Care","timezone":"America/Los_Angeles","status":"active","plan_tier":"founding","is_demo":true,"contact_email":"hello@brightline.example.test","contact_phone":"562-555-0100","dropoff_address":"Example workshop, Long Beach, CA","service_area":"Long Beach and Seal Beach","established_year":null,"created_at":"2026-11-04T12:00:00Z"}
+    ],
+    "business_users": [
+      {"id":"00000000-0000-4000-8000-000000000101","business_id":"00000000-0000-4000-8000-0000000000b1","user_id":"00000000-0000-4000-8000-000000000001","role":"owner","email":"owner@brightline.example.test","first_name":"Sam","permissions":[]}
+    ],
+    "business_domains": [
+      {"id":"00000000-0000-4000-8000-000000000102","business_id":"00000000-0000-4000-8000-0000000000b1","domain":"brightline.example.test","verified_at":"2026-11-04T12:00:00Z"}
+    ],
+    "business_branding": [
+      {"business_id":"00000000-0000-4000-8000-0000000000b1","primary_color":"#163c3d","secondary_color":"#e54b31","logo_url":null,"hero_image_url":"/examples/brightline/hero.webp","tagline":"Care you can see. Prices you can check.","about_copy":"Fictional example: a neighborhood auto care workshop for everyday cars.","credentials":[]}
+    ],
+    "business_settings": [
+      {"business_id":"00000000-0000-4000-8000-0000000000b1","booking_mode":"request","mobile_enabled":true,"dropoff_enabled":true,"buffer_minutes":30,"min_advance_minutes":120,"slot_interval_minutes":30,"max_advance_days":60,"max_bookings_per_day":6,"cancellation_window_hours":24,"max_vehicles_per_booking":1,"vehicle_sizes":[{"key":"small","label":"Car"},{"key":"medium","label":"SUV"},{"key":"large","label":"Large SUV"}],"travel_fee":20,"travel_zones":[{"key":"long-beach","name":"Long Beach","fee":0},{"key":"seal-beach","name":"Seal Beach","fee":20}],"price_rounding_nearest":0,"price_rules":[],"site_discount_active":true,"site_discount_percent":10,"site_discount_label":"Sample seasonal offer","faq_enabled":true,"faqs":[{"q":"Is my time confirmed when I submit?","a":"It is a request. We confirm availability before the visit."},{"q":"Can I see the price first?","a":"Choose your service and vehicle to get a server quote before you send a request."},{"q":"Where do you work?","a":"This fictional example covers Long Beach and Seal Beach."}],"pay_cash":true,"pay_other":"Payment arrangements confirmed after acceptance","setup":{"seen":true,"done":["business","services","hours"],"dismissed":false}}
+    ],
+    "service_groups": [
+      {"id":"00000000-0000-4000-8000-000000000201","business_id":"00000000-0000-4000-8000-0000000000b1","name":"Care packages","sort_order":0,"max_select":1}
+    ],
+    "services": [
+      {"id":"00000000-0000-4000-8000-000000000301","business_id":"00000000-0000-4000-8000-0000000000b1","name":"Hand wash","description":"A careful exterior wash for an everyday car.","price":95,"duration_minutes":60,"price_is_from":false,"features":["Hand wash and dry","Wheels and glass"],"group_id":"00000000-0000-4000-8000-000000000201","sort_order":0,"is_active":true,"allows_mobile":true,"allows_dropoff":true,"available_weekdays":null,"vehicle_size_adjustments":{"medium":{"price":20,"duration_minutes":15},"large":{"price":40,"duration_minutes":30}}},
+      {"id":"00000000-0000-4000-8000-000000000302","business_id":"00000000-0000-4000-8000-0000000000b1","name":"Interior reset","description":"Seats, carpets, glass and touch points.","price":185,"duration_minutes":120,"price_is_from":true,"features":["Vacuum and fabric clean","Interior glass"],"group_id":"00000000-0000-4000-8000-000000000201","sort_order":1,"is_active":true,"allows_mobile":true,"allows_dropoff":true,"available_weekdays":null,"vehicle_size_adjustments":{"medium":{"price":25,"duration_minutes":30},"large":{"price":50,"duration_minutes":45}}},
+      {"id":"00000000-0000-4000-8000-000000000303","business_id":"00000000-0000-4000-8000-0000000000b1","name":"Complete care","description":"Interior reset and a careful exterior finish.","price":295,"duration_minutes":210,"price_is_from":true,"features":["Interior reset","Wash and paint sealant"],"group_id":"00000000-0000-4000-8000-000000000201","sort_order":2,"is_active":true,"allows_mobile":false,"allows_dropoff":true,"available_weekdays":[1,2,3,4,5,6],"vehicle_size_adjustments":{"medium":{"price":35,"duration_minutes":30},"large":{"price":65,"duration_minutes":60}}}
+    ],
+    "add_ons": [
+      {"id":"00000000-0000-4000-8000-000000000401","business_id":"00000000-0000-4000-8000-0000000000b1","name":"Pet hair removal","price":25,"duration_minutes":30,"description":"Additional time for stubborn pet hair.","sort_order":0,"is_active":true,"features":[]}
+    ],
+    "plans": [
+      {"id":"00000000-0000-4000-8000-000000000501","business_id":"00000000-0000-4000-8000-0000000000b1","name":"Regular care","description":"A sample member rate, subject to owner acceptance.","cadence_count":1,"cadence_unit":"month","visits_per_period":1,"price_kind":"percent_off","price_amount":10,"term_months":null,"included_service_ids":["00000000-0000-4000-8000-000000000301"],"sort_order":0,"is_active":true}
+    ],
+    "business_hours": [
+      {"id":"00000000-0000-4000-8000-000000000601","business_id":"00000000-0000-4000-8000-0000000000b1","weekday":0,"open_time":null,"close_time":null},
+      {"id":"00000000-0000-4000-8000-000000000602","business_id":"00000000-0000-4000-8000-0000000000b1","weekday":1,"open_time":"09:00","close_time":"17:00"},
+      {"id":"00000000-0000-4000-8000-000000000603","business_id":"00000000-0000-4000-8000-0000000000b1","weekday":2,"open_time":"09:00","close_time":"17:00"},
+      {"id":"00000000-0000-4000-8000-000000000604","business_id":"00000000-0000-4000-8000-0000000000b1","weekday":3,"open_time":"09:00","close_time":"17:00"},
+      {"id":"00000000-0000-4000-8000-000000000605","business_id":"00000000-0000-4000-8000-0000000000b1","weekday":4,"open_time":"09:00","close_time":"17:00"},
+      {"id":"00000000-0000-4000-8000-000000000606","business_id":"00000000-0000-4000-8000-0000000000b1","weekday":5,"open_time":"09:00","close_time":"17:00"},
+      {"id":"00000000-0000-4000-8000-000000000607","business_id":"00000000-0000-4000-8000-0000000000b1","weekday":6,"open_time":"09:00","close_time":"17:00"}
+    ],
+    "testimonials": [
+      {"id":"00000000-0000-4000-8000-000000000701","business_id":"00000000-0000-4000-8000-0000000000b1","author":"Sample reviewer A.","rating":5,"source":"Sample review","quote":"Sample review: the inclusions and the request process were easy to follow.","sort_order":0,"is_active":true},
+      {"id":"00000000-0000-4000-8000-000000000702","business_id":"00000000-0000-4000-8000-0000000000b1","author":"Sample reviewer B.","rating":5,"source":"Sample review","quote":"Sample review: a fictional example of feedback, not a real customer endorsement.","sort_order":1,"is_active":true}
+    ],
+    "gallery_images": [
+      {"id":"00000000-0000-4000-8000-000000000801","business_id":"00000000-0000-4000-8000-0000000000b1","kind":"before_after","image_url":null,"before_url":"/examples/brightline/gallery-1.webp","after_url":"/examples/brightline/gallery-2.webp","caption":"Sample before/after pair; licensed assets pending.","sort_order":0,"is_active":true},
+      {"id":"00000000-0000-4000-8000-000000000802","business_id":"00000000-0000-4000-8000-0000000000b1","kind":"before_after","image_url":null,"before_url":"/examples/brightline/gallery-3.webp","after_url":"/examples/brightline/gallery-4.webp","caption":"Sample before/after pair; licensed assets pending.","sort_order":1,"is_active":true},
+      {"id":"00000000-0000-4000-8000-000000000803","business_id":"00000000-0000-4000-8000-0000000000b1","kind":"single","image_url":"/examples/brightline/gallery-5.webp","caption":"Example imagery; licensed asset pending.","sort_order":2,"is_active":true},
+      {"id":"00000000-0000-4000-8000-000000000804","business_id":"00000000-0000-4000-8000-0000000000b1","kind":"single","image_url":"/examples/brightline/gallery-6.webp","caption":"Example imagery; licensed asset pending.","sort_order":3,"is_active":true}
+    ],
+    "site_intake": [
+      {"business_id":"00000000-0000-4000-8000-0000000000b1","step":20,"submitted_at":"2026-11-04T12:00:00Z","dismissed":false,"updated_at":"2026-11-04T12:00:00Z","answers":{"A1":"Brightline Auto Care","A2":"Fictional example of a neighborhood workshop. No invented trading history.","A3":"Clear inclusions, careful work and an honest request process.","A4":"Long Beach and Seal Beach","A5":"Name only","A6":"Not yet","A7":"","A8":"Book","A9":"Yes, all of them","A10":[{"name":"gallery-1.webp","url":"/examples/brightline/gallery-1.webp","caption":"Example imagery; licensed assets pending."},{"name":"gallery-2.webp","url":"/examples/brightline/gallery-2.webp","caption":"Example imagery; licensed assets pending."},{"name":"gallery-3.webp","url":"/examples/brightline/gallery-3.webp","caption":"Example imagery; licensed assets pending."},{"name":"gallery-4.webp","url":"/examples/brightline/gallery-4.webp","caption":"Example imagery; licensed assets pending."},{"name":"gallery-5.webp","url":"/examples/brightline/gallery-5.webp","caption":"Example imagery; licensed assets pending."},{"name":"gallery-6.webp","url":"/examples/brightline/gallery-6.webp","caption":"Example imagery; licensed assets pending."}],"A12":"Never present sample images or reviews as actual customer proof. Do not promise an instant confirmation.","D4":"First name and initial","H1":"move","H2":"photo","H3":"dark","H6":"Friendly and local","G4":"Yes","G5":"Same day"}}
+    ],
+    "customers": [
+
+    ],
+    "bookings": [
+
+    ],
+    "booking_services": [
+
+    ],
+    "booking_add_ons": [
+
+    ],
+    "promo_codes": [
+
+    ],
+    "blockout_dates": [
+
+    ],
+    "booking_hours_overrides": [
+
+    ],
+    "dropoff_only_periods": [
+
+    ]
+  }
+}

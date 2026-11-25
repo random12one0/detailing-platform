@@ -155,3 +155,6 @@ artifacts/
 # is the failure this repo punishes hardest. If a Deno-resolving step is ever
 # added to CI or to the deploy, commit it then and delete this paragraph.
 deno.lock
+
+# The Studio and Audit tool keeps its working data here (sites, revisions, audit database, evidence)
+tools/studio-audit/data/

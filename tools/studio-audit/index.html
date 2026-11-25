@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Studio and Audit</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/base.css">
+<link rel="stylesheet" href="/audit/ui.css">
+<link rel="stylesheet" href="/studio/ui.css">
+<style>
+.tabs{position:sticky;top:0;z-index:50;display:flex;gap:var(--sp-2);padding:var(--sp-3) var(--sp-4);background:rgba(11,13,14,.9);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.tabs button[aria-selected="true"]{background:var(--ac);border-color:var(--ac);color:#04140b}
+.view{padding:var(--sp-4);max-width:1500px;margin:0 auto}
+.view[hidden]{display:none}
+</style>
+</head>
+<body>
+<nav class="tabs" role="tablist" aria-label="Tools">
+  <button class="nb" role="tab" data-tab="studio" aria-selected="true">Studio</button>
+  <button class="nb" role="tab" data-tab="audit" aria-selected="false">Audit</button>
+</nav>
+<div class="view one" id="viewStudio"></div>
+<div class="view one" id="viewAudit" hidden></div>
+<script src="/studio/ui.js" defer></script>
+<script src="/audit/ui.js" defer></script>
+<script>
+window.addEventListener("DOMContentLoaded", () => {
+  const show = (name) => {
+    document.getElementById("viewStudio").hidden = name !== "studio";
+    document.getElementById("viewAudit").hidden = name !== "audit";
+    document.querySelectorAll(".tabs button").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.tab === name)));
+    try { sessionStorage.setItem("tab", name); } catch {}
+    if (name === "studio") window.studioPaint?.(); else window.auditPaint?.();
+  };
+  document.querySelectorAll(".tabs button").forEach((b) => b.onclick = () => show(b.dataset.tab));
+  let t = "studio"; try { t = sessionStorage.getItem("tab") || t; } catch {}
+  window.addEventListener("load", () => show(t));
+});
+</script>
+</body>
+</html>
