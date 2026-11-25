@@ -29,3 +29,8 @@ jobs:
           VITE_SUPABASE_ANON_KEY: ci-placeholder
       - name: tests
         run: node --test tests/composition.test.mjs tests/design-contrast.test.mjs tests/landing-pricing.test.mjs tests/route-contract.test.mjs
+      # tools/studio-audit: only the files that need no browser, AI, network or credentials
+      - name: studio-audit tests
+        run: node --test tools/studio-audit/audit-chooser.test.mjs tools/studio-audit/audit-engine.test.mjs tools/studio-audit/audit-journeys.test.mjs tools/studio-audit/audit-store.test.mjs tools/studio-audit/site-stamps.test.mjs
+      - name: studio-audit AI-reading tests (pure ones; the rest need a browser and a copy of the app)
+        run: node --test --test-name-pattern="facts go to|REVIEW-S5 F1, F2|knowledge pack|read strictly" tools/studio-audit/studio-ai.test.mjs

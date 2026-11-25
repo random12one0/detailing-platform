@@ -66,7 +66,7 @@ export function factRoute(text) {
 // interpreter.md first (the job and the answer's shape), then the rest by name. Its hash names the cached file.
 export function loadPack(dir) {
   const files = readdirSync(dir).filter((f) => f.endsWith(".md")).sort((a, b) => (a === "interpreter.md" ? -1 : b === "interpreter.md" ? 1 : a.localeCompare(b)));
-  const text = files.map((f) => readFileSync(path.join(dir, f), "utf8").trim()).join("\n\n---\n\n") + "\n";
+  const text = files.map((f) => readFileSync(path.join(dir, f), "utf8").replace(/\r\n/g, "\n").trim()).join("\n\n---\n\n") + "\n";
   return { files, text, hash: createHash("sha256").update(text).digest("hex").slice(0, 12) };
 }
 

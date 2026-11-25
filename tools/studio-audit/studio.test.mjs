@@ -9,6 +9,7 @@ import os from "node:os";
 import net from "node:net";
 import http from "node:http";
 import path from "node:path";
+import { platformCopy } from "./test-fixtures/platform-copy.mjs";
 import { openStore, cleanSettings, createStudio, platformProblem, REAL_REPO, STUDIO_SETTINGS, Refused, applyCards, judgeCard, copyOf } from "./studio.mjs";
 
 const tmp = () => mkdtempSync(path.join(os.tmpdir(), "studio-test-"));
@@ -44,6 +45,7 @@ test("a finished check is a record: it cannot be written twice", () => {
 
 test("settings: only known keys, each checked; the platform copy must be on the list, by real path, never the real repo", () => {
   const cur = Object.fromEntries(STUDIO_SETTINGS.map((s) => [s.key, s.default]));
+  cur.allowed = cur.platform = platformCopy();
   const dir = tmp(), fake = tmp();
   try {
     assert.equal(cleanSettings({ previewPort: 80 }, cur).ok, false);
@@ -66,7 +68,7 @@ test("settings: only known keys, each checked; the platform copy must be on the 
     assert.equal(ok.ok, true, ok.said);
     assert.equal(ok.values.previewPort, 5200);
     assert.equal("sneaky" in ok.values, false);
-    assert.equal(cleanSettings({ platform: "C:/studio-work/./s1" }, cur).ok, true, "the same copy spelled another way is the same copy");
+    assert.equal(cleanSettings({ platform: platformCopy().replace(/\/([^/]+)$/, "/./$1") }, cur).ok, true, "the same copy spelled another way is the same copy");
   } finally { rmSync(dir, { recursive: true, force: true }); rmSync(fake, { recursive: true, force: true }); }
 });
 
@@ -98,7 +100,7 @@ test("the routes: overview reads, an unknown site is a plain 404, settings save 
 
 
 // ---------------------------------------------------------------- closing the Control Room (needs the platform copy)
-const PLAT = "C:/studio-work/s1";
+const PLAT = platformCopy();
 const helper = (dir, hard) => `
 process.env.BELT_STUDIO_DATA = ${JSON.stringify(dir)};
 const { createStudio } = await import(${JSON.stringify(new URL("./studio.mjs", import.meta.url).href)});
@@ -114,7 +116,7 @@ const alive = (pid) => spawnSync("tasklist", ["/FI", `PID eq ${pid}`, "/NH"], { 
 const answers = (port) => fetch(`http://127.0.0.1:${port}/`, { signal: AbortSignal.timeout(1500) }).then(() => true, () => false);
 // Tests never use the Studio's default ports (another preview may be running on them): each picks free ones.
 const freePort = () => new Promise((r) => { const s = net.createServer().listen(0, "127.0.0.1", () => { const p = s.address().port; s.close(() => r(p)); }); });
-const freePorts = async (dir, extra = {}) => { const [previewPort, enginePort] = [await freePort(), await freePort()]; writeFileSync(path.join(dir, "settings.json"), JSON.stringify({ previewPort, enginePort, ...extra })); return { previewPort, enginePort }; };
+const freePorts = async (dir, extra = {}) => { const [previewPort, enginePort] = [await freePort(), await freePort()]; writeFileSync(path.join(dir, "settings.json"), JSON.stringify({ previewPort, enginePort, allowed: PLAT, platform: PLAT, ...extra })); return { previewPort, enginePort }; };
 async function runHelper(dir, hard) {
   await freePorts(dir);
   return new Promise((resolve, reject) => {
@@ -123,7 +125,7 @@ async function runHelper(dir, hard) {
     c.on("exit", () => { if (!hard) { try { resolve({ said: JSON.parse(out) }); } catch { reject(new Error(out)); } } });
   });
 }
-const skip = !existsSync(path.join(PLAT, "scripts/studio/studio-check.mjs")) && "needs the platform copy at C:/studio-work/s1";
+const skip = !existsSync(path.join(PLAT, "scripts/studio/studio-check.mjs")) && "needs the platform copy (run npm ci --prefix app)";
 
 test("closing the Control Room stops a running check and the phone preview it started, and writes the check down as stopped", { skip, timeout: 120000 }, async () => {
   const dir = tmp();
@@ -186,9 +188,9 @@ test("a card made on an old revision is stale, or a conflict when its words chan
 
 const PLATFORM_OK = existsSync(path.join(PLAT, "scripts/studio/studio-check.mjs")) && existsSync(path.join(PLAT, "app/node_modules/vite"));
 test("cards through the routes: a typed $185 is refused, applying makes a new revision, an old card comes back stale, going back never edits an old revision",
-  { skip: !PLATFORM_OK && "needs the platform copy at C:/studio-work/s1", timeout: 180000 }, async () => {
+  { skip: !PLATFORM_OK && "needs the platform copy (run npm ci --prefix app)", timeout: 180000 }, async () => {
   const dir = tmp();
-  process.env.BELT_STUDIO_DATA = dir;
+  process.env.BELT_STUDIO_DATA = dir; await freePorts(dir);
   try {
     const S = createStudio({ HERE: process.cwd(), json: (res, c, o) => res.done(o), body: (req, res, l, fn) => fn(req.body), onExit: false });
     const call = (method, p, b) => new Promise((done) => S.handle({ method, body: b }, { done }, new URL("http://x" + p)));
@@ -245,14 +247,14 @@ test("cards through the routes: a typed $185 is refused, applying makes a new re
 
 // ---------------------------------------------------------------- S4 review fixes (REVIEW-S4.md)
 const reviewStudio = async (dir) => {
-  process.env.BELT_STUDIO_DATA = dir;
+  process.env.BELT_STUDIO_DATA = dir; await freePorts(dir);
   const S = createStudio({ HERE: process.cwd(), json: (res, c, o) => res.done(o), body: (req, res, l, fn) => fn(req.body), onExit: false });
   const call = (method, p, b) => new Promise((done) => S.handle({ method, body: b }, { done }, new URL("http://x" + p)));
   const card = (base, section, field, text) => call("POST", "/api/studio/card", { site: "brightline", base, section, field, text });
   assert.equal((await call("POST", "/api/studio/example")).ok, true);
   return { S, call, card };
 };
-const NEEDS = { skip: !PLATFORM_OK && "needs the platform copy at C:/studio-work/s1", timeout: 240000 };
+const NEEDS = { skip: !PLATFORM_OK && "needs the platform copy (run npm ci --prefix app)", timeout: 240000 };
 
 test("review S4 F2: loading the example file waits for Apply, never undoes applied cards, and re-judges open cards", NEEDS, async () => {
   const dir = tmp();
@@ -333,7 +335,7 @@ test("review S4 F4: cards made while an apply runs never stay 'proposed' on a re
 });
 
 test("ports held by other programs: the Studio still answers at once, says so plainly, and the phone preview takes free ports",
-  { skip: !PLATFORM_OK && "needs the platform copy at C:/studio-work/s1", timeout: 180000 }, async (t) => {
+  { skip: !PLATFORM_OK && "needs the platform copy (run npm ci --prefix app)", timeout: 180000 }, async (t) => {
   const dir = tmp();
   const { previewPort, enginePort } = await freePorts(dir);
   // one answers like another dev server, the other accepts and never answers

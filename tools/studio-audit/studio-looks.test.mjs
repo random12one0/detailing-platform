@@ -20,9 +20,10 @@ import { validateCritic, rubric } from "./site-score.mjs";
 import { runCritics } from "./site-critic.mjs";
 import { spawn, spawnSync } from "node:child_process";
 import { createStudio, openStore } from "./studio.mjs";
+import { platformCopy } from "./test-fixtures/platform-copy.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const PLAT = (process.env.SITE_ACCEPTANCE_PLATFORM || "C:/studio-work/s1").replace(/\\/g, "/");
+const PLAT = platformCopy();
 const HAS_FAMILIES = existsSync(path.join(PLAT, "app/src/site/families.js")) && existsSync(path.join(PLAT, "scripts/studio/example-engine.mjs"));
 const NEEDS = { skip: !HAS_FAMILIES && `needs the platform copy with the S6 renderer at ${PLAT}`, timeout: 420000 };
 const REC = JSON.parse(readFileSync(path.join(HERE, "test-fixtures/studio-looks-replies.json"), "utf8"));

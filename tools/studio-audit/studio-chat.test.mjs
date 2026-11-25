@@ -16,9 +16,10 @@ import net from "node:net";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { platformCopy } from "./test-fixtures/platform-copy.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const PLAT = (process.env.SITE_ACCEPTANCE_PLATFORM || "C:/studio-work/s1").replace(/\\/g, "/");
+const PLAT = platformCopy();
 const ready = existsSync(path.join(PLAT, "app/src/site/spec.js")) && existsSync(path.join(PLAT, "app/node_modules/playwright"));
 const freePort = () => new Promise((r) => { const s = net.createServer().listen(0, "127.0.0.1", () => { const p = s.address().port; s.close(() => r(p)); }); });
 const until = async (fn, ms) => { const t = Date.now(); while (Date.now() - t < ms) { try { if (await fn()) return true; } catch {} await new Promise((r) => setTimeout(r, 300)); } return false; };

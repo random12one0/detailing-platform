@@ -17,9 +17,10 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { createStudio } from "./studio.mjs";
+import { platformCopy } from "./test-fixtures/platform-copy.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const PLAT = (process.env.SITE_ACCEPTANCE_PLATFORM || "C:/studio-work/s1").replace(/\\/g, "/");
+const PLAT = platformCopy();
 const NEEDS = { skip: !existsSync(path.join(PLAT, "app/src/site/Detailer.jsx")) && `needs the platform copy with the S7 renderer at ${PLAT}`, timeout: 400000 };
 const J = (o) => JSON.stringify(o);
 const ORIGIN = "http://127.0.0.1:1234";   // the preview page's origin, as the Studio records it

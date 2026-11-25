@@ -13,9 +13,10 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createStudio, openStore } from "./studio.mjs";
+import { platformCopy } from "./test-fixtures/platform-copy.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const PLAT = (process.env.SITE_ACCEPTANCE_PLATFORM || "C:/studio-work/s1").replace(/\\/g, "/");
+const PLAT = platformCopy();
 const ready = existsSync(path.join(PLAT, "scripts/studio/studio-parity.mjs")) && existsSync(path.join(PLAT, "app/node_modules/playwright"));
 const freePort = () => new Promise((r) => { const s = net.createServer().listen(0, "127.0.0.1", () => { const p = s.address().port; s.close(() => r(p)); }); });
 const until = async (fn, ms) => { const t = Date.now(); while (Date.now() - t < ms) { try { const v = await fn(); if (v) return v; } catch {} await new Promise((r) => setTimeout(r, 400)); } return false; };
