@@ -1,10 +1,11 @@
 {
-  "captured_at": "2026-09-21T12:26:17.293Z",
+  "captured_at": "2026-11-25T20:12:54.305Z",
   "sites": {
     "ex1": {
       "source": "v-goldenhour.html",
       "title": "Prime Mobile Detailing",
-      "fingerprint": "6a3964439a7677c6",
+      "fingerprint": "6b0d6bf29b11a5f4",
+      "injected_fingerprint": "db9be0a3c7ae0c1a",
       "shots": {
         "desktop": "ex1-desktop.jpg",
         "phone": "ex1-phone.jpg"
@@ -13,7 +14,8 @@
     "ex2": {
       "source": "w-delgado.html",
       "title": "Delgado Mobile Detailing",
-      "fingerprint": "70f9e4f9d3143ef9",
+      "fingerprint": "d9d3082574b7c8f1",
+      "injected_fingerprint": "db9be0a3c7ae0c1a",
       "shots": {
         "desktop": "ex2-desktop.jpg",
         "phone": "ex2-phone.jpg"
@@ -22,8 +24,8 @@
     "ex3": {
       "source": "x-ballantyne.html",
       "title": "Ballantyne Mobile Detailing",
-      "fingerprint": "149dc73e66f069be",
-      "injected_fingerprint": "b254a42ed3ea1ab0",
+      "fingerprint": "15eccf84badb4401",
+      "injected_fingerprint": "148f331402b62bca",
       "shots": {
         "desktop": "ex3-desktop.jpg",
         "phone": "ex3-phone.jpg"
@@ -32,7 +34,8 @@
     "ex4": {
       "source": "y-kinzie.html",
       "title": "Kinzie Mobile Detailing",
-      "fingerprint": "1779dbd11e8bc0de",
+      "fingerprint": "c58beb6f3007c473",
+      "injected_fingerprint": "db9be0a3c7ae0c1a",
       "shots": {
         "desktop": "ex4-desktop.jpg",
         "phone": "ex4-phone.jpg"
@@ -41,7 +44,8 @@
     "ex5": {
       "source": "z-tampabay.html",
       "title": "Sunglade Auto Detail",
-      "fingerprint": "8df86c2e560ad24e",
+      "fingerprint": "77e34bc36da05186",
+      "injected_fingerprint": "db9be0a3c7ae0c1a",
       "shots": {
         "desktop": "ex5-desktop.jpg",
         "phone": "ex5-phone.jpg"

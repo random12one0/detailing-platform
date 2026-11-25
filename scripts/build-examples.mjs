@@ -521,9 +521,9 @@ async function main() {
 
 <header class="hero"><div class="w">
   <span class="mono">Example sites</span>
-  <h1>Five real sites, <em>built the same way yours would be.</em></h1>
+  <h1>Five example sites, <em>built the same way yours would be.</em></h1>
   <p class="lede">Deliberately unalike. Nobody is meant to choose between them &mdash;
-  they are the range. Every one is a working page you can open, not a picture of one.</p>
+  they are the range. Every one is a working page you can open, not a picture of one. The businesses, reviews and contact details are made up.</p>
   <div class="stats">
     <div><b>5</b><span class="mono">sites</span></div>
     <div><b>8</b><span class="mono">pages</span></div>
@@ -545,7 +545,7 @@ ${multi.map(card).join("")}
   <a class="cta" href="/pricing">See what it costs <span aria-hidden="true">&rarr;</span></a>
   <span class="also"><a href="/book/demo-detail">Or try the booking page, the way a customer would
   <span aria-hidden="true">&rarr;</span></a></span>
-  <p class="note">Every price and time on these five is a placeholder. On a real
+  <p class="note">These are fictional businesses: the names, phone numbers, reviews and prices are samples, and none of it is a real customer. Every price and time on these five is a placeholder. On a real
   detailer's site each one comes live from their own dashboard, so changing a
   price on a phone changes the website. The screenshots above are real captures
   of these real sites, and a check fails by name if one of them changes after
@@ -622,7 +622,17 @@ ${multi.map(card).join("")}
 // staleness gate must agree about this by construction; two copies of
 // `slug === "ex3"` is the shape that let the block drift out of the
 // fingerprint in the first place.
-export const injectedFor = (slug) => (slug === "ex3" ? PAINTS : null);
+// GITHUB #34 - EVERY example site says it is one. The five are fictional
+// businesses (555 numbers, @example emails, invented reviews), and a prospect
+// who rings one should not have to find that out. A small fixed tag, no script
+// (CSP has no 'unsafe-inline' for scripts), no pointer events so it can never
+// cover a button. Bottom-left, because the sites' own sticky bars sit right.
+export const EXAMPLE_TAG = `<style>.dp-example-tag{position:fixed;left:10px;bottom:10px;z-index:2147483000;
+pointer-events:none;font:600 11px/1 system-ui,sans-serif;letter-spacing:.02em;color:#fff;
+background:rgba(20,22,24,.82);padding:7px 10px;border-radius:999px;
+border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(6px)}</style>
+<div class="dp-example-tag" role="note">Example site &middot; fictional business</div>`;
+export const injectedFor = (slug) => EXAMPLE_TAG + (slug === "ex3" ? PAINTS : "");
 
 // NO INLINE SCRIPT REACHES A SERVED PAGE — ROADMAP 97.90. The site's policy
 // (`app/netlify.toml`) has no 'unsafe-inline' in script-src, so a `<script>`

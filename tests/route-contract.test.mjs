@@ -238,5 +238,38 @@ console.log("\ntest 4: the public routes sit outside the owner's session context
   }
 }
 
+// GITHUB #35 - unknown addresses are a real 404, and the guesses redirect.
+// Reads the committed public/_redirects (no build needed). First match wins,
+// so every router route must hit a 200 rule BEFORE the final 404 catch-all.
+{
+  console.log("\nunknown addresses answer 404");
+  const red = await readFile("app/public/_redirects", "utf8");
+  const rules = red.split(/\r?\n/).filter((l) => l.trim() && !l.startsWith("#")).map((l) => l.trim().split(/\s+/));
+  const last = rules.at(-1) ?? [];
+  check("the final rule is a 404 catch-all", last[0] === "/*" && last[2] === "404", last.join(" "));
+  const match = (path) => rules.find(([from]) =>
+    from === path || (from.endsWith("/*") && path.startsWith(from.slice(0, -1))));
+  const sample = (r) => r.replace(/:[A-Za-z]+/g, "x");
+  const real = routes.filter((r) => r !== "*" && r !== "/*" && r !== "/");
+  const tabs = ["today", "calendar", "money", "clients", "business"];
+  const paths = [...real.filter((r) => !r.includes("${")).map(sample), ...tabs.map((t) => `/app/${t}`)];
+  for (const p of paths) {
+    const m = match(p);
+    check(`${p} still answers 200`, !!m && m[2] === "200", m ? m.join(" ") : "no rule");
+  }
+  for (const p of ["/about", "/contact", "/app/nonsense", "/zzz/deep/path"]) {
+    const m = match(p);
+    check(`${p} answers 404`, m?.[2] === "404", m ? m.join(" ") : "no rule");
+  }
+  for (const [from, to] of [["/login", "/app"], ["/signup", "/app"], ["/faq", "/#faq"]]) {
+    const m = match(from);
+    check(`${from} redirects to ${to}`, m?.[1] === to && m[2] === "301", m ? m.join(" ") : "no rule");
+  }
+  const toml = await readFile("app/netlify.toml", "utf8");
+  check("netlify.toml ends with the same 404 catch-all",
+    /from = "\/\*"\s+to = "\/index\.html"\s+status = 404/.test(toml));
+  check("netlify.toml has no 200 catch-all left", !/from = "\/\*"\s+to = "\/index\.html"\s+status = 200/.test(toml));
+}
+
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

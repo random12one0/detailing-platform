@@ -9,4 +9,36 @@
 /site/*    /site.html   200
 # Studio: the detailer's preview link, detailingplatform.com/p/<link>
 /p/*       /site.html   200
-/*    /index.html   200
+# Obvious guesses a visitor or search engine tries (GitHub #35).
+/login    /app   301
+/signup    /app   301
+/sign-in    /app   301
+/sign-up    /app   301
+/signin    /app   301
+/faq    /#faq   301
+/pricing    /index.html   200
+/terms    /index.html   200
+/privacy    /index.html   200
+/reset    /index.html   200
+/book/*    /index.html   200
+/booking/*    /index.html   200
+/plan/*    /index.html   200
+/unsubscribe/*    /index.html   200
+/admin    /index.html   200
+/preview    /index.html   200
+/invite/*    /index.html   200
+/job/*    /index.html   200
+/website    /index.html   200
+/website/preview    /index.html   200
+/settings/payments/connected    /index.html   200
+/app    /index.html   200
+/app/today    /index.html   200
+/app/calendar    /index.html   200
+/app/money    /index.html   200
+/app/clients    /index.html   200
+/app/business    /index.html   200
+# Anything else is a REAL 404: the app shell still loads, so its router draws
+# the existing 'That page does not exist' screen, but the status is 404 and
+# search engines drop the address. A new route in app/src/main.jsx must be
+# listed above or it will 404 (tests/route-contract.test.mjs checks this).
+/*    /index.html   404

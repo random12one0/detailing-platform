@@ -38,9 +38,144 @@
   status = 200
 
 [[redirects]]
-  from = "/*"
+  from = "/login"
+  to = "/app"
+  status = 301
+
+[[redirects]]
+  from = "/signup"
+  to = "/app"
+  status = 301
+
+[[redirects]]
+  from = "/sign-in"
+  to = "/app"
+  status = 301
+
+[[redirects]]
+  from = "/sign-up"
+  to = "/app"
+  status = 301
+
+[[redirects]]
+  from = "/signin"
+  to = "/app"
+  status = 301
+
+[[redirects]]
+  from = "/faq"
+  to = "/#faq"
+  status = 301
+
+[[redirects]]
+  from = "/pricing"
   to = "/index.html"
   status = 200
+
+[[redirects]]
+  from = "/terms"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/privacy"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/reset"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/book/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/booking/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/plan/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/unsubscribe/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/admin"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/preview"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/invite/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/job/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/website"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/website/preview"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/settings/payments/connected"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/app"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/app/today"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/app/calendar"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/app/money"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/app/clients"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/app/business"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 404
 
 [[headers]]
   for = "/*"
