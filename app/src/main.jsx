@@ -1,27 +1,28 @@
-import React from "react";
+import React, { lazy, Suspense } from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import "./theme.css";
 import { BusinessProvider } from "./context/BusinessContext.jsx";
 import ErrorBoundary from "./components/ErrorBoundary.jsx";
-import App, { TAB_PATHS } from "./App.jsx";
-import JobPage from "./screens/JobPage.jsx";
-import AcceptInvite from "./screens/AcceptInvite.jsx";
-import BookingPage from "./book/BookingPage.jsx";
-import ManageBookingPage from "./book/ManageBookingPage.jsx";
-import PlansPage from "./book/PlansPage.jsx";
-import PlanMemberPage from "./book/PlanMemberPage.jsx";
-import UnsubscribePage from "./book/UnsubscribePage.jsx";
+import { TAB_PATHS } from "./tabPaths.js";
+const App = lazy(() => import("./App.jsx"));
+const JobPage = lazy(() => import("./screens/JobPage.jsx"));
+const AcceptInvite = lazy(() => import("./screens/AcceptInvite.jsx"));
+const BookingPage = lazy(() => import("./book/BookingPage.jsx"));
+const ManageBookingPage = lazy(() => import("./book/ManageBookingPage.jsx"));
+const PlansPage = lazy(() => import("./book/PlansPage.jsx"));
+const PlanMemberPage = lazy(() => import("./book/PlanMemberPage.jsx"));
+const UnsubscribePage = lazy(() => import("./book/UnsubscribePage.jsx"));
 import LandingPage from "./landing/LandingPage.jsx";
 import { isPlatformHost } from "./lib/host.js";
 import { installEmbedHeight } from "./lib/embedHeight.js";
 import PricingPage from "./landing/PricingPage.jsx";
 import LegalPage from "./landing/LegalPage.jsx";
-import ResetPassword from "./screens/ResetPassword.jsx";
-import OfficePage from "./admin/office/OfficePage.jsx";
-import PreviewEntry from "./admin/PreviewEntry.jsx";
-import NotFound from "./screens/NotFound.jsx";
-import SiteIntake from "./screens/SiteIntake.jsx";
+const ResetPassword = lazy(() => import("./screens/ResetPassword.jsx"));
+const OfficePage = lazy(() => import("./admin/office/OfficePage.jsx"));
+const PreviewEntry = lazy(() => import("./admin/PreviewEntry.jsx"));
+const NotFound = lazy(() => import("./screens/NotFound.jsx"));
+const SiteIntake = lazy(() => import("./screens/SiteIntake.jsx"));
 import { Navigate } from "react-router-dom";
 
 // DEGRADATION — ONE code path, for the whole app (docs/design-system.md,
@@ -77,6 +78,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         wraps router state updates in React.startTransition. */}
     <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <ErrorBoundary>
+      <Suspense fallback={null}>
       <Routes>
         {/* --- Public. No session. ------------------------------------- */}
         {/* detailingplatform.com/ is the marketing site: someone typing the
@@ -217,6 +219,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
             the mistake wait on an auth round trip it can never satisfy. */}
         <Route path="*" element={<NotFound />} />
       </Routes>
+      </Suspense>
       </ErrorBoundary>
     </BrowserRouter>
   </React.StrictMode>,

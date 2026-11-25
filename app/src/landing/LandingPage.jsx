@@ -43,6 +43,8 @@ import { api } from "../lib/api.js";
 import { PRICING, livePricing } from "./pricing.js";
 import { SUPPORT_EMAIL, SUPPORT_LINE } from "./legal.js";
 import { initThread } from "./thread.js";
+import { useHead } from "../lib/useHead.js";
+import { homeHead } from "./head.js";
 import "./landing.css";
 
 export default function LandingPage() {
@@ -66,6 +68,7 @@ export default function LandingPage() {
   // reads `P`**; a `PRICING.` left behind would print one number from the file
   // beside another from the row, which is worse than either.
   const [P, setP] = useState(PRICING);
+  useHead(homeHead(P));
   useEffect(() => {
     let live = true;
     api.platformPrices().then((raw) => { if (live) setP(livePricing(raw)); });
@@ -398,7 +401,7 @@ export default function LandingPage() {
                   <div className={`hv${shows(0) ? " on" : ""}`}>
                     <div className="hframe">
                       <img src="/img/hero-site.jpg" width="1100" height="900"
-                           loading="lazy" decoding="async" alt="" />
+                           loading="eager" fetchpriority="high" decoding="async" alt="" />
                     </div>
                   </div>
 

@@ -27,7 +27,7 @@ const MIN_CALLS = 12;
 
 function routeTable() {
   const main = readFileSync("app/src/main.jsx", "utf8");
-  const app = readFileSync("app/src/App.jsx", "utf8");
+  const app = readFileSync("app/src/tabPaths.js", "utf8");
   const routes = [...main.matchAll(/<Route\s+path="([^"]+)"/g)].map((m) => m[1]);
   // `/app/${tab}` is generated from App.jsx's TAB_PATHS, not written literally.
   const tabs = app.match(/export const TAB_PATHS = \[([^\]]*)\]/);

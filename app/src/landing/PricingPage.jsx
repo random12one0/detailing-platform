@@ -55,6 +55,8 @@ import { useEffect, useState } from "react";
 import { api } from "../lib/api.js";
 import { PRICING, livePricing } from "./pricing.js";
 import { initThread } from "./thread.js";
+import { useHead } from "../lib/useHead.js";
+import { pricingHead } from "./head.js";
 import { Ground, Foot } from "./LandingPage.jsx";
 import "./landing.css";
 
@@ -179,6 +181,7 @@ export default function PricingPage() {
   // beside the founding offer, because the page may not print a figure until
   // BOTH have answered and the order they are applied in is the fix.
   const [P, setP] = useState(PRICING);
+  useHead(pricingHead(P));
 
   // ROADMAP 7.12, SECOND HALF. The landing page's own burger + collapsed-
   // menu state, added here for the first time — this page never had one, so
@@ -350,7 +353,7 @@ export default function PricingPage() {
                 cut to any width. Found by looking at it, which is the only
                 instrument that could have. */}
             <img src="/img/tenant-site-hero.jpg" alt=""
-              loading="lazy" decoding="async" />
+              loading="eager" fetchpriority="high" decoding="async" />
             {/* ROADMAP 7.3 — ONE LINE EACH, AND THE SAVING NEVER STANDS ALONE.
                 This strip was three figures of equal weight in a row — $499,
                 $40, $80 — and the third was the saving, so it read as a third
