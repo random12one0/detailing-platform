@@ -470,7 +470,9 @@ function keepLink(lang?: unknown): string {
 // that on (`business_settings.email_sign_as_business`) and `buildBrand` then
 // leaves `signOffName` empty, which is also what a business with no name set
 // gets, so the line never reads "Thanks again, null".
-function signOff(brand: TenantBrand, lang?: unknown): string {
+// `plain`: no "Thanks again" — on a cancellation, a decline or a maintenance nudge there is
+// nothing to thank the customer for, so those sign with the name alone.
+function signOff(brand: TenantBrand, lang?: unknown, plain = false): string {
   const tt = T(lang);
   const site = String(brand.siteUrl || "");
   const vars = {
@@ -480,9 +482,11 @@ function signOff(brand: TenantBrand, lang?: unknown): string {
       ? `<a href="${esc(site)}" target="_blank" class="c-accent" style="color:${brand.accent}; text-decoration:none;">${esc(site.replace(/^https?:\/\//, "").replace(/\/$/, ""))}</a>`
       : "",
   };
-  const line = brand.signOffName
-    ? tt("Thanks again, {name} · {brand} · {site}", vars)
-    : tt("Thanks again, {brand} · {site}", vars);
+  const line = plain
+    ? [vars.name, vars.brand, vars.site].filter(Boolean).join(" · ")
+    : brand.signOffName
+      ? tt("Thanks again, {name} · {brand} · {site}", vars)
+      : tt("Thanks again, {brand} · {site}", vars);
   // The no-break space keeps each dot with the word before it, so on a phone
   // a line can only end on a dot and never begins with one.
   return proseBlock(line.replace(/ · $/, "").replaceAll(" · ", "&nbsp;· "), 34);
@@ -883,7 +887,7 @@ export function requestDecisionEmail(
       })),
       ownWords(brand, "declined"),
       buttonBlock(brand, tt("Pick another time"), brand.siteUrl),
-      signOff(brand, b.lang),
+      signOff(brand, b.lang, true),
     ].filter(Boolean);
 
   const subject = kind === "accepted"
@@ -1164,7 +1168,7 @@ export function cancellationEmail(brand: TenantBrand, b: BookingEmailData, forOw
       proseBlock(tt("This one's off the calendar. Whenever you're ready, booking again takes a minute.")),
       ownWords(brand, "cancelled"),
       buttonBlock(brand, tt("Book again"), brand.siteUrl),
-      signOff(brand, lang),
+      signOff(brand, lang, true),
     ].filter(Boolean);
   // "Your Friday appointment" reads; "Your today appointment" does not, so the
   // two near days take the other word order.
@@ -1871,7 +1875,7 @@ export function maintenanceDueEmail(brand: TenantBrand, m: MaintenanceEmailData,
     proseBlock(tt("Want to get on the calendar?"), 16),
     buttonBlock(brand, tt("Pick a time"), m.bookUrl),
     fineBlock(tt("If you have already had this done elsewhere, let us know and we will mark it off.")),
-    signOff(brand, lang),
+    signOff(brand, lang, true),
   ];
   return mail(
     maintenanceDueSubject(m, lang),
