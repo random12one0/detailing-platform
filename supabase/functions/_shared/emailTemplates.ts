@@ -1108,7 +1108,7 @@ export function cancellationEmail(brand: TenantBrand, b: BookingEmailData, forOw
   const dateLong = formatDateLong(b.dateStr, lang);
   const blocks = forOwner
     ? [
-      labBlock(tt("Cancelled"), "bad"),
+      labBlock(tt("Canceled"), "bad"),
       headlineBlock(b.customerName),
       proseBlock(tt("{date} at {time} is canceled. That time is open again.", {
         date: `<strong class="c-ink" style="color:${G.ink};">${esc(dateLong)}</strong>`,
@@ -1116,7 +1116,7 @@ export function cancellationEmail(brand: TenantBrand, b: BookingEmailData, forOw
       })),
       factsBlock([
         [tt("Phone"), esc(b.customerPhone)],
-        [tt("Was worth"), money(Number(b.total))],
+        [tt("Booking value"), money(Number(b.total))],
       ]),
       // ROADMAP 14.4 — THE MONEY, WHICH THIS EMAIL USED TO SAY NOTHING ABOUT.
       // A confirmed, already-paid booking could be cancelled by the customer
@@ -1132,7 +1132,7 @@ export function cancellationEmail(brand: TenantBrand, b: BookingEmailData, forOw
       b.refundNote ? noteBlock(`<strong class="c-ink" style="color:${G.ink};">${esc(b.refundNote)}</strong>`) : "",
     ].filter(Boolean)
     : [
-      labBlock(tt("Cancelled"), "bad"),
+      labBlock(tt("Canceled"), "bad"),
       headlineBlock(tt("Your booking is canceled")),
       proseBlock(tt("Hi {first}, your booking with {brand} for {date} at {time} has been canceled.", {
         first: esc(firstName(b.customerName)),
@@ -1292,7 +1292,7 @@ export function staleRequestEmail(brand: TenantBrand, b: BookingEmailData, hours
       [tt("Phone"), esc(b.customerPhone)],
       ...(b.customerEmail ? [[tt("Email"), esc(b.customerEmail)] as [string, string]] : []),
       ownerWhereRow(brand, b, lang),
-      [tt("Asking"), money(Number(b.total))],
+      [tt("Estimated total"), money(Number(b.total))],
     ]),
     buttonBlock(brand, tt("Answer this request"), b.receiptUrl),
   ];
