@@ -85,7 +85,7 @@ console.log("\n§ 1 — the endpoint asks who is calling before it answers as th
 {
   const src = read(FN);
   check("the owner's copy is gated on a membership check, not on a query word",
-    /requireMember\(req, booking\.business_id\)/.test(src),
+    /requireMember\(req, booking\.business_id(?:, *\{[^}]*\})?\)/.test(src),
     "nothing verifies the caller against this booking's business");
   check("`audience` is decided after that check and not read straight off the URL",
     !/const audience = url\.searchParams/.test(src),

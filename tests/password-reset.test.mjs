@@ -66,7 +66,7 @@ console.log("\n2. what the screen cannot show");
   // into a way of asking which of a list of addresses is a customer of ours —
   // the same reasoning that made `plan-link` take an email IN and send a link
   // OUT rather than answering a lookup (roadmap 2.14 step 3).
-  const branch = auth.slice(auth.indexOf("if (resetting)"), auth.indexOf("const { error: err } = creating"));
+  const branch = auth.slice(auth.indexOf("if (resetting)"), auth.indexOf("const { data: made, error: err } = creating"));
   check("2a · the reset branch has subjects", branch.length > 80, `${branch.length} chars`);
   check("2b · the answer never says whether the address exists",
     !/setError\(/.test(branch) && /setSent\(true\)/.test(branch),
