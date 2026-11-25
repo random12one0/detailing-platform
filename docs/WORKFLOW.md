@@ -1,6 +1,6 @@
 # How work happens now (since 2026-11-19)
 
-The belt and Control Room are **frozen** — kept on disk, not run, not developed.
+The belt and Control Room were **deleted** on 2026-11-25 (frozen 2026-11-19).
 Andrew's call, 2026-11-19: too much time went into the tool and not the product.
 Work happens in plain Claude Code sessions, and GitHub holds everything else.
 
@@ -38,6 +38,14 @@ merges its own PR unless Andrew said so for that session.
 
 ## The belt, if it is ever wanted again
 
-Its code is in `../control-room/` (untouched). Don't run
-`KEEP-IT-RUNNING.cmd` — it re-installs the auto-start. Revisit only when
-paying customers send more work than one person can handle.
+Deleted 2026-11-25. Its full code history is one file,
+`../archive/belt-final-2026-11-25/belt-staging-all.bundle` (`git clone` it).
+Its two useful parts, the Website Studio and the site audit, moved to
+`tools/studio-audit/`. Revisit only when paying customers send more work than
+one person can handle.
+
+## Working with ChatGPT / Codex instead of Claude
+
+Nothing changes: Codex reads `AGENTS.md`, the queue is the same GitHub issues,
+and the same PR checks run. Give it one issue at a time:
+"Work GitHub issue #N in this repo. Follow AGENTS.md. Open a PR, don't merge."
