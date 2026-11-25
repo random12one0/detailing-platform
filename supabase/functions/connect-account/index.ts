@@ -79,7 +79,7 @@ Deno.serve(async (req) => {
     const action = typeof body?.action === "string" ? body.action : "";
     const businessId = typeof body?.business_id === "string" ? body.business_id : null;
 
-    const member = await requireMember(req, businessId);
+    const member = await requireMember(req, businessId, { allowUnpaid: true });
     if (!member) return json({ error: "not_found" }, 404);
     // 404 rather than 403, the posture roadmap 4.4 set for `/admin`: a 403
     // tells a curious staff member exactly which endpoint is worth attacking.

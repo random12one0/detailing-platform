@@ -52,7 +52,7 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return preflight();
   if (req.method !== "POST") return json({ error: "POST" }, 405);
 
-  const member = await requireMember(req);
+  const member = await requireMember(req, null, { allowUnpaid: true });
   if (!member) return json({ error: "Not found" }, 404);
 
   const body = await req.json().catch(() => ({}));

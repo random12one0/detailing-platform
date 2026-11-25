@@ -1538,6 +1538,7 @@ export const appEs = {
   "Checking your link…": "Revisando tu enlace…",
   "Checking your subscription…": "Revisando tu suscripción…",
   "We could not load your subscription.": "No pudimos cargar tu suscripción.",
+  "The answer came back empty.": "La respuesta llegó vacía.",
   "Choose a customer…": "Escoge un cliente…",
   "Choose a password": "Escoge una contraseña",
   "Choose a plan…": "Escoge un plan…",

@@ -304,7 +304,7 @@ export const markedPreview = (token: string) => isMarkedPreview(token, markerOf)
 export async function requireMember(
   req: Request,
   businessId?: string | null,
-  opts: { allowSupport?: boolean } = {},
+  opts: { allowSupport?: boolean; allowUnpaid?: boolean } = {},
 ): Promise<Member | null> {
   const token = (req.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "").trim();
   if (!token) return null;
@@ -325,12 +325,33 @@ export async function requireMember(
   const { data: rows } = await q;
   if (!rows || rows.length === 0) return null;
   if (!businessId && rows.length > 1) return null; // ambiguous — caller must specify
+  // ROADMAP 97.95 / issue #9 — A SIGNUP THAT HAS NEVER PAID MAY SET UP, NOT RUN THE BUSINESS.
+  // Enforced HERE, once, so every owner function inherits it; the dashboard already hides
+  // everything but setup, settings and Billing (App.jsx `awaitingPay`), this makes the server
+  // agree. The same mark the screen uses (`paused` AND `awaiting_first_payment`), so a business
+  // the back office suspended by hand is not touched. Functions a waiting owner needs (Billing,
+  // setup, reading) pass `{ allowUnpaid: true }`. A failed read refuses: "could not tell" must
+  // not become "let them send".
+  if (!opts.allowUnpaid && await awaitingFirstPayment(rows[0].business_id)) {
+    console.warn("requireMember: refused an account that has not made its first payment");
+    return null;
+  }
   return {
     userId: user.id,
     businessId: rows[0].business_id,
     role: rows[0].role,
     permissions: rows[0].permissions ?? [],
   };
+}
+
+export async function awaitingFirstPayment(businessId: string): Promise<boolean> {
+  const { data, error } = await retryRead("awaitingFirstPayment", () =>
+    supabase.from("businesses").select("status, awaiting_first_payment").eq("id", businessId).maybeSingle());
+  if (error) {
+    console.error("awaitingFirstPayment: read failed", error);
+    return true;
+  }
+  return data?.status === "paused" && data?.awaiting_first_payment === true;
 }
 
 // ROADMAP 97.12 (S-M2) — A BOOKING'S OWN LINES, AND NOBODY ELSE'S.

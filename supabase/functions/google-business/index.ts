@@ -29,7 +29,7 @@ Deno.serve(async (req) => {
     const action = typeof body?.action === "string" ? body.action : "";
     const businessId = typeof body?.business_id === "string" ? body.business_id : null;
 
-    const member = await requireMember(req, businessId);
+    const member = await requireMember(req, businessId, { allowUnpaid: true });
     if (!member || member.role !== "owner") return json({ error: "not_found" }, 404);
     const bid = member.businessId;
     const available = stubMode(Deno.env.get("GOOGLE_BUSINESS_MODE"));

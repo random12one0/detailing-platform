@@ -172,7 +172,10 @@ export default function Billing() {
   const load = useCallback(async () => {
     setError("");
     try {
-      setData(await api.billingSummary(business.id));
+      const got = await api.billingSummary(business.id);
+      // ROADMAP 97.95 / issue #9: an answer with no summary (`{}`) is a failed read, not a crash on `data.quotes`.
+      if (!got?.quotes || !Array.isArray(got.invoices)) throw new Error(t("The answer came back empty."));
+      setData(got);
     } catch (e) {
       setError(String(e.message || e));
     }
