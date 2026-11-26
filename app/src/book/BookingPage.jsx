@@ -55,7 +55,7 @@ import {
   blockers as coreBlockers,
   bookable, bookingRequests, campaignFor, closedUntil,
   bookingRefs, groupedWith, initialForm, retryConfirmation,
-  modeLimitFor, offersBothModes, quoteKey as coreQuoteKey, quoteRequest,
+  devicePrice, modeLimitFor, offersBothModes, quoteKey as coreQuoteKey, quoteRequest,
   recallCustomer, rememberCustomer, stepsFor, toggleService as coreToggleService,
   visitorIdFor, stepFromSearch, reachableStep, saveDraft, loadDraft, clearDraft,
 } from "./core.js";
@@ -379,6 +379,7 @@ export function BookingFlow({ notFound = null, embedded = false }) {
   // roadmap 2.8c put the day, the time, the travel area and the way of
   // working into it, and 2.14 the plan. Nothing on this page computes any
   // part of a price, plan discounts included.
+  const early = devicePrice(form, selectedServices, selectedAddOns, { planId, promoApplied: promoState.applied });
   const quoteKey = coreQuoteKey(form, { planId, promoApplied: promoState.applied });
   const fetchQuote = useCallback(async () => {
     if (form.serviceIds.length === 0) {
@@ -1105,6 +1106,11 @@ export function BookingFlow({ notFound = null, embedded = false }) {
                   {quote.total_duration ? ` · ${duration(quote.total_duration, getLocale())}` : ""}
                 </div>
                 <strong>{money(quote.total)}</strong>
+              </>
+            ) : quoting && early != null ? (
+              <>
+                <div className="bk-muted">{t("Starting at")}</div>
+                <strong>{money(early)}</strong>
               </>
             ) : (
               <span className="bk-muted">{quoting ? t("Working out your price…") : t("Choose a service to start")}</span>

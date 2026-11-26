@@ -630,6 +630,18 @@ export const vehicleSizeExtra = (selectedServices, key) =>
     0,
   );
 
+// ROADMAP 97.50 - THE PRICE ON THE DEVICE, WHILE THE SERVER WORKS. This is
+// only the "starting at" figure: chosen services + the size fee + add-ons for
+// ONE car, the first three lines of `computeQuote`. It is null whenever
+// anything else could move the number (a plan, a promo, more cars), and it is
+// never submitted - Confirm stays locked until the server's quote arrives, so
+// the charged price is always the server's. Shown until that quote replaces it.
+export function devicePrice(form, selectedServices, selectedAddOns, { planId, promoApplied } = {}) {
+  if (!selectedServices?.length || planId || promoApplied || (form?.extraVehicles ?? []).length) return null;
+  const sum = (rows) => (rows ?? []).reduce((t, r) => t + (Number(r.price) || 0), 0);
+  return sum(selectedServices) + vehicleSizeExtra(selectedServices, form.vehicleSize) + sum(selectedAddOns);
+}
+
 // A business whose services price every size the same is never asked a
 // question it has no answer for.
 export const vehicleSizesMatter = (sizes, selectedServices) =>
