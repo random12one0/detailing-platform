@@ -90,6 +90,7 @@ export const es = {
   "{plan} applied": "{plan} aplicado",
   "Working out your price…": "Calculando tu precio…",
   "Choose a service to start": "Elige un servicio para empezar",
+  "Starting at": "Desde",
   "Sending…": "Enviando…",
   "Request this time": "Solicitar esta hora",
   "Booking…": "Reservando…",
