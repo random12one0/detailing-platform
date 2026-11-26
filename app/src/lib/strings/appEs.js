@@ -2864,6 +2864,7 @@ export const appEs = {
   "I do not want a website": "No quiero un sitio web",
   "{done} of {total} answered · nothing is saved in a preview":
     "{done} de {total} respondidas · en una vista previa nada se guarda",
+  "{done} of {total} answered": "{done} de {total} respondidas",
   "{done} of {total} answered · saved automatically":
     "{done} de {total} respondidas · se guarda automáticamente",
 

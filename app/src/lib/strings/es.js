@@ -355,6 +355,7 @@ export const es = {
 
   // ── The receipt page, reached from the confirmation email ──────────────
   "Booking not found": "No encontramos esa reserva",
+  "Could not load your booking": "No pudimos cargar tu reserva",
   "This link may be out of date, or the booking was removed.":
     "Puede que el enlace ya no sirva, o que la reserva se haya eliminado.",
   "Your request": "Tu solicitud",
