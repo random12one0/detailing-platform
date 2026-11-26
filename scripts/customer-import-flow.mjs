@@ -369,6 +369,8 @@ async function runWidth(browser, { state, sub }, size, completed) {
       `${tag}-save-cancel-aligned`, sb && cb ? `Save ${Math.round(sb.x)}-${Math.round(sb.x + sb.width)}, Cancel ${Math.round(cb.x)}-${Math.round(cb.x + cb.width)} below it` : "a button was not found");
     ok((await rowsNow()).length === beforeIds.size, `${tag}-preview-saves-nothing`, `rows before Save: ${(await rowsNow()).length} (was ${beforeIds.size})`);
     await revealAll();
+    await page.evaluate(() => window.scrollTo(0, 0));
+    // fullPage is safe here: scrolled to the top first, where full-page and viewport frames agree (tests/fullpage-frames-lie.test.mjs 1e).
     await page.screenshot({ path: join(ART, `${tag}-1-preview.png`), fullPage: true });
     if (FREEZE && size.w === 390) {
       const { freeze } = await import("file:///C:/Users/rando/Downloads/claude/control-room/belt/freeze.mjs");
@@ -400,6 +402,8 @@ async function runWidth(browser, { state, sub }, size, completed) {
     const notListed = VALID.filter((n) => savedCounts[n] !== baseline[n] + 1);
     ok(notListed.length === 0, `${tag}-list-shows-17`, notListed.length ? `not one more row after Save: ${notListed.join(", ")}` : "each of the 17 names has one more row in the list");
     await revealAll();
+    await page.evaluate(() => window.scrollTo(0, 0));
+    // fullPage is safe here: scrolled to the top first, where full-page and viewport frames agree (tests/fullpage-frames-lie.test.mjs 1e).
     await page.screenshot({ path: join(ART, `${tag}-2-saved.png`), fullPage: true });
     if (FREEZE && size.w === 390) {
       const { freeze } = await import("file:///C:/Users/rando/Downloads/claude/control-room/belt/freeze.mjs");
@@ -436,6 +440,8 @@ async function runWidth(browser, { state, sub }, size, completed) {
     const stillListed = VALID.filter((n) => undoneCounts[n] !== baseline[n]);
     ok(stillListed.length === 0, `${tag}-list-back`, stillListed.length ? `row count not back after Undo: ${stillListed.join(", ")}` : "the list is back to its own rows for all 17 names");
     await revealAll();
+    await page.evaluate(() => window.scrollTo(0, 0));
+    // fullPage is safe here: scrolled to the top first, where full-page and viewport frames agree (tests/fullpage-frames-lie.test.mjs 1e).
     await page.screenshot({ path: join(ART, `${tag}-3-undone.png`), fullPage: true });
 
     // A forged session asking to write into the owner's business is refused, with nothing written.

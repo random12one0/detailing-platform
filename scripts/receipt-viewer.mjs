@@ -255,6 +255,8 @@ try {
     let o = await open(pass);
     const list = await readList(o.page, rows);
     gradeList(label, { ...list, signReqs: o.signReqs, listReads: o.reads.n }, keys);
+    await o.page.evaluate(() => window.scrollTo(0, 0));
+    // fullPage is safe here: scrolled to the top first, where full-page and viewport frames agree (tests/fullpage-frames-lie.test.mjs 1e).
     await o.page.screenshot({ path: path.join(REPO, ART, `${pass.w}-${pass.lang}-list.png`), fullPage: true });
     artifacts.push(`${ART}/${pass.w}-${pass.lang}-list.png`);
 

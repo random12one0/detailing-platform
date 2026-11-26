@@ -103,6 +103,8 @@ for (const [w, h] of WIDTHS) {
 
     if (scene === "cancel" || scene === "none") {
       ok(await card.count() === 0, scene, w, scene === "cancel" ? "a cancelled booking still offers the check-in card" : "a booking with no damage photo recorded offers the check-in before anything was checked in");
+      await page.evaluate(() => window.scrollTo(0, 0));
+      // fullPage is safe here: scrolled to the top first, where full-page and viewport frames agree (tests/fullpage-frames-lie.test.mjs 1e).
       await page.screenshot({ path: join(OUT, `${scene}-${w}.png`), fullPage: true });
     } else {
       if (ok(await card.count() === 1, scene, w, "the Vehicle check-in card is missing")) {
@@ -116,6 +118,8 @@ for (const [w, h] of WIDTHS) {
         const lb = await card.locator("label").boundingBox();
         ok(lb && lb.height >= 44, scene, w, `the tick row is ${lb?.height}px tall, under 44`);
         {
+          await page.evaluate(() => window.scrollTo(0, 0));
+          // fullPage is safe here: scrolled to the top first, where full-page and viewport frames agree (tests/fullpage-frames-lie.test.mjs 1e).
           await page.screenshot({ path: join(OUT, `open-${w}.png`), fullPage: true });
           await box.check();
           ok(await btn.isEnabled(), scene, w, "Confirm stays disabled after ticking");
@@ -124,6 +128,8 @@ for (const [w, h] of WIDTHS) {
           ok(posts.length === 1 && posts[0].booking_id === ID, scene, w, `expected one request naming the booking, saw ${JSON.stringify(posts)}`);
           const after = await cardOf(page).innerText();
           ok(/Confirmed .+\. Thank you\./.test(after) && await cardOf(page).locator("input[type=checkbox]").count() === 0, scene, w, `no Confirmed line after the press: ${after.slice(0, 100)}`);
+          await page.evaluate(() => window.scrollTo(0, 0));
+          // fullPage is safe here: scrolled to the top first, where full-page and viewport frames agree (tests/fullpage-frames-lie.test.mjs 1e).
           await page.screenshot({ path: join(OUT, `confirmed-${w}.png`), fullPage: true });
         }
       }

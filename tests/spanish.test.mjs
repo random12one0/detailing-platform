@@ -1074,6 +1074,8 @@ console.log("11. text that only exists after an action");
     "lib/officeSystem.js#JOB_LABELS": "admin/ stays English on purpose (11c); back-office labels, owner only",
     "components/ExpenseModal.jsx#CATEGORY_WORDS": "carries its own Spanish beside each word, see the comment above it",
     "lib/localeStore.js#LOCALE_NAMES": "each language's name for ITSELF — \"Español\" is never translated",
+    "site/Detailer.jsx#NAMES": "section names in the detailer's own preview-review panel (dp-ui), whose whole copy is English by design; the customer-facing site is drawn from the spec and never shows them",
+    "site/spec.js#SERVICE_WORDS": "English match keys run against the wording the AI wrote; a word is matched, never shown, and the Spanish site wording is checked elsewhere",
     "book/core.js#BODY_TYPE_GUESS_WORDS": "regex-to-key matching table; no word in it is ever shown",
   };
 

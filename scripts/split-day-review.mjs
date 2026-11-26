@@ -311,6 +311,8 @@ for (const tg of [...TARGETS, CANARY]) {
     if (!inCanary && [390, 768, 1440].includes(tg.w) && tg.lang === "en" && tg.order === "weekday-weekend") {
       mkdirSync(`${SHOTS}/png`, { recursive: true });
       await page.screenshot({ path: `${SHOTS}/png/${tg.w}x${tg.h}-${BREAK || "after"}.png`, animations: "disabled" });
+      await page.evaluate(() => window.scrollTo(0, 0));
+      // fullPage is safe here: scrolled to the top first, where full-page and viewport frames agree (tests/fullpage-frames-lie.test.mjs 1e).
       await page.screenshot({ path: `${SHOTS}/png/${tg.w}x${tg.h}-${BREAK || "after"}-full.png`, fullPage: true, animations: "disabled" });
     }
     if (FREEZE && !inCanary && tg.w === 390 && tg.lang === "en" && tg.order === "weekday-weekend") {

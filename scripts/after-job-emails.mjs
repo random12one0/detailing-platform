@@ -321,6 +321,7 @@ try {
     check(`${id} console silent`, noise.length === 0, noise.join(" | "));
     if (!BREAK) {
       const shot = path.join(SHOTS, `${r.id}-${w}.png`);
+      // fullPage is safe here: an email is a bare HTML document with no position: fixed element (tests/fullpage-frames-lie.test.mjs).
       await page.screenshot({ path: shot, fullPage: true });
       artifacts.push(path.relative(REPO, shot).replaceAll("\\", "/"));
     }

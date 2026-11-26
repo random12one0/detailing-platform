@@ -246,6 +246,8 @@ try {
     check(where, "no text runs outside its own box", o.clipped.length === 0, o.clipped.join(" | "));
     check(where, "none of the mockup's explanation lines is on the page", o.explainers.length === 0, o.explainers.join(" | "));
     check(where, "no old tab bar on this route", o.oldTabs === 0);
+    await page.evaluate(() => window.scrollTo(0, 0));
+    // fullPage is safe here: scrolled to the top first, where full-page and viewport frames agree (tests/fullpage-frames-lie.test.mjs 1e).
     await page.screenshot({ path: `${ART}/today-${size.w}.png`, fullPage: true }); artifacts.push(`${ART}/today-${size.w}.png`);
 
     // CANARY 2 (overlap): the inspector must see a month label pushed onto the next.
@@ -296,6 +298,8 @@ try {
       const bad = await hitProbe(page, sel);
       check(where, `fed: ${name} has 44px of hit area`, bad.length === 0, bad.join(" | "));
     }
+    await page.evaluate(() => window.scrollTo(0, 0));
+    // fullPage is safe here: scrolled to the top first, where full-page and viewport frames agree (tests/fullpage-frames-lie.test.mjs 1e).
     await page.screenshot({ path: `${ART}/needs-${size.w}.png`, fullPage: true }); artifacts.push(`${ART}/needs-${size.w}.png`);
 
     // CANARY 1 (phone): a Text link injected into a no-phone item must be named.

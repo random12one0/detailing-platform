@@ -105,6 +105,7 @@ try {
           if (CAPTURE && !BREAK && [390, 768, 1440].includes(width)) {
             mkdirSync(SHOTS, { recursive: true });
             const shot = `${SHOTS}/confirmation-${lang}-${width}.jpg`;
+            // fullPage is safe here: an email is a bare HTML document with no position: fixed element (tests/fullpage-frames-lie.test.mjs).
             await page.screenshot({ path: shot, type: "jpeg", quality: 90, fullPage: true });
             artifacts.push(shot);
           }
@@ -119,6 +120,7 @@ try {
           const { freeze, differs } = await import(pathToFileURL("C:/Users/rando/Downloads/claude/belt/freeze.mjs").href);
           const stem = file.replace(/\.html$/, "");
           await freeze(page, { out: `${SHOTS}/after-${stem}.html`, label: "After", note: "The fact list wraps inside this phone, with every label and value kept.", highlightText: file.startsWith("platform") ? "https://detailingplatform.com/book/ridgeline" : "Mid-size SUV" });
+          // fullPage is safe here: an email is a bare HTML document with no position: fixed element (tests/fullpage-frames-lie.test.mjs).
           await page.screenshot({ path: `${SHOTS}/after-${stem}.jpg`, type: "jpeg", fullPage: true });
           check(`${stem} before and after differ`, await differs(page, `${SHOTS}/before-${stem}.html`, `${SHOTS}/after-${stem}.html`, { width, height }));
           artifacts.push(`${SHOTS}/after-${stem}.html`, `${SHOTS}/after-${stem}.jpg`);

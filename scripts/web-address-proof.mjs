@@ -144,6 +144,8 @@ async function one(browser, state, size, failures, observed) {
   ask("the DNS box names the TXT record _detailing-platform.book", boxText.includes("TXT") && boxText.includes("_detailing-platform.book"), boxText.slice(0, 200));
   ask("the DNS box shows THIS row's token", showsToken(boxText, TOKEN), boxText.slice(0, 200));
   if (await box.count()) await box.first().scrollIntoViewIfNeeded();
+  await page.evaluate(() => window.scrollTo(0, 0));
+  // fullPage is safe here: scrolled to the top first, where full-page and viewport frames agree (tests/fullpage-frames-lie.test.mjs 1e).
   await page.screenshot({ path: join(SHOTS, `web-address-${size.w}-added.png`), fullPage: true });
 
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
@@ -163,6 +165,8 @@ async function one(browser, state, size, failures, observed) {
     ask("a passing check says the address is live", false, "no row to check");
     ask("the row now carries the Live mark", false, "no row to check");
   }
+  await page.evaluate(() => window.scrollTo(0, 0));
+  // fullPage is safe here: scrolled to the top first, where full-page and viewport frames agree (tests/fullpage-frames-lie.test.mjs 1e).
   await page.screenshot({ path: join(SHOTS, `web-address-${size.w}-live.png`), fullPage: true });
   ask("no console error and no sideways scroll", consoleErrors.length === 0 && overflow <= 0,
     `overflow ${overflow}px; console: ${consoleErrors.slice(0, 3).join(" | ")}`);

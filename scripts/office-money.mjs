@@ -275,6 +275,8 @@ try {
     check(where, "no text runs outside its own box", o.clipped.length === 0, o.clipped.join(" | "));
     check(where, "none of the mockup's explanation lines is on the page", o.explainers.length === 0, o.explainers.join(" | "));
     check(where, "no Text or Call link anywhere on Money", o.phoneLinks === 0);
+    await page.evaluate(() => window.scrollTo(0, 0));
+    // fullPage is safe here: scrolled to the top first, where full-page and viewport frames agree (tests/fullpage-frames-lie.test.mjs 1e).
     await page.screenshot({ path: `${ART}/live-${size.w}.png`, fullPage: true }); artifacts.push(`${ART}/live-${size.w}.png`);
 
     // CANARY 2 (kept): a dollar figure written into "You kept" must be named. On a
@@ -338,6 +340,8 @@ try {
       canary.observed_failure = canary.observed_failure && after > before;
       console.log(`    canary (overlap) ${after > before ? "CAUGHT" : "MISSED"}: ${canary.overlap}`);
     }
+    await page.evaluate(() => window.scrollTo(0, 0));
+    // fullPage is safe here: scrolled to the top first, where full-page and viewport frames agree (tests/fullpage-frames-lie.test.mjs 1e).
     await page.screenshot({ path: `${ART}/fed-${size.w}.png`, fullPage: true }); artifacts.push(`${ART}/fed-${size.w}.png`);
 
     // Type a bill in. A non-number cannot be sent; a refusal shows the server's words.

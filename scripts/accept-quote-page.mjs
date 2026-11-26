@@ -170,6 +170,8 @@ for (const [w, h] of SIZES) {
     const { ctx, page, console_ } = await open(w, h);
     const a = check(`${w} normal . the quote card shows Accept $200`, /\$200/.test(await acceptBtn(page).innerText().catch(() => "")),
       `${await acceptBtn(page).count()} buttons; page: ${(await page.locator("body").innerText()).slice(0, 160)}; console: ${console_.join(" | ")}`);
+    await page.evaluate(() => window.scrollTo(0, 0));
+    // fullPage is safe here: scrolled to the top first, where full-page and viewport frames agree (tests/fullpage-frames-lie.test.mjs 1e).
     await page.screenshot({ path: `${SHOTS}/normal-${w}-before-press.png`, fullPage: true });
     if (!a) { await ctx.close(); continue; }
     await acceptBtn(page).click();
@@ -181,6 +183,8 @@ for (const [w, h] of SIZES) {
     const c = check(`${w} normal . the page says Confirmed and the Accept button is gone`, /Confirmed/i.test(text) && (await acceptBtn(page).count()) === 0, text.slice(0, 160));
     const d = check(`${w} normal . no error shown`, (await page.locator(".bk-error").count()) === 0);
     const e = check(`${w} normal . console clean`, console_.length === 0, console_.join(" | "));
+    await page.evaluate(() => window.scrollTo(0, 0));
+    // fullPage is safe here: scrolled to the top first, where full-page and viewport frames agree (tests/fullpage-frames-lie.test.mjs 1e).
     await page.screenshot({ path: `${SHOTS}/normal-${w}-after-press.png`, fullPage: true });
     if (a && b && c && d && e) completed++;
     await ctx.close();
@@ -215,6 +219,8 @@ for (const [w, h] of SIZES) {
             highlight: ".bk-error" });
     }
     await page.locator(".bk-error").scrollIntoViewIfNeeded().catch(() => {});
+    await page.evaluate(() => window.scrollTo(0, 0));
+    // fullPage is safe here: scrolled to the top first, where full-page and viewport frames agree (tests/fullpage-frames-lie.test.mjs 1e).
     await page.screenshot({ path: `${SHOTS}/stale-${w}.png`, fullPage: true });
     if (a && b && c && d && e && f) completed++;
     await ctx.close();

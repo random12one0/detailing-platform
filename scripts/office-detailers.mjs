@@ -303,6 +303,8 @@ try {
       console.log(`    canary (overlap) ${caught ? "CAUGHT" : "MISSED"}`);
     }
 
+    await page.evaluate(() => window.scrollTo(0, 0));
+    // fullPage is safe here: scrolled to the top first, where full-page and viewport frames agree (tests/fullpage-frames-lie.test.mjs 1e).
     await page.screenshot({ path: `${ART}/full-${size.w}.png`, fullPage: true }); artifacts.push(`${ART}/full-${size.w}.png`);
     completed++;
     await ctx.close();
