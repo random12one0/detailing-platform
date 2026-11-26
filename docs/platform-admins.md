@@ -31,11 +31,20 @@ The machine-readable list. One address per line, nothing else on the line, and
 the check parses exactly this block:
 
 ```declared-platform-admins
-demo@demo.com
-demo@detailplatform.com
+andrewsauto@andrewsdetail.com
 ```
 
-### `demo@demo.com` — the master login
+### `andrewsauto@andrewsdetail.com` — the owner login
+
+**Why it exists:** Andrew's real back-office login, chosen by him on **2026-11-26**
+and created by `scripts/lock-demo-admins.mjs --apply` the same day. Its password is
+random and in no file he reads; he sets his own with "Forgot password".
+**When it goes:** never, while Andrew owns the platform.
+
+**The two demo logins below were REMOVED from `platform_admins` on 2026-11-26**
+(issue #10). Their sections stay as history.
+
+### `demo@demo.com` — the master login (removed 2026-11-26)
 
 **Why it exists:** Andrew's own back-office login. He chose the address himself
 on **2026-09-07**; the password was changed on **2026-09-09** at his ask, because
@@ -76,7 +85,7 @@ About a week before the first real detailer is invited, from the main checkout:
 3. Edit the `declared-platform-admins` block above to the real owner address only, then run
    `node --test tests/platform-admins-declared.test.mjs` and `node scripts/admin-refuses.mjs`.
 
-**Not run yet** (Andrew, 2026-11-13: keep both demo logins until launch prep). The transient `sdw-41c-admin-*@fixture.test`
+**Ran with `--apply` on 2026-11-26** for `andrewsauto@andrewsdetail.com` (Andrew's call). The table now holds only that row. The transient `sdw-41c-admin-*@fixture.test`
 and `shoot-admin@` rows were test leftovers; removed 2026-11-25 (issue #61: `shoot-admin` was already gone, the two
 `sdw-41c` fixture rows were deleted, their auth users and audit events left alone).
 
