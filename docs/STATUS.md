@@ -4,8 +4,18 @@
 detailingplatform.com, sign up, set up the business, pay with a test card, and land
 in an unlocked dashboard. Proven in a real browser: `scripts/checkout-walk.mjs`
 13/13, including "the price shown equals the price charged". Billing renewals and
-failed payments: `scripts/billing-walk.mjs` 24/24. All 45 server functions match
-the code (`scripts/deployed-inventory.mjs`). Backups restore: 100 of 100 tables.
+failed payments: `scripts/billing-walk.mjs` 24/24. All 46 server functions match
+the code (`scripts/deployed-inventory.mjs`); the database matches the migrations
+(`scripts/migration-drift.mjs`). Backups restore: 100 of 100 tables.
+
+**Also done on 2026-11-25:** security fixes (unpaid accounts blocked server-side,
+support sessions read-only on every table, admin history append-only, 14 database
+functions hardened); customer import with one-tap undo (live, 78/78); all 35
+emails reviewed in English and Spanish; accessibility at 0 problems on every
+dashboard and booking screen measured; real 404s and honest example-site labels;
+marketing pages with search-engine tags and a dashboard bundle half the size;
+218 of 231 test suites passing (`docs/TEST-STATUS.md`); launch-day scripts
+(`docs/GO-LIVE.md`); your shop's site facts collected (`docs/CUSTOMER-1.md`).
 
 ## Only Andrew can do these (in this order)
 
@@ -20,11 +30,13 @@ the code (`scripts/deployed-inventory.mjs`). Backups restore: 100 of 100 tables.
    (grey cloud). Then tell the AI it's in; it finishes the live-address proof.
 4. **Your shop as customer #1 (#5).** Sign up Andrew's Auto Detail on your phone,
    give the AI your photos and text, and let it build your site in the Studio.
-5. **Live payments (#6).** Activate the Stripe account (business details, bank).
-   The AI then swaps to live keys and runs a $1 charge and refund.
+5. **Live payments (#6).** Activate the Stripe account (business details, bank),
+   put the 5 live values in `.env` (never in chat), then follow `docs/GO-LIVE.md`.
 6. **At launch:** the AI runs `node scripts/lock-demo-admins.mjs --apply` to
    remove the two demo admin logins (needs your owner email first;
    see `docs/platform-admins.md`).
+7. **Optional:** in Supabase → Auth → Settings, turn on leaked-password
+   protection (blocks passwords known from data breaches).
 
 ## Tools
 
