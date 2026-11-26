@@ -70,9 +70,11 @@ domain through Netlify itself (needs a real domain pointing at Netlify, see belo
   outside its platform list is a tenant host), but each host still needs its own verified `business_domains` row and
   DNS token, so a wildcard removes no step. Revisit with many detailers and no domains of their own; it needs a
   Cloudflare wildcard CNAME, a Netlify wildcard alias and a change to `verify-domain`.
-- **Still to prove (why #4 stays open):** one real host over HTTPS. After the DNS step: give `demo-detail` a
-  temporary website subscription and verified host, publish, `curl -sI https://<host>/` is 200 with the published
-  site (not the booking page), screenshots at 390 and 1440, console clean; then delete the temporary rows and unpublish.
+- **Proven on a real host 2026-11-26:** `https://demo-site.detailingplatform.com/` served the published demo business
+  (Coastline Auto Detailing) through Netlify: HTTP 200, certificate covers the host plus detailingplatform.com and www,
+  390 and 1440 wide screenshots clean, console empty. Adding the Netlify domain alias also issued the certificate
+  (no separate certificate call needed). The temporary subscription and address rows were then deleted, and the host
+  fell back to the normal platform page. The Cloudflare CNAME and the Netlify alias stay in place for repeat tests.
 - AI rewriting of the brief's words is not built: the first draft uses the detailer's own sentence where allowed.
 - Hours, services and photos must already be in their dashboard; a business with no active service is refused.
 - The nightly "does the live site match the dashboard" check and the three-width gates still only work on the
