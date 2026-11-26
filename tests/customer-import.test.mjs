@@ -64,12 +64,12 @@ test("existing phone or email is a duplicate, and the save shrinks", () => {
     rows, header, existing: [{ phone: "555-9999", email: "ZOE@EXAMPLE.COM" }],
   });
   assert.ok(byEmail.duplicates.some((d) => d.name === "Zoe Allen"));
-  const intl = parseImportCsv("Name,Phone,Email\nNew Guy,+1 (562) 555-0180,new@x.com");
-  const viaCode = previewImport({ rows: intl.rows, header: intl.header, existing: [{ phone: "5625550180", email: "someone@else.com" }] });
+  const intl = parseImportCsv("Name,Phone,Email\nNew Guy,+1 (562) 555-0180,new@x.test");
+  const viaCode = previewImport({ rows: intl.rows, header: intl.header, existing: [{ phone: "5625550180", email: "someone@else.test" }] });
   assert.equal(viaCode.duplicates.length, 1);
   assert.equal(viaCode.duplicates[0].name, "New Guy");
-  const bare = parseImportCsv("Name,Phone,Email\nOther Guy,5625550180,other@x.com");
-  const viaBare = previewImport({ rows: bare.rows, header: bare.header, existing: [{ phone: "+1 (562) 555-0180", email: "else@x.com" }] });
+  const bare = parseImportCsv("Name,Phone,Email\nOther Guy,5625550180,other@x.test");
+  const viaBare = previewImport({ rows: bare.rows, header: bare.header, existing: [{ phone: "+1 (562) 555-0180", email: "else@x.test" }] });
   assert.equal(viaBare.duplicates.length, 1);
 });
 

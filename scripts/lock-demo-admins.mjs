@@ -27,7 +27,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const REF = "kguqylyzgyzfktkfnhjb";
-const DEMOS = ["demo@demo.com", "demo@detailplatform.com"];
+const DEMOS = ["demo@demo.com", "demo@detailplatform.com"];  // mail-sink: the two demo owners' login names; read back to find their accounts, never a recipient
 const ENV_FILE = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", ".env");
 const arg = (n) => (process.argv.find((a) => a.startsWith(`--${n}=`)) || "").split("=").slice(1).join("=");
 const APPLY = process.argv.includes("--apply");

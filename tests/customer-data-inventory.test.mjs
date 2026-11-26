@@ -103,6 +103,8 @@ export const DECLARED = {
   platform_costs: { how: "not", cols: ["note"], why: PLATFORM },
   platform_promo_codes: { how: "not", cols: ["note"], why: PLATFORM },
   platform_settings: { how: "not", cols: ["owner_email"], why: PLATFORM },
+  preview_events: { how: "not", cols: ["body"], why: "the detailer's own comments and picks on a preview of their own site; linked to no customer row, and deleted with the preview link" },
+  revisions: { how: "not", cols: ["note"], why: "the Studio's note on a saved version of a detailer's own site; about no customer" },
   site_probes: { how: "not", cols: ["body", "secret_name"], why: PLATFORM },
   // address_points.key IS a street address, but its column is called `key`, so the name rule cannot see it.
   address_points: { how: "forget", byHand: true, cols: ["key"], why: "97.20a: the geocode rows for their record's and their bookings' addresses are deleted, unless another customer, booking or shop still uses that street" },

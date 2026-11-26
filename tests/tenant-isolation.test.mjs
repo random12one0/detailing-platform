@@ -308,7 +308,12 @@ console.log("test 6: A cannot update or delete B rows by UUID");
   const del = await rest("DELETE", `/rest/v1/bookings?id=eq.${bookingB.id}`, {
     key: ANON, jwt: userA.jwt,
   });
-  check("delete matched zero rows", del.status === 200 && del.data?.length === 0, JSON.stringify(del.data));
+  // Browsers lost DELETE on bookings, so the database now refuses outright
+  // (42501) instead of matching zero rows. Either way nothing is deleted, and
+  // "B booking still exists" below is the proof.
+  check("delete matched zero rows or was refused",
+    (del.status === 200 && del.data?.length === 0) || (del.status === 403 && del.data?.code === "42501"),
+    JSON.stringify(del.data));
   const still = await svc.get(`/rest/v1/promo_codes?id=eq.${promoB.id}&select=value`);
   check("B promo value unchanged", still.data?.[0]?.value === 20, JSON.stringify(still.data));
   const stillB = await svc.get(`/rest/v1/bookings?id=eq.${bookingB.id}&select=id`);

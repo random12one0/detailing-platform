@@ -57,7 +57,7 @@ test("the screen's row mapping: six columns per record, null when Name or Phone 
   assert.equal(input.length, 20);
   assert.deepEqual(Object.keys(input[0]), HEADERS);
   assert.equal(input[0].vehicle, "Honda Civic");
-  assert.equal(toImportInput(parseImportCsv("Name,Email\nA,a@x.com\n")), null);
+  assert.equal(toImportInput(parseImportCsv("Name,Email\nA,a@x.test\n")), null);
 });
 
 // In-memory stand-in for the Supabase client: only the chained calls the
@@ -127,7 +127,7 @@ const bigSeed = (n, businessId) => {
   for (let i = 0; i < n; i++) {
     seed.push({
       business_id: businessId, name: `C${i}`, phone: String(5550000000 + i),
-      email: `u${i}@x.com`, imported: false, import_batch_id: null, is_test: false,
+      email: `u${i}@x.test`, imported: false, import_batch_id: null, is_test: false,
     });
   }
   return seed;
@@ -141,16 +141,16 @@ test("existing customers are all read in stable id order", async () => {
   assert.ok(db.state.orderCalls.every((c) => c === "id"));
   assert.equal(keys.size, 5000);
   assert.ok(keys.has(`p:${String(5550000000 + 1500)}`));
-  assert.ok(keys.has("e:u1999@x.com"));
+  assert.ok(keys.has("e:u1999@x.test"));
 });
 
 // 2. A twin past the first 1,000 rows is still caught, on phone or on email.
 test("a phone or email past row 1,000 still blocks its twin", async () => {
   const db = makeDb(bigSeed(2500, "biz"));
   const res = await commitImportBatch(db, "biz", [
-    { name: "Twin", phone: `+1${String(5550000000 + 1500)}`, email: "twin@new.com" },
-    { name: "Mail Twin", phone: "5559998888", email: "U1999@X.COM" },
-    { name: "Fresh", phone: "5551112222", email: "fresh@x.com" },
+    { name: "Twin", phone: `+1${String(5550000000 + 1500)}`, email: "twin@new.test" },
+    { name: "Mail Twin", phone: "5559998888", email: "U1999@X.TEST" },
+    { name: "Fresh", phone: "5551112222", email: "fresh@x.test" },
   ]);
   assert.equal(res.created, 1);
   assert.equal(res.duplicates.length, 2);
@@ -198,7 +198,7 @@ test("saved rows are flagged imported with the batch id", () => {
   const batch = "b1b1b1b1-b1b1-4b1b-8b1b-b1b1b1b1b1b1";
   const saved = toImportRows([
     { name: "A", phone: "1", email: null, address: null, notes: "Vehicle: Honda\nLate" },
-    { name: "B", phone: "2", email: "b@x.com", address: "9 Elm", notes: null },
+    { name: "B", phone: "2", email: "b@x.test", address: "9 Elm", notes: null },
   ], "biz", batch);
   assert.equal(saved.length, 2);
   assert.ok(saved.every((r) => r.imported === true && r.import_batch_id === batch && r.business_id === "biz"));
@@ -242,7 +242,7 @@ test("a late duplicate is reported at save, not inserted", async () => {
   assert.equal(before.valid.length, 2);
   db.state.rows.push({
     id: "id-sneak", business_id: "biz", name: "Sneak", phone: "555-0100",
-    email: "sneak@x.com", imported: false, import_batch_id: null, is_test: false,
+    email: "sneak@x.test", imported: false, import_batch_id: null, is_test: false,
   });
   const res = await commitImportBatch(db, "biz", input);
   assert.equal(res.created, 1);
