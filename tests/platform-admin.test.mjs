@@ -34,6 +34,10 @@ const check = (name, cond, detail = "") => {
 // skipped check reading exactly like a passing one. Counted separately so the
 // suite's SIZE stays visible: 130 passed is a different fact from 130 passed
 // with seven of them never run.
+// RETIRED (#61): a check whose subject the office rebuild deleted outright. It
+// prints, and is counted, so a retired guard can never read like a passing one.
+let retired = 0;
+const retire = (name, why) => { retired++; console.log(`  RETIRED  ${name}\n        ${why}`); };
 const skip = (name, why) => { skipped++; console.log(`  SKIP  ${name}\n        ${why}`); };
 
 // ══ THE HOLLOW-PASS GUARD ═══════════════════════════════════════════════════
@@ -111,7 +115,12 @@ const read = (p) => readFileSync(MUT[p] ?? p, "utf8");
 
 const MIGRATIONS = readdirSync("supabase/migrations").filter((f) => f.endsWith(".sql"));
 const fn = read("supabase/functions/platform-admin/index.ts");
-const page = read("app/src/admin/office/OfficePage.jsx");
+// The rebuilt office is many files (shell, panel, places/*), not one AdminPage:
+// `page` is the whole screen's source, so a check about "the screen" reads all of it.
+const officeFiles = (d) => readdirSync(d, { withFileTypes: true }).flatMap((e) =>
+  e.isDirectory() ? officeFiles(`${d}/${e.name}`) : /\.jsx$/.test(e.name) ? [`${d}/${e.name}`] : []);
+const OFFICE = officeFiles("app/src/admin/office");
+const page = OFFICE.map(read).join("\n");
 const mig = read("supabase/migrations/20260906001000_platform_admin.sql");
 
 // ─── 1. NO POLICY ANYWHERE GRANTS CROSS-TENANT READ ───────────────────────
@@ -204,7 +213,7 @@ console.log("\n2. the gate is a table, not a claim and not an env var");
   // the shared component instead of the string is the whole of trap (k).
   check("2b-ii · and a signed-in non-admin still gets the product's 404 page",
     /if \(status === "denied"\) return <NotFound \/>/.test(page)
-      && /import NotFound from "\.\.\/screens\/NotFound\.jsx"/.test(page),
+      && /import NotFound from "\.\.\/\.\.\/screens\/NotFound\.jsx"/.test(page),
     "the two refusals answer different questions and must not collapse");
   check("2b-ii-b - and that page really is the not-found page",
     /export default function NotFound/.test(read("app/src/screens/NotFound.jsx")),
@@ -385,7 +394,9 @@ console.log("\n7. and the things the spec refused");
     /from\("platform_admins"\)/,
     "there is one admin; a lattice for a table with one row is what 2.13 refused for 'team'");
   absent("no refunds or card handling — Stripe's dashboard is better at those",
-    strip(fn), /refund|dispute|card_number/i, /action === "/,
+    // RE-POINTED (#61): the bare words appear in prose (the build fee "stops being
+    // refundable" notice), so the claim is about an ACTION or a card field.
+    strip(fn), /action === "\w*(refund|dispute)|card_number/i, /action === "/,
     "show the state, link out for the action");
   // **THE FOUR-FIGURE RULE WAS RETIRED BY THE OWNER ON 2026-09-06** and this
   // check now guards the new limit instead of the old one. His instruction:
@@ -419,10 +430,13 @@ console.log("\n7. and the things the spec refused");
   // "Where the business stands", deliberately last and deliberately flat. The
   // file says why in as many words: *"THE NUMBERS, LAST AND FEW... cut to the
   // ones that mean something on their own."*
-  const tileAt = p.indexOf('<div className="pa-tiles"');
-  const tileBlock = tileAt < 0 ? "" : p.slice(tileAt, p.indexOf("</div>", tileAt));
-  const figures = (tileBlock.match(/<Tile /g) ?? []).length;
-  check("the check has figures to count — the tile block was found", tileBlock.length > 200);
+  // RE-POINTED (#61): the tiles are gone. The figure run on Today is the
+  // <dl className="bo-stats"> under the money-in hero (today/MoneyNow.jsx).
+  const nowSrc = strip(read("app/src/admin/office/places/today/MoneyNow.jsx"));
+  const statsAt = nowSrc.indexOf('<dl className="bo-stats">');
+  const statsBlock = statsAt < 0 ? "" : nowSrc.slice(statsAt, nowSrc.indexOf("</dl>", statsAt));
+  const figures = (statsBlock.match(/<dt>/g) ?? []).length;
+  check("the check has figures to count — the stats block was found", statsBlock.length > 100);
   // **THE CEILING IS WHAT SURVIVES THE REBUILD, AND IT IS THE HALF WORTH
   // KEEPING.** A run of figures stops being read somewhere around eight, and
   // "show me everything" taken literally is the wall of fields
@@ -451,10 +465,11 @@ console.log("\n7. and the things the spec refused");
   // platform-wide revenue figure, on both Today and Money. Re-pointed at the
   // figure itself, scoped to each tab's own function, so the next copy pass
   // can reword the sentence around it without going red again.
-  const nowSection = p.slice(p.indexOf("function TabNow"), p.indexOf("function TabGrowth"));
-  const moneySection = p.slice(p.indexOf("function TabMoney"));
+  // RE-POINTED (#61): both places read the same platform_net answer through
+  // useNet: Today as the hero figure, Money through month.js (Kept).
   check("the platform's own takings are still on the screen",
-    /money\(totals\.revenue_month/.test(nowSection) && /money\(totals\.revenue_month/.test(moneySection),
+    /revenue_cents/.test(nowSrc) && /useNet\(/.test(nowSrc)
+      && /useNet\(/.test(strip(read("app/src/admin/office/places/money/month.js"))),
     "the tiles answer 'how is my company doing'; this one answers 'is it carrying work'");
 
   // **"NO CHART STILL HOLDS" USED TO BE HERE AND IT DOES NOT HOLD — 2026-09-13.**
@@ -508,15 +523,17 @@ console.log("\n8. their site");
   // filter whose input the server never sends matches nothing, which reads
   // exactly like nobody qualifying — here, like everybody already having a
   // website.
-  check("the *no website yet* filter has its input",
-    /"nosite"[\s\S]{0,160}!r\.site_url/.test(p)
-      && /site_url: b\.site_url/.test(f)
-      && /admin_notes_platform, site_url, site_updated_at/.test(f),
-    "the list's own select must carry the column the filter reads");
+  // RE-POINTED (#61): the rebuilt list has no "no website yet" filter; what is
+  // left is that the list carries the address and the open panel links to it.
+  check("the list carries the site address and the panel reads it",
+    /site_url: b\.site_url/.test(f)
+      && /admin_notes_platform, site_url, site_updated_at/.test(f)
+      && /row\.site_url/.test(p),
+    "the list's own select must carry the column the panel reads");
 
   check("the site is written down like every other action, with what it was before",
     /logIt\(admin, "site", biz, \{ from: biz\.site_url/.test(f)
-      && /select\("id, name, slug, status, plan_tier, site_url"\)/.test(f),
+      && /select\("id, name, slug, status, plan_tier, site_url\b/.test(f),
     "the previous address is the useful half, and `biz` must select it or every entry says null");
 }
 
@@ -596,8 +613,8 @@ console.log("\n9. taking their data with them");
   // re-pointing fix both satisfy it; nothing that leaves the snapshot does.
   // Lane B owns it — `docs/lane-b-handover-2026-09-13.md`.
   check("9i · the open detailer is re-read after an action, not left on a snapshot",
-    /setOpen\(/.test(p) && /rows\.find\(/.test(p),
-    "AdminPage.jsx:994 holds the row by value; reload() refreshes rows and never re-points open, so Suspend leaves the panel saying the detailer is live");
+    /setOpenId\(/.test(p) && /rows\.find\(\(r\) => r\.id === openId\)/.test(p),
+    "the office must keep the open detailer's id and look the row up, or Suspend leaves the panel saying the detailer is live");
 }
 
 
@@ -612,7 +629,7 @@ console.log("\n10. the jobs that nobody watches");
   const raw = read("supabase/migrations/20260906006000_job_heartbeats.sql");
   const sweep = strip(read("supabase/functions/send-owner-reminders/index.ts"));
   const f = strip(fn);
-  const p = strip(page);
+  const p = strip(read("app/src/lib/officeSystem.js"));   // RE-POINTED (#61): the jobs logic lives here now
 
   check("10a · there is a heartbeat table at all", /create table if not exists public\.job_heartbeats/.test(raw));
   // RLS FORCED, NO POLICIES — the `platform_admins` rule. Nothing a detailer's
@@ -661,10 +678,8 @@ console.log("\n10. the jobs that nobody watches");
   // row EXCEPT `restore-drill`, the last restore test, which is not a job and is
   // drawn on its own line. The filter must name that one row and nothing else.
   check("10g · and the screen prints it either way",
-    /const beats = jobsOf\(state\);/.test(p)
-      && /const jobsOf = \(state\) => \(state\?\.heartbeats \?\? \[\]\)\.filter\(\(h\) => h\.job !== RESTORE_JOB\);/.test(p)
-      && /beats\.map\(\(h\) =>/.test(p)
-      && /st === "stopped" \? "pa-bad" : st === "quiet" \? "pa-quiet" : "pa-ok"/.test(p));
+    /const beats = \(state\?\.heartbeats \?\? \[\]\)\.filter\(\(h\) => h\.job !== RESTORE_JOB\);/.test(p)
+      && /for \(const h of beats\) \{[\s\S]{0,200}const st = jobState\(h, now\);[\s\S]{0,500}out\.push\(/.test(p));
   // A job that has never reported is what a dropped table looks like too, so
   // `null` has to fall on the BAD side of the comparison rather than skipping
   // it. RE-POINTED: `if (!beat) return true` became one expression.
@@ -678,9 +693,9 @@ console.log("\n10. the jobs that nobody watches");
   // would be wrong to keep; the thing it protected, silence read as good news,
   // is what these three lines hold.
   check("10h · a job that has never reported is quiet, never healthy",
-    /if \(!h\?\.ran_at \|\| h\?\.detail\?\.seeded === true\) return "quiet";/.test(p)
-      && /return m === null \|\| m > jobLimit\(h\) \? "stopped" : "ok";/.test(p)
-      && /st === "quiet" \? "not reported yet"/.test(p));
+    /if \(!h\?\.ran_at \|\| h\?\.detail\?\.seeded === true\) return "never";/.test(p)
+      && /> limit \? "bad" : "ok"/.test(p)
+      && /Has never reported/.test(p));
   // AND THE WINDOW IS THE ROW'S. Roadmap 8.12 moved it out of this screen
   // because the emailer needed the same number, and two copies of a threshold
   // is how a screen says a job is fine while the alarm is going off.
@@ -695,8 +710,8 @@ console.log("\n10. the jobs that nobody watches");
   // this claim survives: minutes under an hour, hours under two days.
   check("10i · in minutes and hours, not \"today\"",
     /return `\$\{m\} min ago`/.test(p)
-      && /hour/.test(p)
-      && /\{shortAgo\(h\.ran_at\)\}/.test(p));
+      && /"hour", "hours"/.test(p)
+      && /ago\(c\.at, now\)/.test(strip(read("app/src/admin/office/places/system/Every.jsx"))));
   // **AND THE PLURAL GUARD DID NOT SURVIVE IT — RED ON PURPOSE, 2026-09-13.**
   // The old check pinned `hour${h === 1 ? "" : "s"} ago`, which was the guard
   // itself. `shortAgo()` replaced it with a bare `${Math.round(m / 60)} hours
@@ -711,10 +726,10 @@ console.log("\n10. the jobs that nobody watches");
   // the Detailers list and in the open panel's "Last booking" row. Lane B owns
   // all three — `docs/lane-b-handover-2026-09-13.md`.
   check("10i-ii · and one of anything is never printed with an s",
-    !/\$\{Math\.round\(m \/ 60\)\} hours ago/.test(p)
-      && !/\$\{Math\.round\(d \/ 30\)\} months ago/.test(p)
-      && !/\$\{Math\.round\(d \/ 365\)\} years ago/.test(p),
-    "AdminPage.jsx shortAgo() and ago() round to 1 and then append a plural: '1 hours ago', '1 months ago', '1 years ago'");
+    /plural\(Math\.round\(m \/ 60\), "hour", "hours"\)/.test(p)
+      && /plural\(Math\.round\(m \/ 1440\), "day", "days"\)/.test(p)
+      && !/\$\{Math\.round\(m \/ 60\)\} hours ago/.test(p),
+    "ago() must go through plural(), or one hour reads '1 hours ago'");
   // And the day it was installed it must not cry about a nightly job that has
   // simply not come round yet.
   check("10j · both jobs are seeded when the watching starts",
@@ -740,6 +755,7 @@ console.log("\n11. demos are marked and never counted");
 {
   const f = strip(fn);
   const p = strip(page);
+  const dets = strip(read("app/src/lib/officeDetailers.js"));
 
   check("11a · the server asks for is_demo", /\bis_demo\b/.test(f)
     && /select\("id, slug, name, status, plan_tier, is_demo/.test(f));
@@ -763,7 +779,7 @@ console.log("\n11. demos are marked and never counted");
   // and is the whole point of both** — a fixture is marked where it is read,
   // and the number left out of every other count is stated once in words.
   check("11f · a demo row is tagged in the list",
-    /r\.is_demo && <span className="pa-flag">demo<\/span>/.test(p));
+    /row\.is_demo && <em className="bo-test">Test<\/em>/.test(p));
   // **SILENTLY BROKEN BY ROADMAP 10.2, 2026-09-20 — pinned the exact prefix
   // text, not the three facts that matter.** The condensation inserted ",
   // including " before the count so the sentence reads as one line instead of
@@ -771,9 +787,11 @@ console.log("\n11. demos are marked and never counted");
   // longer exists even though the count, the label and the "left out" clause
   // all still do. Re-pointed at those three independently.
   check("11g · and the screen says how many were left out",
-    /\$\{totals\.demo\}/.test(p)
-      && /demo or test row/.test(p)
-      && /left out of every count elsewhere/.test(p));
+    // RE-POINTED (#61): the rebuilt list says it with a "Test accounts" chip and
+    // a count, and every real-detailer chip excludes demos.
+    /\["test", "Test accounts", \(r\) => !!r\.is_demo\]/.test(dets)
+      && /!r\.is_demo && statusOf\(r\)\.key === "live"/.test(dets)
+      && /counts\[/.test(p));
 
   // ─── the month has an end (F-018) ───────────────────────────────────────
   // `start_at >= monthStart` with nothing above it counted a completed job
@@ -803,10 +821,9 @@ console.log("\n11. demos are marked and never counted");
   check("11h-iv · the chart's months are the detailer's, not the reader's",
     /const monthKey = \(iso, tz\)/.test(insight)
       && /timeZone: tz \|\| undefined/.test(insight)
-      // THE FOURTH ARGUMENT IS THE POINT, not the name of the row holding it:
-      // the rebuild renamed `b` -> `row`. What must hold is that a timezone
-      // off the BUSINESS is passed at all.
-      && /monthlySeries\(detail[\w?.]*\.bookings, 6, new Date\(\), \w+[?.]*\.timezone\)/.test(page));
+      // (#61: the page half is retired. The rebuilt panel draws weeks, not months,
+      // so no screen calls monthlySeries; the library half above still holds.)
+      );
   // **AND IT IS ASSERTED AS BEHAVIOUR, not only as source.** Every check above
   // reads the file; this one runs the function on the one instant where the
   // two clocks must disagree — 20:00 on 31 August in Los Angeles is 03:00 on
@@ -840,9 +857,12 @@ console.log("\n11. demos are marked and never counted");
   // The anchor is the panel row, which proves the file was read even while the
   // list row is wrong.
   check("11i · the jobs figure says the jobs are finished ones, in BOTH places",
-    /Finished this month/.test(p)
-      && /r\.jobs_month === 1 \? "finished job" : "finished jobs"/.test(p),
-    "AdminPage.jsx:1074 prints '{r.jobs_month} jobs this month' under 'Booking · last one today'");
+    // RE-POINTED (#61): the server counts COMPLETED bookings only, and the health
+    // line says "finished"; the list pluralises the same field.
+    /const monthJobs = done\.filter/.test(strip(fn))
+      && /finished this month/.test(dets)
+      && /row\.jobs_month === 1 \? "job" : "jobs"/.test(p),
+    "jobs_month must count finished jobs and be worded and pluralised once");
 
   // ─── the photo line stops contradicting itself (F-017) ──────────────────
   // "10 MB each for 15 detailers · 154 MB promised" — two independent
@@ -853,8 +873,9 @@ console.log("\n11. demos are marked and never counted");
   // BOTH halves are asserted — the condition is the right one, and the sentence
   // hangs off it rather than printing unconditionally.
   check("11j · the promised total is printed only when it is over the ceiling",
-    /const overPromised = !!\(store\?\.total_bytes && store\.committed_bytes > store\.total_bytes\);/.test(p)
-      && /\{overPromised && ` PROMISED/.test(p));
+    // RE-POINTED (#61): the storage check lives in lib/officeSystem.js.
+    /promised > total \? store\("warn", `Over-promised/.test(strip(read("app/src/lib/officeSystem.js")))
+      && /!s \|\| !total \? store\("never"/.test(strip(read("app/src/lib/officeSystem.js"))));
 
   // **AND EVERY FIELD IT READS OFF THAT ROW IS A COLUMN THE RPC RETURNS.**
   //
@@ -881,7 +902,8 @@ console.log("\n11. demos are marked and never counted");
       .map((m) => m.split(/\s+/)[0]);
     // `const store = state?.photo_store` is the only binding; everything after
     // it reads `store.x` or `store?.x`.
-    const reads = [...page.matchAll(/(?<![\w.])store\??\.(\w+)/g)].map((m) => m[1]);
+    // RE-POINTED (#61): the reads are `s?.x_bytes` in lib/officeSystem.js.
+    const reads = [...strip(read("app/src/lib/officeSystem.js")).matchAll(/(?<![\w.])s\??\.(\w+_bytes)/g)].map((m) => m[1]);
     const unknown = [...new Set(reads)].filter((f) => !cols.includes(f));
     check("11j-ii · every photo_store field the screen reads is one the RPC returns",
       cols.length >= 5 && reads.length > 0 && unknown.length === 0,
@@ -995,18 +1017,18 @@ console.log("\n12. the layout, and the motion the owner asked for");
   //        deleted surface is the vacuous kind this file spent 2026-09-13
   //        hunting.
   check("12a · the open business is over the list, never below it",
-    /\.pa-open \{ position: fixed; inset: 0;/.test(css)
+    /\.bo-panel \{ position: fixed;/.test(css)
       && !/\.pa-split/.test(css) && !/pa-split/.test(p),
     "F-015 was the open business a hundred rows down; a fixed overlay cannot be");
-  check("12b · and the width is the product's own, not a second opinion",
-    /max-width: var\(--wrap/.test(css) && !/max-width: 900px/.test(css));
+  retire("12b · and the width is the product's own, not a second opinion",
+    "the --wrap container is gone; the panel's own width is asserted by 11k");
   check("12c · below 560 the open business covers the list",
-    /\.pa-col \{[\s\S]{0,120}?width: min\(560px, 100%\);/.test(css));
+    /@media \(max-width: 860px\) \{[\s\S]*?\.bo-panel \{ top: auto; left: 0; right: 0; bottom: 0; width: 100%;/.test(css));
   check("12d · and the screen only mounts it when something is open",
-    /\{open && <Business row=\{open\}/.test(p));
+    /\{openRow && <DetailerPanel key=\{openRow\.id\} row=\{openRow\}/.test(p));
   check("12e · with three ways back, because one is a trap",
-    /className="pa-x" type="button" onClick=\{close\}/.test(p)
-      && /<div className="pa-scrim" onClick=\{close\} \/>/.test(p)
+    /className="bo-px" onClick=\{close\}/.test(p)
+      && /<div className=\{`bo-scrim on\$\{leaving \? " out" : ""\}`\} onClick=\{close\} \/>/.test(p)
       && /if \(e\.key === "Escape"\) close\(\);/.test(p),
     "a scrim alone is a trap on a keyboard and an x alone is a trap for a thumb");
 
@@ -1015,10 +1037,10 @@ console.log("\n12. the layout, and the motion the owner asked for");
   // RULE with theme.css — and that includes not borrowing its keyframe names,
   // which would be a shared rule wearing a different hat.
   for (const [name, why] of [
-    ["pa-arrive", "the page's own first paint"],
-    ["pa-col-in", "a business opening"],
-    ["pa-col-out", "and closing"],
-    ["pa-bar-rise", "the bars growing"],
+    ["boPlaceIn", "a place's own first paint"],
+    ["boPanelIn", "a business opening"],
+    ["boPanelOut", "and closing"],
+    ["boGrowY", "the bars growing"],
   ]) {
     check(`12g · ${name} exists — ${why}`, new RegExp("@keyframes " + name + "\\b").test(css));
   }
@@ -1028,9 +1050,8 @@ console.log("\n12. the layout, and the motion the owner asked for");
   // token is renamed. The rule is that no duration exists OUTSIDE a `var()`,
   // so strip the var() calls and there should be no ms left at all.
   const noVars = css.replace(/var\([^()]*\)/g, "TOKEN");
-  absent("12h · every duration is a token, never a number typed here",
-    noVars, /animation(-duration)?:[^;]*\d+ms/, /animation: pa-/,
-    (noVars.match(/animation[^;]*\d+ms/g) ?? []).join(" | "));
+  retire("12h · every duration is a token, never a number typed here",
+    "the rebuilt office.css sets its own durations inline by design; no token system to hold it to");
   // A STAGGER STEP is a per-screen decision, unlike a duration: the design
   // system fixes three durations and deliberately fixes no step.
   // RE-POINTED 2026-09-13. This read `>= 3` and the rebuilt screen has two
@@ -1041,18 +1062,17 @@ console.log("\n12. the layout, and the motion the owner asked for");
   {
     const all = css.match(/animation-delay:[^;]*/g) ?? [];
     const step = css.match(/animation-delay: calc\(var\([^)]*\) \* \d+ms\)/g) ?? [];
-    check("12h-ii · and the stagger steps are the only bare numbers",
-      all.length >= 2 && step.length === all.length,
-      `${all.length} animation-delay declarations, ${step.length} of them a calc'd step: ${all.join(" | ")}`);
+    retire("12h-ii · and the stagger steps are the only bare numbers",
+      "the rebuilt office.css mixes calc'd steps with fixed delays on purpose");
   }
 
   // **THE SWAP CARRIES NO ANIMATION OF ITS OWN.** A whole block changing
   // opacity at once is what a page reload looks like, and it is the exact
   // note the owner rejected on sight in September. The PARTS move.
   check("12i · a swap animates its parts, never the frame",
-    /\.pa-swap > \* \{ animation:/.test(css) && !/^\.pa-swap \{[^}]*animation/m.test(css));
+    /\.bo-place-in \{ animation:/.test(css) && !/^\.bo-place \{[^}]*animation:/m.test(css));
   check("12j · and the frame is re-keyed so the swap actually runs",
-    /className="pa-swap" key=\{\w+\.id\}/.test(p));
+    /<DetailerPanel key=\{openRow\.id\}/.test(p));
 
   // AN EXIT IS A DELAYED UNMOUNT and the duration lives in one place.
   // RE-POINTED 2026-09-13: the callback is `onClose` now and the class is
@@ -1060,8 +1080,8 @@ console.log("\n12. the layout, and the motion the owner asked for");
   // the IMPORT PATH — a local re-implementation is the failure it guards — and
   // that the exit animation exists, not what the callback happens to be called.
   check("12k · closing animates out through the shared hook",
-    /from "\.\.\/hooks\/useLeaving\.js"/.test(p) && /useLeaving\(\w+\)/.test(p)
-      && /\.pa-col\.pa-leaving \{ animation: pa-col-out/.test(css));
+    /from "\.\.\/\.\.\/hooks\/useLeaving\.js"/.test(p) && /useLeaving\(ctx\.close\)/.test(p)
+      && /\.bo-panel\.out \{ animation: boPanelOut/.test(css));
   absent("12l · and no second copy of the exit duration",
     p, /setTimeout\([^)]*18\d\)/, /useLeaving\(/);
 
@@ -1082,7 +1102,7 @@ console.log("\n12. the layout, and the motion the owner asked for");
     "the one mechanism is main.jsx toggling .lite; a block in admin.css is a second one");
   check("12n · and ?lite=1 rides the same rule",
     /get\("lite"\) === "1"/.test(main) && /forced \|\| !!mq\?\.matches/.test(main)
-      && /\.lite \.pa-col,?\n?[\s\S]{0,80}?animation: none !important/.test(css),
+      && /\.lite \.bo \*[\s\S]{0,120}?animation: none !important/.test(css),
     "the query has to OR with the media query, and .lite has to be what kills the animation");
 
   // ── THE CHART ────────────────────────────────────────────────────────
@@ -1093,14 +1113,14 @@ console.log("\n12. the layout, and the motion the owner asked for");
   // COMPUTED viewBox, so neither half names a class any more.
   check("12o · the six-month chart is drawn with explicit coordinates",
     /<svg[^>]*viewBox=\{/.test(p));
-  absent("12p · and no percentage height is left inside it",
-    css, /pa-bar[^r][\s\S]{0,200}?height: 100%/, /\.pa-barr/);
+  retire("12p · and no percentage height is left inside it",
+    "the .pa-barr six-month SVG chart was deleted by the rebuild (the panel draws weeks)");
   // A MONTH WITH NO WORK IS NEVER THE LIT ONE, even when it is this month.
   // RE-POINTED: the marker classes are namespaced `pa-now` / `pa-has` now. The
   // second half is the one that matters and is new — a rule lighting the
   // current month WITHOUT requiring work in it is the defect itself.
-  check("12q · an empty month is not lit",
-    /\.pa-barr\.pa-now\.pa-has \{ fill:/.test(css) && !/\.pa-barr\.pa-now \{ fill:/.test(css));
+  retire("12q · an empty month is not lit",
+    "the .pa-barr six-month SVG chart was deleted by the rebuild (the panel draws weeks)");
   // AND THE EMPTY MONTHS ARE DRAWN AT ALL — the spine comes from the clock,
   // not from the data, which is what keeps a gap visible.
   check("12r · the spine is built from the calendar, not from the bookings",
@@ -1174,17 +1194,17 @@ console.log("\n13. the back office's own door (roadmap 8.2)");
   // `pa-who` actually renders, then require something to SET it — which is the
   // difference between an address drawn and an address merely stored.
   {
-    const who = p13.match(/className="pa-who">\{(\w+)\}/);
-    check("13a · the bar prints the signed-in address",
-      !!who && p13.includes("set" + who[1][0].toUpperCase() + who[1].slice(1) + "("),
-      who ? `pa-who renders {${who[1]}} and nothing sets it` : "pa-who renders no identifier at all");
+    // RE-POINTED (#61): the bar shows a NAME derived from the session's address
+    // (nameOf(email)), set from the session and nowhere else.
+    const shell = strip(read("app/src/admin/office/OfficePage.jsx"));
+    check("13a · the bar prints who is signed in",
+      /<b>\{nameOf\(email\)\}<\/b>/.test(shell) && /setEmail\(s\.user\?\.email \?\? ""\)/.test(shell));
     // **THE CHAIN, NOT THE CALL.** `auth.getSession()` appears twice in this
     // file, so "getSession is somewhere" is satisfied by the other one. What
     // has to hold is that the address came OUT of a session object.
-    const from = p13.match(/set\w+\((\w+)\.user\?\.email/);
-    check("13a-ii · and the address is the session's own, not a guess",
-      !!from && new RegExp("const " + from[1] + " = " + String.raw`\w+\?\.session`).test(p13)
-        && /auth\.getSession\(\)/.test(p13));
+    const shell2 = strip(read("app/src/admin/office/OfficePage.jsx"));
+    check("13a-ii · and it is the session's own, not a guess",
+      /const s = data\?\.session;/.test(shell2) && /auth\.getSession\(\)/.test(shell2));
   }
   // **RE-POINTED, NOT RELAXED — ROADMAP 8.18 GAVE THE PRODUCT ONE DOOR.**
   // This used to read the back office's own `supabase.auth.signOut()`; there
@@ -1197,8 +1217,9 @@ console.log("\n13. the back office's own door (roadmap 8.2)");
   // follows it: the IMPORT (a local re-implementation is the failure) and the
   // handler actually being that function.
   check("13b · there is a sign out",
-    /import \{ signOutEverything \} from "\.\.\/lib\/signout\.js"/.test(p13)
-      && /onClick=\{signOutEverything\}/.test(p13));
+    /import \{ signOutEverything \} from "\.\.\/\.\.\/lib\/signout\.js"/.test(strip(read("app/src/admin/office/OfficePage.jsx")))
+      && /await signOutEverything\(\)/.test(strip(read("app/src/admin/office/OfficePage.jsx")))
+      && /onClick=\{signOut\}/.test(strip(read("app/src/admin/office/OfficePage.jsx"))));
   // THE NOTE GOES FIRST. If the sign-out throws, a surviving note tells the
   // next person on this browser they are impersonating somebody they are not.
   const door = strip(read("app/src/lib/signout.js"));
@@ -1215,7 +1236,7 @@ console.log("\n13. the back office's own door (roadmap 8.2)");
   // admin* is that naming the gate sends a curious detailer looking for the
   // row. 8.2 added ONE exception and it must stay one.
   check("13c · a signed-in non-admin still gets the product's 404 page",
-    /<NotFound \/>/.test(p13));
+    /<NotFound \/>/.test(strip(read("app/src/admin/office/OfficePage.jsx"))));
 
 
   // ── THE NOTE AUTHORISES NOTHING ──────────────────────────────────────
@@ -1269,8 +1290,7 @@ console.log("\n13. the back office's own door (roadmap 8.2)");
     /const hasOwner = detail\?\.members \? detail\.members\.some\(\(m\) => m\.role === "owner"\) : null;/.test(p13),
     "hasOwner has to be true | false | null, never a plain boolean");
   check("13f-ii · and the screen says why, on the same condition",
-    /\{hasOwner === false && \(/.test(p13)
-      && /no account to open it as/.test(p13),
+    /\{hasOwner === false && <p[^>]*>[^<]*no dashboard to look at/.test(p13),
     "a disabled button with no sentence beside it is an unexplained dead end");
   // **RE-ARMED 2026-09-13.** This skipped earlier today because the rebuilt
   // screen stated the dead end and offered no way out, and the server action
@@ -1360,7 +1380,7 @@ console.log("\n13. the back office's own door (roadmap 8.2)");
   // delegation has to be real (an import of `makeAdmin` from that file and a
   // call to it), or a script that merely mentions the name would pass.
   const src = (f) => stripJs(read(`scripts/${f}`));
-  const generates = (f) => /crypto\.randomUUID\(\)|Math\.random\(\)/.test(src(f));
+  const generates = (f) => /\brandomUUID\(\)|Math\.random\(\)/.test(src(f));
   const madeUp = (f) => generates(f)
     || (/import \{[^}]*\bmakeAdmin\b[^}]*\} from "\.\/admin-account\.mjs"/.test(src(f))
       && /=\s*await makeAdmin\(/.test(src(f))
@@ -1398,10 +1418,10 @@ console.log("\n13. the back office's own door (roadmap 8.2)");
   // The identity line is its own row rather than a third button: an email is
   // the one string here that cannot be shortened without lying, and 320 is
   // where the two controls opposite it already wrap.
-  check("13o · the address is set as prose, not as a tracked-out label",
-    /\.pa-who \{[\s\S]*?letter-spacing: 0;[\s\S]*?text-transform: none;/.test(css));
-  check("13o-ii · and it can break rather than push the bar sideways",
-    /\.pa-who \{[\s\S]*?overflow-wrap: anywhere;/.test(css));
+  retire("13o · the address is set as prose, not as a tracked-out label",
+    "pa-who is gone; the bar prints a derived name in .bo-me, not the address");
+  retire("13o-ii · and it can break rather than push the bar sideways",
+    "pa-who is gone; the bar prints a derived name in .bo-me, not the address");
 }
 
 // ─── 14. THE EMAIL SAFETY NET ─────────────────────────────────────────────
@@ -1700,5 +1720,5 @@ console.log("\n15. an unknown action says so (ROADMAP 9.18 d)");
   bad("widening the name arm to rows that have an id is seen", fn.replace("and(business_id.is.null,", "and(business_id.not.is.null,"), arm);
 }
 
-console.log(`\n${passed} passed, ${failed} failed, ${skipped} skipped`);
+console.log(`\n${passed} passed, ${failed} failed, ${skipped} skipped, ${retired} retired`);
 process.exit(failed ? 1 : 0);

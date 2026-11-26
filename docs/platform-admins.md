@@ -77,7 +77,8 @@ About a week before the first real detailer is invited, from the main checkout:
    `node --test tests/platform-admins-declared.test.mjs` and `node scripts/admin-refuses.mjs`.
 
 **Not run yet** (Andrew, 2026-11-13: keep both demo logins until launch prep). The transient `sdw-41c-admin-*@fixture.test`
-and `shoot-admin@` rows are test leftovers; remove them with the same step's check in mind (the declared test names them).
+and `shoot-admin@` rows were test leftovers; removed 2026-11-25 (issue #61: `shoot-admin` was already gone, the two
+`sdw-41c` fixture rows were deleted, their auth users and audit events left alone).
 
 ---
 

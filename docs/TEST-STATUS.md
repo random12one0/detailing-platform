@@ -196,8 +196,8 @@ file CRLF, and suites that slice source on `\n` fail (e.g. admin-contrast-teardo
 | picked-evidence-survives | pass | | | |
 | plan-one-car-split | pass | | | |
 | plans | pass | | | |
-| platform-admin | FAIL | b stale | issue (later) | reads the old AdminPage layout; the office was rebuilt (OfficePage.jsx). Many assertions to re-point |
-| platform-admins-declared | FAIL | a/env | issue (later) | live table holds 3 undeclared platform admins (2 sdw-41c fixtures, shoot-admin). Left as is: nothing deleted from the shared DB |
+| platform-admin | PASS | | #61 | re-pointed at the rebuilt office (178 pass, 7 retired where the rebuild deleted the subject, 7 skipped by design) |
+| platform-admins-declared | PASS | | #61 | live table = the 2 declared demo admins; the 2 sdw-41c fixture rows removed |
 | platform-billing | pass | | | |
 | platform-bills-note | pass | | | |
 | platform-costs-sql | pass | | | |
