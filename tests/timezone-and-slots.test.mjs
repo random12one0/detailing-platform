@@ -239,7 +239,9 @@ console.log("\ntest 3: New York and Phoenix, identical wall-clock hours");
     new Date(phxStart).toISOString() === localToUtcISO("America/Phoenix", day, "10:00"),
     `${phxStart} vs ${localToUtcISO("America/Phoenix", day, "10:00")}`);
   const hoursApart = (new Date(phxStart) - new Date(nyStart)) / 3600_000;
-  check("the same local 10:00 is 3 hours apart in reality", hoursApart === 3, String(hoursApart));
+  // 3 hours in summer, 2 in winter: New York changes its clocks and Phoenix does not.
+  const expectedApart = (new Date(localToUtcISO("America/Phoenix", day, "10:00")) - new Date(localToUtcISO("America/New_York", day, "10:00"))) / 3600_000;
+  check("the same local 10:00 is 2 or 3 hours apart in reality, as the zones' own rules say", [2, 3].includes(hoursApart) && hoursApart === expectedApart, String(hoursApart));
 }
 
 console.log("\ntest 4: Phoenix ignores daylight saving (checked against Denver)");
@@ -303,7 +305,8 @@ console.log("\ntest 5: changing a business's timezone");
   // differently. This is the behavior to know about, not a bug.
   const receipt = await fn("get-booking-receipt", { id: made.data.booking.id });
   note(`after: same instant now displays as ${receipt.data?.booking?.start_time} New York local`);
-  check("the same instant now displays in the new zone", receipt.data?.booking?.start_time === "12:00", String(receipt.data?.booking?.start_time));
+  const nyClock = new Intl.DateTimeFormat("en-GB", { timeZone: "America/New_York", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(new Date(before.start_at));
+  check("the same instant now displays in the new zone", receipt.data?.booking?.start_time === nyClock, `${receipt.data?.booking?.start_time} vs ${nyClock}`);
 
   // Future availability follows the new zone immediately.
   const slots = await fn("available-slots", { business_slug: "tz-phx", booking_date: daysOut(34), duration_minutes: 120 });
