@@ -233,7 +233,7 @@ try {
   page.on("response", async (r) => { if (r.url().includes("/functions/v1/available-slots")) { try { slotAnswers.push(await r.json()); } catch {} } });
 
   const load = async () => {
-    await page.goto(SITE, { waitUntil: "networkidle" });
+    await page.goto(SITE, { waitUntil: "networkidle", timeout: 120000 });
     await page.waitForSelector('[data-booking-step="1"], .site-msg, [data-refused]', { timeout: 20000 }).catch(() => {});
     await page.waitForTimeout(250);
   };

@@ -17,6 +17,8 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const APP = path.join(ROOT, "app");
 const HOST = "brightline.example.test";
+// A freshly started Vite dev server transpiles the whole site on its first request: over 30 s on a slow disk (issue 59).
+const COLD = 120000;
 const freePort = () => new Promise((r) => { const s = net.createServer().listen(0, "127.0.0.1", () => { const p = s.address().port; s.close(() => r(p)); }); });
 const until = async (fn, ms = 60000) => { const t = Date.now(); while (Date.now() - t < ms) { try { if (await fn()) return true; } catch {} await new Promise((r) => setTimeout(r, 300)); } return false; };
 
@@ -57,7 +59,7 @@ test("the live site on its own address computes the same look as the preview, el
       const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
       if (init) await ctx.addInitScript(init, spec);
       const page = await ctx.newPage();
-      await page.goto(url, { waitUntil: "networkidle" });
+      await page.goto(url, { waitUntil: "networkidle", timeout: COLD });
       await page.locator('.site [data-section="hero"] h1').waitFor({ timeout: 30000 });
       await page.evaluate(() => document.fonts.ready); await page.waitForTimeout(500);
       const l = await page.evaluate(looks); await ctx.close(); return l;

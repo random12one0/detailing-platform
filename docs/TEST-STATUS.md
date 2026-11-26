@@ -96,9 +96,9 @@ file CRLF, and suites that slice source on `\n` fail (e.g. admin-contrast-teardo
 | booking-meta | FAIL | b stale | fixed (tests-guards-2) | tenant-site.mjs is the second legitimate edge function |
 | qr-scans | timeout | c env | not fixed | needs a dev server on localhost:5173 and hung when pointed elsewhere; unresolved |
 | booking-page-isolation | pass | | | |
-| studio-check | timeout | a? | issue (later) | timeout under the same preview fault |
+| studio-check | pass | | fixed (#59) | was a cold-Vite navigation timeout, not a broken preview |
 | bookings-update-grant | pass | | | |
-| studio-parity | timeout | a? | issue (later) | timeout under the same preview fault |
+| studio-parity | pass | | fixed (#59) | same: cold-Vite navigation timeout |
 | build-start-notice | pass | | | |
 | business-day-97-32 | pass | | | |
 | calendar-feed-token-sql | pass | | | |
@@ -237,8 +237,8 @@ file CRLF, and suites that slice source on `\n` fail (e.g. admin-contrast-teardo
 | split-day-surcharge | pass | | | |
 | staff-roles | pass | | | |
 | staff-writes-sql | pass | | | |
-| studio-live-look | FAIL | a? | issue (later) | /site/preview renders 'No site here' under the example engine; timeout |
-| studio-picker | FAIL | a? | issue (later) | same: the preview never shows prices; reproduced alone |
+| studio-live-look | pass | | fixed (#59) | cold-Vite navigation timeout; preview was never broken |
+| studio-picker | pass | | fixed (#59) | cold-Vite navigation timeout; preview was never broken |
 | support-sessions-edge | pass | | | |
 | support-sessions-sql | FAIL | a | issue (later) | preview_links, preview_events, sites, revisions, releases enable RLS without refuse_support_writes. Writes are revoked from authenticated, so likely not exploitable, but the guard is right to ask |
 | svix-signature | pass | | | |
