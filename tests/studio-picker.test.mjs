@@ -40,7 +40,7 @@ addEventListener("message", (e) => {
 });
 </script>`;
 
-test("the picker takes a revision and reports taps only for the Studio's own origin", { timeout: 120000 }, async (t) => {
+test("the picker takes a revision and reports taps only for the Studio's own origin", { timeout: 300000 }, async (t) => {
   const engine = await startExampleEngine({ port: 0 });
   const [vitePort, okPort, otherPort] = await Promise.all([freePort(), freePort(), freePort()]);
   const SITE = `http://127.0.0.1:${vitePort}/site/preview`;
@@ -64,6 +64,7 @@ test("the picker takes a revision and reports taps only for the Studio's own ori
   const page = await browser.newPage({ viewport: { width: 500, height: 900 } });
   const problems = [];
   page.on("console", (m) => { if (["error", "warning"].includes(m.type())) problems.push(m.text()); });
+  page.setDefaultNavigationTimeout(120000); // cold Vite takes over 30 s on its first page (issue 59)
   await page.goto(`http://127.0.0.1:${okPort}/`);
   const frame = page.frameLocator("#f");
   await frame.locator('[data-from$=".price"]').first().waitFor({ timeout: 30000 });

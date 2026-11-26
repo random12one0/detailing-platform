@@ -90,7 +90,7 @@ try {
   page.on("console", (m) => { if (["error", "warning"].includes(m.type())) problems.push(`${m.type()}: ${m.text()}`); });
   page.on("pageerror", (e) => problems.push(`pageerror: ${e.message}`));
   const SITE = `http://${HOST}:${port}/`;
-  const load = async () => { await page.goto(SITE, { waitUntil: "networkidle" }); await page.waitForSelector("[data-release] [data-section], .site-msg, [data-refused]", { timeout: 20000 }).catch(() => {}); await page.waitForTimeout(250); };
+  const load = async () => { await page.goto(SITE, { waitUntil: "networkidle", timeout: 120000 }); await page.waitForSelector("[data-release] [data-section], .site-msg, [data-refused]", { timeout: 20000 }).catch(() => {}); await page.waitForTimeout(250); };
   if (BREAK === "stale-price") {
     // the page draws once, then the dashboard's price moves on (as it does when the detailer changes it)
     await load();
