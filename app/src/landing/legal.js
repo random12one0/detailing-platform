@@ -13,8 +13,7 @@
 // term, the exit fee, the two weeks of retries, that nothing is deleted. Those
 // are commitments the product has been making in public since 2026-09-05, so
 // writing them down here invents nothing. **Anything that would be an
-// invention is absent**, and both pages say plainly that a lawyer has not seen
-// them yet.
+// invention is absent**, .
 //
 // AND THE SUPPORT CONTACT IS THE SECOND COPY OF `_shared/platformBrand.ts`'s,
 // for the wall that already forced two price tables: a Deno bundle cannot
@@ -51,12 +50,12 @@ export const ENTITY = "Andrew Dietrich, doing business as Detailing Platform";
 // how long the backups keep deleted data (Andrew chose 3 months, 2026-10-19, for the
 // monthly copy). One sentence added; `tests/backup-retention.test.mjs` holds
 // it to the same period the backup job states.
-export const EFFECTIVE = "October 21, 2026";
+// **26 NOVEMBER 2026** — issue #33: the "not yet reviewed by a lawyer" line is replaced by plain wording, and the
+// twelve-month clause gains a worked example of the exit fee. The fee itself is unchanged.
+export const EFFECTIVE = "November 26, 2026";
 
-export const NOT_YET_LAWYERED =
-  "Written in plain English by the person who built this, and not yet reviewed by a lawyer. "
-  + "It says what the product actually does today. If anything here turns out to conflict with the "
-  + "final terms, the version that is better for you is the one that applies.";
+export const PLAIN_ENGLISH_NOTE =
+  "Written in plain English so you know exactly what you're agreeing to. Questions? Email us and we'll explain any part.";
 
 export const TERMS = {
   label: "Terms",
@@ -93,7 +92,7 @@ export const TERMS = {
     ["Sales tax",
      "The figures on the pricing page are before tax. In a state that charges sales tax on software, the tax is worked out by Stripe and added to the invoice on top of the price; in a state that does not, there is nothing to add. It is not part of the price above, and the tax itself is the state's rather than ours."],
     ["The twelve-month plan",
-     "Only the annual-paid-monthly plan carries a commitment. Leaving it early costs half of the months still to run, charged that day. The other two plans have no term and no exit fee. The exact numbers, and a worked example, are on the pricing page before you are ever asked for a card."],
+     "Only the annual-paid-monthly plan carries a commitment. Leaving it early costs half of the months still to run, charged that day. For example, on a plan of $50 a month, leaving after 6 months leaves 6 months to run: 6 × $50 = $300, half of that is $150, and $150 is the fee. Leaving after 11 months leaves 1 month, so the fee is half of one month. The other two plans have no term and no exit fee. The exact numbers for the current prices are on the pricing page before you are ever asked for a card."],
     ["Renewals",
      "Every plan renews by itself at the price you signed up at, until you cancel. Canceling is one button in your own settings, one confirmation, and the fee, if there is one, is printed before you press it. It is never behind an email to us."],
     ["If a payment fails",

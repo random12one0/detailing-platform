@@ -18,7 +18,7 @@ import { Ground, Foot } from "./LandingPage.jsx";
 import { initThread } from "./thread.js";
 import { useHead } from "../lib/useHead.js";
 import { legalHead } from "./head.js";
-import { TERMS, PRIVACY, NOT_YET_LAWYERED, SUPPORT_EMAIL, ENTITY, EFFECTIVE } from "./legal.js";
+import { TERMS, PRIVACY, PLAIN_ENGLISH_NOTE, SUPPORT_EMAIL, ENTITY, EFFECTIVE } from "./legal.js";
 import "./landing.css";
 
 // EMPHASIS AND LINKS INSIDE A SECTION'S PROSE.
@@ -117,10 +117,8 @@ export default function LegalPage({ which }) {
         </section>
 
         <section className="wrap">
-          {/* SAID AT THE TOP RATHER THAN IN A FOOTNOTE. A reader who finds out
-              at the bottom that a lawyer has not seen this has read the whole
-              thing on a wrong assumption. */}
-          <p className="legalnote" data-rv="">{NOT_YET_LAWYERED}</p>
+          {/* AT THE TOP, above the sections. */}
+          <p className="legalnote" data-rv="">{PLAIN_ENGLISH_NOTE}</p>
 
           <dl className="legallist">
             {doc.sections.map(([what, words], i) => (

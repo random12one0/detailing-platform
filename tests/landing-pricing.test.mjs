@@ -496,10 +496,14 @@ console.log("\ntest 10: the two documents and the support line");
   // THE SENTENCE THAT MAKES THESE HONEST. The roadmap calls them placeholders
   // and says the owner supplies real legal text later; a reader who finds that
   // out at the bottom has read the whole thing on a wrong assumption.
-  check("10f · both pages say a lawyer has not seen this yet, at the TOP",
-    /NOT_YET_LAWYERED/.test(legalPage)
-      && legalPage.indexOf("NOT_YET_LAWYERED", legalPage.indexOf("<main")) < legalPage.indexOf("<dl"),
+  check("10f · both pages open with the plain-English note, at the TOP",
+    /PLAIN_ENGLISH_NOTE/.test(legalPage)
+      && legalPage.indexOf("PLAIN_ENGLISH_NOTE", legalPage.indexOf("<main")) < legalPage.indexOf("<dl"),
     "it is above the sections, not a footnote");
+  check("10f2 · the terms state the exit fee with a worked example",
+    /For example, on a plan of \$50 a month/.test(readFileSync("app/src/landing/legal.js", "utf8")));
+  check("10f3 · the note makes no claim about a lawyer's review either way",
+    !/lawyer/i.test(String(readFileSync("app/src/landing/legal.js", "utf8").match(/export const PLAIN_ENGLISH_NOTE[^;]*;/))));
 
   // THE RULE THE FILE EXISTS TO HOLD. Borrowed boilerplate is worse than
   // nothing: it is a promise the owner has not made, in language he cannot
