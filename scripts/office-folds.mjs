@@ -177,6 +177,8 @@ try {
     const a = await inspect(page);
     observed[`${where} closed`] = { heights: a.heights, page: a.page, summaryH: a.summaryH, peek: a.peek };
     console.log(`    heights ${JSON.stringify(a.heights)} page ${a.page}`);
+    await page.evaluate(() => window.scrollTo(0, 0));
+    // fullPage is safe here: scrolled to the top first, where full-page and viewport frames agree (tests/fullpage-frames-lie.test.mjs 1e).
     await page.screenshot({ path: `${ART}/closed-${size.w}${LITE ? "-lite" : ""}.png`, fullPage: true }); artifacts.push(`${ART}/closed-${size.w}.png`);
     const nonOk = a.rows.filter((r) => r.state !== "ok").map((r) => r.key).sort();
     check(where, "there are checks to fold (discovery floor: at least 9 rows)", a.rows.length >= 9, `found ${a.rows.length}`);
@@ -212,6 +214,8 @@ try {
     check(where, "open: both filters, the list and its first email are seen, every email still there", b.mailFiltersSeen === 2 && b.mailListSeen && b.mailRows[0]?.seen === true && b.mailRows.length === a.mailRows.length, `filters ${b.mailFiltersSeen} list ${b.mailListSeen} rows ${b.mailRows.length}/${a.mailRows.length}`);
     check(where, "open: nothing overlaps", b.overlaps.length === 0, b.overlaps.slice(0, 3).join(" | "));
     check(where, "open: nothing cut by the screen edge, no sideways scroll", b.cut.length === 0 && !b.overflowX, b.cut.join(","));
+    await page.evaluate(() => window.scrollTo(0, 0));
+    // fullPage is safe here: scrolled to the top first, where full-page and viewport frames agree (tests/fullpage-frames-lie.test.mjs 1e).
     await page.screenshot({ path: `${ART}/open-${size.w}${LITE ? "-lite" : ""}.png`, fullPage: true }); artifacts.push(`${ART}/open-${size.w}.png`);
     if (LITE) check(where, "lite: the fold's chevron has no transition", await page.$eval('section[aria-label="Every check"] .bo-fold-more svg', (s) => getComputedStyle(s).transitionDuration.split(",").every((d) => parseFloat(d) === 0)));
 

@@ -179,6 +179,8 @@ try {
         highlight: ".bo-tl .now",
       });
       await freeze(page, { out: `${SHOTS}/before-zero.html`, label: "Before", note: "A zero-dollar month reserves a tall empty chart.", highlight: ".bo-wf" });
+      await page.evaluate(() => window.scrollTo(0, 0));
+      // fullPage is safe here: scrolled to the top first, where full-page and viewport frames agree (tests/fullpage-frames-lie.test.mjs 1e).
       await page.screenshot({ path: `${ART}/before-390.png`, fullPage: true });
       console.log(`froze ${SHOTS}/before.html`);
       break;
@@ -221,6 +223,8 @@ try {
     const chart = await page.locator(".bo-wf-plot").first().evaluate((e) => e.getBoundingClientRect().height);
     check(where, "zero-dollar chart collapses its empty space", chart <= 48, `${chart}px`);
     // Photograph the arrival BEFORE any hit probe scrolls a pin into view.
+    await page.evaluate(() => window.scrollTo(0, 0));
+    // fullPage is safe here: scrolled to the top first, where full-page and viewport frames agree (tests/fullpage-frames-lie.test.mjs 1e).
     await page.screenshot({ path: `${ART}/fed-${size.w}.png`, fullPage: true }); artifacts.push(`${ART}/fed-${size.w}.png`);
     await page.screenshot({ path: `${ART}/arrival-${size.w}.png` }); artifacts.push(`${ART}/arrival-${size.w}.png`);
     const bad44 = await press44(page);
@@ -286,6 +290,8 @@ try {
       ["Today", day(NOW + 30 * 864e5), "Nothing renews in the next 30 days."].every((w) => e.inView.includes(w)), `in view: ${e.inView.join(",")}`);
     check(where, "empty: nothing overlaps, nothing leaves the box or the screen", e.overlaps.length === 0 && e.outside.length === 0 && !e.overflowX, [...e.overlaps, ...e.outside].join(" | "));
     check(where, "empty: the rail itself is drawn", await page.locator(".bo-tl .bo-tl-rail").evaluate((r) => r.getBoundingClientRect().width > 100).catch(() => false));
+    await page.evaluate(() => window.scrollTo(0, 0));
+    // fullPage is safe here: scrolled to the top first, where full-page and viewport frames agree (tests/fullpage-frames-lie.test.mjs 1e).
     await page.screenshot({ path: `${ART}/empty-${size.w}.png`, fullPage: true }); artifacts.push(`${ART}/empty-${size.w}.png`);
 
     // ── LITE: no motion ───────────────────────────────────────────────────────
@@ -297,6 +303,8 @@ try {
     }).map((el) => el.className));
     check(where, "lite: nothing on the timeline animates", moving.length === 0, moving.slice(0, 3).join(","));
     check(where, "lite: the pins are all there", (await page.locator(".bo-tl .bo-pin").count()) === IN.length);
+    await page.evaluate(() => window.scrollTo(0, 0));
+    // fullPage is safe here: scrolled to the top first, where full-page and viewport frames agree (tests/fullpage-frames-lie.test.mjs 1e).
     await page.screenshot({ path: `${ART}/lite-${size.w}.png`, fullPage: true }); artifacts.push(`${ART}/lite-${size.w}.png`);
 
     completed++;

@@ -174,6 +174,8 @@ async function run() {
           const step = at.n;
           let r = await page.evaluate(READ, COLUMN);
           const file = `step${step}-${w}.png`;
+          await page.evaluate(() => window.scrollTo(0, 0));
+          // fullPage is safe here: scrolled to the top first, where full-page and viewport frames agree (tests/fullpage-frames-lie.test.mjs 1e).
           await page.screenshot({ path: join(ART, file), fullPage: true, animations: "disabled" });
           artifacts.push(`${SHOTS}/${file}`);
           // The full-page shot stretches a FIXED bar into the middle of the page; the bottom shot is what a person sees.

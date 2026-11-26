@@ -114,6 +114,8 @@ const links = (page) => page.evaluate(() => [...document.querySelectorAll('a')].
 async function shot(page, tag) {
   const file = `${OUT}/png/${tag}${BREAK ? '-break-' + BREAK : ''}.png`;
   mkdirSync(`${OUT}/png`, { recursive: true });
+  await page.evaluate(() => window.scrollTo(0, 0));
+  // fullPage is safe here: scrolled to the top first, where full-page and viewport frames agree (tests/fullpage-frames-lie.test.mjs 1e).
   await page.screenshot({ path: file, fullPage: true, animations: 'disabled' }); artifacts.push(file);
 }
 async function open(browser, width, height) {

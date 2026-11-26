@@ -102,6 +102,8 @@ try {
         check(w,'nothing cut by a screen edge',g.cut.length===0,JSON.stringify(g.cut));
         check(w,'filters have 44px hit areas',await sec.locator('button').evaluateAll(es=>es.length===2&&es.every(e=>{const r=e.getBoundingClientRect(),hit=document.elementFromPoint(r.x+r.width/2,r.y+22);return r.height>=44&&(hit===e||e.contains(hit));})));
         const image=`${ART}/mail-${w}.png`;await page.screenshot({path:image});artifacts.push(image);
+        await page.evaluate(() => window.scrollTo(0, 0));
+        // fullPage is safe here: scrolled to the top first, where full-page and viewport frames agree (tests/fullpage-frames-lie.test.mjs 1e).
         const full=`${ART}/mail-full-${w}.png`;await page.screenshot({path:full,fullPage:true});artifacts.push(full);
         check(w,'bounded list scrolls to the last email',await sec.locator('.bo-mail-scroll').evaluate(e=>{e.scrollTop=e.scrollHeight;const moved=e.scrollTop>0;const a=e.getBoundingClientRect(),b=e.querySelector('li:last-child').getBoundingClientRect();e.scrollTop=0;return moved&&b.bottom<=a.bottom+1;}));
         if(w===390){let caught=0;for(let n=0;n<5;n++){await page.evaluate(()=>{const e=document.querySelector('.bo-mail-subject'),c=e.cloneNode(true);c.dataset.canary='1';c.style.cssText='position:absolute;inset:0';e.style.position='relative';e.append(c);});const badG=await page.evaluate(geometry);if(badG.overlaps.length>0)caught++;await page.evaluate(()=>document.querySelector('[data-canary]').remove());}canary.observed_failure=caught===5;canary.detail=`${caught} of 5 overlap injections caught`;}

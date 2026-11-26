@@ -145,6 +145,8 @@ try {
     };
     const shot = async (name) => {
       const p = `${ART}/${name}-${size.w}.png`;
+      await page.evaluate(() => window.scrollTo(0, 0));
+      // fullPage is safe here: scrolled to the top first, where full-page and viewport frames agree (tests/fullpage-frames-lie.test.mjs 1e).
       await page.screenshot({ path: p, fullPage: true });
       artifacts.push(p);
     };

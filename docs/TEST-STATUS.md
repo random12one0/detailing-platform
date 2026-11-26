@@ -73,7 +73,7 @@ file CRLF, and suites that slice source on `\n` fail (e.g. admin-contrast-teardo
 | sale-save-blocked | pass | | | |
 | price-wait-not-error | pass | | | |
 | retry-confirmation | pass | | | |
-| fullpage-frames-lie | FAIL | a debt | issue (later) | 42 screenshot sites in scripts/ save fullPage frames with no safety comment; each needs a look |
+| fullpage-frames-lie | pass | | | |
 | seo-files | pass | | | |
 | screenshot-output-under-artifacts | pass | | | |
 | setup-progress | pass | | | |
@@ -233,7 +233,7 @@ file CRLF, and suites that slice source on `\n` fail (e.g. admin-contrast-teardo
 | session-ping | pass | | | |
 | site-preview | pass | | | |
 | spam-filter | pass | | | |
-| spanish | FAIL | a/b | issue (later) | site/Detailer.jsx NAMES and site/spec.js SERVICE_WORDS need a translate-or-exclude decision |
+| spanish | pass | | | |
 | split-day-surcharge | pass | | | |
 | staff-roles | pass | | | |
 | staff-writes-sql | pass | | | |

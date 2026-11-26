@@ -244,6 +244,8 @@ try {
     // From the top: a full-page shot taken scrolled paints the sticky header mid-page.
     await page.evaluate(() => window.scrollTo(0, 0));
     await settle(page, 400);
+    await page.evaluate(() => window.scrollTo(0, 0));
+    // fullPage is safe here: scrolled to the top first, where full-page and viewport frames agree (tests/fullpage-frames-lie.test.mjs 1e).
     await page.screenshot({ path: `${SHOTS}/after-${s.w === 1440 ? "laptop" : "phone"}.png`, fullPage: true });
     const ownNoise = noise.length;
     // The refused case, from inside the signed-in page, through the app's own client.

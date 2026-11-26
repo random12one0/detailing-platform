@@ -258,6 +258,8 @@ try {
     await page.evaluate(() => window.scrollTo(0, 0));
     await page.waitForTimeout(250);
 
+    await page.evaluate(() => window.scrollTo(0, 0));
+    // fullPage is safe here: scrolled to the top first, where full-page and viewport frames agree (tests/fullpage-frames-lie.test.mjs 1e).
     await page.screenshot({ path: `${ART}/money-${where.replace("%", "pct").replace("@", "-")}.png`, fullPage: true });
     artifacts.push(`${ART}/money-${where.replace("%", "pct").replace("@", "-")}.png`);
 

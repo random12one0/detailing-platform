@@ -124,6 +124,8 @@ async function signIn(page) {
 async function shot(page, name) {
   await page.bringToFront();
   const file = join(ART, `${name}.png`);
+  await page.evaluate(() => window.scrollTo(0, 0));
+  // fullPage is safe here: scrolled to the top first, where full-page and viewport frames agree (tests/fullpage-frames-lie.test.mjs 1e).
   await page.screenshot({ path: file, fullPage: true });
   artifacts.push(file);
 }

@@ -110,7 +110,11 @@ async function toServicesStep(page) {
 
 const shot = async (page, name) => {
   mkdirSync(ART, { recursive: true });
+  await page.evaluate(() => window.scrollTo(0, 0));
+  // fullPage is safe here: scrolled to the top first, where full-page and viewport frames agree (tests/fullpage-frames-lie.test.mjs 1e).
   await page.screenshot({ path: join(ART, `${name}.png`), fullPage: true });
+  await page.evaluate(() => window.scrollTo(0, 0));
+  // fullPage is safe here: scrolled to the top first, where full-page and viewport frames agree (tests/fullpage-frames-lie.test.mjs 1e).
   if (SHOTS) { mkdirSync(SHOTS, { recursive: true }); await page.screenshot({ path: join(SHOTS, `${name}.png`), fullPage: true }); }
 };
 

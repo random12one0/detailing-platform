@@ -225,6 +225,8 @@ try {
     check(where, "nothing runs outside its box or off screen", o.clipped.length === 0, o.clipped.slice(0, 3).join(" | "));
     check(where, "none of the mockup's explanation lines is on the page", o.explainers.length === 0, o.explainers.join(" | "));
     check(where, "no Text or Call link anywhere on System", o.phoneLinks === 0);
+    await page.evaluate(() => window.scrollTo(0, 0));
+    // fullPage is safe here: scrolled to the top first, where full-page and viewport frames agree (tests/fullpage-frames-lie.test.mjs 1e).
     await page.screenshot({ path: `${ART}/live-${size.w}.png`, fullPage: true }); artifacts.push(`${ART}/live-${size.w}.png`);
 
     // ── FED PASSES ──────────────────────────────────────────────────────────
@@ -257,6 +259,8 @@ try {
     o = await inspect(page);
     observed[`${where} trouble`] = o;
     check(where, "trouble: no overlap, nothing clipped, no sideways overflow", o.overlaps.length === 0 && o.clipped.length === 0 && !o.overflowX, [...o.overlaps, ...o.clipped].slice(0, 3).join(" | "));
+    await page.evaluate(() => window.scrollTo(0, 0));
+    // fullPage is safe here: scrolled to the top first, where full-page and viewport frames agree (tests/fullpage-frames-lie.test.mjs 1e).
     await page.screenshot({ path: `${ART}/trouble-${size.w}.png`, fullPage: true }); artifacts.push(`${ART}/trouble-${size.w}.png`);
 
     if (size.w === SIZES[0].w) {
@@ -300,6 +304,8 @@ try {
     check(where, "quiet: the pulse is green", (await page.locator(".bo-pulse.bad").count()) === 0);
     o = await inspect(page);
     check(where, "quiet: no overlap, nothing clipped, no sideways overflow", o.overlaps.length === 0 && o.clipped.length === 0 && !o.overflowX, [...o.overlaps, ...o.clipped].slice(0, 3).join(" | "));
+    await page.evaluate(() => window.scrollTo(0, 0));
+    // fullPage is safe here: scrolled to the top first, where full-page and viewport frames agree (tests/fullpage-frames-lie.test.mjs 1e).
     await page.screenshot({ path: `${ART}/quiet-${size.w}.png`, fullPage: true }); artifacts.push(`${ART}/quiet-${size.w}.png`);
 
     completed++;

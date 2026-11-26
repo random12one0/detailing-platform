@@ -138,6 +138,8 @@ for (const screen of targets) {
       // Settle: fonts decided, and nothing still easing.
       await page.evaluate(() => document.fonts?.ready);
       await page.waitForTimeout(400);
+      await page.evaluate(() => window.scrollTo(0, 0));
+      // fullPage is safe here: scrolled to the top first, where full-page and viewport frames agree (tests/fullpage-frames-lie.test.mjs 1e).
       const shot = await page.screenshot({ fullPage: true });
       writeFileSync(join(CURRENT, name), shot);
 
