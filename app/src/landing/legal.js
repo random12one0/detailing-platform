@@ -57,6 +57,8 @@ export const EFFECTIVE = "November 26, 2026";
 export const PLAIN_ENGLISH_NOTE =
   "Written in plain English so you know exactly what you're agreeing to. Questions? Email us and we'll explain any part.";
 
+export const ANDREWS_SMS_SECTION = "andrews-appointment-texts";
+
 export const TERMS = {
   label: "Terms",
   title: ["What you get,", "and what you owe."],
@@ -97,6 +99,8 @@ export const TERMS = {
      "Every plan renews by itself at the price you signed up at, until you cancel. Canceling is one button in your own settings, one confirmation, and the fee, if there is one, is printed before you press it. It is never behind an email to us."],
     ["If a payment fails",
      "We email you each time a payment is retried, for two weeks. If it still has not gone through, your booking page goes offline until it is paid. Nothing is deleted. Your customers, your bookings and your settings are all exactly where you left them, and paying puts the page back."],
+    ["Appointment texts",
+     "Andrew's Auto Detail & Car Wash is preparing an optional texting pilot for appointment confirmations, reminders, changes, and cancellations. Automated texting is off. The pilot's SMS checkbox is currently hidden. We collect no consent for the pilot today. When the pilot opens, the shop's booking form will offer a separate, optional SMS checkbox that starts unchecked. You can book without agreeing. We will record consent only if you check the box and complete your booking. Message frequency may vary. Standard message and data rates may apply. Once texts are enabled, reply STOP to opt out. Reply HELP for help. For support, email support@detailingplatform.com.", ANDREWS_SMS_SECTION],
     ["Your customers' money",
      "We are not part of it. What your customers pay you is between you and them; we take nothing from it and hold none of it."],
     // ── ADDED 2026-09-20, ROADMAP 0.4 ────────────────────────────────────
@@ -163,7 +167,7 @@ export const PRIVACY = {
     ["What we hold about your customers",
      "Whatever they type into your booking page: name, phone, email, the address you are going to, the vehicle, and anything they write in the notes. It is their information and it is yours to look after. We hold it for you and we do not use it for anything else."],
     ["Text messages",
-     "Appointment texts are optional. The booking page asks separately, with an unticked box under Phone, and you can book without agreeing. We keep when you agreed and where you agreed. Mobile information is not sold or shared with third parties for marketing or promotional purposes. That includes your phone number and your consent to texts. Automated texting is not switched on yet. When it is, the messaging provider and carriers will receive only what they need to deliver appointment texts. Reply STOP to opt out or HELP for help. Message frequency varies. Message and data rates may apply."],
+     "The appointment texting pilot is for Andrew's Auto Detail & Car Wash. Automated texting is off. The pilot's SMS checkbox is currently hidden. We collect no consent for the pilot today. When the pilot opens, the shop's booking form will offer a separate, optional SMS checkbox that starts unchecked. You can book without agreeing. If you check the box and complete your booking, we will record the phone number you agreed to use, the appointment, when you agreed, and the version of the consent wording. Mobile information is not sold or shared with third parties for marketing or promotional purposes. That includes your phone number and your SMS consent. Once texts are enabled, Telnyx and the carriers may use the information needed to deliver appointment texts and process opt-outs. We limit that sharing to providing the texting service. Reply STOP to opt out. Reply HELP for help.", ANDREWS_SMS_SECTION],
     // **THE DISCLOSURE THE OWNER ASKED FOR, 2026-09-06.** He wants his back
     // office to show him everything about a detailer and their clients, and
     // his own condition was that it be said out loud: *"it could be disclosed

@@ -6,7 +6,12 @@ import { phoneAsTyped } from "../../lib/format.js";
 import { t } from "../../lib/i18n.js";
 import { useLocale } from "../../hooks/useLocale.js";
 
-export default function StepDetails({ form, setForm, blocks = [], tried = false }) {
+// An isolated reviewer build can point at its own published policy pages.
+const configuredPolicyOrigin = import.meta.env.VITE_BOOKING_SMS_POLICY_ORIGIN;
+const policyOrigin = /^https:\/\/[a-z0-9.-]+$/i.test(configuredPolicyOrigin ?? "")
+  ? configuredPolicyOrigin : "https://detailingplatform.com";
+
+export default function StepDetails({ form, setForm, blocks = [], tried = false, offerSmsConsent = false }) {
   useLocale();
   // **WHY THIS FILE STILL CALLS `emailFault` WHEN THE SENTENCES LEFT.** It is
   // not for the wording — `Refusal.jsx` owns that now — it is for
@@ -41,19 +46,19 @@ export default function StepDetails({ form, setForm, blocks = [], tried = false 
         <label className="bk-field">
           <span>{t("Phone")}</span>
           <input type="tel" inputMode="tel" autoComplete="tel" value={form.customerPhone} aria-invalid={badPhone || undefined}
-            onChange={(e) => setForm((f) => ({ ...f, customerPhone: phoneAsTyped(e.target.value) }))} />
+            onChange={(e) => setForm((f) => ({ ...f, customerPhone: phoneAsTyped(e.target.value), smsConsent: false }))} />
         </label>
-        <div className="bk-sms-consent">
+        {offerSmsConsent && <div className="bk-sms-consent">
           <label>
             <input type="checkbox" name="sms_consent" checked={form.smsConsent === true}
               onChange={(e) => setForm((f) => ({ ...f, smsConsent: e.target.checked }))} />
-            <span>{t("Text me about my appointment. Message frequency varies. Message and data rates may apply. Reply STOP to opt out, HELP for help.")}</span>
+            <span>{t("Send me texts from Andrew's Auto Detail & Car Wash about appointment confirmations, reminders, changes, and cancellations. Message frequency may vary. Standard message and data rates may apply. Reply STOP to opt out. Reply HELP for help. You can book without agreeing. We do not share mobile information with third parties for promotional or marketing purposes.")}</span>
           </label>
           <div className="bk-sms-links">
-            <a href="https://detailingplatform.com/privacy" target="_blank" rel="noreferrer">{t("Privacy")}</a>
-            <a href="https://detailingplatform.com/terms" target="_blank" rel="noreferrer">{t("Terms")}</a>
+            <a href={policyOrigin + "/privacy#andrews-appointment-texts"} target="_blank" rel="noreferrer">{t("Privacy")}</a>
+            <a href={policyOrigin + "/terms#andrews-appointment-texts"} target="_blank" rel="noreferrer">{t("Terms")}</a>
           </div>
-        </div>
+        </div>}
         <label className="bk-field bk-email">
           <span>{t("Email")}</span>
           <input type="email" inputMode="email" autoComplete="email" value={form.customerEmail}

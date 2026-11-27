@@ -45,7 +45,7 @@
 
 export const es = {
   "Your booking is saved, but we couldn't save your text choice.": "Tu reserva está guardada, pero no pudimos guardar tu elección de mensajes de texto.",
-  "Text me about my appointment. Message frequency varies. Message and data rates may apply. Reply STOP to opt out, HELP for help.": "Envíame mensajes de texto sobre mi cita. La frecuencia de los mensajes varía. Pueden aplicarse tarifas de mensajes y datos. Responde STOP para dejar de recibir mensajes o HELP para obtener ayuda.",
+  "Send me texts from Andrew's Auto Detail & Car Wash about appointment confirmations, reminders, changes, and cancellations. Message frequency may vary. Standard message and data rates may apply. Reply STOP to opt out. Reply HELP for help. You can book without agreeing. We do not share mobile information with third parties for promotional or marketing purposes.": "Envíame mensajes de texto de Andrew's Auto Detail & Car Wash sobre confirmaciones, recordatorios, cambios y cancelaciones de citas. La frecuencia de los mensajes puede variar. Pueden aplicarse tarifas estándar de mensajes y datos. Responde STOP para dejar de recibir mensajes. Responde HELP para obtener ayuda. Puedes reservar sin aceptar. No compartimos información móvil con terceros para fines promocionales o de marketing.",
   "Privacy": "Privacidad",
   "Terms": "Términos",
   // ── The four `t(label)` keys the extractor cannot see ───────────────────
