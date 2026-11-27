@@ -18,7 +18,7 @@ import { Ground, Foot } from "./LandingPage.jsx";
 import { initThread } from "./thread.js";
 import { useHead } from "../lib/useHead.js";
 import { legalHead } from "./head.js";
-import { TERMS, PRIVACY, PLAIN_ENGLISH_NOTE, SUPPORT_EMAIL, ENTITY, EFFECTIVE } from "./legal.js";
+import { TERMS, PRIVACY, PLAIN_ENGLISH_NOTE, SUPPORT_EMAIL, ENTITY, EFFECTIVE, ANDREWS_SMS_SECTION } from "./legal.js";
 import "./landing.css";
 
 // EMPHASIS AND LINKS INSIDE A SECTION'S PROSE.
@@ -60,6 +60,10 @@ export default function LegalPage({ which }) {
   // Every `.ld` page mounts the same motion system, guarded rather than
   // copied. It is a route in an SPA, so what it opens has to close again.
   useEffect(() => initThread(), []);
+  useEffect(() => {
+    if (window.location.hash !== `#${ANDREWS_SMS_SECTION}`) return;
+    document.getElementById(ANDREWS_SMS_SECTION)?.scrollIntoView();
+  }, [which]);
 
   // ROADMAP 7.18. The phone nav, the same burger and menu the home and pricing
   // pages carry (styled once in landing.css). Below 620px the Pricing and
@@ -121,14 +125,14 @@ export default function LegalPage({ which }) {
           <p className="legalnote" data-rv="">{PLAIN_ENGLISH_NOTE}</p>
 
           <dl className="legallist">
-            {doc.sections.map(([what, words], i) => (
+            {doc.sections.map(([what, words, id], i) => (
               // THE REVEAL IS ON A WRAPPER THAT IS ALWAYS MOUNTED. `thread.js`
               // collects its revealables with ONE `querySelectorAll` at mount
               // and that list is STATIC, so anything React adds later never
               // gets `.in` and sits at opacity 0 for ever — invisible to the
               // width sweep, to `?lite=1` and to every contrast check. These
               // rows are not conditional, which is what makes it safe.
-              <div className="legalrow" data-rv="" style={{ "--i": Math.min(i, 4) }} key={what}>
+              <div className="legalrow" id={id} data-rv="" style={{ "--i": Math.min(i, 4), scrollMarginTop: id ? 92 : undefined }} key={what}>
                 <dt>{what}</dt>
                 <dd>{inline(words)}</dd>
               </div>

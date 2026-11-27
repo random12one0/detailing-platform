@@ -107,6 +107,8 @@ export function BookingFlow({ notFound = null, embedded = false }) {
   useLocale();
   const ctx = useBookingBusiness();
   const { status, business, branding, settings, services, serviceGroups, addOns, plans, brandVars, slug, tx } = ctx;
+  const smsPilotBusinessId = import.meta.env.VITE_BOOKING_SMS_PILOT_BUSINESS_ID;
+  const offerSmsConsent = Boolean(smsPilotBusinessId && business?.id === smsPilotBusinessId);
   const STEPS = useMemo(() => stepsFor(addOns), [addOns]);
   // WHICH STEP CARRIES THE PLAN PITCH.
   //
@@ -177,7 +179,7 @@ export function BookingFlow({ notFound = null, embedded = false }) {
   // The shape AND the three tenant defaults are the core's. Pre-filled from
   // this device's last booking, so a returning customer never retypes their
   // own name; empty for everybody else, exactly as before.
-  const [form, setForm] = useState(() => ({ ...initialForm(settings, known), ...draft?.form }));
+  const [form, setForm] = useState(() => ({ ...initialForm(settings, known), ...draft?.form, smsConsent: false }));
   // ROADMAP 97.45 — THE STEP LIVES IN THE ADDRESS (`?step=N`, 1-based), so
   // the phone's Back and Forward move between steps and a refresh lands on
   // the same one. Never past a step that still has an unanswered question.
@@ -565,7 +567,7 @@ export function BookingFlow({ notFound = null, embedded = false }) {
   // Not once the booking has landed — submit clears it.
   useEffect(() => {
     if (status !== "ready" || confirmed) return;
-    saveDraft(draftPage, { form, promo: promoState.applied });
+    saveDraft(draftPage, { form: { ...form, smsConsent: false }, promo: promoState.applied });
   }, [status, confirmed, draftPage, form, promoState.applied]);
 
   const submit = async () => {
@@ -587,7 +589,7 @@ export function BookingFlow({ notFound = null, embedded = false }) {
       // NEXT car's slot went would throw away a booking the customer has
       // already been given. So the error names what happened and the first
       // booking stands.
-      const payloads = bookingRequests(form, {
+      const payloads = bookingRequests({ ...form, smsConsent: offerSmsConsent && form.smsConsent }, {
         planId, promoApplied: promoState.applied,
         // ROADMAP 4.2 — the attribution, resolved server-side against this
         // business's own campaigns. Sent on every booking; null on almost all
@@ -944,7 +946,7 @@ export function BookingFlow({ notFound = null, embedded = false }) {
             tried={tried}
           />
         )}
-        {stepName === "Details" && <StepDetails form={form} setForm={setForm} blocks={stepBlocks} tried={tried} />}
+        {stepName === "Details" && <StepDetails form={form} setForm={setForm} blocks={stepBlocks} tried={tried} offerSmsConsent={offerSmsConsent} />}
         {stepName === "Review" && (
           <StepReview
             form={form} setForm={setForm} quote={quote}
