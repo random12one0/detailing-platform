@@ -901,8 +901,10 @@ export default function SiteIntake({ onClose, preview = false }) {
   const [dir, setDir] = useState(1);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
+  const [submitFailed, setSubmitFailed] = useState(false);
   const heading = useRef(null);
   const timer = useRef(null);
+  const writes = useRef(Promise.resolve());
   const owner = role === "owner";
 
   const ctx = useBusiness() ?? {};
@@ -947,12 +949,23 @@ export default function SiteIntake({ onClose, preview = false }) {
 
   // ONE WRITER, DEBOUNCED. Every editor on every step goes through `set`, so
   // there is one upsert in this file rather than one per question.
-  const push = useCallback(async (answers, step, extra) => {
-    if (preview || !business?.id || !owner) return;
-    const { error } = await supabase.from("site_intake")
-      .upsert({ business_id: business.id, answers, step, updated_at: new Date().toISOString(), ...extra },
-        { onConflict: "business_id" });
-    setErr(error ? error.message : "");
+  const push = useCallback((answers, step, extra) => {
+    if (preview || !business?.id || !owner) return Promise.resolve(false);
+    // A slower autosave must finish before the submitted answers are written.
+    writes.current = writes.current.then(async () => {
+      try {
+        const { error } = await supabase.from("site_intake")
+          .upsert({ business_id: business.id, answers, step, updated_at: new Date().toISOString(), ...extra },
+            { onConflict: "business_id" });
+        if (error) throw error;
+        setErr("");
+        return true;
+      } catch {
+        setErr(t("Could not save that. Try again."));
+        return false;
+      }
+    });
+    return writes.current;
   }, [business?.id, owner, preview]);
 
   const set = (id, value) => {
@@ -978,9 +991,11 @@ export default function SiteIntake({ onClose, preview = false }) {
   const finish = async () => {
     setBusy(true);
     clearTimeout(timer.current);
-    await push(a, i, { submitted_at: new Date().toISOString() });
+    const submitted_at = new Date().toISOString();
+    const saved = await push(a, i, { submitted_at });
+    setSubmitFailed(!saved);
+    if (saved) setRow((r) => ({ ...(r ?? {}), submitted_at }));
     setBusy(false);
-    setRow((r) => ({ ...(r ?? {}), submitted_at: new Date().toISOString() }));
   };
 
   const p = useMemo(() => intakeProgress(a), [a]);
@@ -1056,11 +1071,11 @@ export default function SiteIntake({ onClose, preview = false }) {
         </div>
       )}
       <div className="settings-head">
-        <button className="btn icon ghost" aria-label={t("Back")} disabled={i === 0} onClick={() => go(i - 1)}>
+        <button className="btn icon ghost" aria-label={t("Back")} disabled={busy || i === 0} onClick={() => go(i - 1)}>
           <ChevronLeft strokeWidth={2} />
         </button>
         <h1 className="display">{t("Your website")}</h1>
-        <button className="x" aria-label={t("Close")} onClick={onClose}><X size={18} strokeWidth={2} /></button>
+        <button className="x" aria-label={t("Close")} disabled={busy} onClick={onClose}><X size={18} strokeWidth={2} /></button>
       </div>
 
       {/* **ON THE STEPS WHOSE ANSWERS BECOME THE PAGE, AND NOWHERE ELSE.**
@@ -1081,7 +1096,7 @@ export default function SiteIntake({ onClose, preview = false }) {
           { n: i + 1, total: STEPS.length, name: t(step.name) })}</span>
       </div>
 
-      <div className={`setupstep ${dir > 0 ? "fwd" : "back"}`} key={step.key}>
+      <div className={`setupstep ${dir > 0 ? "fwd" : "back"}`} key={step.key} inert={busy ? "" : undefined}>
         <h2 className="title" ref={heading} tabIndex={-1}>{t(step.title)}</h2>
         {step.lede && <p className="quiet">{t(step.lede)}</p>}
 
@@ -1154,8 +1169,10 @@ export default function SiteIntake({ onClose, preview = false }) {
         {!owner && !preview && (
           <p className="quiet">{t("Only the owner can answer this, so nothing here will save.")}</p>
         )}
-        {err && <div className="error-box">{err}</div>}
       </div>
+      {((submitFailed && last) || err) && !busy && (
+        <div className="error-box" role="alert">{submitFailed && last ? t("Could not save that. Try again.") : err}</div>
+      )}
 
       {/* A DEAD BUTTON WITH NO REASON IS A BUG, even when it is meant to be
           dead. Continue waits, and this says exactly what it is waiting for. */}
@@ -1182,9 +1199,9 @@ export default function SiteIntake({ onClose, preview = false }) {
             {last ? t("Finish later") : t("Skip")}
           </button>
         )}
-        <button className="btn primary" disabled={busy || blocked}
+        <button className="btn primary" disabled={busy || blocked || (last && (preview || !owner))}
           onClick={() => (last ? finish() : go(i + 1))}>
-          {busy ? t("Saving…") : last ? t("Send it") : t("Continue")}
+          {busy ? t("Saving…") : last ? t(submitFailed ? "Try again" : "Send it") : t("Continue")}
         </button>
       </div>
 
@@ -1198,7 +1215,9 @@ export default function SiteIntake({ onClose, preview = false }) {
       <span className="label intakecount">
         {preview
           ? t("{done} of {total} answered · nothing is saved in a preview", { done: p.done, total: p.total })
-          : t("{done} of {total} answered · saved automatically", { done: p.done, total: p.total })}
+          : t(busy || err || (submitFailed && last)
+            ? "{done} of {total} answered"
+            : "{done} of {total} answered · saved automatically", { done: p.done, total: p.total })}
       </span>
       </div>
     </div>

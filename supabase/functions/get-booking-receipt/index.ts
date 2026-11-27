@@ -126,6 +126,7 @@ Deno.serve(async (req) => {
       .eq("id", id.trim())
       .is("deleted_at", null)
       .maybeSingle();
+    if (error && error.code !== "22P02") return json({ error: "booking_unavailable" }, 503);
     if (error || !found) return json({ error: "not_found" }, 404);
     // ROADMAP 97.12 — only lines of this booking's own business reach the receipt.
     const booking = ownLines(found);

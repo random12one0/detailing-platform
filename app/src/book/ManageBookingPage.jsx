@@ -13,7 +13,7 @@
 import { intlLocale, t } from "../lib/i18n.js";
 import { useLocale } from "../hooks/useLocale.js";
 import LanguagePicker from "./LanguagePicker.jsx";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { CalendarClock, Check, CreditCard, Phone, X } from "lucide-react";
 import { api, icsUrl, slotsForType } from "../lib/api.js";
@@ -45,28 +45,43 @@ export default function ManageBookingPage() {
   // it on purpose: the sentence `cardStatus` writes is in the DETAILER's
   // words and this page is public.
   const [state, setState] = useState({ status: "loading", booking: null, business: null, group: [], card: null });
+  const latestLoad = useRef(0);
 
   const load = useCallback(async () => {
+    const request = ++latestLoad.current;
+    setState((current) => current.status === "error" ? { status: "loading" } : current);
     try {
       const r = await api.bookingReceipt(id);
-      if (!r?.booking) throw new Error("not_found");
+      if (request !== latestLoad.current) return;
+      if (!r?.booking || !r?.business?.slug) throw new Error("incomplete_receipt");
       setState({ status: "ready", booking: r.booking, business: r.business, group: r.group ?? [], card: r.card ?? null });
-    } catch {
-      setState({ status: "not_found", booking: null, business: null, group: [], card: null });
+    } catch (error) {
+      if (request !== latestLoad.current) return;
+      const missing = error?.status === 404 && error?.body?.error === "not_found";
+      setState({ status: missing ? "not_found" : "error" });
     }
   }, [id]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    setState({ status: "loading" });
+    load();
+    return () => { latestLoad.current++; };
+  }, [load]);
 
   if (state.status === "loading") {
     return <div className="bk"><div className="bk-center" role="main"><div className="bk-spinner" /></div></div>;
   }
-  if (state.status === "not_found") {
+  if (state.status === "not_found" || state.status === "error") {
+    const missing = state.status === "not_found";
     return (
       <div className="bk">
         <div className="bk-center" role="main">
-          <h1>{t("Booking not found")}</h1>
-          <p className="bk-muted">{t("This link may be out of date, or the booking was removed.")}</p>
+          <h1>{t(missing ? "Booking not found" : "Could not load your booking")}</h1>
+          {missing ? (
+            <p className="bk-muted">{t("This link may be out of date, or the booking was removed.")}</p>
+          ) : (
+            <button type="button" className="bk-btn primary inline" onClick={load}>{t("Try again")}</button>
+          )}
         {/* **THE WAY BACK OUT OF A LANGUAGE — his review, 2026-09-11.**
             *"It was in Spanish with no way to put it in English."*
 
