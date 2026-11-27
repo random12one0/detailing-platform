@@ -232,7 +232,7 @@ export default function OfficePage() {
             <div>
               <div className="bo-date"><span>{TODAY()}</span><span className="live"><i />Live</span></div>
               <h1 className="bo-place" key={place.key} aria-label={place.label}>
-                {[...place.label].map((c, i) => <span key={i} className="ch" aria-hidden="true" style={{ animationDelay: `${i * 38}ms` }}>{c}</span>)}
+                {[...place.label].map((c, i) => <span key={i} className="ch" aria-hidden="true" style={{ animationDelay: `${i * 38}ms` }}>{c === " " ? "\u00a0" : c}</span>)}
               </h1>
             </div>
             <button type="button" className="bo-find-top" onClick={() => setFinder(true)} aria-label="Find a detailer">
@@ -241,8 +241,8 @@ export default function OfficePage() {
           </header>
 
           {err && <div className="bo-error" role="alert"><b>Could not load</b><p>{err}</p><button type="button" className="bo-btn ghost" onClick={load}>Try again</button></div>}
-          {!state && !err && <p className="bo-none">Reading the platform…</p>}
-          {state && <div className="bo-place-in" key={place.key}><Place ctx={ctx} /></div>}
+          {!state && !err && place.key !== "ai-settings" && <p className="bo-none">Reading the platform…</p>}
+          {(state || place.key === "ai-settings") && <div className="bo-place-in" key={place.key}><Place ctx={ctx} /></div>}
         </main>
       </div>
 

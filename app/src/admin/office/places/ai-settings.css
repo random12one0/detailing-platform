@@ -1,0 +1,116 @@
+.bo:has(.bo-ai) {
+  overflow-x: clip;
+}
+.bo-ai {
+  max-width: 760px;
+  display: grid;
+  gap: 24px;
+  margin-top: 16px;
+}
+.bo-ai h2 {
+  margin: 6px 0 10px;
+  font-size: clamp(22px, 4vw, 32px);
+  overflow-wrap: anywhere;
+}
+.bo-ai .bo-sec {
+  min-width: 0;
+  padding-block: 14px 20px;
+  border-bottom: 1px solid var(--line);
+}
+.bo-ai-choices,
+.bo-ai-actions,
+.bo-ai-head,
+.bo-ai-key {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.bo-ai-choices {
+  margin: 12px 0 20px;
+  gap: 2px;
+  max-width: 450px;
+}
+.bo-ai-choices button {
+  min-height: 44px;
+  flex: 1;
+  color: var(--bone);
+  background: transparent;
+  border: 1px solid var(--line-2);
+  border-radius: 9px;
+  font: inherit;
+}
+.bo-ai-choices button[aria-pressed="true"] {
+  color: var(--ac);
+  border-color: var(--ac);
+}
+.bo-ai-fields {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+.bo-ai-fields legend,
+.bo-ai-model {
+  font-weight: 600;
+}
+.bo-ai-key input,
+.bo-ai-model select {
+  box-sizing: border-box;
+  border: 1px solid var(--line-2);
+  background: #171b19;
+  color: var(--bone);
+  padding: 10px 12px;
+  border-radius: 10px;
+  font: inherit;
+  min-height: 46px;
+  max-width: 100%;
+}
+.bo-ai-key input {
+  flex: 1 1 190px;
+  min-width: 0;
+}
+.bo-ai-key,
+.bo-ai-actions {
+  margin-top: 10px;
+}
+.bo-ai-head {
+  justify-content: space-between;
+}
+.bo-ai-model {
+  display: grid;
+  gap: 6px;
+}
+.bo-ai button {
+  min-height: 44px;
+}
+.bo-ai p {
+  line-height: 1.5;
+  margin-block: 8px;
+}
+.bo-ai-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+@media (max-width: 600px) {
+  .bo-ai {
+    gap: 12px;
+  }
+  .bo-rail .bo-nav {
+    min-width: 0;
+    font-size: 10px;
+  }
+  .bo-ai-model select {
+    width: 100%;
+  }
+}
+
+.bo-ai-actions a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

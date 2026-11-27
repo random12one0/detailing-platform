@@ -1,4 +1,5 @@
 // Build with VITE_SUPABASE_URL=https://stand-in.supabase.invalid and a fictional anon key.
+import { officeFixture, adminId } from "../tests/fixtures/shopAIGate.mjs";
 import assert from "node:assert/strict";
 import { createServer } from "node:http";
 import { readFile, mkdir } from "node:fs/promises";
@@ -61,6 +62,8 @@ try {
         serviceWorkers: "block",
       }),
       f = fixture();
+    const office = officeFixture();
+    let officeMode;
     const page = await ctx.newPage();
     page.setDefaultTimeout(7000);
     let identity = owner,
@@ -122,6 +125,29 @@ try {
       if (p.endsWith("/logout")) {
         logout = true;
         return respond({});
+      }
+      if (p.endsWith("/platform-admin")) {
+        const token =
+          rq.headers().authorization === "Bearer " + session().access_token
+            ? identity === adminId
+              ? "office-fixture"
+              : "stand-in"
+            : "";
+        const b = rq.postDataJSON();
+        if (b.action === "list" && token === "office-fixture")
+          return respond({ rows: [], totals: {} });
+        const h = office.handler(officeMode);
+        const result = await h(
+          new Request(base + p, {
+            method: "POST",
+            headers: {
+              origin: "https://detailingplatform.com",
+              authorization: "Bearer " + token,
+            },
+            body: JSON.stringify(b),
+          }),
+        );
+        return respond(await result.json(), result.status);
       }
       if (p.endsWith("/owner-draft")) {
         const resp = await ownerDraft(
@@ -309,40 +335,9 @@ try {
       await btn("Website draft").click();
       await website.waitFor();
       assert.match(await website.inputValue(), /edited/);
-      await btn("AI Settings").click();
-      await page
-        .getByText("AI is off. You can fill out and save your draft.")
-        .waitFor();
-      await shot("settings");
+      assert.equal(await btn("AI Settings").count(), 0);
+      assert.equal(await page.getByLabel("Provider API key").count(), 0);
       if (width === 390) {
-        mode = "enabled";
-        await btn("Shop setup").click();
-        await btn("AI Settings").click();
-        const key = page.getByLabel("Provider API key");
-        await key.fill("AI" + "za" + "x".repeat(35));
-        await page
-          .getByRole("button", { name: /Save key and load models/ })
-          .click();
-        await page.getByLabel("Available models").fill("gemini-3.8-flash");
-        await btn("Test and use model").click();
-        await page.getByText(/Current model.*gemini-3.8-flash/).waitFor();
-        await btn("Shop setup").click();
-        await btn("Review setup", form).click();
-        await btn("Review what AI will receive", form).click();
-        await btn("Send these answers to AI", form).click();
-        await btn("Add suggestions to my draft", form).click();
-        await btn("Save draft on this device", form).click();
-        await form
-          .getByText("Draft saved on this device.", { exact: true })
-          .waitFor();
-        const saved = await page.evaluate(
-          ([o, b]) =>
-            JSON.parse(localStorage.getItem("dp.ownerSetup.v1." + o + "." + b)),
-          [owner, business],
-        );
-        assert.equal(saved.size_mode, "purchase");
-        assert.equal(saved.vehicle_sizes[1].fee, 15);
-        assert.equal(saved.cancellation_window_hours, undefined);
         await page.getByRole("link", { name: "Back to dashboard" }).click();
         await page
           .getByRole("heading", { name: "Finish payment to go live" })
@@ -374,6 +369,69 @@ try {
           .getByRole("heading", { name: "Fictional Booking Shop", exact: true })
           .waitFor();
       }
+      // Direct navigation and session changes through the actual platform Back Office.
+      tenant = business;
+      identity = owner;
+      await page.evaluate(() =>
+        localStorage.removeItem("sb-stand-in-auth-token"),
+      );
+      await page.goto(base + "/admin#ai-settings");
+      await btn("Sign in").waitFor();
+      assert.equal(await page.locator(".bo-ai").count(), 0);
+      await login();
+      await page
+        .getByRole("heading", { name: "That page does not exist." })
+        .waitFor();
+      assert.equal(await page.getByLabel("Provider API key").count(), 0);
+      await page.goto(base + "/app?onboarding=1");
+      await btn("Sign out").click();
+      await btn("Sign in").waitFor();
+      identity = adminId;
+      await page.goto(base + "/admin#ai-settings");
+      await login();
+      await page.getByText("Provider connections are off.").waitFor();
+      assert.equal(await btn("Add API key").count(), 0);
+      officeMode = "configure";
+      await page.reload();
+      await page
+        .getByRole("heading", { name: "AI Settings", exact: true })
+        .waitFor();
+      await page.getByRole("link", { name: "Gemini terms" }).waitFor();
+      assert.equal(await page.getByLabel("Provider API key").count(), 0);
+      assert.equal(office.calls.length, 0);
+      await btn("Add API key").click();
+      await page
+        .getByLabel("Provider API key")
+        .fill("fictional-browser-credential");
+      assert.equal(office.calls.length, 0);
+      await btn("Connect Gemini key and load models").click();
+      const model = page.getByLabel("Available models");
+      await model.selectOption("gemini-3-flash-preview");
+      await btn("Save model preference").click();
+      await page
+        .getByText("Model preference saved.", { exact: false })
+        .first()
+        .waitFor();
+      assert.equal(office.calls.length, 1);
+      assert.equal(
+        await page.evaluate(() =>
+          JSON.stringify([
+            localStorage,
+            sessionStorage,
+            document.body.innerText,
+            location.href,
+          ]).includes("fictional-browser-credential"),
+        ),
+        false,
+      );
+      await shot("office-ai");
+      await page.reload();
+      await model.waitFor();
+      assert.equal(await model.inputValue(), "gemini-3-flash-preview");
+      await btn("Remove key").click();
+      await btn("Confirm removal").click();
+      await btn("Add API key").waitFor();
+      assert.equal(office.calls.length, 1);
       assert.deepEqual(errors, []);
       assert.deepEqual(writes, []);
       assert.deepEqual(foreign, []);

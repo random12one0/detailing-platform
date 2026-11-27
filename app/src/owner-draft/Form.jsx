@@ -14,7 +14,6 @@ import { t } from "../lib/appI18n.js";
 
 import "../components/shop-questions.css";
 
-import DraftSuggestions from "./DraftSuggestions.jsx";
 
 const sections = chapters.filter((c) => c.fields.length && c.key !== "clients");
 function display(field, value) {
@@ -31,7 +30,7 @@ function display(field, value) {
     return value.map((r) => r.q + "\n" + r.a).join("\n\n");
   return answerText(field, value);
 }
-export default function Form({ business, owner, call, mode, onSaved }) {
+export default function Form({ business, owner, call, onSaved }) {
   const key = "dp.ownerSetup.v1." + owner + "." + business.id;
   const [answers, setAnswers] = useState(() => {
       try {
@@ -153,9 +152,7 @@ export default function Form({ business, owner, call, mode, onSaved }) {
           {step === 0 && (
             <p className="sq-note">
               {t(
-                mode === "enabled"
-                  ? "Save your draft on this device. You choose whether to send written answers to your AI provider."
-                  : "Answer what you know. You can skip any section. Your draft stays in this browser.",
+                "Answer what you know. You can skip any section. Your draft stays in this browser.",
               )}
             </p>
           )}
@@ -195,18 +192,6 @@ export default function Form({ business, owner, call, mode, onSaved }) {
                     "You skipped every question. You can come back when you're ready.",
                   )}
                 </p>
-              )}
-              {mode === "enabled" && (
-                <DraftSuggestions
-                  call={call}
-                  answers={answers}
-                  display={display}
-                  onUse={(values) => {
-                    setAnswers((a) => ({ ...a, ...values }));
-                    setSaved(false);
-                    setNote("");
-                  }}
-                />
               )}
             </div>
           ) : (
