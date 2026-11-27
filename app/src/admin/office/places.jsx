@@ -6,7 +6,9 @@
 // `badge(ctx)` is the little red number beside the name; return 0 for none.
 // Today is first, so it is where the back office opens. System's badge counts
 // BROKEN checks only; never-proven ones are loud on the page, not on the rail.
-import { Activity, LayoutDashboard, TrendingUp, Users } from "lucide-react";
+import AISettings from "./places/AISettings.jsx";
+import "./places/ai-settings.css";
+import { SlidersHorizontal, Activity, LayoutDashboard, TrendingUp, Users } from "lucide-react";
 import Today from "./places/Today.jsx";
 import Detailers from "./places/Detailers.jsx";
 import Money from "./places/Money.jsx";
@@ -25,6 +27,7 @@ export const PLACES = [
   },
   { key: "money", label: "Money", Icon: TrendingUp, Place: Money },
   { key: "system", label: "System", Icon: Activity, Place: System, badge: (ctx) => brokenOf(checksOf(ctx.state)) },
+  { key: "ai-settings", label: "AI Settings", Icon: SlidersHorizontal, Place: AISettings },
 ];
 
 export const placeOf = (key) => PLACES.find((p) => p.key === key) ?? PLACES[0];

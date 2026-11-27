@@ -57,6 +57,7 @@ import {
   platformNet,
 } from "../_shared/platformNet.js";
 // ROADMAP 3.1 — the back office's email list; see its header for the contract.
+import { manageShopAI } from "../_shared/shopAIConfig.js";
 import { emailList } from "../_shared/emailList.js";
 
 interface Admin { id: string; email: string }
@@ -140,6 +141,16 @@ Deno.serve(async (req) => {
     if (!admin) return json({ error: "Not found" }, 404);
 
     const action = String(body.action || "");
+    if (action === "shop_ai_settings") {
+      if (req.headers.get("origin") !== "https://detailingplatform.com") return json({error:"Not found"},404);
+      const result = await manageShopAI(body, admin, {
+        db: supabase, mode: Deno.env.get("BACK_OFFICE_SHOP_AI_MODE"),
+        secret: Deno.env.get("BACK_OFFICE_SHOP_AI_WRAPPING_KEY"),
+      });
+      const response = json(result.body,result.status);
+      response.headers.set("Cache-Control","private, no-store");
+      return response;
+    }
 
     // **THE CHEAPEST QUESTION IN THIS FUNCTION, and it exists so the
     // DETAILER'S dashboard can offer a way through to the back office.**

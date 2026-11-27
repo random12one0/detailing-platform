@@ -1,21 +1,6 @@
 import { appEs } from "../lib/strings/appEs.js";
 // Extend the shared dictionary only in the private pilot build.
 Object.assign(appEs, {
-  "Save your draft on this device. You choose whether to send written answers to Gemini.":
-    "Guarda tu borrador en este dispositivo. Tú decides si envías tus respuestas escritas a Gemini.",
-  "Gemini suggestions": "Sugerencias de Gemini",
-  "Review what Gemini will receive": "Revisar lo que recibirá Gemini",
-  "These are the answers Gemini will receive.":
-    "Estas son las respuestas que recibirá Gemini.",
-  "This uses your Google API account and may cost money.":
-    "Esto usa tu cuenta de la API de Google y puede tener un costo.",
-  "Send these answers to Gemini": "Enviar estas respuestas a Gemini",
-  "Add suggestions to my draft": "Agregar sugerencias a mi borrador",
-  "Gemini could not finish. Your answers are still here.":
-    "Gemini no pudo terminar. Tus respuestas siguen aquí.",
-  "Select and test a Gemini model in AI Settings first.":
-    "Primero selecciona y prueba un modelo de Gemini en la configuración de IA.",
-  "Gemini is off for this pilot.": "Gemini está desactivado en esta prueba.",
   "Review this sample draft": "Revisar este borrador de ejemplo",
   "Simulated draft": "Borrador simulado",
   "Back to my draft": "Volver a mi borrador",
@@ -25,7 +10,6 @@ Object.assign(appEs, {
     "Guarda una copia privada en este dispositivo.",
   "Answer what you know. You can skip any section. Your draft stays in this browser.":
     "Responde lo que sepas. Puedes omitir cualquier sección. Tu borrador se queda en este navegador.",
-  "See a simulated Gemini example": "Ver un ejemplo simulado de Gemini",
   "Two services on one medium vehicle":
     "Dos servicios para un vehículo mediano",
   "Still needed: the exterior service duration and the cancellation fee and deadline.":
@@ -41,8 +25,6 @@ Object.assign(appEs, {
   "Checking access…": "Comprobando el acceso…",
   "Open this page with the invited Netlify owner account.":
     "Abre esta página con la cuenta de propietario de Netlify invitada.",
-  "Website lookup is off. Review suggestions from your written answers, or paste details from your website.":
-    "La consulta del sitio está desactivada. Revisa las sugerencias de tus respuestas o pega la información de tu sitio.",
   "Missing name": "Falta el nombre",
   "Check {field} for {item}.": "Revisa {field} en {item}.",
   "Use your answers and website to suggest settings.":
@@ -474,10 +456,6 @@ Object.assign(appEs, {
   "Skip question": "Omitir pregunta",
   "Working…": "Procesando…",
   "Return to review": "Volver a la revisión",
-  "Prepare review with AI": "Preparar revisión con IA",
-  "AI receives your business answers and may read your public website.":
-    "La IA recibe tus respuestas sobre el negocio y puede consultar tu sitio público.",
-  "Look for missing answers with AI": "Buscar respuestas faltantes con IA",
   "View last saved answers": "Ver las últimas respuestas guardadas",
   "Last saved answers": "Últimas respuestas guardadas",
   "Could not load the previous review.":
@@ -525,8 +503,6 @@ Object.assign(appEs, {
   "Customer import opens after your first payment. You can return from Clients.":
     "Podrás importar clientes después de tu primer pago. Puedes volver desde Clientes.",
   "Customer CSV": "CSV de clientes",
-  "Customer records go directly to your client list. AI only receives your shop setup answers.":
-    "Los registros van directamente a tu lista de clientes. La IA solo recibe tus respuestas sobre el negocio.",
   "{new} ready, {duplicates} duplicates, {invalid} invalid.":
     "{new} listos, {duplicates} duplicados y {invalid} inválidos.",
   "Import {n} customers": "Importar {n} clientes",
@@ -538,7 +514,6 @@ Object.assign(appEs, {
 });
 
 Object.assign(appEs, {
-  "AI Settings": "Configuración de IA",
   "This setup link is unavailable.":
     "Este enlace de configuración no está disponible.",
   "Opening shop setup.": "Abriendo la configuración del negocio.",
@@ -546,44 +521,6 @@ Object.assign(appEs, {
   "Setup sections": "Secciones de configuración",
   "Website draft": "Borrador del sitio web",
   "Save website draft": "Guardar borrador del sitio web",
-  "Save your draft on this device. You choose whether to send written answers to your AI provider.":
-    "Guarda el borrador en este dispositivo. Tú decides si envías las respuestas escritas a tu proveedor de IA.",
-  "Select and test a model in AI Settings first.":
-    "Primero selecciona y prueba un modelo en la configuración de IA.",
-  "AI could not finish. Your answers are still here.":
-    "La IA no pudo terminar. Tus respuestas siguen aquí.",
-  "AI suggestions": "Sugerencias de IA",
-  "These are the answers AI will receive.":
-    "Estas son las respuestas que recibirá la IA.",
-  "This uses your provider account and may cost money.":
-    "Esto usa tu cuenta del proveedor y puede tener un costo.",
-  "Send these answers to AI": "Enviar estas respuestas a la IA",
-  "Review what AI will receive": "Revisar lo que recibirá la IA",
-  "Could not load AI settings.": "No se pudo cargar la configuración de IA.",
-  "AI settings updated.": "Se actualizó la configuración de IA.",
-  "Could not update AI settings. Check your key or model and reload.":
-    "No se pudo actualizar la configuración de IA. Revisa la clave o el modelo y vuelve a cargarla.",
-  "AI is off. You can fill out and save your draft.":
-    "La IA está desactivada. Puedes completar y guardar tu borrador.",
-  "Current model": "Modelo actual",
-  "Manual review": "Revisión manual",
-  "Provider API key": "Clave API del proveedor",
-  "Confirm the provider before sending the key.":
-    "Confirma el proveedor antes de enviar la clave.",
-  "Confirm replacement": "Confirmar reemplazo",
-  "Save key and load models": "Guardar clave y cargar modelos",
-  "A key is saved for this provider.":
-    "Hay una clave guardada para este proveedor.",
-  "Refresh model list": "Actualizar lista de modelos",
-  "Confirm removal": "Confirmar eliminación",
-  "Remove key": "Eliminar clave",
-  "Available models": "Modelos disponibles",
-  "Choose a model": "Elegir un modelo",
-  "Testing sends a fictional example and can use API credit.":
-    "La prueba envía un ejemplo ficticio y puede consumir crédito de la API.",
-  "Test and use model": "Probar y usar el modelo",
-  "Use manual review": "Usar revisión manual",
-  "Reload settings": "Volver a cargar la configuración",
   "Could not save this draft. Check your access and browser storage.":
     "No se pudo guardar el borrador. Revisa tu acceso y el almacenamiento del navegador.",
   "Save your setup answers to bring them into the website draft.":

@@ -90,9 +90,19 @@ test("owner and tenant admission applies to every action before storage", async 
     assert.equal((await h.send(action)).status, 404);
     h.flags.enabled = "1";
   }
-  for(const ai of ["configure","enabled",undefined]){h.flags.ai=ai;
-    for(const op of ["read","save","refresh","remove","activate","manual"]){assert.equal((await h.send("settings",{op})).status,404);}
-    assert.equal((await h.send("suggest",{confirmed:true})).status,404);
+  for (const ai of ["configure", "enabled", undefined]) {
+    h.flags.ai = ai;
+    for (const op of [
+      "read",
+      "save",
+      "refresh",
+      "remove",
+      "activate",
+      "manual",
+    ]) {
+      assert.equal((await h.send("settings", { op })).status, 404);
+    }
+    assert.equal((await h.send("suggest", { confirmed: true })).status, 404);
   }
   h.flags.ai = undefined;
   assert.deepEqual(await (await h.send("access")).json(), {
@@ -117,8 +127,39 @@ test("website form prefill preserves manual edits", () => {
     ),
     { A1: "My edit", oldsite: "https://fixture.invalid", A4: "Mesa" },
   );
-
 });
 
-
-test("draft interpretation preserves the charge scope and leaves unclear answers for review", async()=>{const f=fixture();for(const [phrase,expected] of [["once per booking","purchase"],["for each service","service"]]){const {suggestions:v}=await inferSetup({...shop,size_details:shop.size_details.replace("once per booking",phrase)},{provider:"gemini",model:"gemini-3.8-flash",apiKey:f.key,send:f.deps.send,strictPilotEvidence:true});assert.equal(v.size_mode,expected);assert.deepEqual(v.vehicle_sizes.map(x=>100+50+x.fee*(expected==="purchase"?1:2)),expected==="purchase"?[150,165,180]:[150,180,210]);assert.equal(v.cancellation_window_hours,undefined);assert.deepEqual(v.services.map(x=>x.name),["Interior"]);assert.match(v.follow_up,/Exterior/);}});
+test("draft interpretation preserves the charge scope and leaves unclear answers for review", async () => {
+  const f = fixture();
+  for (const [phrase, expected] of [
+    ["once per booking", "purchase"],
+    ["for each service", "service"],
+  ]) {
+    const { suggestions: v } = await inferSetup(
+      {
+        ...shop,
+        size_details: shop.size_details.replace("once per booking", phrase),
+      },
+      {
+        provider: "gemini",
+        model: "gemini-3.8-flash",
+        apiKey: f.key,
+        send: f.deps.send,
+        strictPilotEvidence: true,
+      },
+    );
+    assert.equal(v.size_mode, expected);
+    assert.deepEqual(
+      v.vehicle_sizes.map(
+        (x) => 100 + 50 + x.fee * (expected === "purchase" ? 1 : 2),
+      ),
+      expected === "purchase" ? [150, 165, 180] : [150, 180, 210],
+    );
+    assert.equal(v.cancellation_window_hours, undefined);
+    assert.deepEqual(
+      v.services.map((x) => x.name),
+      ["Interior"],
+    );
+    assert.match(v.follow_up, /Exterior/);
+  }
+});

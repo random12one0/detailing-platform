@@ -28,7 +28,7 @@ jobs:
           VITE_SUPABASE_URL: https://example.supabase.co
           VITE_SUPABASE_ANON_KEY: ci-placeholder
       - name: tests
-        run: node --test tests/composition.test.mjs tests/design-contrast.test.mjs tests/landing-pricing.test.mjs tests/route-contract.test.mjs
+        run: node --test tests/composition.test.mjs tests/design-contrast.test.mjs tests/landing-pricing.test.mjs tests/route-contract.test.mjs tests/integrated-owner-draft.test.mjs tests/back-office-setup-ai.test.mjs
       # tools/studio-audit: only the files that need no browser, AI, network or credentials
       - name: studio-audit tests
         run: node --test tools/studio-audit/audit-chooser.test.mjs tools/studio-audit/audit-engine.test.mjs tools/studio-audit/audit-journeys.test.mjs tools/studio-audit/audit-store.test.mjs tools/studio-audit/site-stamps.test.mjs
