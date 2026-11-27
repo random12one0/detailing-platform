@@ -1,0 +1,72 @@
+.owner-draft {
+  max-width: 68rem;
+  margin: 0 auto;
+  padding: 0 clamp(12px, 3vw, 30px) 3rem;
+  color: var(--text);
+}
+.owner-draft .draft-account {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.25rem;
+}
+.owner-draft .draft-account .btn {
+  width: auto;
+  padding: 0 0.4rem;
+  min-height: 44px;
+}
+.owner-draft .draft-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--line);
+  gap: clamp(4px, 2vw, 20px);
+  margin-bottom: 1.6rem;
+}
+.owner-draft .draft-tabs button {
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  background: none;
+  color: var(--text-muted);
+  border: 0;
+  border-radius: 0;
+  border-bottom: 2px solid transparent;
+  min-height: 44px;
+  padding: 0 clamp(3px, 1vw, 12px);
+}
+.owner-draft .draft-tabs button[aria-pressed="true"] {
+  color: var(--text);
+  border-bottom-color: var(--accent);
+}
+.owner-draft .draft-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-block: 10px 16px;
+}
+.owner-draft .draft-fields {
+  border: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+.owner-draft .btn[aria-pressed="true"] {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.owner-draft .draft-fields .btn {
+  width: fit-content;
+}
+.owner-draft [hidden] {
+  display: none;
+}
+.owner-draft .sq-summary dd {
+  white-space: pre-line;
+}
+.owner-draft .shop-questions {
+  padding-inline: 0;
+  max-width: none;
+}
+.owner-draft .group {
+  max-width: 56rem;
+}

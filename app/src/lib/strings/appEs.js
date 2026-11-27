@@ -40,6 +40,8 @@
 // `es-US` rather than from a string in this file.
 
 export const appEs = {
+  "This setup link is unavailable.": "Este enlace de configuración no está disponible.",
+  "Back to dashboard": "Volver al panel",
   "All prices and contract": "Todos los precios y el contrato",
   // ── SHARED VOCABULARY ────────────────────────────────────────────────────
   // **THE DURATION PRESETS ARE HERE ONCE AND THEY REACH NINE SETTINGS SCREENS,

@@ -1,0 +1,400 @@
+.shop-questions {
+  --sq-rule: var(--line, #394143);
+  margin-inline: auto;
+  width: 100%;
+  max-width: 64rem;
+  padding: 0 clamp(0px, 2vw, 28px) 3rem;
+  color: var(--text);
+  animation: sq-enter 0.18s ease-out;
+}
+.shop-questions.sq-leaving {
+  animation: sq-exit 0.18s ease-in both;
+}
+.sq-bar,
+.sq-bar > span,
+.sq-actions,
+.sq-summary header,
+.sq-section,
+.sq-index summary {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+.sq-bar {
+  justify-content: space-between;
+  border-bottom: 1px solid var(--sq-rule);
+  padding-bottom: 0.45rem;
+  font-weight: 700;
+}
+.sq-bar svg,
+.sq-index svg {
+  flex: none;
+}
+.sq-progress {
+  display: flex;
+  gap: 4px;
+  margin: 1.35rem 0 1.65rem;
+}
+.sq-progress span {
+  flex: 1;
+  height: 3px;
+  background: var(--sq-rule);
+}
+.sq-progress .answered {
+  background: var(--text-muted);
+}
+.sq-progress .current {
+  background: var(--accent);
+}
+.sq-layout,
+.sq-main,
+.sq-body,
+.sq-field,
+.sq-import {
+  display: grid;
+  min-width: 0;
+}
+.sq-layout {
+  gap: 1.5rem;
+}
+.sq-main {
+  align-content: start;
+}
+.sq-section {
+  justify-content: space-between;
+  margin: 0 0 0.8rem;
+  font-weight: 600;
+}
+.sq-section span {
+  font-family: var(--mono, monospace);
+  color: var(--text-muted);
+  font-size: 0.84rem;
+}
+.shop-questions h1 {
+  font-family: inherit;
+  font-size: clamp(1.85rem, 4.6vw, 3.35rem);
+  font-weight: 800;
+  line-height: 1.06;
+  letter-spacing: -0.035em;
+  margin: 0;
+  max-width: 20ch;
+}
+.shop-questions h1[tabindex="-1"]:focus {
+  outline: none;
+}
+.sq-help {
+  font-size: 1rem;
+  line-height: 1.55;
+  color: var(--text-muted);
+  margin: 0.75rem 0 1.4rem;
+  max-width: 52ch;
+}
+.sq-body {
+  gap: 1.25rem;
+}
+.sq-field {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  gap: 0.42rem;
+  font-weight: 650;
+}
+.sq-field legend {
+  margin-bottom: 0.5rem;
+  padding: 0;
+}
+.sq-field input,
+.sq-field textarea,
+.sq-row input,
+.sq-times input {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: 46px;
+  font: inherit;
+  font-weight: 450;
+  color: inherit;
+  background: var(--surface, transparent);
+  border: 1px solid var(--sq-rule);
+  border-radius: 8px;
+  padding: 0.7rem 0.8rem;
+}
+.sq-field textarea {
+  resize: vertical;
+}
+.sq-field input:focus,
+.sq-field textarea:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.sq-field .segmented button {
+  min-height: 44px;
+  white-space: normal;
+  line-height: 1.15;
+}
+.sq-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 44px;
+  gap: 0.6rem;
+  border-block-start: 1px solid var(--sq-rule);
+  padding: 0.75rem 0;
+}
+.sq-row label:first-child {
+  grid-column: 1/-1;
+}
+.sq-row label,
+.sq-times label {
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.88rem;
+}
+.sq-color {
+  display: grid;
+  grid-template-columns: 50px 1fr;
+  gap: 0.5rem;
+}
+.sq-color input[type="color"] {
+  padding: 3px;
+}
+.sq-day {
+  display: grid;
+  gap: 0.4rem;
+  padding: 0.65rem 0;
+  border-top: 1px solid var(--sq-rule);
+}
+.sq-times {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+.sq-actions {
+  flex-wrap: wrap;
+  margin-top: 1.6rem;
+}
+.sq-actions .primary {
+  flex: 1;
+  justify-content: center;
+}
+.shop-questions button,
+.sq-index summary {
+  min-height: 44px;
+}
+.sq-index {
+  border-top: 1px solid var(--sq-rule);
+  padding-top: 0.4rem;
+}
+.sq-index summary {
+  list-style: none;
+  cursor: pointer;
+  font-weight: 650;
+}
+.sq-index summary svg:last-child {
+  margin-left: auto;
+}
+.sq-index details > button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+  text-align: left;
+  width: 100%;
+  background: none;
+  color: inherit;
+  border: 0;
+  border-top: 1px solid var(--sq-rule);
+  padding: 0.5rem 0.2rem;
+  font: inherit;
+}
+.sq-index .selected {
+  font-weight: 750;
+}
+.sq-index .btn {
+  margin-top: 0.35rem;
+}
+.sq-summary {
+  border-top: 1px solid var(--sq-rule);
+  padding: 0.75rem 0;
+}
+.sq-summary header {
+  justify-content: space-between;
+}
+.sq-summary h3 {
+  font-size: 1.05rem;
+  margin: 0;
+}
+.sq-summary dl {
+  margin: 0.5rem 0 0;
+}
+.sq-summary dl > div {
+  margin: 0.65rem 0;
+  overflow-wrap: anywhere;
+}
+.sq-summary dt {
+  color: var(--text-muted);
+  font-size: 0.87rem;
+}
+.sq-summary dd {
+  margin: 0.2rem 0 0;
+  white-space: pre-line;
+}
+.sq-evidence,
+.sq-note {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  border-left: 2px solid var(--accent);
+  padding-left: 0.85rem;
+}
+.sq-evidence a {
+  color: inherit;
+}
+.sq-history,
+.sq-done {
+  padding: 2rem 0;
+}
+.sq-done > * {
+  margin-bottom: 1rem;
+}
+@media (min-width: 800px) {
+  .sq-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(170px, 28%);
+    gap: clamp(1.5rem, 4vw, 3rem);
+  }
+  .sq-index {
+    align-self: start;
+    border-top: 0;
+    border-left: 1px solid var(--sq-rule);
+    padding: 0 0 0 1.2rem;
+  }
+  .sq-actions .primary {
+    flex: none;
+    min-width: 12rem;
+  }
+}
+.sq-example {
+  margin: 0.8rem 0 1rem;
+  border-block: 1px solid var(--sq-rule);
+  padding: 1rem 0;
+}
+.sq-example h3,
+.sq-example p {
+  margin: 0 0 0.45rem;
+}
+.sq-example div {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.3rem 0;
+}
+.sq-example b {
+  color: var(--accent);
+}
+@keyframes sq-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes sq-exit {
+  to {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .shop-questions,
+  .shop-questions.sq-leaving {
+    animation: none;
+  }
+}
+
+.sq-manual {
+  margin-block: 1rem;
+  border-block: 1px solid var(--sq-rule);
+}
+.sq-manual > summary {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  cursor: pointer;
+  font-weight: 600;
+  list-style: none;
+}
+.sq-manual > summary::after {
+  content: "+";
+  font-size: 1.25rem;
+}
+.sq-manual[open] > summary::after {
+  content: "−";
+}
+.sq-manual > .sq-field {
+  margin: 1rem 0;
+}
+.sq-field textarea {
+  min-height: 7rem;
+}
+.sq-record {
+  border-inline-start: 2px solid var(--sq-rule);
+  padding: 0.5rem 0 0.75rem 0.85rem;
+  margin: 0.75rem 0;
+  display: flow-root;
+}
+.sq-record .sq-field {
+  clear: both;
+  margin-bottom: 0.8rem;
+}
+.sq-remove {
+  float: right;
+}
+.sq-ticks {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+}
+.sq-ticks label {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 44px;
+}
+.sq-ticks input[type="checkbox"] {
+  width: 1.2rem;
+  height: 1.2rem;
+  min-height: 0;
+  flex: none;
+}
+.sq-records,
+.sq-field {
+  min-width: 0;
+}
+.sq-help,
+.sq-note {
+  text-wrap: pretty;
+}
+
+.sq-next a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-height: 48px;
+  border-bottom: 1px solid var(--sq-rule);
+  color: inherit;
+}
+.sq-field select {
+  min-height: 44px;
+  width: 100%;
+  font: inherit;
+}
+
+.sq-evidence summary {
+  cursor: pointer;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+.sq-proof {
+  display: block;
+  padding: 0.35rem 0;
+}
