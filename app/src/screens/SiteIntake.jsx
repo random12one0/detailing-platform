@@ -892,12 +892,13 @@ function LiveSite({ a, business }) {
 }
 
 /* ── the screen ─────────────────────────────────────────────────────────── */
-export default function SiteIntake({ onClose, preview = false }) {
+export default function SiteIntake({ onClose, preview = false, draft = null, saveDraft }) {
   useAppLocale();
   const { business, role } = useBusiness() ?? {};
   const [row, setRow] = useState(preview ? null : undefined);   // undefined = loading
-  const [a, setA] = useState({});
-  const [i, setI] = useState(0);
+  const [a, setA] = useState(() => draft?.answers ?? {});
+  const [i, setI] = useState(() => Math.min(STEPS.length-1,Math.max(0,Number(draft?.step)||0)));
+  const [draftSaved,setDraftSaved]=useState(false);
   const [dir, setDir] = useState(1);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
@@ -950,6 +951,10 @@ export default function SiteIntake({ onClose, preview = false }) {
   // ONE WRITER, DEBOUNCED. Every editor on every step goes through `set`, so
   // there is one upsert in this file rather than one per question.
   const push = useCallback((answers, step, extra) => {
+    if (preview && draft && saveDraft) {
+      writes.current=writes.current.then(async()=>{try{await saveDraft(answers,step);setDraftSaved(true);setErr("");return true;}catch{setErr(t("Could not save that. Try again."));return false;}});
+      return writes.current;
+    }
     if (preview || !business?.id || !owner) return Promise.resolve(false);
     // A slower autosave must finish before the submitted answers are written.
     writes.current = writes.current.then(async () => {
@@ -966,14 +971,15 @@ export default function SiteIntake({ onClose, preview = false }) {
       }
     });
     return writes.current;
-  }, [business?.id, owner, preview]);
+  }, [business?.id, owner, preview, draft, saveDraft]);
 
   const set = (id, value) => {
+    if(draft)setDraftSaved(false);
     setA((prev) => {
       // Touching a prefilled answer makes it theirs, so the note goes.
       const next = { ...prev, [id]: value, [`${id}::from`]: undefined };
       clearTimeout(timer.current);
-      timer.current = setTimeout(() => push(next, i), 900);
+      if (!draft) timer.current = setTimeout(() => push(next, i), 900);
       return next;
     });
   };
@@ -1065,7 +1071,7 @@ export default function SiteIntake({ onClose, preview = false }) {
 
   return (
     <div className="group setupform intake">
-      {preview && (
+      {preview && !draft && (
         <div className="impbar" role="status">
           <span>{t("Preview. This is the form a detailer fills in, and nothing here is saved.")}</span>
         </div>
@@ -1105,7 +1111,7 @@ export default function SiteIntake({ onClose, preview = false }) {
             <div className="card"><div className="thoughts">
               <ul className="plainlist">
                 <li>{t("About fifteen minutes.")}</li>
-                <li>{t("It saves as you go. Close it whenever you like and come back to the same place.")}</li>
+                <li>{t(draft ? "Save your website draft before closing it. You can reopen it in this browser." : "It saves as you go. Close it whenever you like and come back to the same place.")}</li>
                 {/* HE ASKED FOR THIS AND REFUSED THE OBVIOUS VERSION OF IT.
                     *"I don't wanna have an option to say save later, but I
                     think they should know that the website will not be made
@@ -1113,7 +1119,7 @@ export default function SiteIntake({ onClose, preview = false }) {
                     Save-and-exit button — closing already saves — and the
                     consequence is stated once, at the top, where somebody
                     deciding whether to start can read it. */}
-                <li>{t("We start building once it is finished.")}</li>
+                {!draft && <li>{t("We start building once it is finished.")}</li>}
               </ul>
             </div></div>
             {/* HIS IDEA, 2026-09-10, AND IT IS BETTER THAN THE ONE IT
@@ -1130,7 +1136,7 @@ export default function SiteIntake({ onClose, preview = false }) {
               <input type="url" className="intakeinput" placeholder="https://…"
                 aria-label={t("Your current website")}
                 value={a.oldsite ?? ""} onChange={(e) => set("oldsite", e.target.value)} />
-              {a.oldsite?.trim() && (
+              {!draft && a.oldsite?.trim() && (
                 <p className="quiet">{t("Then skip any question it already answers. We will take that from your site.")}</p>
               )}
             </div></div>
@@ -1164,7 +1170,7 @@ export default function SiteIntake({ onClose, preview = false }) {
           </div></div>
         ))}
 
-        {(step.qs ?? []).map((q) => <Question key={q.id} q={q} a={a} set={set} />)}
+        {(step.qs ?? []).filter(q=>!draft || q.type!=="photos").map((q) => <Question key={q.id} q={q} a={a} set={set} />)}
 
         {!owner && !preview && (
           <p className="quiet">{t("Only the owner can answer this, so nothing here will save.")}</p>
@@ -1184,7 +1190,8 @@ export default function SiteIntake({ onClose, preview = false }) {
         </p>
       )}
 
-      {last && !row?.submitted_at && (
+      {draft && <div className="setupfoot"><button className="btn primary" onClick={()=>push(a,i)}>{t("Save website draft")}</button>{draftSaved&&<p role="status">{t("Draft saved on this device.")}</p>}</div>}
+      {last && !draft && !row?.submitted_at && (
         <p className="quiet" style={{ textAlign: "center" }}>
           {t("Nothing gets built until you send this. You can still change anything afterwards.")}
         </p>
@@ -1199,10 +1206,10 @@ export default function SiteIntake({ onClose, preview = false }) {
             {last ? t("Finish later") : t("Skip")}
           </button>
         )}
-        <button className="btn primary" disabled={busy || blocked || (last && (preview || !owner))}
+        {!(draft && last) && <button className="btn primary" disabled={busy || blocked || (last && (preview || !owner))}
           onClick={() => (last ? finish() : go(i + 1))}>
           {busy ? t("Saving…") : last ? t(submitFailed ? "Try again" : "Send it") : t("Continue")}
-        </button>
+        </button>}
       </div>
 
       {!preview && (
@@ -1213,7 +1220,7 @@ export default function SiteIntake({ onClose, preview = false }) {
       )}
 
       <span className="label intakecount">
-        {preview
+        {draft ? t("Website draft") : preview
           ? t("{done} of {total} answered · nothing is saved in a preview", { done: p.done, total: p.total })
           : t(busy || err || (submitFailed && last)
             ? "{done} of {total} answered"

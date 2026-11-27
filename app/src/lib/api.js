@@ -87,6 +87,7 @@ export async function downloadOwnerIcs(bookingId) {
 }
 
 export const api = {
+  ownerDraft: (business_id, action, body = {}) => callFn("owner-draft", { ...body, business_id, action }),
   // Booking writes — the one write path. Through the core's transport, like
   // every tenant site.
   createBooking: (businessSlug, payload) => bookingTransport.createBooking(businessSlug, payload),

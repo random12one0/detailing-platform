@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { CalendarDays, CircleDollarSign, Plus, Settings, Store, Sun, Users } from "lucide-react";
 import { useBusiness } from "./context/BusinessContext.jsx";
 import NewBookingModal from "./components/NewBookingModal.jsx";
@@ -36,6 +36,7 @@ import NoConnection from "./screens/NoConnection.jsx";
 import { TAB_PATHS } from "./tabPaths.js";
 export { TAB_PATHS };
 
+const OwnerDraft = lazy(() => import("./owner-draft/OwnerDraft.jsx"));
 const TABS = [
   { key: "today", label: "Today", Icon: Sun, el: Today },
   { key: "calendar", label: "Calendar", Icon: CalendarDays, el: Calendar },
@@ -275,7 +276,7 @@ export default function App() {
     && !siteIntake?.submitted_at && !siteIntake?.dismissed;
 
   useEffect(() => {
-    if (!business || started.current) return;
+    if (!business || started.current || new URLSearchParams(window.location.search).get("onboarding") === "1") return;
     // WAIT FOR WHAT THE DECISION NEEDS, AND ONLY FOR THAT. An owner's branch
     // reads `settings`; a staff member may never be allowed to (Notifications
     // needs the `settings` permission to READ it), so gating both on it would
@@ -361,6 +362,18 @@ export default function App() {
   // Signed in with no business: a brand new account (or a Google sign-in)
   // belongs in business creation, not at a dead end.
   if (!business) return <CreateBusiness />;
+  if (new URLSearchParams(window.location.search).get("onboarding") === "1") {
+    if (role !== "owner" || isPreviewTab) {
+      return <main className="app-main"><p>{t("This setup link is unavailable.")}</p><a className="btn" href="/app">{t("Back to dashboard")}</a></main>;
+    }
+    return (
+      <main className="app-main">
+        <Suspense fallback={null}>
+          <OwnerDraft key={session.user.id + business.id} owner={session.user.id} business={business} signOut={signOut} />
+        </Suspense>
+      </main>
+    );
+  }
 
   // The database policies are the real enforcement; this only stops the UI
   // offering what the session cannot use.
