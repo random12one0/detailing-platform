@@ -193,8 +193,10 @@ export async function runChecks({ ownerEmail = "" } = {}) {
   add("customer", "The two demo admin logins are locked (issue #10)", lock.status === 0 && left.includes("neither"),
     lock.status !== 0 ? `Dry run failed: ${(lock.stderr || lock.stdout).split("\n").find(Boolean)?.slice(0, 160)}` : left.includes("neither") ? "Neither demo login is a platform admin." : `Still platform admins: ${left}.`);
   const legal = readFileSync(path.join(ROOT, "app/src/landing/legal.js"), "utf8");
-  add("customer", "Terms page no longer says it is unreviewed by a lawyer (issue #33)", !/not yet reviewed by a lawyer/.test(legal),
-    /not yet reviewed by a lawyer/.test(legal) ? "The Terms still say \"not yet reviewed by a lawyer\" next to an auto-renewal and an exit fee. Andrew's call: a legal read, or his own wording." : "That line is gone.");
+  const hasDisclaimer = legal.split(/\r?\n/).some((line) =>
+    !line.trimStart().startsWith("//") && /not yet reviewed by a lawyer/.test(line));
+  add("customer", "Terms page no longer says it is unreviewed by a lawyer (issue #33)", !hasDisclaimer,
+    hasDisclaimer ? "The Terms still say \"not yet reviewed by a lawyer\" next to an auto-renewal and an exit fee. Andrew's call: a legal read, or his own wording." : "That line is gone.");
   return out;
 }
 
@@ -208,5 +210,5 @@ export function printChecks(rows) {
   if (!rows.some((r) => r.kind === "stripe")) return; // a partial listing (go-live shows only the health block)
   const open = (k) => rows.filter((r) => r.kind === k && r.status !== "PASS").length;
   console.log(`\nSUMMARY: ${open("gate")} platform-health item(s) blocked, ${open("stripe")} Stripe item(s) not live yet, ${open("customer")} first-customer item(s) open.`);
-  console.log(open("gate") ? "NOT READY to switch: fix the platform-health items first." : open("stripe") ? "READY to switch to live: run scripts/go-live.mjs (see docs/GO-LIVE.md)." : "Stripe is live.");
+  console.log(open("gate") ? "NOT READY to switch. Fix the platform-health items first." : open("stripe") ? "Platform health passed. Follow docs/GO-LIVE.md to complete Stripe setup and rehearse the switch." : "Stripe is live.");
 }
