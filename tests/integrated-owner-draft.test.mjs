@@ -4,7 +4,7 @@ import { test } from "node:test";
 import { ownerDraft } from "../supabase/functions/_shared/ownerDraftAccess.js";
 import { fixture, shop } from "./fixtures/pilotGemini.mjs";
 import { websiteAnswers } from "../app/src/owner-draft/website.js";
-import { keyHint } from "../app/src/owner-draft/modelProvider.js";
+import { inferSetup } from "../supabase/functions/_shared/setupInference.js";
 function harness(providerSend) {
   const f = fixture(),
     rows = new Map(),
@@ -90,6 +90,10 @@ test("owner and tenant admission applies to every action before storage", async 
     assert.equal((await h.send(action)).status, 404);
     h.flags.enabled = "1";
   }
+  for(const ai of ["configure","enabled",undefined]){h.flags.ai=ai;
+    for(const op of ["read","save","refresh","remove","activate","manual"]){assert.equal((await h.send("settings",{op})).status,404);}
+    assert.equal((await h.send("suggest",{confirmed:true})).status,404);
+  }
   h.flags.ai = undefined;
   assert.deepEqual(await (await h.send("access")).json(), {
     owner: h.owner,
@@ -101,111 +105,7 @@ test("owner and tenant admission applies to every action before storage", async 
   assert.equal(h.scope.reads, 0);
   assert.equal(h.calls.length, 0);
 });
-test("reviewed Gemini model, redaction, retries, manual fallback and evidence", async () => {
-  const h = harness(),
-    model = "gemini-3.8-flash";
-  let rev = 0;
-  const params = (op, extra) => ({
-    op,
-    provider: "gemini",
-    revision: rev,
-    requestId: randomUUID(),
-    ...extra,
-  });
-  const update = async (op, extra = {}) => {
-    const response = await h.send("settings", params(op, extra));
-    const body = await response.json();
-    assert.equal(response.status, 200, JSON.stringify(body));
-    rev = body.revision;
-    assert.ok(!JSON.stringify(body).includes(h.key));
-    return body;
-  };
-  const saved = await update("save", { key: h.key });
-  assert.equal(saved.active, "manual");
-  assert.ok(saved.providers.gemini.models.some((x) => x.id === model));
-  assert.ok(
-    !saved.providers.gemini.models.some((x) => x.id === "gemini-3.5-flash"),
-  );
-  assert.equal(saved.providers.gemini.verifiedAt, null);
-  assert.ok(!JSON.stringify([...h.rows]).includes(h.key));
-  assert.equal(
-    (await h.send("settings", params("activate", { model }))).status,
-    404,
-  );
-  const active = await update("activate", { confirmed: true, model });
-  assert.equal(active.active, "gemini");
-  const p = params("suggest", { confirmed: true, model, answers: shop });
-  const r = await h.send("suggest", p);
-  assert.equal(r.status, 200);
-  const { suggestions: v } = await r.json();
-  assert.equal(v.size_mode, "purchase");
-  assert.deepEqual(
-    v.vehicle_sizes.map((x) => x.fee),
-    [0, 15, 30],
-  );
-  assert.deepEqual(
-    v.services.map((x) => [x.name, x.minutes]),
-    [["Interior", 60]],
-  );
-  assert.deepEqual(
-    v.vehicle_sizes.map((x) => 100 + 50 + x.fee),
-    [150, 165, 180],
-  );
-  assert.equal(v.cancellation_window_hours, undefined);
-  assert.match(v.follow_up, /Exterior/);
-  assert.match(v.follow_up, /cancellation/i);
-  assert.equal((await h.send("suggest", p)).status, 409);
-  assert.equal(
-    (await h.send("suggest", { ...p, requestId: randomUUID() })).status,
-    429,
-  );
-  h.later();
-  const per = await h.send(
-    "suggest",
-    params("suggest", {
-      confirmed: true,
-      model,
-      answers: {
-        ...shop,
-        size_details: shop.size_details.replace(
-          "once per booking",
-          "for each service",
-        ),
-      },
-    }),
-  );
-  assert.equal((await per.json()).suggestions.size_mode, "service");
-  const before = h.calls.length;
-  assert.equal(
-    (
-      await h.send(
-        "suggest",
-        params("suggest", {
-          confirmed: true,
-          model,
-          answers: { ...shop, customers: ["fictional"] },
-        }),
-      )
-    ).status,
-    400,
-  );
-  assert.equal(h.calls.length, before);
-  h.later();
-  h.fail(503);
-  assert.notEqual(
-    (await h.send("suggest", { ...p, requestId: randomUUID() })).status,
-    200,
-  );
-  h.fail(0);
-  assert.equal(
-    (await (await h.send("settings", { op: "read" })).json()).active,
-    "gemini",
-  );
-  const removed = await update("remove");
-  assert.equal(removed.active, "manual");
-  assert.equal(removed.providers.gemini.hasKey, false);
-});
-test("website form prefill preserves manual edits and ambiguous keys need a choice", () => {
+test("website form prefill preserves manual edits", () => {
   assert.deepEqual(
     websiteAnswers(
       {
@@ -217,50 +117,8 @@ test("website form prefill preserves manual edits and ambiguous keys need a choi
     ),
     { A1: "My edit", oldsite: "https://fixture.invalid", A4: "Mesa" },
   );
-  assert.equal(keyHint("fixture"), "");
-  assert.equal(keyHint("sk-ant-fictional"), "anthropic");
-  assert.equal(keyHint("sk-proj-fictional"), "openai");
-  assert.equal(keyHint("AIza" + "x".repeat(22)), "gemini");
+
 });
 
-import { ids, mockProviders } from "./fixtures/shopAIProviders.mjs";
-test("each provider uses its own confirmed key and verified model", async () => {
-  const calls = [];
-  const h = harness(mockProviders((url) => calls.push(new URL(url).host)));
-  let revision = 0;
-  for (const [provider, model] of Object.entries(ids)) {
-    const expected = {
-      openai: "api.openai.com",
-      anthropic: "api.anthropic.com",
-      gemini: "generativelanguage.googleapis.com",
-    }[provider];
-    for (const op of ["save", "activate"]) {
-      h.later();
-      const res = await h.send("settings", {
-        op,
-        provider,
-        requestId: randomUUID(),
-        revision,
-        key: h.key,
-        model,
-        confirmed: true,
-      });
-      const result = await res.json();
-      assert.equal(res.status, 200, JSON.stringify(result));
-      revision = result.revision;
-      assert.equal(calls.at(-1), expected);
-      if (op === "activate") {
-        assert.equal(result.providers[provider].model, model);
-        assert.equal(result.active, provider);
-      }
-    }
-  }
-  const old = revision;
-  const rejected = await h.send("settings", {
-    op: "remove",
-    provider: "gemini",
-    requestId: randomUUID(),
-    revision: old - 1,
-  });
-  assert.equal(rejected.status, 409);
-});
+
+test("draft interpretation preserves the charge scope and leaves unclear answers for review", async()=>{const f=fixture();for(const [phrase,expected] of [["once per booking","purchase"],["for each service","service"]]){const {suggestions:v}=await inferSetup({...shop,size_details:shop.size_details.replace("once per booking",phrase)},{provider:"gemini",model:"gemini-3.8-flash",apiKey:f.key,send:f.deps.send,strictPilotEvidence:true});assert.equal(v.size_mode,expected);assert.deepEqual(v.vehicle_sizes.map(x=>100+50+x.fee*(expected==="purchase"?1:2)),expected==="purchase"?[150,165,180]:[150,180,210]);assert.equal(v.cancellation_window_hours,undefined);assert.deepEqual(v.services.map(x=>x.name),["Interior"]);assert.match(v.follow_up,/Exterior/);}});

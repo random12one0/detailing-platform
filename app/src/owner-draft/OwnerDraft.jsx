@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState } from "react";
 import { api } from "../lib/api.js";
 import { t } from "../lib/appI18n.js";
 import Form from "./Form.jsx";
-import AISettings from "./AISettings.jsx";
 import SiteIntake from "../screens/SiteIntake.jsx";
 import { websiteAnswers } from "./website.js";
 import "./strings.js";
@@ -99,7 +98,6 @@ export default function OwnerDraft({ owner, business, signOut }) {
       <nav className="draft-tabs" aria-label={t("Setup sections")}>
         {[
           ["shop", "Shop setup"],
-          ["ai", "AI Settings"],
           ["website", "Website draft"],
         ].map(([k, label]) => (
           <button
@@ -117,11 +115,9 @@ export default function OwnerDraft({ owner, business, signOut }) {
           owner={owner}
           business={business}
           call={call}
-          mode={access.mode}
           onSaved={setAnswers}
         />
       </div>
-      {page === "ai" && <AISettings call={call} mode={access.mode} />}
       {page === "website" && website && (
         <SiteIntake
           preview

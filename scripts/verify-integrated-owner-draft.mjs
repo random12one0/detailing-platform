@@ -309,40 +309,9 @@ try {
       await btn("Website draft").click();
       await website.waitFor();
       assert.match(await website.inputValue(), /edited/);
-      await btn("AI Settings").click();
-      await page
-        .getByText("AI is off. You can fill out and save your draft.")
-        .waitFor();
-      await shot("settings");
+      assert.equal(await btn("AI Settings").count(),0);
+      assert.equal(await page.getByLabel("Provider API key").count(),0);
       if (width === 390) {
-        mode = "enabled";
-        await btn("Shop setup").click();
-        await btn("AI Settings").click();
-        const key = page.getByLabel("Provider API key");
-        await key.fill("AI" + "za" + "x".repeat(35));
-        await page
-          .getByRole("button", { name: /Save key and load models/ })
-          .click();
-        await page.getByLabel("Available models").fill("gemini-3.8-flash");
-        await btn("Test and use model").click();
-        await page.getByText(/Current model.*gemini-3.8-flash/).waitFor();
-        await btn("Shop setup").click();
-        await btn("Review setup", form).click();
-        await btn("Review what AI will receive", form).click();
-        await btn("Send these answers to AI", form).click();
-        await btn("Add suggestions to my draft", form).click();
-        await btn("Save draft on this device", form).click();
-        await form
-          .getByText("Draft saved on this device.", { exact: true })
-          .waitFor();
-        const saved = await page.evaluate(
-          ([o, b]) =>
-            JSON.parse(localStorage.getItem("dp.ownerSetup.v1." + o + "." + b)),
-          [owner, business],
-        );
-        assert.equal(saved.size_mode, "purchase");
-        assert.equal(saved.vehicle_sizes[1].fee, 15);
-        assert.equal(saved.cancellation_window_hours, undefined);
         await page.getByRole("link", { name: "Back to dashboard" }).click();
         await page
           .getByRole("heading", { name: "Finish payment to go live" })
