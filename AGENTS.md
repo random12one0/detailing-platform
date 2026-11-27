@@ -23,6 +23,16 @@ is **not a programmer**. He directs the work. Live site: detailingplatform.com.
 - Hosting: Netlify. Email: Resend. Payments: Stripe.
 - Tests: Node's built-in runner, in `tests/`. Helper scripts in `scripts/`.
 
+## Before changing a feature
+
+Read `docs/FEATURE-MAP.md` and the relevant product rule or decision before
+planning, assigning or writing code. Trace the current entry point through
+saved state, the server and the customer-visible outcome. Check existing
+issues and active branches before starting a second solution. Each handoff
+must name what it reuses, the missing link, the test through the real entry
+point, and what was not verified. Update the map when that behavior or its
+release status changes.
+
 ## Commands
 
 ```bash
