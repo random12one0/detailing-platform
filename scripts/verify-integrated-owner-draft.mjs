@@ -63,7 +63,9 @@ try {
       }),
       f = fixture();
     const office = officeFixture();
-    let officeMode;
+    let officeMode,
+      admissionChecks = 0,
+      setupSeen = false;
     const page = await ctx.newPage();
     page.setDefaultTimeout(7000);
     let identity = owner,
@@ -150,6 +152,7 @@ try {
         return respond(await result.json(), result.status);
       }
       if (p.endsWith("/owner-draft")) {
+        admissionChecks++;
         const resp = await ownerDraft(
           new Request(base + p, {
             method: "POST",
@@ -245,7 +248,7 @@ try {
                 : name === "business_settings"
                   ? {
                       business_id: tenant,
-                      setup: { seen: true, dismissed: true },
+                      setup: { seen: setupSeen, dismissed: false },
                     }
                   : null;
         return respond(
@@ -279,7 +282,15 @@ try {
       });
     };
     try {
-      await page.goto(base + "/app?onboarding=1");
+      await page.goto(base + "/");
+      const signInLink = page.getByRole("link", {
+        name: "Sign in",
+        exact: true,
+      });
+      if (!(await signInLink.count())) await btn("Menu").click();
+      await signInLink.first().click();
+      assert.equal(new URL(page.url()).pathname, "/app");
+      assert.equal(new URL(page.url()).search, "");
       await btn("Sign in").waitFor();
       await login();
       const form = page.locator(".shop-questions");
@@ -342,12 +353,44 @@ try {
         await page
           .getByRole("heading", { name: "Finish payment to go live" })
           .waitFor();
+        await page.reload();
+        await page
+          .getByRole("heading", { name: "Finish payment to go live" })
+          .waitFor();
+        await page.goto(base + "/app");
+        await page
+          .getByRole("heading", { name: "Finish payment to go live" })
+          .waitFor();
+        const beforeBrief = admissionChecks;
+        await page.goto(base + "/app?brief=1");
+        await page
+          .getByRole("heading", { name: "Your website", exact: true })
+          .waitFor();
+        assert.equal(admissionChecks, beforeBrief);
+        await page.goto(base + "/app");
+        await btn("Finish setting up").click();
+        await form.getByLabel("Business name").waitFor();
+        assert.equal(
+          await form.getByLabel("Business name").inputValue(),
+          shop.name,
+        );
         await page.goto(base + "/app?onboarding=1");
         await btn("Sign out").click();
         await btn("Sign in").waitFor();
         assert.ok(logout);
         identity = wrongOwner;
+        await page.goto(base + "/app");
         await login();
+        await page.getByRole("heading", { name: "Getting started" }).waitFor();
+        assert.equal(await form.count(), 0);
+        setupSeen = true;
+        await page.reload();
+        await page
+          .getByRole("heading", { name: "Finish payment to go live" })
+          .waitFor();
+        assert.equal(await form.count(), 0);
+        setupSeen = false;
+        await page.goto(base + "/app?onboarding=1");
         await page
           .getByRole("heading", { name: "This setup link is unavailable." })
           .waitFor();
@@ -387,6 +430,7 @@ try {
       await btn("Sign out").click();
       await btn("Sign in").waitFor();
       identity = adminId;
+      const beforeAdmin = admissionChecks;
       await page.goto(base + "/admin#ai-settings");
       await login();
       await page.getByText("Provider connections are off.").waitFor();
@@ -432,6 +476,7 @@ try {
       await btn("Confirm removal").click();
       await btn("Add API key").waitFor();
       assert.equal(office.calls.length, 1);
+      assert.equal(admissionChecks, beforeAdmin);
       assert.deepEqual(errors, []);
       assert.deepEqual(writes, []);
       assert.deepEqual(foreign, []);

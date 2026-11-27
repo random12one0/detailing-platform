@@ -88,7 +88,7 @@ export default function OwnerDraft({ owner, business, signOut }) {
   return (
     <section className="owner-draft">
       <header className="draft-account">
-        <a className="btn inline ghost" href="/app">
+        <a className="btn inline ghost" href="/app?onboarding=dashboard">
           {t("Back to dashboard")}
         </a>
         <button className="btn inline ghost" onClick={signOut}>
