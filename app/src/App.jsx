@@ -20,6 +20,7 @@ import { impersonation } from "./lib/impersonation.js";
 import { isPreviewTab, previewEndsAt, previewMode, previewWho, setPreviewMode } from "./lib/preview.js";
 import { planChoice } from "./lib/planChoice.js";
 import { api } from "./lib/api.js";
+import { useOwnerDraftLanding } from "./owner-draft/useOwnerDraftLanding.js";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD scope (`dp.lang.app`), never the
 // booking page's. See `lib/appI18n.js` for why they are two keys.
 import { t } from "./lib/appI18n.js";
@@ -58,6 +59,9 @@ const TABS = [
 export default function App() {
   const { session, business, settings, role, can, loading, signOut, reload,
     subscription, siteIntake, offlineBoot } = useBusiness();
+  const draftLanding = useOwnerDraftLanding(
+    session?.user?.id, business?.id, role === "owner" && !isPreviewTab && !offlineBoot && !loading,
+  );
 
   // The whole shell repaints when the language changes. Every screen calls
   // this for itself too — see the hook's header on why once at the root is
@@ -276,7 +280,7 @@ export default function App() {
     && !siteIntake?.submitted_at && !siteIntake?.dismissed;
 
   useEffect(() => {
-    if (!business || started.current || new URLSearchParams(window.location.search).get("onboarding") === "1") return;
+    if (loading || draftLanding !== "legacy" || !business || started.current || new URLSearchParams(window.location.search).get("onboarding") === "1") return;
     // WAIT FOR WHAT THE DECISION NEEDS, AND ONLY FOR THAT. An owner's branch
     // reads `settings`; a staff member may never be allowed to (Notifications
     // needs the `settings` permission to READ it), so gating both on it would
@@ -346,9 +350,9 @@ export default function App() {
         setFirstRun("website");
       }
     }
-  }, [business, settings, role, wantsBrief]);
+  }, [business, settings, role, wantsBrief, loading, draftLanding]);
 
-  if (loading) {
+  if (loading || draftLanding === "checking") {
     return (
       <main className="center" aria-busy="true" aria-label={t("Loading")}>
         <div className="spinner" />
@@ -362,7 +366,7 @@ export default function App() {
   // Signed in with no business: a brand new account (or a Google sign-in)
   // belongs in business creation, not at a dead end.
   if (!business) return <CreateBusiness />;
-  if (new URLSearchParams(window.location.search).get("onboarding") === "1") {
+  if (draftLanding === "draft" || new URLSearchParams(window.location.search).get("onboarding") === "1") {
     if (role !== "owner" || isPreviewTab) {
       return <main className="app-main"><p>{t("This setup link is unavailable.")}</p><a className="btn" href="/app">{t("Back to dashboard")}</a></main>;
     }
@@ -400,6 +404,14 @@ export default function App() {
   // and New booking do not.
   const awaitingPay = role === "owner" && business.status === "paused"
     && business.awaiting_first_payment === true;
+  function openSetup(at = 0) {
+    if (draftLanding === "dashboard") {
+      window.location.assign("/app?onboarding=1");
+      return;
+    }
+    setSetupAt(at);
+    setFirstRun("setup");
+  }
   const TAB_NEEDS = { money: "money", business: "settings" };
   const visibleTabs = TABS.filter((x) => !TAB_NEEDS[x.key] || can(TAB_NEEDS[x.key]));
   const activeTab = visibleTabs.find((x) => x.key === tab) ?? visibleTabs[0];
@@ -562,14 +574,14 @@ export default function App() {
                   <button type="button" className="btn primary" onClick={() => { setGearScreen("billing"); setGear(true); }}>
                     {t("Go to payment")}
                   </button>
-                  <button type="button" className="btn" onClick={() => { setSetupAt(0); setFirstRun("setup"); }}>
+                  <button type="button" className="btn" onClick={() => openSetup()}>
                     {t("Finish setting up")}
                   </button>
                 </div>
               </section>
             )
             : (
-              <Active refreshKey={rev} holdLeave={leave} onSetup={(at = 0) => { setSetupAt(at); setFirstRun("setup"); }} intent={intent}
+              <Active refreshKey={rev} holdLeave={leave} onSetup={openSetup} intent={intent}
                 // Only `Business` reads it; the other tabs ignore a prop they
                 // were not given a use for, which is cheaper than a second
                 // render path in this switch for one destination.
