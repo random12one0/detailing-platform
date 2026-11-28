@@ -12,6 +12,7 @@ import {
 } from "../../../supabase/functions/_shared/setupQuestions.js";
 import { t } from "../lib/appI18n.js";
 
+import { websiteFields } from "./website.js";
 import { draftCopies, sameCopies, saveAnswers } from "./storage.js";
 import "../components/shop-questions.css";
 
@@ -238,6 +239,15 @@ function Questions({ business, owner, call, storageKey: key, initial }) {
           )}
           {reviewing ? (
             <div className="sq-body">
+              {Object.keys(websiteFields).some(k => answers[k] != null && answers[k] !== "") && (
+                <details className="sq-summary sq-manual">
+                  <summary>{t("Shop answers your website can reuse")}</summary>
+                  <p>{t("Save your shop draft, then open Website draft. Answers you edit there take priority.")}</p>
+                  <dl>{Object.keys(websiteFields).filter(k => answers[k] != null && answers[k] !== "").map(k =>
+                    <div key={k}><dt>{t(fields[k].label)}</dt><dd>{display(fields[k], answers[k])}</dd></div>
+                  )}</dl>
+                </details>
+              )}
               {sections.map((s, i) => {
                 const filled = s.fields.filter(
                   (f) =>
