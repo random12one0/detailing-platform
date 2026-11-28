@@ -9,8 +9,16 @@ import { randomUUID } from "node:crypto";
 import { chromium } from "../app/node_modules/playwright/index.mjs";
 import { ownerDraft } from "../supabase/functions/_shared/ownerDraftAccess.js";
 import { fixture, shop } from "../tests/fixtures/pilotGemini.mjs";
-const root = path.resolve("app/dist"),
-  shots = path.join(tmpdir(), "dp-owner-draft-" + randomUUID());
+const candidate = path.resolve("app/dist");
+const previous = process.env.OWNER_DRAFT_ROLLBACK_DIST;
+let root = candidate;
+if (previous) {
+  const entry = async dir => (await readFile(path.join(dir, "index.html"), "utf8")).match(/src="(\/assets\/index-[^"]+\.js)"/)?.[1];
+  const oldEntry = await entry(previous), currentEntry = await entry(candidate);
+  assert.ok(oldEntry && currentEntry && oldEntry !== currentEntry, "Expected distinct previous and candidate builds");
+  root = path.resolve(previous);
+}
+const shots = path.join(tmpdir(), "dp-owner-draft-" + randomUUID());
 await mkdir(shots);
 const api = "https://stand-in.supabase.invalid";
 const type = {
@@ -50,7 +58,7 @@ const owner = randomUUID(),
   wrongShop = randomUUID();
 const jwt = (v) => Buffer.from(JSON.stringify(v)).toString("base64url");
 try {
-  for (const [width, height] of [
+  for (const [width, height] of previous ? [[390, 844]] : [
     [390, 844],
     [768, 1024],
     [1440, 900],
@@ -105,6 +113,7 @@ try {
       if (m.type() === "error" || m.type() === "warning")
         consoleErrors.push(m.text());
     });
+    if (previous) await ctx.routeWebSocket("**/*", socket => socket.close());
     await ctx.route("**/*", async (route) => {
       const rq = route.request(),
         u = new URL(rq.url());
@@ -152,6 +161,7 @@ try {
         return respond(await result.json(), result.status);
       }
       if (p.endsWith("/owner-draft")) {
+        if (previous) assert.equal(rq.postDataJSON().action, "access");
         admissionChecks++;
         const resp = await ownerDraft(
           new Request(base + p, {
@@ -295,6 +305,17 @@ try {
       await login();
       const form = page.locator(".shop-questions");
       await form.getByRole("heading", { name: "Business details" }).waitFor();
+      if (previous) {
+        const { walk } = await import("./lib/walkManualDraftConflict.mjs");
+        await walk({ ctx, page, base, owner, business, shots,
+          previous: () => { root = path.resolve(previous); },
+          candidate: () => { root = candidate; },
+        });
+        assert.deepEqual(writes, []);
+        assert.deepEqual(errors, []);
+        assert.deepEqual(foreign, []);
+        continue;
+      }
       await shot("shop");
       const chapter = async (name) => {
         const d = form.locator(".sq-index details");

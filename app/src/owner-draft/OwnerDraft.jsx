@@ -1,14 +1,15 @@
 import { useCallback, useEffect, useState } from "react";
 import { api } from "../lib/api.js";
 import { t } from "../lib/appI18n.js";
+import { savedAnswers } from "./storage.js";
 import Form from "./Form.jsx";
 import SiteIntake from "../screens/SiteIntake.jsx";
 import { websiteAnswers } from "./website.js";
 import "./strings.js";
 import "./draft.css";
-function readLocal(key) {
+function readLocal(key, read = k => localStorage.getItem(k)) {
   try {
-    return JSON.parse(localStorage.getItem(key) || "{}");
+    return JSON.parse(read(key) || "{}");
   } catch {
     return {};
   }
@@ -16,7 +17,6 @@ function readLocal(key) {
 export default function OwnerDraft({ owner, business, signOut }) {
   const [access, setAccess] = useState(null),
     [page, setPage] = useState("shop"),
-    [answers, setAnswers] = useState(null),
     [website, setWebsite] = useState(null);
   const key = "dp.ownerSetup.v1." + owner + "." + business.id;
   const call = useCallback(
@@ -51,7 +51,7 @@ export default function OwnerDraft({ owner, business, signOut }) {
       if (p === "website") {
         const edited = readLocal(key + ".website");
         setWebsite({
-          answers: websiteAnswers(answers ?? readLocal(key), edited.edited),
+          answers: websiteAnswers(readLocal(key, savedAnswers), edited.edited),
           step: edited.step ?? 0,
         });
       }
@@ -62,7 +62,7 @@ export default function OwnerDraft({ owner, business, signOut }) {
   }
   async function saveWebsite(next, step) {
     await authorize();
-    const base = websiteAnswers(answers ?? readLocal(key));
+    const base = websiteAnswers(readLocal(key, savedAnswers));
     const edited = Object.fromEntries(
       Object.entries(next).filter(
         ([k, v]) => JSON.stringify(v) !== JSON.stringify(base[k]),
@@ -112,10 +112,10 @@ export default function OwnerDraft({ owner, business, signOut }) {
       </nav>
       <div hidden={page !== "shop"}>
         <Form
+          key={key}
           owner={owner}
           business={business}
           call={call}
-          onSaved={setAnswers}
         />
       </div>
       {page === "website" && website && (
