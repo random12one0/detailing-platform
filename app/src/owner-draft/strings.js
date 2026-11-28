@@ -533,3 +533,19 @@ Object.assign(appEs, {
 });
 
 Object.assign(appEs, {"Save your website draft before closing it. You can reopen it in this browser.":"Guarda el borrador del sitio web antes de cerrarlo. Puedes volver a abrirlo en este navegador."});
+
+Object.assign(appEs, {
+  "A newer draft was saved in another tab. Copy any answers you want to keep from this tab.":
+    "Se guardó un borrador más reciente en otra pestaña. Copia las respuestas de esta pestaña que quieras conservar.",
+  "This browser cannot safely save the draft. Copy your answers before closing this tab.":
+    "Este navegador no puede guardar el borrador de forma segura. Copia tus respuestas antes de cerrar esta pestaña.",
+  "Choose a draft to continue": "Elige un borrador para continuar",
+  "This app and the previous version saved different answers. You can review both. Your choice takes effect when you save.":
+    "Esta versión y la anterior guardaron respuestas diferentes. Puedes revisar ambas. Tu elección se aplica cuando guardas.",
+  "This app’s answers": "Respuestas de esta versión",
+  "Previous app’s answers": "Respuestas de la versión anterior",
+  "Use this app’s answers": "Usar las respuestas de esta versión",
+  "Use previous app’s answers": "Usar las respuestas de la versión anterior",
+  "No answers saved": "No hay respuestas guardadas",
+  "Open saved draft in a new tab": "Abrir el borrador guardado en otra pestaña",
+});

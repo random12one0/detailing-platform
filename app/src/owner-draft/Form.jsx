@@ -12,6 +12,7 @@ import {
 } from "../../../supabase/functions/_shared/setupQuestions.js";
 import { t } from "../lib/appI18n.js";
 
+import { draftCopies, sameCopies, saveAnswers } from "./storage.js";
 import "../components/shop-questions.css";
 
 
@@ -30,19 +31,36 @@ function display(field, value) {
     return value.map((r) => r.q + "\n" + r.a).join("\n\n");
   return answerText(field, value);
 }
-export default function Form({ business, owner, call, onSaved }) {
-  const key = "dp.ownerSetup.v1." + owner + "." + business.id;
+export default function Form(props) {
+  const key = "dp.ownerSetup.v1." + props.owner + "." + props.business.id;
+  const [initial, setInitial] = useState(null);
+  useEffect(() => {
+    let mounted = true;
+    draftCopies(key).then(value => { if (mounted) setInitial(value); });
+    return () => { mounted = false; };
+  }, [key]);
+  if (!initial) return <p role="status">{t("Opening shop setup.")}</p>;
+  return <Questions {...props} storageKey={key} initial={initial} />;
+}
+
+function Questions({ business, owner, call, storageKey: key, initial }) {
+  const original = useRef(initial);
   const [answers, setAnswers] = useState(() => {
       try {
-        const stored = localStorage.getItem(key);
+        const stored = original.current.current ?? original.current.legacy;
         return cleanAnswers(stored ? JSON.parse(stored) : {});
       } catch {
         return {};
       }
     }),
+    [chooseCopy, setChooseCopy] = useState(() => {
+      const copies = original.current;
+      return copies?.current != null && copies.legacy != null && copies.current !== copies.legacy;
+    }),
     [step, setStep] = useState(0),
     [note, setNote] = useState(""),
     [saved, setSaved] = useState(false),
+    [stale, setStale] = useState(false),
     [saving, setSaving] = useState(false);
   const heading = useRef(null);
   const current = sections[step],
@@ -51,6 +69,28 @@ export default function Form({ business, owner, call, onSaved }) {
     heading.current?.focus({ preventScroll: true });
     window.scrollTo(0, 0);
   }, [step]);
+  useEffect(() => {
+    let mounted = true;
+    const check = async () => {
+      const starting = original.current;
+      const latest = await draftCopies(key);
+      if (mounted && starting === original.current && !sameCopies(starting, latest)) {
+        setStale(true);
+        setNote("");
+      }
+    };
+    const changed = event => {
+      if (!event.key || event.key === key || event.key === key + ".saved") check();
+    };
+    window.addEventListener("storage", changed);
+    window.addEventListener("focus", check);
+    check();
+    return () => {
+      mounted = false;
+      window.removeEventListener("storage", changed);
+      window.removeEventListener("focus", check);
+    };
+  }, [key]);
   function move(i) {
     setStep(i);
     setNote("");
@@ -84,17 +124,49 @@ export default function Form({ business, owner, call, onSaved }) {
       const session = await call("access");
       if (session.owner !== owner || session.business !== business.id)
         throw Error();
-      localStorage.setItem(key, JSON.stringify(clean));
-      onSaved(clean);
+      const next = JSON.stringify(clean);
+      original.current = await saveAnswers(key, original.current, next);
+      setStale(false);
       setSaved(true);
       setNote(t("Draft saved on this device."));
-    } catch {
-      setNote(
-        t("Could not save this draft. Check your access and browser storage."),
-      );
+    } catch (error) {
+      if (error.message === "changed") { setStale(true); setNote(""); }
+      else setNote(t(error.message === "lock unavailable"
+        ? "This browser cannot safely save the draft. Copy your answers before closing this tab."
+        : "Could not save this draft. Check your access and browser storage."));
     } finally {
       setSaving(false);
     }
+  }
+  if (chooseCopy && !stale) {
+    return (
+      <section className="shop-questions">
+        <h1>{t("Choose a draft to continue")}</h1>
+        <p>{t("This app and the previous version saved different answers. You can review both. Your choice takes effect when you save.")}</p>
+        {[
+          ["current", "This app’s answers", "Use this app’s answers"],
+          ["legacy", "Previous app’s answers", "Use previous app’s answers"],
+        ].map(([source, title, action]) => {
+          const raw = original.current[source];
+          let parsed;
+          try { parsed = cleanAnswers(JSON.parse(raw)); } catch { /* Keep unknown text available to copy. */ }
+          return (
+            <section className="sq-summary" key={source}>
+              <details className="sq-manual">
+                <summary>{t(title)}</summary>
+                <pre style={{whiteSpace:"pre-wrap", overflowWrap:"anywhere"}}>{parsed
+                  ? Object.entries(parsed).map(([k, v]) => t(fields[k].label) + "\n" + display(fields[k], v)).join("\n\n") || t("No answers saved")
+                  : raw}</pre>
+              </details>
+              <button className="btn" disabled={!parsed} onClick={() => {
+                setAnswers(parsed);
+                setChooseCopy(false);
+              }}>{t(action)}</button>
+            </section>
+          );
+        })}
+      </section>
+    );
   }
   const render = (f) => (
     <QuestionField
@@ -135,6 +207,14 @@ export default function Form({ business, owner, call, onSaved }) {
       </div>
       <div className="sq-layout">
         <div className="sq-main">
+          {stale && (
+            <div className="sq-note" role="alert">
+              <p>{t("A newer draft was saved in another tab. Copy any answers you want to keep from this tab.")}</p>
+              <a className="btn" href="/app?onboarding=1" target="_blank" rel="noopener noreferrer">
+                {t("Open saved draft in a new tab")}
+              </a>
+            </div>
+          )}
           <p className="sq-section">
             {t(reviewing ? "Review" : current.section)}{" "}
             <span>
@@ -208,7 +288,7 @@ export default function Form({ business, owner, call, onSaved }) {
           {!reviewing && (
             <button
               className="btn ghost"
-              disabled={saving || saved}
+              disabled={saving || saved || stale}
               onClick={save}
             >
               {t("Save draft on this device")}
@@ -229,7 +309,7 @@ export default function Form({ business, owner, call, onSaved }) {
             {reviewing ? (
               <button
                 className="btn primary"
-                disabled={saved || saving}
+                disabled={saved || saving || stale}
                 onClick={save}
               >
                 <Check size={16} />
