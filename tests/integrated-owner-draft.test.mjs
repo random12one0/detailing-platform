@@ -3,7 +3,7 @@ import { randomUUID } from "node:crypto";
 import { test } from "node:test";
 import { ownerDraft } from "../supabase/functions/_shared/ownerDraftAccess.js";
 import { fixture, shop } from "./fixtures/pilotGemini.mjs";
-import { websiteAnswers } from "../app/src/owner-draft/website.js";
+import { websiteAnswers, websiteEdits } from "../app/src/owner-draft/website.js";
 import { inferSetup } from "../supabase/functions/_shared/setupInference.js";
 function harness(providerSend) {
   const f = fixture(),
@@ -125,8 +125,15 @@ test("website form prefill preserves manual edits", () => {
       },
       { A1: "My edit" },
     ),
-    { A1: "My edit", oldsite: "https://fixture.invalid", A4: "Mesa" },
+    { A1: "My edit", oldsite: "https://fixture.invalid", "oldsite::from": true, A4: "Mesa", "A4::from": true },
   );
+});
+
+test("the website keeps a field manually cleared or confirmed with the same text", () => {
+  const initial = websiteAnswers({ name: "Juniper", service_area: "Mesa", website: "https://fixture.invalid" });
+  const edited = websiteEdits({ ...initial, "A1::from": undefined, A4: "", "A4::from": undefined });
+  assert.deepEqual(edited, { A1: "Juniper", A4: "" });
+  assert.deepEqual(websiteAnswers({ name: "Changed name", service_area: "Elsewhere" }, edited), edited);
 });
 
 test("draft interpretation preserves the charge scope and leaves unclear answers for review", async () => {

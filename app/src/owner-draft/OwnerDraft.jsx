@@ -1,23 +1,31 @@
 import { useCallback, useEffect, useState } from "react";
 import { api } from "../lib/api.js";
 import { t } from "../lib/appI18n.js";
-import { savedAnswers } from "./storage.js";
+import { draftCopies, savedAnswers, saveAnswers } from "./storage.js";
 import Form from "./Form.jsx";
+import { ALL, EITHER, STEPS } from "../lib/siteIntake.js";
 import SiteIntake from "../screens/SiteIntake.jsx";
-import { websiteAnswers } from "./website.js";
+import { websiteAnswers, websiteEdits } from "./website.js";
 import "./strings.js";
 import "./draft.css";
-function readLocal(key) {
-  try {
-    return JSON.parse(localStorage.getItem(key) || "{}");
-  } catch {
-    return {};
-  }
+function websiteLabel(id) {
+  const field = id.split("::")[0];
+  if (field === "oldsite") return t("Your current website");
+  return t(ALL.find(q => q.id === field)?.question || EITHER.find(([key]) => key === field)?.[1] ||
+    STEPS.find(step => step.key === field)?.name || "Your answer");
+}
+function websiteValue(value) {
+  if (value === true) return t("Yes");
+  if (value === false) return t("No");
+  if (!value && value !== 0) return t("Left blank");
+  if (typeof value === "object") return Object.values(value).map(websiteValue).join(", ");
+  return String(value);
 }
 export default function OwnerDraft({ owner, business, signOut }) {
   const [access, setAccess] = useState(null),
     [page, setPage] = useState("shop"),
-    [website, setWebsite] = useState(null);
+    [website, setWebsite] = useState(null),
+    [websiteError, setWebsiteError] = useState(false);
   const key = "dp.ownerSetup.v1." + owner + "." + business.id;
   const call = useCallback(
     (action, body = {}) => api.ownerDraft(business.id, action, body),
@@ -45,32 +53,48 @@ export default function OwnerDraft({ owner, business, signOut }) {
       window.removeEventListener("focus", refresh);
     };
   }, [authorize]);
+
   async function open(p) {
     try {
       setAccess(await authorize());
-      if (p === "website") {
-        const edited = readLocal(key + ".website");
-        setWebsite({
-          answers: websiteAnswers(await savedAnswers(key), edited.edited),
-          step: edited.step ?? 0,
-        });
-      }
-      setPage(p);
     } catch {
       setAccess(false);
+      return;
     }
+    setWebsiteError(false);
+    if (p === "website") {
+      try {
+        const websiteKey = key + ".website";
+        let snapshot = await draftCopies(websiteKey);
+        const shop = await savedAnswers(key);
+        function show(raw) {
+          const edited = JSON.parse(raw ?? "{}");
+          setWebsite({
+            answers: websiteAnswers(shop, edited.edited),
+            step: edited.step ?? 0,
+            async save(next, step) {
+              await authorize();
+              const value = JSON.stringify({ edited: websiteEdits(next), step });
+              snapshot = await saveAnswers(websiteKey, snapshot, value);
+            },
+          });
+        }
+        if (snapshot.current != null && snapshot.legacy != null && snapshot.current !== snapshot.legacy) {
+          const versions = {};
+          for (const source of ["current", "legacy"]) {
+            const draft = JSON.parse(snapshot[source]);
+            versions[source] = { edited: draft.edited ?? {}, open: () => show(snapshot[source]) };
+          }
+          setWebsite({ versions });
+        } else show(snapshot.current ?? snapshot.legacy);
+      } catch {
+        setWebsiteError(true);
+        return;
+      }
+    }
+    setPage(p);
   }
-  async function saveWebsite(next, step) {
-    await authorize();
-    const base = websiteAnswers(await savedAnswers(key));
-    const edited = Object.fromEntries(
-      Object.entries(next).filter(
-        ([k, v]) => JSON.stringify(v) !== JSON.stringify(base[k]),
-      ),
-    );
-    localStorage.setItem(key + ".website", JSON.stringify({ edited, step }));
-  }
-  if (!access)
+  if (!access || access.owner !== owner || access.business !== business.id)
     return (
       <section className="group">
         <h1>
@@ -104,12 +128,13 @@ export default function OwnerDraft({ owner, business, signOut }) {
             key={k}
             className="btn"
             aria-pressed={page === k}
-            onClick={() => open(k)}
+            onClick={() => { if (page !== k) open(k); }}
           >
             {t(label)}
           </button>
         ))}
       </nav>
+      {websiteError && <p role="alert">{t("Could not open the website draft on this device. Your shop answers are still here.")}</p>}
       <div hidden={page !== "shop"}>
         <Form
           key={key}
@@ -118,11 +143,24 @@ export default function OwnerDraft({ owner, business, signOut }) {
           call={call}
         />
       </div>
-      {page === "website" && website && (
+      {page === "website" && website?.versions && (
+        <section className="sq-summary">
+          <h2>{t("Choose a draft to continue")}</h2>
+          <p>{t("Both versions stay saved until you save or continue in the website form.")}</p>
+          {[["current", "This app's answers", "Use this app's answers"], ["legacy", "Previous app's answers", "Use previous app's answers"]].map(([source, title, action]) => (
+            <div key={source}><details className="sq-manual"><summary>{t(title)}</summary>
+              <dl>{Object.entries(website.versions[source].edited).map(([field, value]) => (
+                <div key={field}><dt>{websiteLabel(field)}</dt><dd>{websiteValue(value)}</dd></div>
+              ))}</dl>
+            </details><button className="btn" onClick={website.versions[source].open}>{t(action)}</button></div>
+          ))}
+        </section>
+      )}
+      {page === "website" && website?.answers && (
         <SiteIntake
           preview
           draft={website}
-          saveDraft={saveWebsite}
+          saveDraft={website.save}
           onClose={() => open("shop")}
         />
       )}

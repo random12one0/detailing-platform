@@ -952,7 +952,7 @@ export default function SiteIntake({ onClose, preview = false, draft = null, sav
   // there is one upsert in this file rather than one per question.
   const push = useCallback((answers, step, extra) => {
     if (preview && draft && saveDraft) {
-      writes.current=writes.current.then(async()=>{try{await saveDraft(answers,step);setDraftSaved(true);setErr("");return true;}catch{setErr(t("Could not save that. Try again."));return false;}});
+      writes.current=writes.current.then(async()=>{try{await saveDraft(answers,step);setDraftSaved(true);setErr("");return true;}catch(e){setErr(t(e.message === "changed" ? "Another tab saved a different website draft. Copy your edits before reopening it." : "Could not save that. Try again."));return false;}});
       return writes.current;
     }
     if (preview || !business?.id || !owner) return Promise.resolve(false);
@@ -1136,6 +1136,7 @@ export default function SiteIntake({ onClose, preview = false, draft = null, sav
               <input type="url" className="intakeinput" placeholder="https://…"
                 aria-label={t("Your current website")}
                 value={a.oldsite ?? ""} onChange={(e) => set("oldsite", e.target.value)} />
+              {draft && a["oldsite::from"] && <p className="fromdash">{t("Website address from your saved shop setup.")}</p>}
               {!draft && a.oldsite?.trim() && (
                 <p className="quiet">{t("Then skip any question it already answers. We will take that from your site.")}</p>
               )}

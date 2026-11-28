@@ -9,8 +9,10 @@ import { randomUUID } from "node:crypto";
 import { chromium } from "../app/node_modules/playwright/index.mjs";
 import { ownerDraft } from "../supabase/functions/_shared/ownerDraftAccess.js";
 import { fixture, shop } from "../tests/fixtures/pilotGemini.mjs";
+const websiteHandoff = process.argv.includes("--manual-website");
+const websiteAssets = websiteHandoff && process.env.OWNER_WEBSITE_ASSET_DIR;
 const published = process.argv.includes("--published-manual");
-const candidate = path.resolve(published ? "out/candidate" : "app/dist");
+const candidate = path.resolve(websiteAssets || (published ? "out/candidate" : "app/dist"));
 const previous = process.env.OWNER_DRAFT_ROLLBACK_DIST;
 if (published) assert.ok(previous, "Supply a local copy of the published assets");
 let root = candidate;
@@ -25,7 +27,7 @@ const shots = path.join(tmpdir(), "dp-owner-draft-" + randomUUID());
 await mkdir(shots);
 // Both API hostnames are fulfilled by the synthetic fixture below. In published
 // replay Chrome also has a dead proxy for every non-loopback destination.
-const api = published ? "https://kguqylyzgyzfktkfnhjb.supabase.co" : "https://stand-in.supabase.invalid";
+const api = published || websiteAssets ? "https://kguqylyzgyzfktkfnhjb.supabase.co" : "https://stand-in.supabase.invalid";
 const type = {
   ".js": "text/javascript",
   ".css": "text/css",
@@ -58,7 +60,7 @@ await new Promise((ok) => server.listen(0, "127.0.0.1", ok));
 const base = "http://127.0.0.1:" + server.address().port;
 const browser = await chromium.launch({
   channel: "chrome", headless: true,
-  args: published ? ["--proxy-server=http://127.0.0.1:1", "--disable-background-networking"] : [],
+  args: published || websiteHandoff ? ["--proxy-server=http://127.0.0.1:1", "--disable-background-networking"] : [],
 });
 const owner = randomUUID(),
   business = randomUUID(),
@@ -66,7 +68,7 @@ const owner = randomUUID(),
   wrongShop = randomUUID();
 const jwt = (v) => Buffer.from(JSON.stringify(v)).toString("base64url");
 try {
-  for (const [width, height] of previous ? [[390, 844]] : [
+  for (const [width, height] of previous || websiteHandoff ? [[390, 844]] : [
     [390, 844],
     [768, 1024],
     [1440, 900],
@@ -121,7 +123,7 @@ try {
       if (m.type() === "error" || m.type() === "warning")
         consoleErrors.push(m.text());
     });
-    if (previous) await ctx.routeWebSocket("**/*", socket => socket.close());
+    if (previous || websiteHandoff) await ctx.routeWebSocket("**/*", socket => socket.close());
     await ctx.route("**/*", async (route) => {
       const rq = route.request(),
         u = new URL(rq.url());
@@ -139,6 +141,10 @@ try {
           body: JSON.stringify(data),
         });
       const p = u.pathname;
+      if (websiteHandoff && (p.endsWith("/owner-intake-suggestions") || p.endsWith("/office-intake-check"))) {
+        writes.push("Unexpected optional function: " + p);
+        return respond({error:"not_found"},404);
+      }
       if (p.endsWith("/token")) return respond(session());
       if (p.endsWith("/user")) return respond(user());
       if (p.endsWith("/logout")) {
@@ -169,7 +175,7 @@ try {
         return respond(await result.json(), result.status);
       }
       if (p.endsWith("/owner-draft")) {
-        if (previous) assert.equal(rq.postDataJSON().action, "access");
+        if (previous || websiteHandoff) assert.equal(rq.postDataJSON().action, "access");
         admissionChecks++;
         const resp = await ownerDraft(
           new Request(base + p, {
@@ -322,6 +328,24 @@ try {
         assert.deepEqual(writes, []);
         assert.deepEqual(errors, []);
         assert.deepEqual(foreign, []);
+        continue;
+      }
+      if (websiteHandoff) {
+        const { walk } = await import("./lib/walkManualWebsite.mjs");
+        await walk({page,ctx,base,form,btn});
+        await btn("Sign out").click();
+        await btn("Sign in").waitFor();
+        identity = adminId;
+        officeMode = "configure";
+        await page.goto(base + "/admin#ai-settings");
+        await login();
+        await page.getByRole("button",{name:"Add API key",exact:true}).waitFor();
+        assert.equal(await page.getByRole("button",{name:"Run one sample check"}).count(),0);
+        assert.equal(office.calls.length,0);
+        assert.deepEqual(writes,[]);
+        assert.deepEqual(foreign,[]);
+        assert.deepEqual(errors,[]);
+        console.log("Verified manual website handoff and Back Office with zero optional calls or hosted writes.");
         continue;
       }
       await shot("shop");

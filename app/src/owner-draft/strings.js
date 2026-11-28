@@ -1,6 +1,13 @@
 import { appEs } from "../lib/strings/appEs.js";
 // Extend the shared dictionary only in the private pilot build.
 Object.assign(appEs, {
+  "Left blank": "Se dejó en blanco",
+  "Both versions stay saved until you save or continue in the website form.": "Ambas versiones se conservan hasta que guardes o avances en el formulario del sitio web.",
+  "Could not open the website draft on this device. Your shop answers are still here.": "No se pudo abrir el borrador del sitio web en este dispositivo. Las respuestas del negocio siguen aquí.",
+  "Shop answers your website can reuse": "Respuestas del negocio que puedes usar en tu sitio web",
+  "Save your shop draft, then open Website draft. Answers you edit there take priority.": "Guarda el borrador del negocio y abre el borrador del sitio web. Se conserva lo que edites allí.",
+  "Website address from your saved shop setup.": "Dirección web guardada en la configuración de tu negocio.",
+  "Another tab saved a different website draft. Copy your edits before reopening it.": "Otra pestaña guardó una versión diferente del sitio. Copia tus cambios antes de volver a abrirlo.",
   "Review this sample draft": "Revisar este borrador de ejemplo",
   "Simulated draft": "Borrador simulado",
   "Back to my draft": "Volver a mi borrador",

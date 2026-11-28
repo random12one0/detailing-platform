@@ -1,21 +1,28 @@
-export function websiteAnswers(a, edited = {}) {
-  const map = {
-    oldsite: a.website,
-    A1: a.name,
-    A2: a.about_copy,
-    A4: a.service_area,
-    G1: a.contact_phone,
-    H7: a.tagline,
-    H5: a.primary_color ? [a.primary_color] : undefined,
-    D5: a.credentials
-      ?.map((c) => c.label)
-      .filter(Boolean)
-      .join(", "),
-  };
-  return {
-    ...Object.fromEntries(
-      Object.entries(map).filter(([, v]) => v != null && v !== ""),
-    ),
-    ...edited,
-  };
+// These are the existing field IDs in SiteIntake. Unknowns stay blank.
+export const websiteFields = {
+  website: "oldsite", name: "A1", about_copy: "A2", service_area: "A4",
+  contact_phone: "G1", tagline: "H7", primary_color: "H5", credentials: "D5",
+};
+
+export function websiteAnswers(shop, edited = {}) {
+  const answers = { ...edited };
+  for (const [key, id] of Object.entries(websiteFields)) {
+    if (Object.hasOwn(edited, id) || edited[id + "::web"]) continue;
+    const value = shop[key];
+    if (value == null || value === "") continue;
+    const mapped = key === "credentials" ? value.map(c => c.label).filter(Boolean).join(", ") :
+      key === "primary_color" ? [value] : value;
+    if (mapped === "") continue;
+    answers[id] = mapped;
+    answers[id + "::from"] = true;
+  }
+  return answers;
+}
+
+// SiteIntake clears ::from when the owner touches a field, even if the text is identical.
+// Keep these overrides, including a deliberate blank. Inherited fields follow the next saved shop draft.
+export function websiteEdits(next) {
+  return Object.fromEntries(Object.entries(next).filter(([key]) =>
+    !key.endsWith("::from") && next[key + "::from"] !== true
+  ));
 }
