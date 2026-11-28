@@ -9,18 +9,23 @@ import { randomUUID } from "node:crypto";
 import { chromium } from "../app/node_modules/playwright/index.mjs";
 import { ownerDraft } from "../supabase/functions/_shared/ownerDraftAccess.js";
 import { fixture, shop } from "../tests/fixtures/pilotGemini.mjs";
-const candidate = path.resolve("app/dist");
+const published = process.argv.includes("--published-manual");
+const candidate = path.resolve(published ? "out/candidate" : "app/dist");
 const previous = process.env.OWNER_DRAFT_ROLLBACK_DIST;
+if (published) assert.ok(previous, "Supply a local copy of the published assets");
 let root = candidate;
 if (previous) {
   const entry = async dir => (await readFile(path.join(dir, "index.html"), "utf8")).match(/src="(\/assets\/index-[^"]+\.js)"/)?.[1];
   const oldEntry = await entry(previous), currentEntry = await entry(candidate);
   assert.ok(oldEntry && currentEntry && oldEntry !== currentEntry, "Expected distinct previous and candidate builds");
+  if (published) assert.equal(oldEntry, "/assets/index-D5LSrCbJ.js");
   root = path.resolve(previous);
 }
 const shots = path.join(tmpdir(), "dp-owner-draft-" + randomUUID());
 await mkdir(shots);
-const api = "https://stand-in.supabase.invalid";
+// Both API hostnames are fulfilled by the synthetic fixture below. In published
+// replay Chrome also has a dead proxy for every non-loopback destination.
+const api = published ? "https://kguqylyzgyzfktkfnhjb.supabase.co" : "https://stand-in.supabase.invalid";
 const type = {
   ".js": "text/javascript",
   ".css": "text/css",
@@ -51,7 +56,10 @@ const server = createServer(async (req, res) => {
 });
 await new Promise((ok) => server.listen(0, "127.0.0.1", ok));
 const base = "http://127.0.0.1:" + server.address().port;
-const browser = await chromium.launch({ channel: "chrome", headless: true });
+const browser = await chromium.launch({
+  channel: "chrome", headless: true,
+  args: published ? ["--proxy-server=http://127.0.0.1:1", "--disable-background-networking"] : [],
+});
 const owner = randomUUID(),
   business = randomUUID(),
   wrongOwner = randomUUID(),

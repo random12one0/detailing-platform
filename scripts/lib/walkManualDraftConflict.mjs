@@ -9,7 +9,16 @@ export async function walk({ ctx, page, base, owner, business, shots, previous, 
   const save = tab => form(tab).getByRole("button", { name: "Save draft on this device", exact: true });
   const done = tab => form(tab).getByText("Draft saved on this device.", { exact: true });
   const conflict = tab => form(tab).getByRole("alert").filter({ hasText: "Copy any answers" });
-  const copies = () => page.evaluate(k => [k, k + ".saved"].map(id => JSON.parse(localStorage.getItem(id))), key);
+  const copies = () => page.evaluate(k => new Promise((resolve, reject) => {
+    const open = indexedDB.open("dp.ownerSetup.drafts", 1);
+    open.onerror = () => reject(open.error);
+    open.onsuccess = () => {
+      const db = open.result, read = db.transaction("drafts").objectStore("drafts").get(k);
+      read.onsuccess = () => resolve([JSON.parse(localStorage.getItem(k)), JSON.parse(read.result?.text ?? null)]);
+      read.onerror = () => reject(read.error);
+      db.close();
+    };
+  }), key);
   const editAndSave = async (tab, text) => {
     await field(tab).fill(text);
     await save(tab).click();
@@ -74,6 +83,15 @@ export async function walk({ ctx, page, base, owner, business, shots, previous, 
     await field(resetter).fill("");
     const first = resetWins ? resetter : editor;
     const second = resetWins ? editor : resetter;
+    // Reproduce the older localStorage snapshot observed between Chrome tabs,
+    // even after the losing writer acquires its Web Lock. Keep its real IDB.
+    await second.evaluate(k => {
+      const get = Storage.prototype.getItem;
+      const previous = new Map([k,k+".saved"].map(id => [id,localStorage.getItem(id)]));
+      Storage.prototype.getItem = function(id) {
+        return this === localStorage && previous.has(id) ? previous.get(id) : get.call(this,id);
+      };
+    }, key);
     await page.evaluate(k => new Promise(ready => {
       navigator.locks.request(k, () => new Promise(release => { window.releaseFixtureLock=release; ready(); }));
     }), key);
@@ -105,6 +123,27 @@ export async function walk({ ctx, page, base, owner, business, shots, previous, 
     assert.equal((await copies())[0].name, "Keep through rollback");
   }
   await noLocks.close();
+  const noDb = await open(() => Object.defineProperty(window, "indexedDB", {value:undefined}));
+  assert.equal(await field(noDb).inputValue(), "Keep through rollback");
+  await field(noDb).fill("Recover these unsaved words");
+  await save(noDb).click();
+  await form(noDb).getByText("This browser cannot safely save the draft. Copy your answers before closing this tab.").waitFor();
+  assert.equal(await field(noDb).inputValue(), "Recover these unsaved words");
+  await noDb.close();
+  const full = await open();
+  await full.evaluate(k => {
+    const set = Storage.prototype.setItem;
+    Storage.prototype.setItem = function(id,value) {
+      if (id === k) throw new DOMException("Fixture quota","QuotaExceededError");
+      return set.call(this,id,value);
+    };
+  }, key);
+  await field(full).fill("Uncommitted text");
+  await save(full).click();
+  await form(full).getByText("Could not save this draft. Check your access and browser storage.").waitFor();
+  assert.equal(await field(full).inputValue(), "Uncommitted text");
+  assert.deepEqual(await copies(), [{name:"Keep through rollback"},{name:"Keep through rollback"}]);
+  await full.close();
   previous();
   await page.reload();
   assert.equal(await field(page).inputValue(), "Keep through rollback");
@@ -120,5 +159,20 @@ export async function walk({ ctx, page, base, owner, business, shots, previous, 
   await page.reload();
   assert.equal(await field(page).inputValue(), "Edited during rollback");
   assert.deepEqual(await copies(), [{name:"Edited during rollback"},{name:"Edited during rollback"}]);
+  const nav = form(page).locator(".sq-index details");
+  if (!await nav.evaluate(el => el.open)) await nav.locator("summary").click();
+  await nav.getByRole("button", {name:"Existing website",exact:true}).click();
+  await form(page).getByLabel("Website address").fill("https://fictional.example");
+  await save(page).click();
+  await done(page).waitFor();
+  await page.getByRole("button",{name:"Website draft",exact:true}).click();
+  const website = page.getByRole("textbox",{name:"Your current website"});
+  assert.equal(await website.inputValue(), "https://fictional.example/");
+  await website.fill("https://edited.example");
+  await page.getByRole("button",{name:"Save website draft",exact:true}).click();
+  await page.getByRole("status").filter({hasText:"Draft saved on this device."}).first().waitFor();
+  await page.getByRole("button",{name:"Shop setup",exact:true}).click();
+  await page.getByRole("button",{name:"Website draft",exact:true}).click();
+  assert.equal(await website.inputValue(),"https://edited.example");
   console.log("PASS: old draft upgraded, old writer isolated, conflict text copied across tabs, save/reset race in both orders, unsafe edit/reset blocked, previous and current builds reopen the successful save.");
 }

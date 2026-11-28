@@ -7,9 +7,9 @@ import SiteIntake from "../screens/SiteIntake.jsx";
 import { websiteAnswers } from "./website.js";
 import "./strings.js";
 import "./draft.css";
-function readLocal(key, read = k => localStorage.getItem(k)) {
+function readLocal(key) {
   try {
-    return JSON.parse(read(key) || "{}");
+    return JSON.parse(localStorage.getItem(key) || "{}");
   } catch {
     return {};
   }
@@ -51,7 +51,7 @@ export default function OwnerDraft({ owner, business, signOut }) {
       if (p === "website") {
         const edited = readLocal(key + ".website");
         setWebsite({
-          answers: websiteAnswers(readLocal(key, savedAnswers), edited.edited),
+          answers: websiteAnswers(await savedAnswers(key), edited.edited),
           step: edited.step ?? 0,
         });
       }
@@ -62,7 +62,7 @@ export default function OwnerDraft({ owner, business, signOut }) {
   }
   async function saveWebsite(next, step) {
     await authorize();
-    const base = websiteAnswers(readLocal(key, savedAnswers));
+    const base = websiteAnswers(await savedAnswers(key));
     const edited = Object.fromEntries(
       Object.entries(next).filter(
         ([k, v]) => JSON.stringify(v) !== JSON.stringify(base[k]),

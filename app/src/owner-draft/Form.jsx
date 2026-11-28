@@ -31,12 +31,22 @@ function display(field, value) {
     return value.map((r) => r.q + "\n" + r.a).join("\n\n");
   return answerText(field, value);
 }
-export default function Form({ business, owner, call }) {
-  const key = "dp.ownerSetup.v1." + owner + "." + business.id;
-  const original = useRef(null);
+export default function Form(props) {
+  const key = "dp.ownerSetup.v1." + props.owner + "." + props.business.id;
+  const [initial, setInitial] = useState(null);
+  useEffect(() => {
+    let mounted = true;
+    draftCopies(key).then(value => { if (mounted) setInitial(value); });
+    return () => { mounted = false; };
+  }, [key]);
+  if (!initial) return <p role="status">{t("Opening shop setup.")}</p>;
+  return <Questions {...props} storageKey={key} initial={initial} />;
+}
+
+function Questions({ business, owner, call, storageKey: key, initial }) {
+  const original = useRef(initial);
   const [answers, setAnswers] = useState(() => {
       try {
-        original.current = draftCopies(key);
         const stored = original.current.current ?? original.current.legacy;
         return cleanAnswers(stored ? JSON.parse(stored) : {});
       } catch {
@@ -60,11 +70,13 @@ export default function Form({ business, owner, call }) {
     window.scrollTo(0, 0);
   }, [step]);
   useEffect(() => {
-    const check = () => {
-      try {
-        setStale(!sameCopies(original.current, draftCopies(key)));
-      } catch {
-        // The save operation reports an unavailable browser store.
+    let mounted = true;
+    const check = async () => {
+      const starting = original.current;
+      const latest = await draftCopies(key);
+      if (mounted && starting === original.current && !sameCopies(starting, latest)) {
+        setStale(true);
+        setNote("");
       }
     };
     const changed = event => {
@@ -74,6 +86,7 @@ export default function Form({ business, owner, call }) {
     window.addEventListener("focus", check);
     check();
     return () => {
+      mounted = false;
       window.removeEventListener("storage", changed);
       window.removeEventListener("focus", check);
     };
@@ -112,12 +125,12 @@ export default function Form({ business, owner, call }) {
       if (session.owner !== owner || session.business !== business.id)
         throw Error();
       const next = JSON.stringify(clean);
-      await saveAnswers(key, original.current, next);
-      original.current = { legacy: next, current: next };
+      original.current = await saveAnswers(key, original.current, next);
+      setStale(false);
       setSaved(true);
       setNote(t("Draft saved on this device."));
     } catch (error) {
-      if (error.message === "changed") setStale(true);
+      if (error.message === "changed") { setStale(true); setNote(""); }
       else setNote(t(error.message === "lock unavailable"
         ? "This browser cannot safely save the draft. Copy your answers before closing this tab."
         : "Could not save this draft. Check your access and browser storage."));
